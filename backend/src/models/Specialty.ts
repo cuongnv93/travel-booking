@@ -15,6 +15,7 @@ export interface ISpecialty extends Document {
   image: string;
   price: number;
   region: string;
+  location: string;
   isActive: boolean;
   createdAt: Date;
 }
@@ -26,6 +27,7 @@ const specialtySchema = new Schema<ISpecialty>({
   image: { type: String, required: true },
   price: { type: Number, required: true },
   region: { type: String, required: true },
+  location: { type: String, default: 'Việt Nam' },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });

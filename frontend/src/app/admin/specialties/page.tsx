@@ -31,6 +31,7 @@ export default function AdminSpecialtiesPage() {
   const [image, setImage] = useState('');
   const [price, setPrice] = useState(50000);
   const [region, setRegion] = useState('Miền Bắc');
+  const [location, setLocation] = useState('Hà Nội');
 
   const { data: specialties = [], isLoading } = useQuery({
     queryKey: ['admin-specialties'],
@@ -78,7 +79,7 @@ export default function AdminSpecialtiesPage() {
 
   const resetForm = () => {
     setEditingItem(null);
-    setNameVi(''); setNameEn(''); setDescVi(''); setImage(''); setPrice(50000); setRegion('Miền Bắc');
+    setNameVi(''); setNameEn(''); setDescVi(''); setImage(''); setPrice(50000); setRegion('Miền Bắc'); setLocation('Hà Nội');
   };
 
   const openCreateModal = () => { resetForm(); setIsModalOpen(true); };
@@ -91,6 +92,7 @@ export default function AdminSpecialtiesPage() {
     setImage(item.image || '');
     setPrice(item.price || 50000);
     setRegion(item.region || 'Miền Bắc');
+    setLocation(item.location || 'Hà Nội');
     setIsModalOpen(true);
   };
 
@@ -116,6 +118,7 @@ export default function AdminSpecialtiesPage() {
       image: image || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800',
       price: Number(price),
       region,
+      location,
     });
   };
 
@@ -219,6 +222,12 @@ export default function AdminSpecialtiesPage() {
                     {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Tỉnh / Thành phố *</label>
+                <input required value={location} onChange={e => setLocation(e.target.value)} placeholder="VD: Hà Nội, Đà Nẵng, Thừa Thiên Huế..."
+                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
               </div>
 
               {/* Image upload */}

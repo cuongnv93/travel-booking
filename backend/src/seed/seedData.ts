@@ -29,7 +29,9 @@ export const seedDataInternal = async () => {
     const userCount = await User.countDocuments();
     if (userCount > 0) {
       console.log('Database already contains data. Dropping database for re-seed...');
+      if (mongoose.connection.db) {
       await mongoose.connection.db.dropDatabase();
+    }
     }
 
     console.log('Seeding initial data into database...');
@@ -648,7 +650,7 @@ export const seedDataInternal = async () => {
       }
     ]);
 
-    // ========== SPECIALTIES (6 items) ==========
+    // ========== SPECIALTIES (9 items) ==========
     await Specialty.create([
       {
         slug: 'pho-ha-noi',
@@ -660,6 +662,7 @@ export const seedDataInternal = async () => {
         image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800',
         price: 60000,
         region: 'Miền Bắc',
+        location: 'Hà Nội'
       },
       {
         slug: 'bun-cha-ha-noi',
@@ -671,6 +674,19 @@ export const seedDataInternal = async () => {
         image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800',
         price: 50000,
         region: 'Miền Bắc',
+        location: 'Hà Nội'
+      },
+      {
+        slug: 'bun-bo-hue',
+        name: createI18n('Bún Bò Huế Chuẩn Vị Cố Đô', 'Authentic Hue Beef Noodle Soup'),
+        description: createI18n(
+          'Bún bò Huế – món ăn đậm đà vị sả, mắm ruốc đặc trưng cố đô, sợi bún to tròn ăn kèm nạm bò, chả cua, huyết và giò heo béo ngậy thơm nức.',
+          'Hue beef noodle soup – rich flavor of lemongrass and traditional shrimp paste, thick round noodles served with beef flank, crab sausage, and pork trotters.'
+        ),
+        image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
+        price: 55000,
+        region: 'Miền Trung',
+        location: 'Thừa Thiên Huế'
       },
       {
         slug: 'mi-quang-da-nang',
@@ -682,17 +698,31 @@ export const seedDataInternal = async () => {
         image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800',
         price: 45000,
         region: 'Miền Trung',
+        location: 'Đà Nẵng'
       },
       {
-        slug: 'banh-trang-thit-heo-da-nang',
-        name: createI18n('Bánh Tráng Thịt Heo Đà Nẵng', 'Da Nang Pork Roll Rice Paper'),
+        slug: 'cao-lau-hoi-an',
+        name: createI18n('Cao Lầu Phố Cổ Hội An', 'Hoi An Ancient Town Cao Lau'),
         description: createI18n(
-          'Món ăn không ở đâu có ngoài Đà Nẵng. Bánh tráng trắng mỏng cuộn thịt luộc, rau sống, dưa leo, ăn kèm mắm nêm đặc biệt của người Quảng. Mộc mạc mà tinh tế.',
-          'A dish found nowhere else but Da Nang. Thin white rice paper rolled with boiled pork, fresh vegetables, cucumber, served with special Quang-style shrimp paste. Simple yet sophisticated.'
+          'Cao lầu – tinh hoa ẩm thực xứ Quảng với sợi mì vàng giòn đặc chế ngâm nước tro giếng Bá Lễ, ăn kèm xá xíu đậm vị, da heo chiên giòn và rau sống Trà Quế.',
+          'Cao Lau – the culinary essence of Quang province with chewy noodles soaked in Ba Le well ash water, served with savory char siu pork, crispy pork skin, and Tra Que herbs.'
         ),
-        image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800',
-        price: 40000,
+        image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800',
+        price: 45000,
         region: 'Miền Trung',
+        location: 'Quảng Nam'
+      },
+      {
+        slug: 'nem-nuong-nha-trang',
+        name: createI18n('Nem Nướng Nha Trang Đậm Đà', 'Nha Trang Grilled Pork Rolls'),
+        description: createI18n(
+          'Nem nướng lợn tươi nướng than hồng thơm nức, cuộn bánh tráng giòn rum, rau thơm đa dạng và chấm cùng nước sốt nếp thịt béo ngậy trứ danh.',
+          'Charcoal-grilled pork rolls wrapped in crispy rice paper with fresh fragrant herbs, dipped in famous rich creamy sticky-rice pork sauce.'
+        ),
+        image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800',
+        price: 60000,
+        region: 'Miền Trung',
+        location: 'Khánh Hòa'
       },
       {
         slug: 'banh-mi-sai-gon',
@@ -704,6 +734,19 @@ export const seedDataInternal = async () => {
         image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
         price: 25000,
         region: 'Miền Nam',
+        location: 'TP. Hồ Chí Minh'
+      },
+      {
+        slug: 'com-tam-sai-gon',
+        name: createI18n('Cơm Tấm Sài Gòn Sườn Bì Chả', 'Saigon Broken Rice with Pork Ribs'),
+        description: createI18n(
+          'Cơm tấm Sài Gòn – niềm tự hào ẩm thực phương Nam. Hạt cơm tấm dẻo quánh, sườn nướng mật ong thơm lừng, bì giòn sần sật, chả trứng béo ngậy và nước mắm kẹo chua ngọt.',
+          'Saigon broken rice – pride of Southern cuisine. Fragrant broken rice served with honey-marinated grilled pork ribs, crispy pork skin, egg loaf and sweet sticky fish sauce.'
+        ),
+        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800',
+        price: 50000,
+        region: 'Miền Nam',
+        location: 'TP. Hồ Chí Minh'
       },
       {
         slug: 'hu-tieu-nam-vang',
@@ -715,6 +758,7 @@ export const seedDataInternal = async () => {
         image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800',
         price: 55000,
         region: 'Miền Nam',
+        location: 'TP. Hồ Chí Minh'
       },
     ]);
 
