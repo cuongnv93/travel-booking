@@ -65,9 +65,13 @@ export default function SpecialtiesPage() {
       const desc = getI18nText(s.description, locale).toLowerCase();
       const query = searchQuery.toLowerCase().trim();
 
-      const matchesQuery = !query || name.includes(query) || desc.includes(query);
+      const loc = (s.location || '').toLowerCase();
+      const cleanFilter = selectedLocation.toLowerCase().replace(/^(tp\.|thành phố|tỉnh)\s*/gi, '').trim();
+      const cleanLoc = loc.replace(/^(tp\.|thành phố|tỉnh)\s*/gi, '').trim();
+
+      const matchesQuery = !query || name.includes(query) || desc.includes(query) || loc.includes(query);
       const matchesRegion = !selectedRegion || s.region === selectedRegion;
-      const matchesLocation = !selectedLocation || s.location === selectedLocation;
+      const matchesLocation = !selectedLocation || cleanLoc.includes(cleanFilter) || cleanFilter.includes(cleanLoc);
 
       return matchesQuery && matchesRegion && matchesLocation;
     });
