@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Flight from '../models/Flight';
+import { fetchLiveAmadeusFlights } from '../services/flightApiService';
 
 const AIRLINES_CONFIG = [
   { name: 'Vietravel Airlines', logo: 'VU', prefix: 'VU', basePrice: 890000 },
@@ -10,17 +11,25 @@ const AIRLINES_CONFIG = [
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const { from = 'SGN', to = 'HAN' } = req.query;
+    const { from = 'SGN', to = 'HAN', date } = req.query;
     const fromCode = (from as string).toUpperCase();
     const toCode = (to as string).toUpperCase();
+    const departDate = date as string;
 
+    // 1. Try Live Amadeus API if credentials are set in .env
+    const liveFlights = await fetchLiveAmadeusFlights(fromCode, toCode, departDate);
+    if (liveFlights && liveFlights.length > 0) {
+      return res.json(liveFlights);
+    }
+
+    // 2. Query MongoDB for existing flights
     const filter: any = { isAvailable: { $ne: false } };
     if (fromCode) filter.from = fromCode;
     if (toCode) filter.to = toCode;
 
     let flights = await Flight.find(filter).sort({ price: 1 }).lean();
 
-    // If no exact match in DB, generate realistic dynamic flights (including Vietravel Airlines)
+    // 3. Fallback: generate realistic dynamic flights (including Vietravel Airlines)
     if (!flights || flights.length === 0) {
       const generated: any[] = [];
       const times = [
