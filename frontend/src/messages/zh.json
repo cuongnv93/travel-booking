@@ -509,7 +509,9 @@
     "support247Desc": "客服人员随时协助改签及购买额外套数行李。",
     "hotSuggestions": "热门推荐",
     "hotComboSub": "将机票与五星级跟团游结合预订，享受超值优惠",
-    "viewAllTours": "查看所有线路"
+    "viewAllTours": "查看所有线路",
+    "instantTicketTitle": "即时电子机票",
+    "instantTicketDesc": "付款后立即将预订代码和电子机票直接发送至您的邮箱。"
   },
   "filters": {
     "destinations": "按地区筛选",

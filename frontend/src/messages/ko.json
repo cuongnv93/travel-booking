@@ -509,7 +509,9 @@
     "support247Desc": "언제든 일정 변경 및 수하물 추가 지원",
     "hotSuggestions": "추천 상품",
     "hotComboSub": "5성급 패키지 투어와 항공권을 결합해 최저가로 즐기세요",
-    "viewAllTours": "모든 투어 보기"
+    "viewAllTours": "모든 투어 보기",
+    "instantTicketTitle": "즉시 전자 티켓 발급",
+    "instantTicketDesc": "결제 직후 이메일로 예약 코드와 전자 티켓이 즉시 전송됩니다."
   },
   "filters": {
     "destinations": "지역별 필터",

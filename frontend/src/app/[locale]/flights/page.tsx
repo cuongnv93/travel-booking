@@ -6,7 +6,7 @@ import api from '@/lib/api';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Plane, Calendar, Users, ShieldCheck, Clock, Headphones, Loader2, X, CheckCircle2, Flame, ChevronRight } from 'lucide-react';
+import { Plane, Calendar, Users, ShieldCheck, Clock, Headphones, Loader2, X, CheckCircle2, Flame, ChevronRight, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { formatPrice } from '@/lib/utils';
 import TourCard from '@/components/tours/TourCard';
@@ -420,7 +420,7 @@ export default function FlightsPage() {
       )}
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4">
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-6 h-6" />
@@ -438,6 +438,16 @@ export default function FlightsPage() {
           <div>
             <h4 className="font-bold text-slate-900 mb-1">{t('holdSeatTitle')}</h4>
             <p className="text-xs text-slate-500 leading-relaxed">{t('holdSeatDesc')}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <Ticket className="w-6 h-6" />
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 mb-1">{t('instantTicketTitle')}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t('instantTicketDesc')}</p>
           </div>
         </div>
 

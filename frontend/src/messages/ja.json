@@ -509,7 +509,9 @@
     "support247Desc": "航空券の変更や受託手荷物の追加をいつでもサポート。",
     "hotSuggestions": "おすすめプラン",
     "hotComboSub": "航空券と5つ星パッケージツアーを組み合わせて最安値で予約",
-    "viewAllTours": "すべてのツアーを見る"
+    "viewAllTours": "すべてのツアーを見る",
+    "instantTicketTitle": "即時Eチケット発行",
+    "instantTicketDesc": "お支払い完了後、Eチケットと予約コードがすぐにメールへ送信されます。"
   },
   "filters": {
     "destinations": "地域で絞り込む",

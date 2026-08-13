@@ -509,7 +509,9 @@
     "support247Desc": "Agents available 24/7 for ticket changes and extra baggage purchases.",
     "hotSuggestions": "Hot Suggestions",
     "hotComboSub": "Combine flights with 5-star package tours at the best rates",
-    "viewAllTours": "View all tours"
+    "viewAllTours": "View all tours",
+    "instantTicketTitle": "Instant E-Ticket",
+    "instantTicketDesc": "Receive booking code & e-ticket sent directly to your Email/WhatsApp instantly."
   },
   "filters": {
     "destinations": "Filter by region",

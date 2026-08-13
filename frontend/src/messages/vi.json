@@ -509,7 +509,9 @@
     "support247Desc": "Tổng đài viên sẵn sàng hỗ trợ đổi vé, mua thêm hành lý mọi lúc.",
     "hotSuggestions": "Gợi Ý Hấp Dẫn",
     "hotComboSub": "Kết hợp đặt vé máy bay cùng các tour du lịch trọn gói 5 sao giá ưu đãi nhất",
-    "viewAllTours": "Xem tất cả tour"
+    "viewAllTours": "Xem tất cả tour",
+    "instantTicketTitle": "Vé Điện Tử Tức Thì",
+    "instantTicketDesc": "Nhận mã đặt chỗ & vé điện tử gửi thẳng qua Email/Zalo ngay sau khi thanh toán."
   },
   "filters": {
     "destinations": "Lọc theo khu vực",
