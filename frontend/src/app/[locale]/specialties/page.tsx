@@ -7,6 +7,8 @@ import { formatPrice, getI18nText } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 
+import { fetchVietnamProvinces, VIETNAM_PROVINCES } from '@/lib/provinces';
+
 const fetchSpecialties = async () => {
   const res: any = await api.get('/specialties');
   return Array.isArray(res) ? res : (res?.data || []);
@@ -22,6 +24,12 @@ export default function SpecialtiesPage() {
   const { data: specialties = [], isLoading } = useQuery({
     queryKey: ['specialties'],
     queryFn: fetchSpecialties,
+  });
+
+  const { data: provinces = VIETNAM_PROVINCES } = useQuery({
+    queryKey: ['vietnam-provinces'],
+    queryFn: fetchVietnamProvinces,
+    staleTime: 1000 * 60 * 60 * 24,
   });
 
   const { data: settings = [] } = useQuery({
@@ -126,8 +134,8 @@ export default function SpecialtiesPage() {
               onChange={(e) => setSelectedLocation(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 font-medium appearance-none focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all cursor-pointer"
             >
-              <option value="">Tất cả Tỉnh / Thành phố ({availableLocations.length})</option>
-              {availableLocations.map((loc) => (
+              <option value="">Tất cả {provinces.length} Tỉnh / Thành phố</option>
+              {provinces.map((loc: string) => (
                 <option key={loc} value={loc}>
                   📍 {loc}
                 </option>

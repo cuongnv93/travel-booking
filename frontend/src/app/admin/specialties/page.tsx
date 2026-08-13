@@ -7,6 +7,8 @@ import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice, getI18nText } from '@/lib/utils';
 
+import { fetchVietnamProvinces, VIETNAM_PROVINCES } from '@/lib/provinces';
+
 const fetchSpecialties = async () => {
   const res: any = await api.get('/specialties');
   return Array.isArray(res) ? res : (res?.data || []);
@@ -37,6 +39,12 @@ export default function AdminSpecialtiesPage() {
     queryKey: ['admin-specialties'],
     queryFn: fetchSpecialties,
     placeholderData: keepPreviousData,
+  });
+
+  const { data: provinces = VIETNAM_PROVINCES } = useQuery({
+    queryKey: ['vietnam-provinces'],
+    queryFn: fetchVietnamProvinces,
+    staleTime: 1000 * 60 * 60 * 24,
   });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,8 +234,10 @@ export default function AdminSpecialtiesPage() {
 
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">Tỉnh / Thành phố *</label>
-                <input required value={location} onChange={e => setLocation(e.target.value)} placeholder="VD: Hà Nội, Đà Nẵng, Thừa Thiên Huế..."
-                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
+                <select value={location} onChange={e => setLocation(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white">
+                  {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
 
               {/* Image upload */}
