@@ -101,6 +101,12 @@ function ReviewCard({ review, locale }: { review: any; locale: string }) {
   );
 }
 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
 export default function Testimonials() {
   const t = useTranslations('testimonials');
   const locale = (useParams()?.locale as string) || 'vi';
@@ -120,30 +126,8 @@ export default function Testimonials() {
       ? reviewsSetting
       : DEFAULT_REVIEWS;
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  // Auto-play timer (3.5 seconds per slide)
-  useEffect(() => {
-    if (isPaused || baseReviews.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % baseReviews.length);
-    }, 3500);
-
-    return () => clearInterval(timer);
-  }, [baseReviews.length, isPaused]);
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + baseReviews.length) % baseReviews.length);
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % baseReviews.length);
-  };
-
   return (
     <section className="py-16 bg-slate-50/60 relative overflow-hidden">
-      {/* Section Header */}
       <div className="container mx-auto px-4 md:px-6 text-center mb-12">
         <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-2">
           {t('tag', { fallback: 'Ý KIẾN KHÁCH HÀNG' })}
@@ -154,63 +138,35 @@ export default function Testimonials() {
         <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full" />
       </div>
 
-      {/* Carousel Container */}
-      <div 
-        className="container mx-auto px-4 md:px-6 relative"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-      >
-        {/* Navigation Buttons */}
-        <button
-          onClick={prevSlide}
-          aria-label="Previous review"
-          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-blue-600 flex items-center justify-center border border-slate-200/80 shadow-lg hover:scale-110 transition-all cursor-pointer"
+      <div className="container mx-auto px-4 md:px-12 relative">
+        <Swiper
+          modules={[Autoplay, Navigation, Pagination]}
+          spaceBetween={24}
+          slidesPerView={1}
+          loop={true}
+          autoplay={{ delay: 3500, disableOnInteraction: false }}
+          navigation={{
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          }}
+          pagination={{ clickable: true, el: '.custom-pagination' }}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          }}
+          className="!pb-12"
         >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-
-        <button
-          onClick={nextSlide}
-          aria-label="Next review"
-          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-blue-600 flex items-center justify-center border border-slate-200/80 shadow-lg hover:scale-110 transition-all cursor-pointer"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </button>
-
-        {/* Sliding Viewport */}
-        <div className="overflow-hidden px-2 md:px-8 py-2">
-          <div
-            className="flex transition-transform duration-700 ease-out"
-            style={{
-              transform: `translateX(-${currentIndex * 100}%)`,
-            }}
-          >
-            {baseReviews.map((review, idx) => (
-              <div
-                key={review.id || idx}
-                className="w-full sm:w-1/2 lg:w-1/3 shrink-0 px-3"
-              >
-                <ReviewCard review={review} locale={locale} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dot Indicators */}
-        <div className="flex justify-center items-center gap-2 mt-8">
-          {baseReviews.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                currentIndex === idx
-                  ? 'w-8 bg-blue-600'
-                  : 'w-2.5 bg-slate-300 hover:bg-slate-400'
-              }`}
-            />
+          {baseReviews.map((review, idx) => (
+            <SwiperSlide key={review.id || idx} className="h-auto">
+              <ReviewCard review={review} locale={locale} />
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
+
+        <button className="swiper-button-prev !left-0 !w-11 !h-11 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-lg"></button>
+        <button className="swiper-button-next !right-0 !w-11 !h-11 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-lg"></button>
+        
+        <div className="custom-pagination flex justify-center gap-2 mt-4"></div>
       </div>
     </section>
   );
