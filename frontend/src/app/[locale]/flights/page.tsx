@@ -292,44 +292,43 @@ export default function FlightsPage() {
             const isVietjet = flight.airline?.includes('Vietjet') || flight.logo === 'VJ';
             
             return (
-              <div key={flight._id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all group">
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl font-bold text-sm flex flex-col items-center justify-center shrink-0 shadow-xs border ${
-                    isVietravel ? 'bg-gradient-to-br from-amber-400 to-yellow-500 text-blue-950 border-amber-300' :
-                    isVietnamAir ? 'bg-gradient-to-br from-blue-900 to-teal-800 text-yellow-300 border-blue-800' :
-                    isVietjet ? 'bg-gradient-to-br from-red-600 to-rose-700 text-yellow-300 border-red-500' :
-                    'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-emerald-500'
+              <div key={flight._id} className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all group">
+                <div className="flex items-center gap-3.5 min-w-[280px]">
+                  <div className={`w-12 h-12 rounded-xl font-bold text-sm flex items-center justify-center shrink-0 shadow-xs border ${
+                    isVietravel ? 'bg-amber-400 text-blue-950 border-amber-300' :
+                    isVietnamAir ? 'bg-blue-900 text-yellow-300 border-blue-800' :
+                    isVietjet ? 'bg-red-600 text-white border-red-500' :
+                    'bg-emerald-600 text-white border-emerald-500'
                   }`}>
                     <span>{flight.logo || 'VN'}</span>
-                    <span className="text-[9px] uppercase tracking-tighter opacity-80">{isVietravel ? 'VU' : flight.logo}</span>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-slate-900 text-base">{flight.airline}</h4>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-bold text-slate-900 text-base leading-snug">{flight.airline}</h4>
                       {isVietravel && (
-                        <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <span className="bg-amber-100/90 text-amber-900 border border-amber-300/80 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
                           {t('vietravelPartner')}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 font-semibold mt-0.5">{flight.flightNumber} | {t('directFlight')}</p>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">{flight.flightNumber} • {t('directFlight')}</p>
                   </div>
                 </div>
 
-                <div className="text-center bg-slate-50 px-6 py-2 rounded-xl border border-slate-100">
-                  <p className="text-lg font-bold text-slate-900 tracking-tight">{flight.departureTime} &rarr; {flight.arrivalTime}</p>
+                <div className="text-center bg-slate-50 px-6 py-2.5 rounded-xl border border-slate-100/80 min-w-[180px]">
+                  <p className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-none mb-1">{flight.departureTime} &rarr; {flight.arrivalTime}</p>
                   <p className="text-xs text-slate-500 font-medium">{t('duration')}: {flight.duration || '2h 15m'}</p>
                 </div>
 
-                <div className="text-right flex items-center gap-4 self-end md:self-auto">
+                <div className="text-right flex items-center gap-4 self-end md:self-auto min-w-[200px] justify-end">
                   <div>
                     <p className="text-xs text-slate-400">{t('taxIncluded')}</p>
-                    <p className="text-2xl font-bold text-orange-600">{formatPrice(flight.price)}</p>
+                    <p className="text-2xl font-bold text-orange-600 leading-tight">{formatPrice(flight.price)}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setSelectedFlight(flight)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer whitespace-nowrap"
                   >
                     {t('bookFlightBtn')}
                   </button>
