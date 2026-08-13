@@ -14,11 +14,11 @@ const connectDB = async (): Promise<void> => {
 
     try {
       console.log('Attempting connection to MongoDB at:', mongoUri);
-      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 3000 });
+      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 15000 });
       console.log('✅ Connected to Persistent MongoDB Database!');
-    } catch (err) {
+    } catch (err: any) {
       if (process.env.NODE_ENV === 'production') {
-        console.error('❌ Failed to connect to MongoDB in production. Please check MONGODB_URI.');
+        console.error('❌ Failed to connect to MongoDB in production:', err?.message || err);
         process.exit(1);
       }
       console.log('⚠️ Local MongoDB not running. Falling back to Persistent Mongo Server (dbPath)...');
