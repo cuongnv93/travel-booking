@@ -75,7 +75,8 @@ export default function TourBookingForm({ tour, selectedDateFromParent }: TourBo
     }
 
     addItem({
-      tour: tour as unknown as Tour,
+      type: 'tour',
+      itemData: tour as unknown as Tour,
       travelDate: date,
       guests: { adults, children },
       totalPrice
