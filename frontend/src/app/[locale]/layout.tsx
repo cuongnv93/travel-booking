@@ -11,7 +11,8 @@ import NavigationProgress from '@/components/layout/NavigationProgress';
 
 export const generateMetadata = ({ params: { locale } }: { params: { locale: string } }): Metadata => {
   const isVi = locale === 'vi';
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
+  const ogImageUrl = `${baseUrl}/og-image.jpg`;
 
   return {
     title: {
@@ -40,7 +41,7 @@ export const generateMetadata = ({ params: { locale } }: { params: { locale: str
       type: 'website',
       images: [
         {
-          url: 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200&h=630&fit=crop',
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: 'Travel Booking - Khám phá thế giới'
@@ -51,7 +52,7 @@ export const generateMetadata = ({ params: { locale } }: { params: { locale: str
       card: 'summary_large_image',
       title: 'Travel - Nền Tảng Đặt Tour Du Lịch Hàng Đầu',
       description: 'Đặt tour du lịch uy tín, vé máy bay, khách sạn giá tốt nhất.',
-      images: ['https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200&h=630&fit=crop'],
+      images: [ogImageUrl],
     },
     robots: {
       index: true,

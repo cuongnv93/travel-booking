@@ -19,10 +19,10 @@ export const metadata: Metadata = {
     siteName: "Travel Booking",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://travel-booking-ruby.vercel.app/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Travel Booking Thumbnail",
+        alt: "Travel Booking - Nền Tảng Đặt Tour Du Lịch Hàng Đầu Việt Nam",
       }
     ],
     locale: "vi_VN",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Travel - Nền Tảng Đặt Tour Du Lịch Hàng Đầu Việt Nam",
     description: "Khám phá các điểm đến hấp dẫn và trải nghiệm hành trình du lịch tuyệt vời cùng Travel.",
-    images: ["/og-image.jpg"],
+    images: ["https://travel-booking-ruby.vercel.app/og-image.jpg"],
   },
   icons: {
     icon: "/favicon.ico",
