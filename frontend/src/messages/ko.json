@@ -339,17 +339,21 @@
   "lookup": {
     "heroTitle": "투어 예약 조회",
     "heroSub": "예약 코드(예: TRV-123456)를 입력하여 여행 상태를 확인하세요",
-    "placeholder": "예약 코드 입력",
+    "placeholder": "투어 예약 코드 입력",
     "lookupBtn": "지금 조회하기",
     "orderCode": "주문 코드",
     "confirmed": "확인됨",
     "cancelled": "취소됨",
-    "pending": "처리 중",
+    "pending": "대기 중",
     "customerInfo": "고객 정보",
-    "tripDetails": "여행 세부정보",
-    "depDate": "출발일:",
-    "guestsInfo": "게스트:",
-    "totalAmt": "총액:"
+    "tripDetails": "여행 상세 정보",
+    "depDate": "출발일",
+    "guestsInfo": "인원 수",
+    "totalAmt": "총 결제 금액",
+    "notFoundError": "해당 예약 코드로 주문을 찾을 수 없습니다. 다시 확인해 주세요!",
+    "adults": "성인",
+    "children": "아동",
+    "defaultTourTitle": "여행 서비스"
   },
   "success": {
     "heroTitle": "예약 성공!",

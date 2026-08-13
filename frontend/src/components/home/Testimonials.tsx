@@ -163,8 +163,8 @@ export default function Testimonials() {
           ))}
         </Swiper>
 
-        <button className="swiper-button-prev !left-0 !w-11 !h-11 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-lg"></button>
-        <button className="swiper-button-next !right-0 !w-11 !h-11 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-lg"></button>
+        <button className="swiper-button-prev !left-0 !w-9 !h-9 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-sm"></button>
+        <button className="swiper-button-next !right-0 !w-9 !h-9 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-sm"></button>
         
         <div className="custom-pagination flex justify-center gap-2 mt-4"></div>
       </div>

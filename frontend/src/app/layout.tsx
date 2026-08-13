@@ -9,16 +9,17 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Travel - Khám phá thế giới",
-  description: "Nền tảng đặt tour du lịch hàng đầu Việt Nam",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app'),
+  title: "Travel - Nền Tảng Đặt Tour Du Lịch Hàng Đầu Việt Nam",
+  description: "Khám phá các điểm đến hấp dẫn và trải nghiệm hành trình du lịch tuyệt vời cùng Travel.",
   openGraph: {
-    title: "Travel - Khám phá thế giới",
-    description: "Nền tảng đặt tour du lịch hàng đầu Việt Nam. Khám phá hàng ngàn khách sạn, tour du lịch và chuyến bay với giá ưu đãi nhất.",
-    url: "https://travel-booking-9oxn.onrender.com", // Fallback URL, should ideally be the vercel domain
+    title: "Travel - Nền Tảng Đặt Tour Du Lịch Hàng Đầu Việt Nam",
+    description: "Khám phá các điểm đến hấp dẫn và trải nghiệm hành trình du lịch tuyệt vời cùng Travel.",
+    url: "https://travel-booking-ruby.vercel.app",
     siteName: "Travel Booking",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&q=80",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Travel Booking Thumbnail",
@@ -29,18 +30,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Travel - Khám phá thế giới",
-    description: "Nền tảng đặt tour du lịch hàng đầu Việt Nam",
-    images: ["https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&q=80"],
+    title: "Travel - Nền Tảng Đặt Tour Du Lịch Hàng Đầu Việt Nam",
+    description: "Khám phá các điểm đến hấp dẫn và trải nghiệm hành trình du lịch tuyệt vời cùng Travel.",
+    images: ["/og-image.jpg"],
   },
   icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: 'https://cdn-icons-png.flaticon.com/512/2060/2060284.png', type: 'image/png' },
-    ],
-    apple: [
-      { url: 'https://cdn-icons-png.flaticon.com/512/2060/2060284.png', sizes: '180x180', type: 'image/png' },
-    ],
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
   }
 };
 

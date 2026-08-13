@@ -165,7 +165,7 @@ export default function HeroBanner() {
               {titleText}
             </h1>
 
-            <p className="text-base md:text-2xl text-blue-100 mb-8 font-light max-w-2xl drop-shadow-md">
+            <p className="text-sm md:text-xl text-blue-100 mb-8 font-light max-w-2xl drop-shadow-md">
               {subtitleText}
             </p>
 

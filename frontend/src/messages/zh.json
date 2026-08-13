@@ -337,19 +337,23 @@
     "anotherMsgBtn": "发送其他信息"
   },
   "lookup": {
-    "heroTitle": "查询旅游订单",
-    "heroSub": "输入预订代码 (例如: TRV-123456) 以检查行程状态",
-    "placeholder": "输入预订代码",
+    "heroTitle": "查询预订订单",
+    "heroSub": "输入预订代码（例如：TRV-123456）以查看行程状态",
+    "placeholder": "请输入行程预订代码",
     "lookupBtn": "立即查询",
-    "orderCode": "订单号",
+    "orderCode": "订单编号",
     "confirmed": "已确认",
     "cancelled": "已取消",
-    "pending": "待处理",
+    "pending": "处理中",
     "customerInfo": "客户信息",
     "tripDetails": "行程详情",
-    "depDate": "出发日期:",
-    "guestsInfo": "客人数量:",
-    "totalAmt": "总额:"
+    "depDate": "出发日期",
+    "guestsInfo": "出行人数",
+    "totalAmt": "支付总额",
+    "notFoundError": "未找到该预订代码的订单，请重新检查！",
+    "adults": "成人",
+    "children": "儿童",
+    "defaultTourTitle": "旅游服务"
   },
   "success": {
     "heroTitle": "预订成功！",

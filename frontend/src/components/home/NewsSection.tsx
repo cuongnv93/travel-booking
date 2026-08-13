@@ -65,10 +65,10 @@ export default function NewsSection() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <Link href={`/${locale}/news`}>
-                  <Card className="flex flex-col sm:flex-row overflow-hidden hover:shadow-lg transition-all group h-full border border-slate-200/80 rounded-2xl">
-                    <div className="sm:w-2/5 h-48 sm:h-auto bg-slate-900 relative overflow-hidden shrink-0">
-                      <img src={thumb} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute top-3 left-3">
+                  <Card className="flex flex-col sm:flex-row overflow-hidden hover:shadow-lg transition-all group sm:h-52 border border-slate-200/80 rounded-2xl">
+                    <div className="sm:w-2/5 h-48 sm:h-full bg-slate-900 relative overflow-hidden shrink-0">
+                      <img src={thumb} alt={title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-3 left-3 z-10">
                         <span className="bg-blue-600/90 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm">
                           {item.category || 'Travel'}
                         </span>

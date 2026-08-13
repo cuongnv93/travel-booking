@@ -63,7 +63,7 @@ export default function NewsPage() {
           <span className="bg-emerald-600/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">
             📰 Cẩm Nang & Kinh Nghiệm
           </span>
-          <h1 className="text-3xl md:text-5xl font-extrabold mb-3 tracking-tight">Tin Tức & Cẩm Nang Du Lịch</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">Tin Tức & Cẩm Nang Du Lịch</h1>
           <p className="text-emerald-100/90 text-sm md:text-base leading-relaxed">
             Cập nhật kinh nghiệm, địa điểm và xu hướng du lịch mới nhất.
           </p>
@@ -101,7 +101,7 @@ export default function NewsPage() {
             <Link href={`/${locale}/news/${featured.slug}`}
               className="group block bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
               <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/2 h-60 md:h-auto bg-slate-800 relative overflow-hidden">
+                <div className="md:w-1/2 h-64 md:h-[420px] bg-slate-800 relative overflow-hidden shrink-0">
                   <img src={featured.thumbnail || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800'}
                     alt={getI18nText(featured.title, locale)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

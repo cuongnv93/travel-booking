@@ -347,9 +347,13 @@
     "pending": "Đang chờ xử lý",
     "customerInfo": "Thông tin khách hàng",
     "tripDetails": "Chi tiết chuyến đi",
-    "depDate": "Ngày khởi hành:",
-    "guestsInfo": "Số khách:",
-    "totalAmt": "Tổng thanh toán:"
+    "depDate": "Ngày khởi hành",
+    "guestsInfo": "Số khách",
+    "totalAmt": "Tổng thanh toán",
+    "notFoundError": "Không tìm thấy đơn hàng với mã đặt chỗ này. Vui lòng kiểm tra lại!",
+    "adults": "người lớn",
+    "children": "trẻ em",
+    "defaultTourTitle": "Dịch vụ du lịch"
   },
   "success": {
     "heroTitle": "Đặt Chỗ Thành Công!",

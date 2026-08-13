@@ -347,9 +347,13 @@
     "pending": "保留中",
     "customerInfo": "顧客情報",
     "tripDetails": "旅行の詳細",
-    "depDate": "出発日:",
-    "guestsInfo": "ゲスト数:",
-    "totalAmt": "合計金額:"
+    "depDate": "出発日",
+    "guestsInfo": "ゲスト数",
+    "totalAmt": "合計金額",
+    "notFoundError": "この予約コードの注文が見つかりません。もう一度ご確認ください！",
+    "adults": "大人",
+    "children": "子供",
+    "defaultTourTitle": "旅行サービス"
   },
   "success": {
     "heroTitle": "予約完了！",

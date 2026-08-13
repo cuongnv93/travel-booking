@@ -28,8 +28,8 @@ export const seedDataInternal = async () => {
   try {
     const userCount = await User.countDocuments();
     if (userCount > 0) {
-      console.log('Database already contains data. Skipping initial seeding.');
-      return;
+      console.log('Database already contains data. Dropping database for re-seed...');
+      await mongoose.connection.db.dropDatabase();
     }
 
     console.log('Seeding initial data into database...');
@@ -450,24 +450,73 @@ export const seedDataInternal = async () => {
       },
     ]);
 
-    // ========== HOTELS (4 hotels) ==========
+    // ========== HOTELS (2 hotels with full room/policy details) ==========
     await Hotel.create([
       {
         slug: 'hanoi-luxury-hotel',
-        name: createI18n('Hà Nội Luxury Boutique Hotel', 'Hanoi Luxury Boutique Hotel'),
+        name: createI18n('Khách sạn Super Candle', 'Super Candle Hotel'),
         description: createI18n(
-          'Khách sạn boutique sang trọng ngay trung tâm phố cổ Hà Nội, chỉ 5 phút đi bộ đến Hồ Gươm. Mỗi phòng được thiết kế tinh tế mang phong cách Đông Dương hiện đại.',
-          'Luxury boutique hotel in the heart of Hanoi\'s Old Quarter, only 5 minutes walk from Hoan Kiem Lake. Each room is exquisitely designed in modern Indochina style.'
+          'Tọa lạc tại trung tâm Hà Nội, Khách sạn Super Candle mang đến không gian nghỉ dưỡng sang trọng với đầy đủ tiện nghi hiện đại.',
+          'Located in the heart of Hanoi, Super Candle Hotel offers luxurious accommodation with full modern amenities.'
         ),
         images: [
-          'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
-          'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1542314831-c6a4d14d8373?q=80&w=1600&auto=format&fit=crop'
         ],
-        pricePerNight: 1200000,
+        pricePerNight: 1000000,
         stars: 4,
         location: 'Hà Nội',
-        address: '15 Hàng Bông, Hoàn Kiếm, Hà Nội',
-        amenities: ['WiFi miễn phí', 'Hồ bơi', 'Buffet sáng', 'Spa & Massage', 'Phòng gym', 'Bar roof-top', 'Đưa đón sân bay'],
+        address: '287-301 Đội Cấn, Liễu Giai, Ba Đình, Hà Nội',
+        amenities: ['WiFi miễn phí', 'Hồ bơi trong nhà', 'Nhà hàng', 'Phòng gym', 'Spa & Massage', 'Lễ tân 24h'],
+        policies: [
+          'Nhận phòng: Từ 14:00',
+          'Trả phòng: Trước 12:00',
+          'Trẻ em dưới 6 tuổi được ngủ chung giường miễn phí (Tối đa 1 trẻ/phòng)',
+          'Không cho phép mang theo thú cưng',
+          'Yêu cầu CCCD hoặc Hộ chiếu khi nhận phòng'
+        ],
+        locationDetails: {
+          lat: 21.0362,
+          lng: 105.8156,
+          nearbyPlaces: [
+            { name: 'Lăng Chủ tịch Hồ Chí Minh', distance: '1.5 km' },
+            { name: 'Văn Miếu Quốc Tử Giám', distance: '2.5 km' },
+            { name: 'Hồ Tây', distance: '1.8 km' }
+          ]
+        },
+        rooms: [
+          {
+            name: 'Phòng Superior Double/Twin',
+            description: 'Phòng tiêu chuẩn với thiết kế ấm cúng, phù hợp cho cặp đôi hoặc chuyến công tác.',
+            price: 1000000,
+            capacity: { adults: 2, children: 1 },
+            size: 28,
+            bedType: '1 Giường đôi hoặc 2 Giường đơn',
+            amenities: ['Điều hòa', 'TV màn hình phẳng', 'Tủ lạnh mini', 'Máy sấy tóc', 'Nước suối miễn phí'],
+            images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800&auto=format&fit=crop']
+          },
+          {
+            name: 'Phòng Deluxe City View',
+            description: 'Phòng rộng rãi với cửa sổ lớn nhìn ra toàn cảnh thành phố Hà Nội.',
+            price: 1350000,
+            capacity: { adults: 2, children: 1 },
+            size: 32,
+            bedType: '1 Giường đôi lớn',
+            amenities: ['View thành phố', 'Bồn tắm', 'Áo choàng tắm', 'Máy pha cà phê', 'Bàn làm việc'],
+            images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=800&auto=format&fit=crop']
+          },
+          {
+            name: 'Phòng Suite Cao Cấp',
+            description: 'Trải nghiệm đỉnh cao với không gian phòng khách riêng biệt và tiện ích cao cấp nhất.',
+            price: 2500000,
+            capacity: { adults: 2, children: 2 },
+            size: 55,
+            bedType: '1 Giường King siêu lớn',
+            amenities: ['Phòng khách riêng', 'View toàn cảnh', 'Bồn tắm sục Jacuzzi', 'Trái cây chào mừng', 'Dịch vụ VIP'],
+            images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop']
+          }
+        ]
       },
       {
         slug: 'danang-ocean-resort',
@@ -477,14 +526,37 @@ export const seedDataInternal = async () => {
           '5-star luxury resort located directly on My Khe Beach – one of the most beautiful beaches on the planet. All rooms face the ocean with stunning sunrise views.'
         ),
         images: [
-          'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800',
-          'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+          'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop',
         ],
         pricePerNight: 3500000,
         stars: 5,
         location: 'Đà Nẵng',
         address: '168 Võ Nguyên Giáp, Mỹ Khê, Đà Nẵng',
         amenities: ['WiFi miễn phí', 'Bãi biển riêng', 'Hồ bơi vô cực', 'Buffet sáng', 'Spa 5 sao', 'Nhà hàng fine dining', 'Kids club', 'Đưa đón sân bay'],
+        policies: [
+          'Nhận phòng: Từ 15:00',
+          'Trả phòng: Trước 12:00',
+          'Không hút thuốc trong phòng',
+          'Có phụ thu trẻ em'
+        ],
+        locationDetails: {
+          lat: 16.0601,
+          lng: 108.2483,
+          nearbyPlaces: [{ name: 'Bãi biển Mỹ Khê', distance: '0.1 km' }, { name: 'Cầu Rồng', distance: '3 km' }]
+        },
+        rooms: [
+          {
+            name: 'Ocean View Deluxe',
+            description: 'Phòng Deluxe hướng biển trực diện tuyệt đẹp.',
+            price: 3500000,
+            capacity: { adults: 2, children: 1 },
+            size: 40,
+            bedType: '1 Giường đôi siêu lớn',
+            amenities: ['Ban công', 'Bồn tắm', 'Minibar', 'Trà & Cà phê'],
+            images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=800&auto=format&fit=crop']
+          }
+        ]
       },
       {
         slug: 'phu-quoc-paradise-resort',
@@ -502,6 +574,38 @@ export const seedDataInternal = async () => {
         location: 'Phú Quốc',
         address: 'Bãi Sao, An Thới, Phú Quốc, Kiên Giang',
         amenities: ['WiFi miễn phí', 'Bãi biển riêng', 'Hồ bơi', 'Lặn ngắm san hô', 'Buffet sáng', 'Bar & Nhà hàng', 'Yoga & Thiền'],
+        policies: [
+          'Nhận phòng: Từ 14:00',
+          'Trả phòng: Trước 12:00',
+          'Miễn phí bữa sáng cho tối đa 2 người'
+        ],
+        locationDetails: {
+          lat: 10.0354,
+          lng: 104.0305,
+          nearbyPlaces: [{ name: 'Bãi Sao', distance: '0.5 km' }, { name: 'Cáp treo Hòn Thơm', distance: '5 km' }]
+        },
+        rooms: [
+          {
+            name: 'Eco Bungalow Garden View',
+            description: 'Bungalow gỗ sinh thái hướng vườn nhiệt đới.',
+            price: 2800000,
+            capacity: { adults: 2, children: 1 },
+            size: 45,
+            bedType: '1 Giường đôi lớn',
+            amenities: ['Ban công', 'Vòi sen ngoài trời', 'Minibar', 'Lưới chống muỗi'],
+            images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800']
+          },
+          {
+            name: 'Beachfront Villa with Pool',
+            description: 'Biệt thự sát biển với hồ bơi vô cực riêng.',
+            price: 8500000,
+            capacity: { adults: 4, children: 2 },
+            size: 120,
+            bedType: '2 Giường King',
+            amenities: ['Hồ bơi riêng', 'View biển trực diện', 'Bồn tắm', 'Quản gia riêng'],
+            images: ['https://images.unsplash.com/photo-1542314831-c6a4d14d8373?w=800']
+          }
+        ]
       },
       {
         slug: 'sapa-mountain-lodge',
@@ -519,7 +623,29 @@ export const seedDataInternal = async () => {
         location: 'Sa Pa',
         address: '8 Nguyễn Chí Thanh, Sa Pa, Lào Cai',
         amenities: ['WiFi miễn phí', 'Lò sưởi', 'Tắm ngâm thảo mộc', 'Bữa sáng kiểu dân tộc', 'Tour trekking', 'Thuê xe máy'],
-      },
+        policies: [
+          'Nhận phòng: Từ 13:00',
+          'Trả phòng: Trước 11:00',
+          'Cho phép mang theo thú cưng nhỏ'
+        ],
+        locationDetails: {
+          lat: 22.3364,
+          lng: 103.8438,
+          nearbyPlaces: [{ name: 'Nhà thờ đá Sa Pa', distance: '1.2 km' }, { name: 'Núi Hàm Rồng', distance: '2 km' }]
+        },
+        rooms: [
+          {
+            name: 'Standard Mountain View',
+            description: 'Phòng tiêu chuẩn ấm cúng với ban công nhìn ra thung lũng Mường Hoa.',
+            price: 850000,
+            capacity: { adults: 2, children: 1 },
+            size: 25,
+            bedType: '1 Giường đôi',
+            amenities: ['Lò sưởi', 'Ban công', 'Trà thảo mộc'],
+            images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800']
+          }
+        ]
+      }
     ]);
 
     // ========== SPECIALTIES (6 items) ==========

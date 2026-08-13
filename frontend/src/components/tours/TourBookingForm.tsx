@@ -138,7 +138,7 @@ export default function TourBookingForm({ tour, selectedDateFromParent }: TourBo
         )}
 
         {/* Guests count */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mt-4">
           <div>
             <label className="text-xs sm:text-sm font-bold text-slate-700 block mb-1">Người lớn (&ge;12t)</label>
             <Input

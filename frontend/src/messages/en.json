@@ -347,9 +347,13 @@
     "pending": "Pending",
     "customerInfo": "Customer info",
     "tripDetails": "Trip details",
-    "depDate": "Departure date:",
-    "guestsInfo": "Guests:",
-    "totalAmt": "Total Amount:"
+    "depDate": "Departure date",
+    "guestsInfo": "Guests",
+    "totalAmt": "Total Amount",
+    "notFoundError": "No booking found with this code. Please check again!",
+    "adults": "adults",
+    "children": "children",
+    "defaultTourTitle": "Travel service"
   },
   "success": {
     "heroTitle": "Booking Successful!",
