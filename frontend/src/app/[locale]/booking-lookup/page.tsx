@@ -41,10 +41,14 @@ export default function BookingLookupPage() {
     <div className="min-h-screen bg-slate-50/50 pb-20 pt-28">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header Section */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 text-white p-8 md:p-12 mb-10 overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="relative rounded-3xl text-white p-8 md:p-12 mb-10 overflow-hidden shadow-2xl"
+             style={{ 
+               backgroundImage: 'url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2000&auto=format&fit=crop")',
+               backgroundSize: 'cover',
+               backgroundPosition: 'center'
+             }}>
+          <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px] pointer-events-none" />
+          
           <div className="relative z-10 text-center max-w-2xl mx-auto">
             <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/15 text-blue-200 text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider mb-4">
               <Ticket className="w-3.5 h-3.5 text-blue-400" />

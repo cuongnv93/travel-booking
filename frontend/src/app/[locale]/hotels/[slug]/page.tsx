@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { formatPrice, getI18nText } from '@/lib/utils';
@@ -25,6 +26,7 @@ const AMENITY_ICONS: Record<string, string> = {
 };
 
 export default function HotelDetailPage() {
+  const t = useTranslations('hotelDetail');
   const { locale, slug } = useParams() as { locale: string; slug: string };
   const router = useRouter();
   const [activeImg, setActiveImg] = useState(0);
@@ -84,27 +86,27 @@ export default function HotelDetailPage() {
       setError('');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    onError: (err: any) => setError(err.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.'),
+    onError: (err: any) => setError(err.response?.data?.message || t('error')),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRoom) {
-      setError('Vui lòng chọn một loại phòng.');
+      setError(t('errSelectRoom'));
       const roomSection = document.getElementById('rooms-section');
       if (roomSection) roomSection.scrollIntoView({ behavior: 'smooth' });
       return;
     }
     if (!formData.name || !formData.email || !formData.phone) {
-      setError('Vui lòng điền đầy đủ Họ tên, Email và Số điện thoại.');
+      setError(t('errFillInfo'));
       return;
     }
     if (!formData.checkIn || !formData.checkOut) {
-      setError('Vui lòng chọn ngày nhận phòng và trả phòng.');
+      setError(t('errSelectDates'));
       return;
     }
     if (nights <= 0) {
-      setError('Ngày trả phòng phải sau ngày nhận phòng.');
+      setError(t('errInvalidDates'));
       return;
     }
     setError('');
@@ -122,7 +124,7 @@ export default function HotelDetailPage() {
     return (
       <div className="container mx-auto px-4 py-20 mt-20 flex flex-col items-center">
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-        <p className="text-slate-500">Đang tải thông tin khách sạn...</p>
+        <p className="text-slate-500">{t('loadingHotel')}</p>
       </div>
     );
   }
@@ -130,8 +132,8 @@ export default function HotelDetailPage() {
   if (isError || !hotel) {
     return (
       <div className="container mx-auto px-4 py-20 mt-20 text-center">
-        <p className="text-2xl font-bold text-slate-800 mb-2">Không tìm thấy khách sạn</p>
-        <Link href={`/${locale}/hotels`} className="text-blue-600 hover:underline text-sm">← Quay lại danh sách</Link>
+        <p className="text-2xl font-bold text-slate-800 mb-2">{t('hotelNotFound')}</p>
+        <Link href={`/${locale}/hotels`} className="text-blue-600 hover:underline text-sm">&larr; {t('backToList')}</Link>
       </div>
     );
   }
@@ -147,7 +149,7 @@ export default function HotelDetailPage() {
         <div className="container mx-auto px-4 pt-6">
           <Link href={`/${locale}/hotels`}
             className="inline-flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium mb-4 transition-colors">
-            <ChevronLeft className="w-4 h-4" /> Quay lại danh sách
+            <ChevronLeft className="w-4 h-4" /> {t('backToList')}
           </Link>
         </div>
 
@@ -180,11 +182,11 @@ export default function HotelDetailPage() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-3">Đặt Phòng Thành Công!</h2>
-            <p className="text-slate-600 mb-8 text-lg">Cảm ơn bạn. Chúng tôi sẽ liên hệ để xác nhận yêu cầu đặt phòng của bạn trong thời gian sớm nhất.</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">{t('bookingSuccessTitle')}</h2>
+            <p className="text-slate-600 mb-8 text-lg">{t('bookingSuccessDesc')}</p>
             <div className="flex gap-4 justify-center">
-              <button onClick={() => { setSuccess(false); setSelectedRoom(null); }} className="px-6 py-2.5 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50">Đặt thêm phòng</button>
-              <Link href={`/${locale}`} className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700">Về trang chủ</Link>
+              <button onClick={() => { setSuccess(false); setSelectedRoom(null); }} className="px-6 py-2.5 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50">{t('bookAnotherRoom')}</button>
+              <Link href={`/${locale}`} className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700">{t('backToHome')}</Link>
             </div>
           </div>
         ) : (
@@ -209,7 +211,7 @@ export default function HotelDetailPage() {
                   <span>{hotel.address}</span>
                 </p>
                 <div className="border-t border-slate-100 pt-5">
-                  <h2 className="text-lg font-bold text-slate-900 mb-3">Giới thiệu</h2>
+                  <h2 className="text-lg font-bold text-slate-900 mb-3">{t('introduction')}</h2>
                   <p className="text-slate-600 leading-relaxed">{description}</p>
                 </div>
               </div>
@@ -217,7 +219,7 @@ export default function HotelDetailPage() {
               {/* Amenities */}
               {hotel.amenities?.length > 0 && (
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                  <h2 className="text-xl font-bold text-slate-900 mb-5">Tiện nghi khách sạn</h2>
+                  <h2 className="text-xl font-bold text-slate-900 mb-5">{t('hotelAmenities')}</h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {hotel.amenities.map((item: string, i: number) => (
                       <div key={i} className="flex items-center gap-3">
@@ -231,7 +233,7 @@ export default function HotelDetailPage() {
 
               {/* Rooms List */}
               <div id="rooms-section" className="scroll-mt-24">
-                <h2 className="text-2xl font-bold text-slate-900 mb-5">Chọn phòng</h2>
+                <h2 className="text-2xl font-bold text-slate-900 mb-5">{t('chooseRoom')}</h2>
                 
                 {hotel.rooms && hotel.rooms.length > 0 ? (
                   <div className="space-y-4">
@@ -249,7 +251,7 @@ export default function HotelDetailPage() {
                               <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900">{room.name}</h3>
                                 {selectedRoom?._id === room._id && (
-                                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1"><Check className="w-3 h-3"/> Đã chọn</span>
+                                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1"><Check className="w-3 h-3"/> {t('selected')}</span>
                                 )}
                               </div>
                               <p className="text-slate-500 text-sm mb-4 line-clamp-2">{room.description}</p>
@@ -257,7 +259,7 @@ export default function HotelDetailPage() {
                               <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 text-sm text-slate-600">
                                 <span className="flex items-center gap-1.5"><Maximize className="w-4 h-4 text-slate-400" /> {room.size} m²</span>
                                 <span className="flex items-center gap-1.5"><BedDouble className="w-4 h-4 text-slate-400" /> {room.bedType}</span>
-                                <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-slate-400" /> {room.capacity?.adults} Người lớn {room.capacity?.children > 0 && `, ${room.capacity?.children} Trẻ em`}</span>
+                                <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-slate-400" /> {room.capacity?.adults} {t('adults')} {room.capacity?.children > 0 && `, ${room.capacity?.children} ${t('children')}`}</span>
                               </div>
 
                               {/* Room Amenities */}
@@ -275,13 +277,13 @@ export default function HotelDetailPage() {
                             {/* Price & Action */}
                             <div className="flex items-end justify-between mt-4 pt-4 border-t border-slate-100">
                               <div>
-                                <p className="text-xs text-slate-500 mb-0.5">Giá mỗi đêm</p>
+                                <p className="text-xs text-slate-500 mb-0.5">{t('pricePerNight')}</p>
                                 <p className="text-2xl font-bold text-orange-500">{formatPrice(room.price)}</p>
                               </div>
                               <button 
                                 onClick={() => handleSelectRoom(room)}
                                 className={`px-6 py-2.5 rounded-xl font-bold transition-colors ${selectedRoom?._id === room._id ? 'bg-blue-100 text-blue-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
-                                {selectedRoom?._id === room._id ? 'Đang chọn' : 'Chọn phòng'}
+                                {selectedRoom?._id === room._id ? t('selecting') : t('selectRoomBtn')}
                               </button>
                             </div>
                           </div>
@@ -291,7 +293,7 @@ export default function HotelDetailPage() {
                   </div>
                 ) : (
                   <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
-                    <p className="text-slate-500">Khách sạn đang cập nhật thông tin phòng. Vui lòng quay lại sau.</p>
+                    <p className="text-slate-500">{t('noRooms')}</p>
                   </div>
                 )}
               </div>
@@ -300,7 +302,7 @@ export default function HotelDetailPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Policies */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                  <h2 className="text-xl font-bold text-slate-900 mb-4">Quy định chỗ nghỉ</h2>
+                  <h2 className="text-xl font-bold text-slate-900 mb-4">{t('policies')}</h2>
                   {hotel.policies && hotel.policies.length > 0 ? (
                     <ul className="space-y-3">
                       {hotel.policies.map((policy: string, i: number) => (
@@ -311,13 +313,13 @@ export default function HotelDetailPage() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-slate-500">Chưa có thông tin quy định.</p>
+                    <p className="text-sm text-slate-500">{t('noPolicies')}</p>
                   )}
                 </div>
 
                 {/* Location Details */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                  <h2 className="text-xl font-bold text-slate-900 mb-4">Vị trí & Xung quanh</h2>
+                  <h2 className="text-xl font-bold text-slate-900 mb-4">{t('locationAndSurroundings')}</h2>
                   {hotel.locationDetails ? (
                     <div className="space-y-4">
                       {hotel.locationDetails.lat && hotel.locationDetails.lng && (
@@ -330,19 +332,19 @@ export default function HotelDetailPage() {
                             allowFullScreen={false} 
                             loading="lazy" 
                             referrerPolicy="no-referrer-when-downgrade"
-                            title="Bản đồ khách sạn"
+                            title={t('hotelMap')}
                           ></iframe>
                           <a href={`https://www.google.com/maps/search/?api=1&query=${hotel.locationDetails.lat},${hotel.locationDetails.lng}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md border border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all">
-                            Mở Google Maps ↗
+                            {t('openGoogleMaps')}
                           </a>
                         </div>
                       )}
                       {hotel.locationDetails.nearbyPlaces && hotel.locationDetails.nearbyPlaces.length > 0 && (
                         <div>
-                          <p className="text-sm font-bold text-slate-700 mb-2">Gần các địa điểm nổi tiếng:</p>
+                          <p className="text-sm font-bold text-slate-700 mb-2">{t('nearbyPlaces')}</p>
                           <ul className="space-y-2">
                             {hotel.locationDetails.nearbyPlaces.map((place: any, i: number) => (
                               <li key={i} className="flex justify-between items-center text-sm">
@@ -355,7 +357,7 @@ export default function HotelDetailPage() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-slate-500">Chưa có thông tin vị trí chi tiết.</p>
+                    <p className="text-sm text-slate-500">{t('noLocationDetails')}</p>
                   )}
                 </div>
               </div>
@@ -363,14 +365,14 @@ export default function HotelDetailPage() {
             </div>
 
             {/* Right Column: Sticky Booking Form */}
-            <div className="w-full lg:w-[400px] shrink-0" id="booking-form-section">
-              <div className="bg-white border border-slate-200 rounded-3xl shadow-xl p-6 sticky top-24">
-                <h3 className="text-xl font-bold text-slate-900 mb-1">Thông tin đặt phòng</h3>
+            <div className="w-full lg:w-[400px] shrink-0 lg:sticky lg:top-24 h-fit" id="booking-form-section">
+              <div className="bg-white border border-slate-200 rounded-3xl shadow-xl p-6">
+                <h3 className="text-xl font-bold text-slate-900 mb-1">{t('bookingInfo')}</h3>
                 <p className="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-100">
                   {selectedRoom ? (
-                    <span>Đã chọn: <strong className="text-blue-600">{selectedRoom.name}</strong></span>
+                    <span>{t('selectedLabel')} <strong className="text-blue-600">{selectedRoom.name}</strong></span>
                   ) : (
-                    <span>Vui lòng chọn phòng ở danh sách bên cạnh để tiếp tục.</span>
+                    <span>{t('pleaseSelectRoom')}</span>
                   )}
                 </p>
 
@@ -385,7 +387,7 @@ export default function HotelDetailPage() {
                   {/* Dates */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">Nhận phòng *</label>
+                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('checkIn')}</label>
                       <div className="relative">
                         <CalendarDays className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                         <input type="date" value={formData.checkIn} min={new Date().toISOString().split('T')[0]}
@@ -394,7 +396,7 @@ export default function HotelDetailPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">Trả phòng *</label>
+                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('checkOut')}</label>
                       <div className="relative">
                         <CalendarDays className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                         <input type="date" value={formData.checkOut} min={formData.checkIn || new Date().toISOString().split('T')[0]}
@@ -407,7 +409,7 @@ export default function HotelDetailPage() {
                   {/* Rooms & Guests */}
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">Phòng</label>
+                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('roomCount')}</label>
                       <div className="relative">
                         <BedDouble className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                         <input type="number" min={1} max={10} value={formData.roomsCount}
@@ -416,13 +418,13 @@ export default function HotelDetailPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">Người lớn</label>
+                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('adults')}</label>
                       <input type="number" min={1} max={20} value={formData.adults}
                         onChange={e => setFormData(p => ({ ...p, adults: Number(e.target.value) }))}
                         className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">Trẻ em</label>
+                      <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('children')}</label>
                       <input type="number" min={0} max={10} value={formData.children}
                         onChange={e => setFormData(p => ({ ...p, children: Number(e.target.value) }))}
                         className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
@@ -430,13 +432,13 @@ export default function HotelDetailPage() {
                   </div>
 
                   <div className="border-t border-slate-100 pt-4 mt-2">
-                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">Họ và tên *</label>
+                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('fullName')}</label>
                     <input value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
                       placeholder="Nguyễn Văn A"
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">Email *</label>
+                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('email')}</label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                       <input type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
@@ -445,7 +447,7 @@ export default function HotelDetailPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">Số điện thoại *</label>
+                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('phone')}</label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                       <input type="tel" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
@@ -454,9 +456,9 @@ export default function HotelDetailPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">Ghi chú</label>
+                    <label className="text-sm font-semibold text-slate-700 block mb-1.5">{t('notes')}</label>
                     <textarea rows={2} value={formData.notes} onChange={e => setFormData(p => ({ ...p, notes: e.target.value }))}
-                      placeholder="Yêu cầu đặc biệt, giờ đón sân bay..."
+                      placeholder={t('notesPlaceholder')}
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none" />
                   </div>
 
@@ -467,22 +469,22 @@ export default function HotelDetailPage() {
                         <span>{formatPrice(selectedRoom.price)} × {nights} đêm × {formData.roomsCount} phòng</span>
                       </div>
                       <div className="flex justify-between items-end border-t border-slate-200 pt-2">
-                        <span className="font-bold text-slate-900">Tổng cộng</span>
+                        <span className="font-bold text-slate-900">{t('total')}</span>
                         <span className="text-orange-500 text-2xl font-bold">{formatPrice(totalPrice)}</span>
                       </div>
                     </div>
                   ) : (
                     <div className="bg-slate-50 rounded-2xl p-4 mt-2 border border-slate-100 text-center">
-                      <p className="text-sm text-slate-500">Vui lòng chọn phòng và ngày lưu trú để xem tổng giá.</p>
+                      <p className="text-sm text-slate-500">{t('pleaseSelectDates')}</p>
                     </div>
                   )}
 
                   <button type="submit" disabled={bookingMutation.isPending || !selectedRoom}
                     className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 mt-2 text-lg">
                     {bookingMutation.isPending ? (
-                      <><Loader2 className="w-5 h-5 animate-spin" />Đang xử lý...</>
+                      <><Loader2 className="w-5 h-5 animate-spin" />{t('processing')}</>
                     ) : (
-                      <>Xác Nhận Đặt Phòng <ArrowRight className="w-5 h-5" /></>
+                      <>{t('confirmBooking')} <ArrowRight className="w-5 h-5" /></>
                     )}
                   </button>
                 </form>
