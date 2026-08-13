@@ -12,16 +12,16 @@ import { formatPrice } from '@/lib/utils';
 import TourCard from '@/components/tours/TourCard';
 
 const AIRPORTS = [
-  { code: 'SGN', city: 'TP. Hồ Chí Minh', name: 'Tân Sơn Nhất' },
-  { code: 'HAN', city: 'Hà Nội', name: 'Nội Bài' },
-  { code: 'DAD', city: 'Đà Nẵng', name: 'Đà Nẵng' },
-  { code: 'PQC', city: 'Phú Quốc', name: 'Phú Quốc' },
-  { code: 'CXR', city: 'Nha Trang', name: 'Cam Ranh' },
-  { code: 'DLI', city: 'Đà Lạt', name: 'Liên Khương' },
-  { code: 'HUI', city: 'Huế', name: 'Phú Bài' },
-  { code: 'UIH', city: 'Quy Nhơn', name: 'Phù Cát' },
-  { code: 'VCL', city: 'Quảng Nam', name: 'Chu Lai' },
-  { code: 'HPH', city: 'Hải Phòng', name: 'Cát Bi' },
+  { code: 'SGN', name: 'Tân Sơn Nhất', cities: { vi: 'TP. Hồ Chí Minh', en: 'Ho Chi Minh City', ko: '호치민', ja: 'ホーチミン', zh: '胡志明市' } },
+  { code: 'HAN', name: 'Nội Bài', cities: { vi: 'Hà Nội', en: 'Hanoi', ko: '하노이', ja: 'ハノイ', zh: '河内' } },
+  { code: 'DAD', name: 'Đà Nẵng', cities: { vi: 'Đà Nẵng', en: 'Da Nang', ko: '다낭', ja: 'ダナン', zh: '岘港' } },
+  { code: 'PQC', name: 'Phú Quốc', cities: { vi: 'Phú Quốc', en: 'Phu Quoc', ko: '푸꾸옥', ja: 'フーコック', zh: '富国岛' } },
+  { code: 'CXR', name: 'Nha Trang', cities: { vi: 'Nha Trang', en: 'Nha Trang', ko: '나트랑', ja: 'ニャチャン', zh: '芽庄' } },
+  { code: 'DLI', name: 'Đà Lạt', cities: { vi: 'Đà Lạt', en: 'Da Lat', ko: '달랏', ja: 'ダラット', zh: '大叻' } },
+  { code: 'HUI', name: 'Huế', cities: { vi: 'Huế', en: 'Hue', ko: '후에', ja: 'フエ', zh: '顺化' } },
+  { code: 'UIH', name: 'Quy Nhơn', cities: { vi: 'Quy Nhơn', en: 'Quy Nhon', ko: '퀴논', ja: 'クイニョン', zh: '归仁' } },
+  { code: 'VCL', name: 'Quảng Nam', cities: { vi: 'Quảng Nam', en: 'Quang Nam', ko: '꽝남', ja: 'クアンナム', zh: '广南' } },
+  { code: 'HPH', name: 'Hải Phòng', cities: { vi: 'Hải Phòng', en: 'Hai Phong', ko: '하이퐁', ja: 'ハイフォン', zh: '海防' } },
 ];
 
 export default function FlightsPage() {
@@ -96,11 +96,11 @@ export default function FlightsPage() {
       if (bookingCode) {
         router.push(`/${locale}/booking-success?code=${bookingCode}`);
       } else {
-        alert('Đặt vé thành công! Chúng tôi sẽ liên hệ với bạn.');
+        alert(t('confirmBtn') + ' successful!');
         setSelectedFlight(null);
       }
     } catch (err: any) {
-      alert('Lỗi đặt vé: ' + (err.response?.data?.message || err.message));
+      alert('Error: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsSubmitting(false);
     }
@@ -135,6 +135,10 @@ export default function FlightsPage() {
     return 0;
   });
 
+  const getCityName = (ap: typeof AIRPORTS[0]) => {
+    return (ap.cities as any)[locale] || ap.cities.vi;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 mt-20 space-y-12">
       {/* Banner */}
@@ -146,81 +150,81 @@ export default function FlightsPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-slate-900/60 to-transparent flex flex-col justify-center px-8 md:px-12 text-white">
           <div className="inline-flex items-center gap-2 bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 text-xs font-extrabold px-3 py-1 rounded-full w-fit mb-3 uppercase tracking-wider backdrop-blur-md">
-            <Plane className="w-3.5 h-3.5" /> Đối tác vé máy bay Vietravel & Các Hãng Hàng Không 5★
+            <Plane className="w-3.5 h-3.5" /> {t('partnerBadge')}
           </div>
-          <h1 className="text-3xl md:text-5xl font-black mb-2 tracking-tight">
-            {t('heroTitle', { fallback: 'Vé Máy Bay Giá Rẻ & Ưu Đãi Giờ Vàng' })}
+          <h1 className="text-3xl md:text-5xl font-bold mb-2 tracking-tight">
+            {t('heroTitle')}
           </h1>
-          <p className="text-slate-200 text-sm md:text-base max-w-xl">
-            {t('heroSubtitle', { fallback: 'Tra cứu trực tuyến vé Vietravel Airlines, Vietnam Airlines, Vietjet Air & Bamboo Airways với giá tốt nhất thị trường.' })}
+          <p className="text-slate-200 text-sm md:text-base max-w-xl font-medium">
+            {t('heroSub')}
           </p>
         </div>
       </div>
 
       {/* Flight Search Form Card */}
-      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200/80 shadow-xl space-y-6">
+      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xl space-y-6">
         <div className="flex gap-4 mb-2">
           <button
             type="button"
             onClick={() => setTripType('roundtrip')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
-              tripType === 'roundtrip' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+              tripType === 'roundtrip' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            {t('roundTrip', { fallback: 'Khứ hồi' })}
+            {t('roundTrip')}
           </button>
           <button
             type="button"
             onClick={() => setTripType('oneway')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
-              tripType === 'oneway' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+              tripType === 'oneway' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            {t('oneWay', { fallback: 'Một chiều' })}
+            {t('oneWay')}
           </button>
         </div>
 
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
           <div>
-            <label className="font-semibold text-slate-700 block mb-1">{t('from', { fallback: 'Điểm đi' })}</label>
+            <label className="font-semibold text-slate-700 block mb-1.5">{t('from')}</label>
             <select
               value={fromCity}
               onChange={(e) => setFromCity(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+              className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 font-bold text-slate-900 focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               {AIRPORTS.map(ap => (
-                <option key={ap.code} value={ap.code}>{ap.code} - {ap.city} ({ap.name})</option>
+                <option key={ap.code} value={ap.code}>{ap.code} - {getCityName(ap)} ({ap.name})</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="font-semibold text-slate-700 block mb-1">{t('to', { fallback: 'Điểm đến' })}</label>
+            <label className="font-semibold text-slate-700 block mb-1.5">{t('to')}</label>
             <select
               value={toCity}
               onChange={(e) => setToCity(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 font-bold text-slate-900 focus:outline-none focus:border-blue-500"
+              className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 font-bold text-slate-900 focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               {AIRPORTS.map(ap => (
-                <option key={ap.code} value={ap.code}>{ap.code} - {ap.city} ({ap.name})</option>
+                <option key={ap.code} value={ap.code}>{ap.code} - {getCityName(ap)} ({ap.name})</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="font-semibold text-slate-700 block mb-1">{t('departDate', { fallback: 'Ngày đi' })}</label>
+            <label className="font-semibold text-slate-700 block mb-1.5">{t('departDate')}</label>
             <input
               type="date"
               value={departDate}
               onChange={(e) => setDepartDate(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 font-semibold text-slate-900 focus:outline-none focus:border-blue-500 font-mono"
+              className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 font-semibold text-slate-900 focus:outline-none focus:border-blue-500"
             />
           </div>
 
           <div className="flex items-end">
-            <Button type="submit" size="lg" className="w-full h-12 rounded-xl font-bold gap-2 text-sm">
+            <Button type="submit" size="lg" className="w-full h-12 rounded-xl font-bold gap-2 text-sm cursor-pointer">
               <Plane className="w-4 h-4" />
-              {t('searchBtn', { fallback: 'Tìm Chuyến Bay' })}
+              {t('searchBtn')}
             </Button>
           </div>
         </form>
@@ -228,21 +232,21 @@ export default function FlightsPage() {
 
       {/* Results Section */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
             <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <span>{searchParams.from}</span>
               <Plane className="w-5 h-5 text-blue-600" />
               <span>{searchParams.to}</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">Tìm thấy {filteredFlights.length} chuyến bay phù hợp</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('foundCount', { count: filteredFlights.length })}</p>
           </div>
 
           {/* Airline Filter Pills & Sort */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <div className="bg-slate-100 p-1 rounded-xl flex gap-1">
               {[
-                { code: 'ALL', label: 'Tất cả' },
+                { code: 'ALL', label: t('allAirlines') },
                 { code: 'VU', label: 'Vietravel Airlines' },
                 { code: 'VN', label: 'Vietnam Airlines' },
                 { code: 'VJ', label: 'Vietjet Air' },
@@ -252,8 +256,8 @@ export default function FlightsPage() {
                   key={al.code}
                   type="button"
                   onClick={() => setSelectedAirline(al.code)}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                    selectedAirline === al.code ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-500 hover:text-slate-700'
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                    selectedAirline === al.code ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {al.label}
@@ -264,10 +268,10 @@ export default function FlightsPage() {
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="border border-slate-200 rounded-xl px-3 py-1.5 bg-white text-slate-700 font-semibold focus:outline-none focus:border-blue-500"
+              className="border border-slate-200 rounded-xl px-3 py-1.5 bg-white text-slate-700 font-semibold focus:outline-none focus:border-blue-500 cursor-pointer"
             >
-              <option value="price">Giá thấp nhất</option>
-              <option value="time">Giờ bay sớm nhất</option>
+              <option value="price">{t('lowestPrice')}</option>
+              <option value="time">{t('earliestTime')}</option>
             </select>
           </div>
         </div>
@@ -275,11 +279,11 @@ export default function FlightsPage() {
         {isLoading ? (
           <div className="p-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-100">
             <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" />
-            Đang tìm kiếm chuyến bay...
+            {t('searching')}
           </div>
         ) : filteredFlights.length === 0 ? (
           <div className="p-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-100">
-            {t('noFlights', { fallback: 'Không tìm thấy chuyến bay phù hợp' })} <span className="font-bold">{searchParams.from}</span> đến <span className="font-bold">{searchParams.to}</span>. Thử thay đổi tuyến bay khác!
+            {t('noFlights')} <span className="font-bold">{searchParams.from}</span> &rarr; <span className="font-bold">{searchParams.to}</span>. {t('noFlightPrompt')}
           </div>
         ) : (
           filteredFlights.map((flight: any) => {
@@ -288,9 +292,9 @@ export default function FlightsPage() {
             const isVietjet = flight.airline?.includes('Vietjet') || flight.logo === 'VJ';
             
             return (
-              <div key={flight._id} className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all group">
+              <div key={flight._id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all group">
                 <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl font-black text-sm flex flex-col items-center justify-center shrink-0 shadow-xs border ${
+                  <div className={`w-14 h-14 rounded-2xl font-bold text-sm flex flex-col items-center justify-center shrink-0 shadow-xs border ${
                     isVietravel ? 'bg-gradient-to-br from-amber-400 to-yellow-500 text-blue-950 border-amber-300' :
                     isVietnamAir ? 'bg-gradient-to-br from-blue-900 to-teal-800 text-yellow-300 border-blue-800' :
                     isVietjet ? 'bg-gradient-to-br from-red-600 to-rose-700 text-yellow-300 border-red-500' :
@@ -301,33 +305,33 @@ export default function FlightsPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-extrabold text-slate-900 text-base">{flight.airline}</h4>
+                      <h4 className="font-bold text-slate-900 text-base">{flight.airline}</h4>
                       {isVietravel && (
                         <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          ⭐ Vietravel Partner
+                          {t('vietravelPartner')}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 font-mono font-semibold mt-0.5">{flight.flightNumber} | Bay thẳng (Economy)</p>
+                    <p className="text-xs text-slate-500 font-semibold mt-0.5">{flight.flightNumber} | {t('directFlight')}</p>
                   </div>
                 </div>
 
                 <div className="text-center bg-slate-50 px-6 py-2 rounded-xl border border-slate-100">
-                  <p className="text-lg font-black text-slate-900 tracking-tight">{flight.departureTime} ➔ {flight.arrivalTime}</p>
-                  <p className="text-xs text-slate-500 font-medium">{t('duration', { fallback: 'Thời gian bay' })}: {flight.duration || '2h 15m'}</p>
+                  <p className="text-lg font-bold text-slate-900 tracking-tight">{flight.departureTime} &rarr; {flight.arrivalTime}</p>
+                  <p className="text-xs text-slate-500 font-medium">{t('duration')}: {flight.duration || '2h 15m'}</p>
                 </div>
 
                 <div className="text-right flex items-center gap-4 self-end md:self-auto">
                   <div>
-                    <p className="text-[11px] text-slate-400">Giá vé đã bao gồm thuế phí</p>
-                    <p className="text-2xl font-black text-orange-600 drop-shadow-xs">{formatPrice(flight.price)}</p>
+                    <p className="text-xs text-slate-400">{t('taxIncluded')}</p>
+                    <p className="text-2xl font-bold text-orange-600">{formatPrice(flight.price)}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setSelectedFlight(flight)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-extrabold text-xs shadow-md shadow-blue-500/20 transition-all hover:scale-105"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer"
                   >
-                    {t('bookFlightBtn', { fallback: 'Chọn Vé' })}
+                    {t('bookFlightBtn')}
                   </button>
                 </div>
               </div>
@@ -342,8 +346,8 @@ export default function FlightsPage() {
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-100 space-y-5 animate-in fade-in duration-200">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div>
-                <h3 className="font-bold text-slate-900 text-base">{t('bookingModalTitle', { fallback: 'Xác Nhận Đặt Vé Máy Bay' })} {selectedFlight.flightNumber}</h3>
-                <p className="text-xs text-slate-500">{selectedFlight.from} ➔ {selectedFlight.to} | {formatPrice(selectedFlight.price)}</p>
+                <h3 className="font-bold text-slate-900 text-base">{t('bookingModalTitle')} {selectedFlight.flightNumber}</h3>
+                <p className="text-xs text-slate-500">{selectedFlight.from} &rarr; {selectedFlight.to} | {formatPrice(selectedFlight.price)}</p>
               </div>
               <button onClick={() => setSelectedFlight(null)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
@@ -352,10 +356,10 @@ export default function FlightsPage() {
 
             <form onSubmit={handleBookingSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Họ và tên hành khách *</label>
+                <label className="font-semibold text-slate-700 block mb-1">{t('passengerName')}</label>
                 <input
                   required
-                  placeholder="Nguyễn Văn A"
+                  placeholder="John Doe"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
@@ -363,10 +367,10 @@ export default function FlightsPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Số điện thoại *</label>
+                <label className="font-semibold text-slate-700 block mb-1">{t('passengerPhone')}</label>
                 <input
                   required
-                  placeholder="0912345678"
+                  placeholder="+1 234 567 890"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
@@ -374,7 +378,7 @@ export default function FlightsPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Email nhận vé *</label>
+                <label className="font-semibold text-slate-700 block mb-1">{t('passengerEmail')}</label>
                 <input
                   type="email"
                   required
@@ -387,27 +391,27 @@ export default function FlightsPage() {
 
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-slate-600 space-y-1">
                 <div className="flex justify-between font-semibold text-slate-800">
-                  <span>Tổng thanh toán:</span>
-                  <span className="text-orange-600 font-extrabold text-sm">{formatPrice(selectedFlight.price)}</span>
+                  <span>{t('totalPriceLabel')}</span>
+                  <span className="text-orange-600 font-bold text-sm">{formatPrice(selectedFlight.price)}</span>
                 </div>
-                <p className="text-[11px] text-slate-400">Đã bao gồm thuế & phí hành lý xách tay 7kg.</p>
+                <p className="text-xs text-slate-400">{t('luggageNote')}</p>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setSelectedFlight(null)}
-                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-semibold"
+                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-semibold cursor-pointer"
                 >
-                  Hủy
+                  {t('cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-md"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-md cursor-pointer"
                 >
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  {t('confirmBtn', { fallback: 'Xác Nhận Đặt Vé' })}
+                  {t('confirmBtn')}
                 </button>
               </div>
             </form>
@@ -422,8 +426,8 @@ export default function FlightsPage() {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 mb-1">Giá Minh Bạch</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">Không chi phí ẩn, giá hiển thị đã bao gồm thuế phí hàng không.</p>
+            <h4 className="font-bold text-slate-900 mb-1">{t('transparentPriceTitle')}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t('transparentPriceDesc')}</p>
           </div>
         </div>
 
@@ -432,8 +436,8 @@ export default function FlightsPage() {
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 mb-1">Giữ Cho Trong 24h</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">Hỗ trợ giữ chỗ linh hoạt cho vé đoàn và vé cá nhân.</p>
+            <h4 className="font-bold text-slate-900 mb-1">{t('holdSeatTitle')}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t('holdSeatDesc')}</p>
           </div>
         </div>
 
@@ -442,40 +446,40 @@ export default function FlightsPage() {
             <Headphones className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 mb-1">Hỗ Trợ 24/7</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">Tổng đài viên sẵn sàng hỗ trợ đổi vé, mua thêm hành lý mọi lúc.</p>
+            <h4 className="font-bold text-slate-900 mb-1">{t('support247Title')}</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">{t('support247Desc')}</p>
           </div>
         </div>
       </div>
 
-      {/* ─── Bottom Section: Recommended Hot Tours ────────────────────────── */}
+      {/* Bottom Section: Recommended Hot Tours */}
       {featuredTours.length > 0 && (
-        <div className="pt-8 border-t border-slate-200/60 space-y-6">
+        <div className="pt-8 border-t border-slate-200 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-extrabold text-orange-600 uppercase tracking-wider mb-1">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">
                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-                <span>Gợi Ý Hấp Dẫn</span>
+                <span>{t('hotSuggestions')}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {t('tourCombo', { fallback: 'Gói Tour Du Lịch HOT Kết Hợp Chuyến Bay' })}
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                {t('tourCombo')}
               </h2>
               <p className="text-slate-500 text-xs sm:text-sm mt-1">
-                Kết hợp đặt vé máy bay cùng các tour du lịch trọn gói 5 sao giá ưu đãi nhất
+                {t('hotComboSub')}
               </p>
             </div>
             <Link
               href={`/${locale}/tours`}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors group"
             >
-              <span>Xem tất cả tour</span>
+              <span>{t('viewAllTours')}</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredTours.map((tour: any) => (
-              <TourCard key={tour._id || tour.id} tour={tour} />
+              <TourCard key={tour._id || tour.id} tour={tour} locale={locale} />
             ))}
           </div>
         </div>
