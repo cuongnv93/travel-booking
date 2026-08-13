@@ -564,5 +564,22 @@
     "errSelectDates": "请选择入住和退房日期。",
     "errInvalidDates": "退房日期必须在入住日期之后。",
     "selectedLabel": "已选择: "
+  },
+  "specialtiesPage": {
+    "badge": "🍜 越南三大地区特色美食",
+    "title": "地方特色美食",
+    "sub": "品尝并探索代表越南各个省市文化的丰富饮食精髓。",
+    "searchPlaceholder": "搜索美食 (例如: 河粉、烤肉米粉、广南面...)",
+    "allProvinces": "所有 {count} 个省/市",
+    "allRegions": "所有地区",
+    "northRegion": "北部",
+    "centralRegion": "中部",
+    "southRegion": "南部",
+    "clearFilters": "清除筛选",
+    "dishesCount": "{count} 道美食",
+    "filterRegionTag": "按地区:",
+    "noMatchTitle": "未找到符合条件的佳肴",
+    "noMatchSub": "请尝试更改搜索关键词或地区筛选。",
+    "refPrice": "参考价格"
   }
 }

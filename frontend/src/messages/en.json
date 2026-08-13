@@ -564,5 +564,22 @@
     "errSelectDates": "Please select check-in and check-out dates.",
     "errInvalidDates": "Check-out date must be after check-in date.",
     "selectedLabel": "Selected: "
+  },
+  "specialtiesPage": {
+    "badge": "🍜 3-Region Culinary Specialties",
+    "title": "Local Specialties",
+    "sub": "Taste and explore rich culinary delights representing the culture of Vietnam provinces.",
+    "searchPlaceholder": "Search dishes (e.g. Pho, Bun Cha, Quang Noodles...)",
+    "allProvinces": "All {count} Provinces / Cities",
+    "allRegions": "All Regions",
+    "northRegion": "North Region",
+    "centralRegion": "Central Region",
+    "southRegion": "South Region",
+    "clearFilters": "Clear Filters",
+    "dishesCount": "{count} dishes",
+    "filterRegionTag": "Regions:",
+    "noMatchTitle": "No matching dishes found",
+    "noMatchSub": "Try changing your search query or location/region filter.",
+    "refPrice": "Price from"
   }
 }

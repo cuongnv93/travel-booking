@@ -564,5 +564,22 @@
     "errSelectDates": "체크인 및 체크아웃 날짜를 선택해 주세요.",
     "errInvalidDates": "체크아웃 날짜는 체크인 날짜 이후여야 합니다.",
     "selectedLabel": "선택됨: "
+  },
+  "specialtiesPage": {
+    "badge": "🍜 베트남 3대 지역 향토 음식",
+    "title": "지역 특산 요리",
+    "sub": "베트남 각 성/시를 대표하는 풍부한 미식 문화를 탐험해 보세요.",
+    "searchPlaceholder": "요리 검색 (예: 쌀국수, 분짜, 미꽝...)",
+    "allProvinces": "전체 {count}개 성/시",
+    "allRegions": "전체 지역",
+    "northRegion": "북부",
+    "centralRegion": "중부",
+    "southRegion": "남부",
+    "clearFilters": "필터 초기화",
+    "dishesCount": "{count}개 음식",
+    "filterRegionTag": "지역별:",
+    "noMatchTitle": "조건에 맞는 음식이 없습니다",
+    "noMatchSub": "검색어나 지역 필터를 변경해 보세요.",
+    "refPrice": "참고 가격"
   }
 }

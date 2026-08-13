@@ -564,5 +564,22 @@
     "errSelectDates": "Vui lòng chọn ngày nhận phòng và trả phòng.",
     "errInvalidDates": "Ngày trả phòng phải sau ngày nhận phòng.",
     "selectedLabel": "Đã chọn: "
+  },
+  "specialtiesPage": {
+    "badge": "🍜 Ẩm Thực & Món Ngon 3 Miền",
+    "title": "Đặc Sản Địa Phương",
+    "sub": "Thưởng thức và khám phá tinh hoa ẩm thực phong phú đại diện cho văn hóa từng tỉnh thành Việt Nam.",
+    "searchPlaceholder": "Tìm kiếm món ăn (VD: Phở, Bún chả, Mì Quảng, Bánh mì...)",
+    "allProvinces": "Tất cả {count} Tỉnh / Thành phố",
+    "allRegions": "Tất cả vùng miền",
+    "northRegion": "Miền Bắc",
+    "centralRegion": "Miền Trung",
+    "southRegion": "Miền Nam",
+    "clearFilters": "Xóa bộ lọc",
+    "dishesCount": "{count} món ngon",
+    "filterRegionTag": "Vùng miền:",
+    "noMatchTitle": "Không tìm thấy món ăn phù hợp",
+    "noMatchSub": "Hãy thử thay đổi từ khóa hoặc bộ lọc địa điểm / vùng miền.",
+    "refPrice": "Giá tham khảo từ"
   }
 }

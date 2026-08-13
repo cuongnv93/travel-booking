@@ -564,5 +564,22 @@
     "errSelectDates": "チェックイン日とチェックアウト日を選択してください。",
     "errInvalidDates": "チェックアウト日はチェックイン日より後である必要があります。",
     "selectedLabel": "選択済み: "
+  },
+  "specialtiesPage": {
+    "badge": "🍜 ベトナム3大地域の郷土料理",
+    "title": "名物・郷土料理",
+    "sub": "ベトナム各省・都市の豊かな食文化をお楽しみください。",
+    "searchPlaceholder": "料理を検索 (例: フォー、ブンチャー、ミークアン...)",
+    "allProvinces": "全 {count} 省・都市",
+    "allRegions": "全地域",
+    "northRegion": "北部",
+    "centralRegion": "中部",
+    "southRegion": "南部",
+    "clearFilters": "フィルターを解除",
+    "dishesCount": "{count} 品",
+    "filterRegionTag": "地域:",
+    "noMatchTitle": "該当する料理が見つかりません",
+    "noMatchSub": "検索キーワードや地域フィルターを変更してください。",
+    "refPrice": "参考価格"
   }
 }

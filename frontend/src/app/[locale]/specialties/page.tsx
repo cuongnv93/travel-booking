@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Utensils, MapPin, Search, X, Filter, Navigation } from 'lucide-react';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +17,7 @@ const fetchSpecialties = async () => {
 
 export default function SpecialtiesPage() {
   const locale = useParams().locale as string;
+  const t = useTranslations('specialtiesPage');
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -44,20 +46,11 @@ export default function SpecialtiesPage() {
   const specialtiesBanner = pageBanners?.specialtiesBanner || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600';
 
   const regions = [
-    { key: '', label: 'Tất cả vùng miền' },
-    { key: 'Miền Bắc', label: 'Miền Bắc' },
-    { key: 'Miền Trung', label: 'Miền Trung' },
-    { key: 'Miền Nam', label: 'Miền Nam' }
+    { key: '', label: t('allRegions') },
+    { key: 'Miền Bắc', label: t('northRegion') },
+    { key: 'Miền Trung', label: t('centralRegion') },
+    { key: 'Miền Nam', label: t('southRegion') }
   ];
-
-  // Extract unique locations from data
-  const availableLocations = useMemo(() => {
-    const locationsSet = new Set<string>();
-    specialties.forEach((item: any) => {
-      if (item.location) locationsSet.add(item.location);
-    });
-    return Array.from(locationsSet).sort();
-  }, [specialties]);
 
   const filteredSpecialties = useMemo(() => {
     return specialties.filter((s: any) => {
@@ -97,11 +90,11 @@ export default function SpecialtiesPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-900/20" />
         <div className="absolute bottom-8 left-8 right-8 z-10 max-w-2xl text-white">
           <span className="bg-orange-600/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block shadow-sm">
-            🍜 Ẩm Thực & Món Ngon 3 Miền
+            {t('badge')}
           </span>
-          <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">Đặc Sản Địa Phương</h1>
+          <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">{t('title')}</h1>
           <p className="text-amber-100/90 text-sm md:text-base leading-relaxed font-medium">
-            Thưởng thức và khám phá tinh hoa ẩm thực phong phú đại diện cho văn hóa từng tỉnh thành Việt Nam.
+            {t('sub')}
           </p>
         </div>
       </div>
@@ -116,7 +109,7 @@ export default function SpecialtiesPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm món ăn (VD: Phở, Bún chả, Mì Quảng, Bánh mì...)"
+              placeholder={t('searchPlaceholder')}
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-slate-900 font-medium placeholder-slate-400 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all"
             />
             {searchQuery && (
@@ -138,7 +131,7 @@ export default function SpecialtiesPage() {
               onChange={(e) => setSelectedLocation(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 font-medium appearance-none focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 focus:outline-none transition-all cursor-pointer"
             >
-              <option value="">Tất cả {provinces.length} Tỉnh / Thành phố</option>
+              <option value="">{t('allProvinces', { count: provinces.length })}</option>
               {provinces.map((loc: string) => (
                 <option key={loc} value={loc}>
                   📍 {loc}
@@ -154,13 +147,13 @@ export default function SpecialtiesPage() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="w-full py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" /> Xóa bộ lọc
+                <X className="w-4 h-4" /> {t('clearFilters')}
               </button>
             ) : (
               <div className="text-xs text-slate-400 font-medium text-center hidden md:block">
-                {filteredSpecialties.length} món ngon
+                {t('dishesCount', { count: filteredSpecialties.length })}
               </div>
             )}
           </div>
@@ -169,7 +162,7 @@ export default function SpecialtiesPage() {
         {/* Region Pills Filter */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
           <span className="text-xs font-bold text-slate-400 flex items-center gap-1 mr-1">
-            <Filter className="w-3.5 h-3.5" /> Vùng miền:
+            <Filter className="w-3.5 h-3.5" /> {t('filterRegionTag')}
           </span>
           {regions.map((reg) => (
             <button
@@ -198,15 +191,15 @@ export default function SpecialtiesPage() {
       ) : filteredSpecialties.length === 0 ? (
         <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center shadow-sm">
           <Utensils className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-          <p className="text-xl font-bold text-slate-800 mb-2">Không tìm thấy món ăn phù hợp</p>
-          <p className="text-slate-500 text-sm mb-6">Hãy thử thay đổi từ khóa hoặc bộ lọc địa điểm / vùng miền.</p>
+          <p className="text-xl font-bold text-slate-800 mb-2">{t('noMatchTitle')}</p>
+          <p className="text-slate-500 text-sm mb-6">{t('noMatchSub')}</p>
           {hasActiveFilters && (
             <button
               type="button"
               onClick={clearFilters}
-              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs shadow-md transition-colors"
+              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs shadow-md transition-colors cursor-pointer"
             >
-              Xóa tất cả bộ lọc
+              {t('clearFilters')}
             </button>
           )}
         </div>
@@ -256,7 +249,7 @@ export default function SpecialtiesPage() {
 
                   <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-slate-400 font-medium">Giá tham khảo từ</p>
+                      <p className="text-xs text-slate-400 font-medium">{t('refPrice')}</p>
                       <p className="text-xl font-bold text-orange-500">{formatPrice(item.price || 50000)}</p>
                     </div>
                     {item.location && (
