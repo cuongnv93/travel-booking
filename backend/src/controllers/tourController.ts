@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import Tour from '../models/Tour';
 import { paginate } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
-import { cacheService } from '../services/cacheService';
 
 const generateSlug = (title: string) => {
   return title
