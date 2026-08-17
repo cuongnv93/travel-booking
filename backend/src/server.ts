@@ -22,6 +22,11 @@ app.use(morgan('dev'));
 // Static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
+// Health check — responds instantly, no DB needed — used by keep-alive cron
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use('/api', routes);
 
 app.use(errorHandler);
