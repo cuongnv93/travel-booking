@@ -157,7 +157,11 @@ export default function CartClient() {
   const t = useTranslations('cart');
   const router = useRouter();
   const locale = useParams().locale as string;
-  const { items, removeItem, updateItem, getTotalPrice, clearCart } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateItem = useCartStore((state) => state.updateItem);
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+  const clearCart = useCartStore((state) => state.clearCart);
 
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '', notes: '' });
   const [paymentMethod, setPaymentMethod] = useState<'vietqr' | 'office'>('office');

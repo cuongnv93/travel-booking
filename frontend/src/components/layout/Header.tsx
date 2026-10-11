@@ -58,13 +58,17 @@ export default function Header() {
 
   const currentTab = hoveredPath !== null ? hoveredPath : activePath;
 
-  const { toggleMobileMenu, toggleSearch } = useUiStore();
-  const cartItems = useCartStore((state) => state.items);
-  const cartItemsCount = cartItems.reduce(
-    (total, item) => total + item.guests.adults + item.guests.children,
-    0
+  const toggleMobileMenu = useUiStore((state) => state.toggleMobileMenu);
+  const toggleSearch = useUiStore((state) => state.toggleSearch);
+  const cartItemsCount = useCartStore((state) =>
+    state.items.reduce(
+      (total, item) => total + (item.guests?.adults || 0) + (item.guests?.children || 0),
+      0
+    )
   );
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     const handleScroll = () => {
