@@ -1,9 +1,30 @@
 import { Request, Response } from 'express';
 import Setting from '../models/Setting';
+import { cacheService } from '../services/cacheService';
+import { runMasterSettingsSeed, MASTER_SETTINGS_SEEDS } from '../utils/seedMasterSettings';
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const settings = await Setting.find();
+    const cached = cacheService.get('settings_all');
+    if (cached) return res.json(cached);
+
+    const settings = await Setting.find().lean();
+    cacheService.set('settings_all', settings);
+    res.json(settings);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getByGroup = async (req: Request, res: Response) => {
+  try {
+    const { group } = req.params;
+    const cacheKey = `settings_group_${group}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached) return res.json(cached);
+
+    const settings = await Setting.find({ group }).lean();
+    cacheService.set(cacheKey, settings);
     res.json(settings);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -12,9 +33,22 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const getByKey = async (req: Request, res: Response) => {
   try {
-    let setting = await Setting.findOne({ key: req.params.key });
+    const cacheKey = `setting_${req.params.key}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached) return res.json(cached);
+
+    let setting: any = await Setting.findOne({ key: req.params.key }).lean();
     if (!setting) {
-      if (req.params.key === 'hero_banners') {
+      const seedItem = MASTER_SETTINGS_SEEDS.find((s) => s.key === req.params.key);
+      if (seedItem) {
+        setting = await Setting.create({
+          key: seedItem.key,
+          group: seedItem.group,
+          value: seedItem.value,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      } else if (req.params.key === 'hero_banners') {
         const defaultSlides = [
           {
             image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
@@ -49,7 +83,7 @@ export const getByKey = async (req: Request, res: Response) => {
               en: 'Enjoy breathtaking moments at Golden Bridge Ba Na Hills & romantic Hoi An',
               zh: '尽情享用巴拿山黄金桥与会安古镇浪漫夜景的绝美时光',
               ko: '바나힐 골든브릿지와 환상적인 호이안에서 특별한 순간을 즐기세요',
-              ja: 'バーナーヒルズの Golden Bridge と幻想적인 ホイアンの夜景を満喫'
+              ja: 'バーナーヒルズの Golden Bridge と幻想적인 ホイ安の夜景を満喫'
             },
             ctaText: { vi: 'Đặt Khách Sạn Đà Nẵng', en: 'Book Da Nang Hotels', zh: '预订岘港酒店', ko: '다낭 호텔 예약', ja: 'ダナンのホテルを予約' },
             ctaLink: '/hotels',
@@ -77,6 +111,7 @@ export const getByKey = async (req: Request, res: Response) => {
         return res.status(404).json({ message: 'Setting not found' });
       }
     }
+    cacheService.set(cacheKey, setting);
     res.json(setting);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -86,12 +121,61 @@ export const getByKey = async (req: Request, res: Response) => {
 export const upsert = async (req: Request, res: Response) => {
   try {
     const { key } = req.params;
+    const group = req.body.group;
+    cacheService.del('settings_all');
+    cacheService.del(`setting_${key}`);
+    if (group) {
+      cacheService.del(`settings_group_${group}`);
+    }
     const setting = await Setting.findOneAndUpdate(
       { key },
-      { ...req.body, key },
+      { ...req.body, key, updatedAt: new Date() },
       { new: true, upsert: true }
     );
+    if (setting?.group) {
+      cacheService.del(`settings_group_${setting.group}`);
+    }
     res.json(setting);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const batchUpsert = async (req: Request, res: Response) => {
+  try {
+    const items = req.body.items || req.body.settings;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'items or settings array is required' });
+    }
+
+    cacheService.del('settings_all');
+    const updatedSettings = [];
+
+    for (const item of items) {
+      if (!item.key) continue;
+      cacheService.del(`setting_${item.key}`);
+      if (item.group) cacheService.del(`settings_group_${item.group}`);
+
+      const saved = await Setting.findOneAndUpdate(
+        { key: item.key },
+        { ...item, updatedAt: new Date() },
+        { new: true, upsert: true }
+      );
+      if (saved?.group) cacheService.del(`settings_group_${saved.group}`);
+      updatedSettings.push(saved);
+    }
+
+    res.json({ message: 'Batch settings updated successfully', data: updatedSettings });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const seedMaster = async (req: Request, res: Response) => {
+  try {
+    const force = req.query.force === 'true';
+    const result = await runMasterSettingsSeed(force);
+    res.json(result);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -99,6 +183,9 @@ export const upsert = async (req: Request, res: Response) => {
 
 export const seedMultiLang = async (_req: Request, res: Response) => {
   try {
+    cacheService.del('settings_all');
+    cacheService.del('setting_hero_banners');
+    cacheService.del('setting_site_info');
     const slides = [
       {
         image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',

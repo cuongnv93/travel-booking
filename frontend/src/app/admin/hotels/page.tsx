@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Plus, X, Search, Upload, Loader2, Building2, Star, MapPin, Trash2, BedDouble } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice, getI18nText } from '@/lib/utils';
+import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 
 const fetchAdminHotels = async () => {
-  const res: any = await api.get('/hotels');
+  const res: any = await api.get('/hotels?all=true');
   return Array.isArray(res) ? res : (res?.data || []);
 };
 
@@ -18,6 +19,64 @@ const toSlug = (text: string) =>
   text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[đĐ]/g, 'd').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
+interface HotelTableRowProps {
+  hotel: any;
+  onEdit: (hotel: any) => void;
+  onDelete: (id: string) => void;
+}
+
+const HotelTableRow = memo(function HotelTableRow({ hotel, onEdit, onDelete }: HotelTableRowProps) {
+  const [imgSrc, setImgSrc] = useState(hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800');
+
+  return (
+    <tr className="hover:bg-slate-50/80 transition-colors">
+      <td className="px-6 py-3.5 flex items-center gap-3">
+        <div className="w-12 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={() => setImgSrc('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800')}
+            />
+          ) : (
+            <Building2 className="w-4 h-4 text-slate-400 m-auto mt-3" />
+          )}
+        </div>
+        <div>
+          <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{getI18nText(hotel.name, 'vi') || 'N/A'}</p>
+          <p className="text-[11px] text-slate-400 font-mono">{hotel.slug}</p>
+        </div>
+      </td>
+      <td className="px-6 py-3.5">
+        <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
+          <MapPin className="w-3 h-3" />{hotel.location}
+        </span>
+      </td>
+      <td className="px-6 py-3.5">
+        <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold text-xs">
+          <Star className="w-3.5 h-3.5 fill-amber-400" />{hotel.stars} Sao
+        </span>
+      </td>
+      <td className="px-6 py-3.5 font-bold text-slate-900">{formatPrice(hotel.pricePerNight)}<span className="text-[11px] font-normal text-slate-400">/đêm</span></td>
+      <td className="px-6 py-3.5 text-right space-x-1.5">
+        <button
+          onClick={() => onEdit(hotel)}
+          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs"
+        >
+          Sửa
+        </button>
+        <button
+          onClick={() => onDelete(hotel._id)}
+          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs"
+        >
+          Xóa
+        </button>
+      </td>
+    </tr>
+  );
+});
+
 export default function AdminHotelsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -25,9 +84,9 @@ export default function AdminHotelsPage() {
   const [editingHotel, setEditingHotel] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [nameVi, setNameVi] = useState('');
-  const [nameEn, setNameEn] = useState('');
-  const [descVi, setDescVi] = useState('');
+  const [activeLang, setActiveLang] = useState<string>('vi');
+  const [name, setName] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [description, setDescription] = useState<Record<string, string>>(createEmptyI18nRecord());
   const [images, setImages] = useState<string[]>([]);
   const [urlInput, setUrlInput] = useState('');
   const [pricePerNight, setPricePerNight] = useState(1000000);
@@ -127,7 +186,10 @@ export default function AdminHotelsPage() {
 
   const resetForm = () => {
     setEditingHotel(null);
-    setNameVi(''); setNameEn(''); setDescVi(''); setImages([]); setUrlInput('');
+    setActiveLang('vi');
+    setName(createEmptyI18nRecord());
+    setDescription(createEmptyI18nRecord());
+    setImages([]); setUrlInput('');
     setPricePerNight(1000000); setStars(4); setLocation(''); setAddress(''); setAmenities([]);
     setPoliciesStr(''); setLat(''); setLng(''); setNearbyPlaces([]); setRooms([]);
     setIsFlashSale(false); setFlashSalePrice(700000);
@@ -138,9 +200,9 @@ export default function AdminHotelsPage() {
 
   const openEditModal = (hotel: any) => {
     setEditingHotel(hotel);
-    setNameVi(hotel.name?.vi || '');
-    setNameEn(hotel.name?.en || '');
-    setDescVi(hotel.description?.vi || '');
+    setActiveLang('vi');
+    setName(toI18nRecord(hotel.name));
+    setDescription(toI18nRecord(hotel.description));
     setImages(Array.isArray(hotel.images) ? [...hotel.images] : []);
     setUrlInput('');
     setPricePerNight(hotel.pricePerNight || 1000000);
@@ -161,23 +223,11 @@ export default function AdminHotelsPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = editingHotel?.slug || toSlug(nameVi || 'khach-san-' + Date.now());
+    const slug = editingHotel?.slug || toSlug(name.vi || 'khach-san-' + Date.now());
     saveMutation.mutate({
       slug,
-      name: {
-        vi: nameVi,
-        en: nameEn || nameVi,
-        zh: nameEn || nameVi,
-        ko: nameEn || nameVi,
-        ja: nameEn || nameVi,
-      },
-      description: {
-        vi: descVi,
-        en: descVi,
-        zh: descVi,
-        ko: descVi,
-        ja: descVi,
-      },
+      name: sanitizeI18nRecord(name),
+      description: sanitizeI18nRecord(description),
       images: images.length > 0 ? images : ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800'],
       pricePerNight: Number(pricePerNight),
       stars: Number(stars),
@@ -197,10 +247,19 @@ export default function AdminHotelsPage() {
     });
   };
 
-  const filtered = hotels.filter((h: any) => {
-    const name = h.name?.vi || '';
-    return name.toLowerCase().includes(search.toLowerCase()) || (h.location || '').toLowerCase().includes(search.toLowerCase());
-  });
+  const handleDelete = useCallback((id: string) => {
+    if (confirm('Xóa khách sạn này?')) {
+      deleteMutation.mutate(id);
+    }
+  }, [deleteMutation]);
+
+  const filtered = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return hotels.filter((h: any) => {
+      const name = getI18nText(h.name, 'vi') || (typeof h.name === 'string' ? h.name : '');
+      return !s || name.toLowerCase().includes(s) || (h.location || '').toLowerCase().includes(s);
+    });
+  }, [hotels, search]);
 
   if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
 
@@ -243,38 +302,16 @@ export default function AdminHotelsPage() {
                 <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">
                   <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />Chưa có khách sạn nào.
                 </td></tr>
-              ) : filtered.map((hotel: any) => (
-                <tr key={hotel._id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="px-6 py-3.5 flex items-center gap-3">
-                    <div className="w-12 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
-                      {hotel.images?.[0] ? (
-                        <img src={hotel.images[0]} alt="" className="w-full h-full object-cover" />
-                      ) : <Building2 className="w-4 h-4 text-slate-400 m-auto mt-3" />}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{hotel.name?.vi || 'N/A'}</p>
-                      <p className="text-[11px] text-slate-400 font-mono">{hotel.slug}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
-                      <MapPin className="w-3 h-3" />{hotel.location}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold text-xs">
-                      <Star className="w-3.5 h-3.5 fill-amber-400" />{hotel.stars} Sao
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 font-bold text-slate-900">{formatPrice(hotel.pricePerNight)}<span className="text-[11px] font-normal text-slate-400">/đêm</span></td>
-                  <td className="px-6 py-3.5 text-right space-x-1.5">
-                    <button onClick={() => openEditModal(hotel)}
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs">Sửa</button>
-                    <button onClick={() => { if (confirm('Xóa khách sạn này?')) deleteMutation.mutate(hotel._id); }}
-                      className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs">Xóa</button>
-                  </td>
-                </tr>
-              ))}
+              ) : (
+                filtered.map((hotel: any) => (
+                  <HotelTableRow
+                    key={hotel._id}
+                    hotel={hotel}
+                    onEdit={openEditModal}
+                    onDelete={handleDelete}
+                  />
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -291,26 +328,49 @@ export default function AdminHotelsPage() {
             <div className="overflow-y-auto p-6 flex-1 bg-white">
               <form id="hotel-form" onSubmit={handleSave} className="space-y-8 text-sm">
                 
-                {/* Thông tin cơ bản */}
+                {/* Thông tin cơ bản & Đa ngôn ngữ */}
                 <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 border-b pb-2">Thông tin cơ bản</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Tên (Tiếng Việt) *</label>
-                      <input required value={nameVi} onChange={e => setNameVi(e.target.value)} placeholder="VD: Resort Đà Nẵng 5 Sao"
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Tên (Tiếng Anh)</label>
-                      <input value={nameEn} onChange={e => setNameEn(e.target.value)} placeholder="EN: Da Nang 5-Star Resort"
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <h3 className="font-bold text-slate-800">Thông tin cơ bản & Đa ngôn ngữ</h3>
+                  </div>
+
+                  <AdminI18nTabs
+                    activeLang={activeLang}
+                    onChange={setActiveLang}
+                    hasContent={{
+                      vi: !!name.vi,
+                      en: !!name.en,
+                      zh: !!name.zh,
+                      ko: !!name.ko,
+                      ja: !!name.ja,
+                    }}
+                    label="Chọn ngôn ngữ nhập liệu cho Tên & Mô tả Khách sạn:"
+                  />
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                      Tên Khách Sạn ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                    </label>
+                    <input
+                      required={activeLang === 'vi'}
+                      value={name[activeLang] || ''}
+                      onChange={(e) => setName((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                      placeholder={activeLang === 'vi' ? 'VD: Resort Đà Nẵng 5 Sao' : `Tên khách sạn bằng tiếng ${activeLang.toUpperCase()}...`}
+                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold"
+                    />
                   </div>
 
                   <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Mô tả</label>
-                    <textarea rows={3} value={descVi} onChange={e => setDescVi(e.target.value)} placeholder="Mô tả khách sạn..."
-                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
+                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                      Mô tả Khách Sạn ({activeLang.toUpperCase()})
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={description[activeLang] || ''}
+                      onChange={(e) => setDescription((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                      placeholder="Mô tả khách sạn..."
+                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
+                    />
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">

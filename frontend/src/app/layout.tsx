@@ -6,6 +6,7 @@ const geistSans = localFont({
   src: './fonts/GeistVF.woff',
   variable: '--font-inter',
   weight: '100 900',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -47,6 +48,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
       <body className={`${geistSans.variable} font-sans antialiased bg-slate-50 text-slate-900 selection:bg-blue-100 selection:text-blue-900`}>
         {children}
       </body>

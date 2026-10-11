@@ -9,13 +9,14 @@ import {
   lookupByCode,
   getStats,
 } from '../controllers/bookingController';
-import { protect } from '../middleware/auth';
+import { protect, optionalProtect } from '../middleware/auth';
 import { adminOnly } from '../middleware/adminOnly';
+import { bookingCreateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-// Public
-router.post('/', create);                                    // Create booking (guest or auth)
+// Public / Guest / Auth
+router.post('/', bookingCreateLimiter, optionalProtect, create);                                    // Create booking (guest or auth)
 router.get('/lookup', lookupByCode);                         // GET /api/bookings/lookup?code=TRV-xxx
 
 // Authenticated user

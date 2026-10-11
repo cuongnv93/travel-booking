@@ -21,8 +21,39 @@ export function formatDate(dateString: string): string {
   });
 }
 
-export function getI18nText(i18nObj: I18nText | string | undefined | null, locale: string): string {
-  if (!i18nObj) return '';
-  if (typeof i18nObj === 'string') return i18nObj;
-  return i18nObj[locale as keyof I18nText] || i18nObj.vi || i18nObj.en || '';
+export function getI18nText(
+  i18nObj: I18nText | Record<string, string> | string | undefined | null,
+  locale: string,
+  fallback = ''
+): string {
+  if (!i18nObj) return fallback;
+  if (typeof i18nObj === 'string') return i18nObj || fallback;
+  return (
+    (i18nObj as Record<string, string>)[locale] ||
+    (i18nObj as Record<string, string>).vi ||
+    (i18nObj as Record<string, string>).en ||
+    fallback
+  );
 }
+
+export function formatLocalizedDate(
+  dateVal: string | number | Date | undefined | null,
+  locale = 'vi'
+): string {
+  if (!dateVal) return '';
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '';
+    const dateLocales: Record<string, string> = {
+      vi: 'vi-VN',
+      en: 'en-US',
+      zh: 'zh-CN',
+      ko: 'ko-KR',
+      ja: 'ja-JP',
+    };
+    return d.toLocaleDateString(dateLocales[locale] || 'vi-VN');
+  } catch {
+    return '';
+  }
+}
+

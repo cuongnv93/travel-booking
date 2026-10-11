@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1600',
+    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
     title: {
       vi: 'Khám Phá Hà Nội Ngàn Năm Văn Hiến',
       en: 'Explore Thousand-Year-Old Hanoi Culture',

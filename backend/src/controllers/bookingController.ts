@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import Booking from '../models/Booking';
-import { generateBookingCode } from '../utils/helpers';
+import Tour from '../models/Tour';
+import User from '../models/User';
+import { generateBookingCode, escapeRegex } from '../utils/helpers';
 import { AuthRequest } from '../middleware/auth';
 import { sendBookingConfirmation } from '../utils/email';
 
@@ -8,11 +10,27 @@ export const create = async (req: AuthRequest, res: Response) => {
   try {
     // travelDate fallback for hotel bookings that use checkIn instead
     const travelDate = req.body.travelDate || req.body.checkIn || new Date();
+    
+    // Resolve userId: from authenticated user or fallback lookup by email
+    let resolvedUserId = req.user?._id;
+    if (!resolvedUserId && req.body.customerInfo?.email) {
+      try {
+        const foundUser = await User.findOne({ email: String(req.body.customerInfo.email).trim().toLowerCase() }).select('_id');
+        if (foundUser) {
+          resolvedUserId = foundUser._id;
+        }
+      } catch {
+        // Non-blocking fallback
+      }
+    }
+
     const booking = await Booking.create({
       ...req.body,
+      status: 'pending',
+      paymentStatus: 'pending',
       travelDate,
       bookingCode: generateBookingCode(),
-      userId: req.user?._id,
+      userId: resolvedUserId,
     });
     
     // Asynchronously send email without blocking the response
@@ -31,8 +49,10 @@ export const getAll = async (req: Request, res: Response) => {
     const bookings = await Booking.find()
       .populate('tourId', 'title images slug')
       .populate('hotelId', 'name images slug')
+      .populate('flightId', 'airline flightNumber from to departureTime arrivalTime duration price logo')
       .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.json(bookings);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -45,19 +65,29 @@ export const getByUser = async (req: AuthRequest, res: Response) => {
     const bookings = await Booking.find({ userId: req.user._id })
       .populate('tourId', 'title images slug destination duration')
       .populate('hotelId', 'name images slug location')
-      .sort({ createdAt: -1 });
+      .populate('flightId', 'airline flightNumber from to departureTime arrivalTime duration price logo')
+      .sort({ createdAt: -1 })
+      .lean();
     res.json(bookings);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getById = async (req: Request, res: Response) => {
+export const getById = async (req: AuthRequest, res: Response) => {
   try {
     const booking = await Booking.findById(req.params.id)
       .populate('tourId', 'title images slug destination duration')
-      .populate('hotelId', 'name images slug location');
+      .populate('hotelId', 'name images slug location')
+      .populate('flightId', 'airline flightNumber from to departureTime arrivalTime duration price logo')
+      .lean();
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    // IDOR protection: Non-admin users can only view their own booking
+    if (req.user?.role !== 'admin' && String(booking.userId) !== String(req.user?._id)) {
+      return res.status(403).json({ message: 'Không có quyền truy cập thông tin đơn đặt chỗ này' });
+    }
+
     res.json(booking);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -70,9 +100,13 @@ export const lookupByCode = async (req: Request, res: Response) => {
     const { code } = req.query;
     if (!code) return res.status(400).json({ message: 'Booking code is required' });
 
-    const booking = await Booking.findOne({ bookingCode: code as string })
+    const codeStr = String(code).trim();
+    const safeRegex = new RegExp(`^${escapeRegex(codeStr)}$`, 'i');
+
+    const booking = await Booking.findOne({ bookingCode: safeRegex })
       .populate('tourId', 'title images slug destination duration')
-      .populate('hotelId', 'name images slug location');
+      .populate('hotelId', 'name images slug location')
+      .populate('flightId', 'airline flightNumber from to departureTime arrivalTime duration price logo');
     if (!booking) return res.status(404).json({ message: 'Không tìm thấy đơn đặt chỗ với mã này' });
     res.json(booking);
   } catch (error: any) {
@@ -129,9 +163,8 @@ export const getStats = async (_req: Request, res: Response) => {
         { $match: { status: { $in: ['confirmed', 'completed'] }, createdAt: { $gte: startOfMonth } } },
         { $group: { _id: null, total: { $sum: '$totalPrice' } } },
       ]),
-      // Import Tour and User here dynamically or just use mongoose.model
-      require('mongoose').model('Tour').countDocuments(),
-      require('mongoose').model('User').countDocuments(),
+      Tour.countDocuments(),
+      User.countDocuments(),
       Booking.find()
         .populate('tourId', 'title images slug')
         .populate('userId', 'name email')

@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { ShoppingCart, User as UserIcon, Menu, LogOut, Shield, ChevronDown } from 'lucide-react';
+import { motion, LayoutGroup } from 'framer-motion';
+import { ShoppingCart, User as UserIcon, Menu, LogOut, Shield, ChevronDown, Calendar } from 'lucide-react';
 import { NAV_ITEMS } from '@/lib/constants';
 import { useUiStore } from '@/stores/uiStore';
 import { useCartStore } from '@/stores/cartStore';
@@ -19,12 +21,42 @@ export default function Header() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Determine if current route is the Home page
+  const isHome = useMemo(() => {
+    if (!pathname) return false;
+    const cleanPath = pathname.replace(/\/$/, '');
+    return cleanPath === `/${locale}` || cleanPath === '' || cleanPath === '/';
+  }, [pathname, locale]);
+
+  // Transparent header only on Home page before scrolling down
+  const isTransparent = !isScrolled && isHome;
+
+  // Accurately check whether a nav item is active
+  const checkIsActive = useCallback((itemPath: string) => {
+    if (!pathname) return false;
+    const cleanPath = pathname.replace(/\/$/, '');
+    if (itemPath === '/') {
+      return isHome;
+    }
+    const fullItemPath = `/${locale}${itemPath}`.replace(/\/$/, '');
+    return cleanPath === fullItemPath || cleanPath.startsWith(`${fullItemPath}/`);
+  }, [pathname, locale, isHome]);
 
   // Prefetch on hover — routes are pre-fetched when user hovers nav links
   const handleNavHover = useCallback((path: string) => {
     const href = `/${locale}${path === '/' ? '' : path}`;
     router.prefetch(href);
   }, [locale, router]);
+
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+
+  const activePath = useMemo(() => {
+    return NAV_ITEMS.find((item) => checkIsActive(item.path))?.path || null;
+  }, [checkIsActive]);
+
+  const currentTab = hoveredPath !== null ? hoveredPath : activePath;
 
   const { toggleMobileMenu, toggleSearch } = useUiStore();
   const cartItems = useCartStore((state) => state.items);
@@ -42,6 +74,18 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    if (userDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userDropdownOpen]);
+
   if (pathname?.startsWith('/admin') || pathname?.includes('/login') || pathname?.includes('/register')) {
     return null;
   }
@@ -55,55 +99,104 @@ export default function Header() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-[background-color,padding,box-shadow] duration-300',
-        isScrolled
-          ? 'bg-white/90 backdrop-blur-md shadow-sm py-3'
-          : 'bg-transparent py-5'
+        'fixed top-0 left-0 right-0 z-50 transition-[background-color,padding,box-shadow,border-color] duration-300',
+        isTransparent
+          ? 'bg-transparent py-4 sm:py-5'
+          : 'bg-white/95 backdrop-blur-md shadow-xs py-2.5 sm:py-3 border-b border-slate-100/80'
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between flex-nowrap gap-2 md:gap-4">
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2 shrink-0" prefetch={true}>
+          <Link href={`/${locale}`} className="flex items-center gap-2.5 shrink-0 group" prefetch={true}>
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden shrink-0 shadow-xs transition-transform group-hover:scale-105">
+              <Image
+                src="/timesgreen-logo.png"
+                alt="TimesGreen Logo"
+                fill
+                sizes="36px"
+                className="object-contain"
+                priority
+              />
+            </div>
             <span className={cn(
-              "text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500",
-              !isScrolled && pathname === `/${locale}` ? "text-white drop-shadow-md bg-none" : ""
+              "text-xl sm:text-2xl font-black tracking-tight transition-all duration-200",
+              isTransparent
+                ? "text-white drop-shadow-md"
+                : "bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600"
             )}>
-              Travel
+              TimesGreen
             </span>
           </Link>
 
-          {/* Desktop Nav — prefetch on hover for instant transitions */}
-          <nav className="hidden xl:flex items-center gap-4 2xl:gap-6 shrink-0">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.path}
-                href={`/${locale}${item.path === '/' ? '' : item.path}`}
-                prefetch={false}
-                onMouseEnter={() => handleNavHover(item.path)}
-                onFocus={() => handleNavHover(item.path)}
-                className={cn(
-                  'text-sm font-medium transition-colors hover:text-blue-600 whitespace-nowrap',
-                  !isScrolled && pathname === `/${locale}` ? 'text-white/90 hover:text-white' : 'text-slate-700'
-                )}
-              >
-                {t(item.i18nKey)}
-              </Link>
-            ))}
-          </nav>
+          {/* Desktop Nav with animated sliding underline */}
+          <LayoutGroup id="desktop-header-nav">
+            <nav
+              aria-label="Main Navigation"
+              onMouseLeave={() => setHoveredPath(null)}
+              className="hidden xl:flex items-center gap-1 2xl:gap-1.5 shrink-0 bg-transparent relative py-1"
+            >
+              {NAV_ITEMS.map((item) => {
+                const isActive = checkIsActive(item.path);
+                const isCurrent = currentTab === item.path;
+
+                return (
+                  <Link
+                    key={item.path}
+                    href={`/${locale}${item.path === '/' ? '' : item.path}`}
+                    prefetch={false}
+                    onMouseEnter={() => {
+                      handleNavHover(item.path);
+                      setHoveredPath(item.path);
+                    }}
+                    onFocus={() => {
+                      handleNavHover(item.path);
+                      setHoveredPath(item.path);
+                    }}
+                    className={cn(
+                      'relative px-3 2xl:px-4 py-2 text-xs 2xl:text-sm font-semibold transition-colors duration-200 whitespace-nowrap inline-flex items-center justify-center cursor-pointer select-none',
+                      isTransparent
+                        ? (isCurrent || isActive ? 'text-white font-bold' : 'text-white/80 hover:text-white')
+                        : (isCurrent || isActive ? 'text-blue-600 font-bold' : 'text-slate-600 hover:text-blue-600')
+                    )}
+                  >
+                    <span className="relative z-10">{t(item.i18nKey)}</span>
+
+                    {isCurrent && (
+                      <motion.span
+                        layoutId="navActiveIndicator"
+                        transition={{
+                          type: 'spring',
+                          stiffness: 450,
+                          damping: 32,
+                          mass: 0.8,
+                        }}
+                        className={cn(
+                          "absolute -bottom-1 left-2.5 right-2.5 h-[3px] rounded-full z-10",
+                          isTransparent
+                            ? "bg-white shadow-[0_0_12px_rgba(255,255,255,0.95)]"
+                            : "bg-blue-600 shadow-[0_2px_8px_rgba(37,99,235,0.45)]"
+                        )}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          </LayoutGroup>
 
           {/* Actions */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <LanguageSwitcher isScrolled={isScrolled} isHome={pathname === `/${locale}`} />
+            <LanguageSwitcher isScrolled={isScrolled} isHome={isHome} />
 
             {/* Auth Dropdown or Login Button */}
             {isAuthenticated && user ? (
-              <div className="relative hidden sm:block shrink-0">
+              <div ref={dropdownRef} className="relative hidden sm:block shrink-0">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                   className={cn(
                     'flex items-center gap-2 py-1.5 px-3 rounded-full text-sm font-medium transition-colors border border-transparent',
-                    !isScrolled && pathname === `/${locale}`
+                    isTransparent
                       ? 'text-white bg-white/10 hover:bg-white/20'
                       : 'text-slate-800 bg-slate-100 hover:bg-slate-200'
                   )}
@@ -116,7 +209,7 @@ export default function Header() {
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 text-sm text-slate-700 z-50">
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 text-sm text-slate-700 z-50">
                     <div className="px-4 py-2 border-b border-slate-100">
                       <p className="font-semibold text-slate-900 truncate">{user.name}</p>
                       <p className="text-xs text-slate-500 truncate">{user.email}</p>
@@ -134,6 +227,24 @@ export default function Header() {
                     )}
 
                     <Link
+                      href={`/${locale}/profile`}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4 text-slate-500" />
+                      {t('nav.profile')}
+                    </Link>
+
+                    <Link
+                      href={`/${locale}/profile/bookings`}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 text-slate-500" />
+                      {t('nav.myBookings')}
+                    </Link>
+
+                    <Link
                       href={`/${locale}/cart`}
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors"
@@ -144,7 +255,7 @@ export default function Header() {
 
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors border-t border-slate-100 mt-1"
                     >
                       <LogOut className="w-4 h-4" />
                       {t('nav.logout')}
@@ -158,7 +269,7 @@ export default function Header() {
                 prefetch={true}
                 className={cn(
                   'p-2 rounded-full transition-colors hover:bg-slate-100 hidden sm:flex shrink-0',
-                  !isScrolled && pathname === `/${locale}` ? 'text-white hover:bg-white/20' : 'text-slate-700'
+                  isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700'
                 )}
               >
                 <UserIcon className="w-5 h-5" />
@@ -170,7 +281,7 @@ export default function Header() {
               prefetch={true}
               className={cn(
                 'p-2 rounded-full transition-colors hover:bg-slate-100 relative shrink-0',
-                !isScrolled && pathname === `/${locale}` ? 'text-white hover:bg-white/20' : 'text-slate-700'
+                isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700'
               )}
             >
               <ShoppingCart className="w-5 h-5" />
@@ -185,7 +296,7 @@ export default function Header() {
               onClick={toggleMobileMenu}
               className={cn(
                 'p-2 rounded-full transition-colors hover:bg-slate-100 xl:hidden shrink-0',
-                !isScrolled && pathname === `/${locale}` ? 'text-white hover:bg-white/20' : 'text-slate-700'
+                isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700'
               )}
               aria-label="Open Menu"
             >

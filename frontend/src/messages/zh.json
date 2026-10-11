@@ -9,7 +9,10 @@
     "specialties": "地方特产",
     "contact": "联系我们",
     "admin": "管理后台",
+    "profile": "个人中心",
+    "myBookings": "我的订单",
     "myCart": "我的购物车",
+    "login": "登录",
     "logout": "退出登录"
   },
   "hero": {
@@ -48,9 +51,11 @@
     "duration": "时间:",
     "from": "从",
     "perNight": "1晚起",
-    "readMore": "阅读更多 →"
+    "readMore": "阅读更多 →",
+    "newsDefaultCategory": "旅游指南"
   },
   "featured": {
+    "badge": "顶级体验",
     "title": "精选旅游线路",
     "subtitle": "探索最受欢迎的旅行计划",
     "viewAll": "查看全部",
@@ -71,6 +76,7 @@
     "viewAll": "查看所有酒店"
   },
   "newsSection": {
+    "badge": "旅行故事",
     "title": "旅游指南与经验",
     "subtitle": "获取最新的旅游资讯、实用攻略与探索行程",
     "viewAll": "查看所有文章",
@@ -81,6 +87,7 @@
     "title": "真实客户反馈"
   },
   "whyUs": {
+    "badge": "卓越价值",
     "title": "为什么选择我们",
     "items": {
       "trust": "卓越信誉",
@@ -224,7 +231,16 @@
     "payment_method_note": "支付方式",
     "payment_vietqr": "VietQR转账",
     "payment_office": "门店付款",
-    "error_checkout_failed": "预订失败，请重试。"
+    "error_checkout_failed": "预订失败，请重试。",
+    "hotelBadge": "酒店住宿",
+    "flightBadge": "机票服务",
+    "checkinDate": "入住日期：",
+    "stepServices": "服务明细",
+    "stepInfo": "客户资料",
+    "stepPayment": "订单支付",
+    "maintenanceBadge": "临时维护",
+    "onlineDisabledDesc": "在线支付通道暂时不可用，正在升级维护中",
+    "onlineDisabledTitle": "在线支付网关临时维护升级中"
   },
   "booking": {
     "success": "预订成功！",
@@ -261,7 +277,9 @@
     "roleAdmin": "管理员",
     "roleCustomer": "会员客户",
     "addressLabel": "交易地址",
-    "saveBtn": "保存更改"
+    "saveBtn": "保存更改",
+    "updateError": "更新个人信息失败，请重试。",
+    "addressPlaceholder": "请输入您的详细地址..."
   },
   "common": {
     "loading": "正在加载...",
@@ -275,7 +293,15 @@
     "select": "选择",
     "viewDetails": "查看详情",
     "viewAll": "查看全部",
-    "readMore": "阅读更多"
+    "readMore": "阅读更多",
+    "workingHours": "工作时间",
+    "editor": "编辑",
+    "viewAndBook": "查看与预订",
+    "verifiedSystem": "经 Travel 系统官方认证",
+    "checkInDate": "入住日期：",
+    "hotTour": "热门行程",
+    "hotelType": "酒店",
+    "flightType": "机票"
   },
   "footer": {
     "about": "Travel Booking",
@@ -311,7 +337,11 @@
     "readyTitle": "准备好下一次旅行了吗？",
     "readySub": "成千上万个激动人心的目的地等着您。",
     "exploreToursBtn": "探索行程",
-    "contactBtn": "联系我们"
+    "contactBtn": "联系我们",
+    "metaTitleFallback": "关于我们 - Travel Booking",
+    "titleFallback": "关于 Travel Booking",
+    "contentFallback": "内容正在更新中...",
+    "description": "凭借一流的管家式服务与专业团队，为您打造难忘的旅行体验。"
   },
   "contact": {
     "heroTag": "☎️ 24/7 支持",
@@ -319,6 +349,7 @@
     "heroSub": "我们随时准备倾听并支持您的问题。",
     "infoTitle": "联系方式",
     "hqTitle": "总部",
+    "mainBranch": "总部",
     "hotlineTitle": "客服热线",
     "hotlineSub": "免费拨打 24/7",
     "emailTitle": "咨询邮箱",
@@ -330,13 +361,16 @@
     "emailLabel": "电子邮件 *",
     "phoneLabel": "电话号码 *",
     "subjectLabel": "咨询主题",
+    "subjectPlaceholder": "旅游咨询、酒店预订...",
     "msgLabel": "留言内容 *",
+    "msgPlaceholder": "请输入需要协助的内容...",
     "submitBtn": "发送信息",
     "successTitle": "信息发送成功！",
     "successDesc": "感谢您的联系。我们已收到您的信息。",
     "anotherMsgBtn": "发送其他信息"
   },
   "lookup": {
+    "badge": "在线订单查询系统",
     "heroTitle": "查询预订订单",
     "heroSub": "输入预订代码（例如：TRV-123456）以查看行程状态",
     "placeholder": "请输入行程预订代码",
@@ -375,7 +409,39 @@
     "amount": "金额:",
     "content": "转账说明:",
     "homeBtn": "首页",
-    "lookupBtn": "查询订单"
+    "lookupBtn": "查询订单",
+    "title": "预订成功！",
+    "subtitle": "感谢您选择 Travel Booking。我们已收到您的预订信息。",
+    "bookingCodeLabel": "您的预订代码",
+    "saveCodeNote": "请妥善保存此代码以便查询行程状态。",
+    "loadingDetails": "正在加载订单详情...",
+    "bookedService": "已订项目",
+    "hotel": "酒店",
+    "tour": "旅游路线",
+    "pendingStatus": "待确认",
+    "rooms": "间客房",
+    "guests": "位旅客",
+    "adults": "位成人",
+    "children": "位儿童",
+    "booker": "预订人",
+    "phone": "联系电话",
+    "email": "电子邮箱",
+    "vietqrTitle": "VietQR 银行转账",
+    "vietqrSubtitle": "扫描二维码自动填入金额与附言快速支付",
+    "vietqrAlt": "支付二维码",
+    "mbBank": "MB 军队股份商业银行",
+    "accountNumber": "银行账号：",
+    "accountOwner": "账户名：",
+    "companyName": "TRAVEL BOOKING 旅游有限公司",
+    "transferContent": "转账附言：",
+    "homeButton": "返回首页",
+    "lookupButton": "查询订单",
+    "officePaymentTitle": "门店付款 / 占座",
+    "officePaymentDesc": "您的订单已录入系统",
+    "waitingPayment": "等待付款",
+    "officePaymentNotice": "感谢您的预订！订单已转交专属客服。您可以前往我们的门店付款，或等待客服在15-30分钟内致电确认。",
+    "hotline247": "24/7 客服热线：",
+    "bookingCodeShort": "预订代码："
   },
   "visa": {
     "heroTitle": "一站式旅游签证服务",
@@ -514,11 +580,35 @@
     "instantTicketDesc": "付款后立即将预订代码和电子机票直接发送至您的邮箱。"
   },
   "filters": {
+    "searchPlaceholder": "按名称或目的地搜索...",
+    "filter": "筛选",
+    "categories": "旅游类别",
+    "allCategories": "所有类别",
+    "clearFilters": "清除筛选",
+    "noResults": "未找到匹配结果",
     "destinations": "按地区筛选",
     "allDests": "所有目的地",
     "priceRange": "价格范围",
     "starRating": "星级评分",
-    "allStars": "所有"
+    "allStars": "所有",
+    "priceAll": "所有价格区间",
+    "priceUnder1m": "100万以下",
+    "price1to2m": "100万 – 200万",
+    "price2to4m": "200万 – 400万",
+    "priceAbove4m": "400万以上",
+    "allToursTitle": "探索全部精选旅行团",
+    "allToursSubtitle": "在 Travel 搜寻并预订性价比极高的优质旅行行程。",
+    "featuredToursTitle": "2026 年度精选热门旅游行程",
+    "featuredToursSubtitle": "精选深受广大旅客 5 星好评的经典绝美旅行路线。",
+    "destToursTitle": "{dest} 热门旅游行程",
+    "destToursSubtitle": "为您呈现当前在 {dest} 最受欢迎的精选旅行产品。",
+    "destinationBadge": "目的地: {dest}",
+    "hotTripBadge": "热门探索之旅",
+    "toursFound": "条路线",
+    "sortBy": "排序：",
+    "sortNewest": "最新",
+    "sortPriceAsc": "价格：从低到高",
+    "sortPriceDesc": "价格：从高到低"
   },
   "flashSale": {
     "title": "🔥 黄金时段限时特惠",
@@ -590,7 +680,8 @@
     "errFillInfo": "请填写您的姓名、电子邮件和电话号码。",
     "errSelectDates": "请选择入住和退房日期。",
     "errInvalidDates": "退房日期必须在入住日期之后。",
-    "selectedLabel": "已选择: "
+    "selectedLabel": "已选择: ",
+    "error": "预订时发生错误，请重试。"
   },
   "specialtiesPage": {
     "badge": "🍜 越南三大地区特色美食",
@@ -608,5 +699,72 @@
     "noMatchTitle": "未找到符合条件的佳肴",
     "noMatchSub": "请尝试更改搜索关键词或地区筛选。",
     "refPrice": "参考价格"
+  },
+  "tourDetail": {
+    "duration": "行程天数",
+    "destination": "旅游目的地",
+    "groupSize": "团队规模",
+    "peopleUnit": "人",
+    "insurance": "旅游保险",
+    "included": "已包含",
+    "recentSchedule": "近期出发班期",
+    "colDate": "出发日期",
+    "colPrice": "行程价格",
+    "colStatus": "余位状态",
+    "colAction": "操作",
+    "slotsLeft": "仅剩 {slots} 个名额",
+    "selectedBtn": "已选定 ✓",
+    "selectDateBtn": "选择日期",
+    "highlightsTitle": "行程亮点与特色",
+    "itineraryTitle": "详细探索行程 ({days} 天)",
+    "itineraryContactNote": "请联系客服获取完整逐日行程安排。",
+    "importantNotesTitle": "出行须知与特别说明",
+    "inclusionsTitle": "费用包含：",
+    "exclusionsTitle": "费用不含：",
+    "photosCount": "{current} / {total} 张照片",
+    "reviewsCount": "{count} 条评价",
+    "relatedTours": "精选推荐热门行程",
+    "viewAllTours": "查看全部行程",
+    "tourNotFound": "未找到该行程信息"
+  },
+  "tourBooking": {
+    "pricePerGuest": "单人行程价格",
+    "slotsAvailable": "有名额",
+    "selectDeparture": "选择出发团期 *",
+    "selectDeparturePlaceholder": "-- 请选择出发日期 --",
+    "slotsRemaining": "(剩余 {slots} 位)",
+    "departureDate": "出发日期 *",
+    "adultsLabel": "成人 (≥12岁)",
+    "childrenLabel": "儿童 (7折特惠)",
+    "subtotalLabel": "费用小计",
+    "taxFeeIncluded": "已包含所有税费",
+    "bookNowBtn": "立即预订行程",
+    "directConsult": "人工专线咨询 (1800 646 888)",
+    "instantHold": "即时保留席位",
+    "securePayment": "100% 安全交易保障",
+    "errSelectDate": "请先选择出发日期"
+  },
+  "userBookings": {
+    "backToProfile": "返回个人中心",
+    "title": "我的预订历史",
+    "subtitle": "随时跟踪您的订单状态及行程安排",
+    "exploreMore": "+ 发现更多精彩行程",
+    "tabAll": "全部订单",
+    "tabPending": "待确认",
+    "tabConfirmed": "已确认",
+    "tabCancelled": "已取消",
+    "emptyTitle": "该分类下暂无预订订单",
+    "emptyDesc": "快来与 Travel 一起挑选并开启难忘的全新旅程吧！",
+    "viewToursBtn": "浏览全部行程",
+    "cancelSuccess": "订单已成功取消",
+    "cancelConfirm": "您确定要取消此订单吗？",
+    "cancelError": "取消订单失败",
+    "orderCode": "订单编号",
+    "viewDetail": "查看详情",
+    "cancelOrder": "取消订单",
+    "defaultHotel": "酒店与度假村",
+    "defaultFlight": "机票订单",
+    "defaultTour": "精彩跟团游",
+    "flightNumber": "航班 {code}"
   }
 }

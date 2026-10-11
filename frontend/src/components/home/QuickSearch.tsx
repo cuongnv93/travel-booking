@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
+import Image from 'next/image';
 import { Search, MapPin, Calendar, Users, Plane, Hotel, Map, Flame, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -87,9 +88,9 @@ function QuickSearchComponent() {
       className="w-full relative z-40"
     >
       {/* Main Search Card Container */}
-      <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-2xl shadow-slate-900/20 border border-slate-200/80 relative z-40 backdrop-blur-xl">
+      <div className="bg-white rounded-3xl p-4 sm:p-7 shadow-2xl shadow-slate-900/20 border border-slate-200/80 relative z-40 backdrop-blur-xl">
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-100 pb-4">
+        <div className="flex flex-wrap gap-2 mb-5 sm:mb-6 border-b border-slate-100 pb-4">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -99,9 +100,9 @@ function QuickSearchComponent() {
                 type="button"
                 onClick={() => setActiveTab(tab.id as any)}
                 className={cn(
-                  'flex items-center gap-2.5 px-6 py-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer',
+                  'flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all duration-200 cursor-pointer',
                   isActive
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-105'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02] sm:scale-105'
                     : 'text-slate-600 bg-slate-100/80 hover:bg-slate-200/70 hover:text-slate-900'
                 )}
               >
@@ -153,9 +154,11 @@ function QuickSearchComponent() {
                         className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-blue-50/80 text-slate-800 hover:text-blue-700 flex items-center justify-between transition-all group cursor-pointer border border-transparent hover:border-blue-100"
                       >
                         <div className="flex items-center gap-3">
-                          <img
+                          <Image
                             src={item.image}
                             alt={item.name}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-xs group-hover:scale-105 transition-transform shrink-0"
                           />
                           <div>
@@ -254,9 +257,11 @@ function QuickSearchComponent() {
               onClick={() => selectDestination(item.name)}
               className="bg-slate-50 hover:bg-blue-600 text-slate-800 hover:text-white pl-1.5 pr-3.5 py-1 rounded-full font-bold text-xs shadow-xs border border-slate-200/90 hover:border-blue-600 transition-all cursor-pointer flex items-center gap-2 group hover:-translate-y-0.5"
             >
-              <img
+              <Image
                 src={item.image}
                 alt={item.name}
+                width={20}
+                height={20}
                 className="w-5 h-5 rounded-full object-cover ring-2 ring-white group-hover:ring-blue-400 shrink-0"
               />
               <span>{item.name}</span>

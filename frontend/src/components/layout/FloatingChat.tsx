@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, memo } from 'react';
 import { MessageCircle, X, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { ZaloIcon } from '@/components/ui/SocialIcons';
 
 function FloatingChatComponent() {
   const t = useTranslations('floatingChat');
@@ -20,11 +21,7 @@ function FloatingChatComponent() {
         sublabel: t('zaloSub'),
         href: 'https://zalo.me/0987654321',
         color: 'bg-blue-500 hover:bg-blue-600',
-        icon: (
-          <svg viewBox="0 0 48 48" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm-4.5 27.5H14v-2.2l5.8-7.8H14v-2.5h5.5v2.2l-5.8 7.8h5.8v2.5zm6.5 0h-2.5V22h2.5v9.5zm-1.25-11.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm8.75 11.5h-2.3l-3.7-9.5h2.6l2.3 6.4 2.3-6.4H37l-3.5 9.5z"/>
-          </svg>
-        ),
+        icon: <ZaloIcon className="w-5 h-auto text-white" />,
       },
       {
         id: 'whatsapp',
@@ -51,7 +48,7 @@ function FloatingChatComponent() {
   );
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
       {/* Contact options */}
       {open && (
         <div className="flex flex-col gap-2 mb-1 animate-in slide-in-from-bottom-4 fade-in duration-200">
@@ -61,14 +58,14 @@ function FloatingChatComponent() {
               href={c.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 bg-white rounded-2xl shadow-xl border border-slate-100 px-4 py-3 pr-5 hover:shadow-2xl transition-all hover:-translate-y-0.5 group"
+              className="flex items-center gap-3 bg-white rounded-2xl shadow-xl border border-slate-100 px-3.5 py-2.5 sm:px-4 sm:py-3 pr-4 sm:pr-5 hover:shadow-2xl transition-all hover:-translate-y-0.5 group"
             >
-              <div className={`w-10 h-10 rounded-xl ${c.color} flex items-center justify-center shadow-md shrink-0 transition-colors`}>
+              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${c.color} flex items-center justify-center shadow-md shrink-0 transition-colors`}>
                 {c.icon}
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-slate-900 leading-none">{c.label}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">{c.sublabel}</p>
+                <p className="text-xs sm:text-sm font-bold text-slate-900 leading-none">{c.label}</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">{c.sublabel}</p>
               </div>
             </a>
           ))}
@@ -78,23 +75,23 @@ function FloatingChatComponent() {
       {/* Toggle Button */}
       <button
         onClick={toggleOpen}
-        className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
           open
             ? 'bg-slate-700 hover:bg-slate-800 rotate-0'
             : 'bg-gradient-to-br from-blue-600 to-teal-500 hover:scale-110'
-        } shadow-blue-500/30`}
+        } shadow-blue-500/30 cursor-pointer`}
         aria-label="Contact"
       >
         {open ? (
-          <X className="w-6 h-6 text-white" />
+          <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         ) : (
-          <MessageCircle className="w-6 h-6 text-white" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         )}
       </button>
 
       {/* Pulse ring when closed */}
       {!open && (
-        <span className="absolute bottom-0 right-0 w-14 h-14 rounded-full bg-blue-500/30 animate-ping pointer-events-none" />
+        <span className="absolute bottom-0 right-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-500/30 animate-ping pointer-events-none" />
       )}
     </div>
   );

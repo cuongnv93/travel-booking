@@ -30,4 +30,6 @@ const flightSchema = new Schema<IFlight>({
   createdAt: { type: Date, default: Date.now }
 });
 
+flightSchema.index({ from: 1, to: 1, isAvailable: 1, price: 1 });
+
 export default mongoose.model<IFlight>('Flight', flightSchema);

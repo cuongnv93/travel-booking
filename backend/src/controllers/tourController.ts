@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Tour from '../models/Tour';
-import { paginate } from '../utils/helpers';
+import { paginate, escapeRegex } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
 
 const generateSlug = (title: string) => {
@@ -17,7 +17,7 @@ const generateSlug = (title: string) => {
 const TOUR_LANDMARK_MAP: Record<string, string[]> = {
   'ha-long-bay': [
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'nha-trang-diving': [
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200',
@@ -25,11 +25,11 @@ const TOUR_LANDMARK_MAP: Record<string, string[]> = {
   ],
   'ho-guom-hanoi': [
     'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'da-nang-ba-na-hills': [
     'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200',
-    'https://images.unsplash.com/photo-1587573088695-cb4fb810d613?w=1200'
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200'
   ],
   'ban-gioc-cao-bang': [
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
@@ -40,12 +40,12 @@ const TOUR_LANDMARK_MAP: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200'
   ],
   'sapa-fansipan': [
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200',
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'hue-culture-tour': [
     'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ]
 };
 
@@ -77,7 +77,7 @@ export const getAll = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 10, destination, category, minPrice, maxPrice, sort, isFeatured } = req.query;
     const query: any = {};
-    if (destination) query.destination = new RegExp(destination as string, 'i');
+    if (destination) query.destination = new RegExp(escapeRegex(destination as string), 'i');
     if (category) query.category = category;
     if (isFeatured !== undefined) query.isFeatured = isFeatured === 'true';
     if (minPrice || maxPrice) {
@@ -98,7 +98,8 @@ export const getAll = async (req: Request, res: Response) => {
     const tours = await Tour.find(query)
       .sort(sortOptions)
       .skip((Number(page) - 1) * Number(limit))
-      .limit(Number(limit));
+      .limit(Number(limit))
+      .lean();
     const total = await Tour.countDocuments(query);
     const result = paginate(tours, total, Number(page), Number(limit));
     cacheService.set(cacheKey, result);
@@ -110,6 +111,9 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const getDestinations = async (_req: Request, res: Response) => {
   try {
+    const cached = cacheService.get('tour_destinations');
+    if (cached) return res.json(cached);
+
     const rawDestinations = await Tour.distinct('destination');
     const filtered = rawDestinations.filter(Boolean);
 
@@ -117,8 +121,9 @@ export const getDestinations = async (_req: Request, res: Response) => {
       filtered.map(async (destName) => {
         const sampleTour = await Tour.findOne({ destination: destName })
           .sort({ isFeatured: -1, rating: -1, createdAt: -1 })
-          .select('images');
-        const image = sampleTour?.images?.[0] || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800';
+          .select('images')
+          .lean();
+        const image = sampleTour?.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
         return {
           name: destName,
           image: image
@@ -126,6 +131,7 @@ export const getDestinations = async (_req: Request, res: Response) => {
       })
     );
 
+    cacheService.set('tour_destinations', list);
     res.json(list);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -134,7 +140,11 @@ export const getDestinations = async (_req: Request, res: Response) => {
 
 export const getBySlug = async (req: Request, res: Response) => {
   try {
-    const tour = await Tour.findOne({ slug: req.params.slug });
+    const { slug } = req.params;
+    let tour = await Tour.findOne({ slug }).lean();
+    if (!tour && /^[0-9a-fA-F]{24}$/.test(slug)) {
+      tour = await Tour.findById(slug).lean();
+    }
     if (!tour) return res.status(404).json({ message: 'Tour not found' });
     res.json(tour);
   } catch (error: any) {
@@ -145,8 +155,9 @@ export const getBySlug = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
   try {
     const data = { ...req.body };
-    if (!data.slug && data.title?.vi) {
-      data.slug = generateSlug(data.title.vi);
+    if (!data.slug) {
+      const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
+      data.slug = generateSlug(String(titleStr));
     }
     const tour = await Tour.create(data);
     cacheService.flush();
@@ -159,8 +170,9 @@ export const create = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   try {
     const data = { ...req.body };
-    if (!data.slug && data.title?.vi) {
-      data.slug = generateSlug(data.title.vi);
+    if (!data.slug && data.title) {
+      const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
+      data.slug = generateSlug(String(titleStr));
     }
     const tour = await Tour.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!tour) return res.status(404).json({ message: 'Tour not found' });

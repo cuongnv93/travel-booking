@@ -14,7 +14,12 @@ const connectDB = async (): Promise<void> => {
 
     try {
       console.log('Attempting connection to MongoDB at:', mongoUri);
-      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 15000 });
+      await mongoose.connect(mongoUri, {
+        serverSelectionTimeoutMS: 15000,
+        maxPoolSize: 25,
+        minPoolSize: 5,
+        socketTimeoutMS: 45000,
+      });
       console.log('✅ Connected to Persistent MongoDB Database!');
     } catch (err: any) {
       if (process.env.NODE_ENV === 'production') {

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Search, Image as ImageIcon, Upload, Loader2, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { getI18nText } from '@/lib/utils';
+import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 
 const fetchAdminNews = async () => {
   const res: any = await api.get('/news/admin/all');
@@ -23,6 +24,78 @@ const toSlug = (text: string) =>
   text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[đĐ]/g, 'd').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
+interface NewsTableRowProps {
+  article: any;
+  onEdit: (article: any) => void;
+  onDelete: (id: string) => void;
+  onTogglePublish: (id: string, val: boolean) => void;
+}
+
+const NewsTableRow = memo(function NewsTableRow({
+  article,
+  onEdit,
+  onDelete,
+  onTogglePublish,
+}: NewsTableRowProps) {
+  const [imgSrc, setImgSrc] = useState(article.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800');
+
+  return (
+    <tr className="hover:bg-slate-50/80 transition-colors">
+      <td className="px-6 py-3.5 flex items-center gap-3">
+        <div className="w-12 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={() => setImgSrc('https://images.unsplash.com/photo-1528127269322-539801943592?w=800')}
+            />
+          ) : (
+            <FileText className="w-4 h-4 text-slate-400 m-auto mt-3" />
+          )}
+        </div>
+        <div>
+          <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{article.title?.vi || 'Untitled'}</p>
+          <p className="text-[11px] text-slate-400 font-mono">{article.slug}</p>
+        </div>
+      </td>
+      <td className="px-6 py-3.5">
+        <span className="bg-blue-50 text-blue-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
+          {CATEGORIES.find((c) => c.value === article.category)?.label || article.category}
+        </span>
+      </td>
+      <td className="px-6 py-3.5 text-slate-600">{article.author}</td>
+      <td className="px-6 py-3.5">
+        <button
+          onClick={() => onTogglePublish(article._id, !article.isPublished)}
+          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
+            article.isPublished
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+          }`}
+        >
+          {article.isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+          {article.isPublished ? 'Đã đăng' : 'Nháp'}
+        </button>
+      </td>
+      <td className="px-6 py-3.5 text-right space-x-1.5">
+        <button
+          onClick={() => onEdit(article)}
+          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs"
+        >
+          Sửa
+        </button>
+        <button
+          onClick={() => onDelete(article._id)}
+          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs"
+        >
+          Xóa
+        </button>
+      </td>
+    </tr>
+  );
+});
+
 export default function AdminNewsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -31,11 +104,10 @@ export default function AdminNewsPage() {
   const [isUploading, setIsUploading] = useState(false);
 
   // Form state
-  const [titleVi, setTitleVi] = useState('');
-  const [titleEn, setTitleEn] = useState('');
-  const [excerptVi, setExcerptVi] = useState('');
-  const [contentVi, setContentVi] = useState('');
-  const [contentEn, setContentEn] = useState('');
+  const [activeLang, setActiveLang] = useState<string>('vi');
+  const [title, setTitle] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [excerpt, setExcerpt] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [content, setContent] = useState<Record<string, string>>(createEmptyI18nRecord());
   const [thumbnail, setThumbnail] = useState('');
   const [category, setCategory] = useState('experience');
   const [author, setAuthor] = useState('');
@@ -94,7 +166,10 @@ export default function AdminNewsPage() {
 
   const resetForm = () => {
     setEditingArticle(null);
-    setTitleVi(''); setTitleEn(''); setExcerptVi(''); setContentVi(''); setContentEn('');
+    setActiveLang('vi');
+    setTitle(createEmptyI18nRecord());
+    setExcerpt(createEmptyI18nRecord());
+    setContent(createEmptyI18nRecord());
     setThumbnail(''); setCategory('experience'); setAuthor(''); setIsPublished(true);
   };
 
@@ -102,11 +177,10 @@ export default function AdminNewsPage() {
 
   const openEditModal = (article: any) => {
     setEditingArticle(article);
-    setTitleVi(article.title?.vi || '');
-    setTitleEn(article.title?.en || '');
-    setExcerptVi(article.excerpt?.vi || '');
-    setContentVi(article.content?.vi || '');
-    setContentEn(article.content?.en || '');
+    setActiveLang('vi');
+    setTitle(toI18nRecord(article.title));
+    setExcerpt(toI18nRecord(article.excerpt));
+    setContent(toI18nRecord(article.content));
     setThumbnail(article.thumbnail || '');
     setCategory(article.category || 'experience');
     setAuthor(article.author || '');
@@ -116,41 +190,36 @@ export default function AdminNewsPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = editingArticle?.slug || toSlug(titleVi || 'bai-viet-' + Date.now());
+    const slug = editingArticle?.slug || toSlug(title.vi || 'bai-viet-' + Date.now());
     saveMutation.mutate({
       slug,
-      title: {
-        vi: titleVi,
-        en: titleEn || titleVi,
-        zh: titleEn || titleVi,
-        ko: titleEn || titleVi,
-        ja: titleEn || titleVi,
-      },
-      excerpt: {
-        vi: excerptVi,
-        en: excerptVi,
-        zh: excerptVi,
-        ko: excerptVi,
-        ja: excerptVi,
-      },
-      content: {
-        vi: contentVi,
-        en: contentEn || contentVi,
-        zh: contentEn || contentVi,
-        ko: contentEn || contentVi,
-        ja: contentEn || contentVi,
-      },
-      thumbnail: thumbnail || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800',
+      title: sanitizeI18nRecord(title),
+      excerpt: sanitizeI18nRecord(excerpt),
+      content: sanitizeI18nRecord(content),
+      thumbnail: thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
       category,
       author: author || 'Biên tập viên',
       isPublished,
     });
   };
 
-  const filtered = newsList.filter((n: any) => {
-    const t = n.title?.vi || '';
-    return t.toLowerCase().includes(search.toLowerCase());
-  });
+  const handleDelete = useCallback((id: string) => {
+    if (confirm('Xóa bài viết này?')) {
+      deleteMutation.mutate(id);
+    }
+  }, [deleteMutation]);
+
+  const handleTogglePublish = useCallback((id: string, val: boolean) => {
+    togglePublishMutation.mutate({ id, val });
+  }, [togglePublishMutation]);
+
+  const filtered = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return newsList.filter((n: any) => {
+      const t = typeof n.title === 'string' ? n.title : (n.title?.vi || n.title?.en || '');
+      return !s || t.toLowerCase().includes(s);
+    });
+  }, [newsList, search]);
 
   if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
 
@@ -191,46 +260,17 @@ export default function AdminNewsPage() {
                 <tr><td colSpan={5} className="px-6 py-6 text-center text-slate-400">Đang tải...</td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-6 text-center text-slate-400">Chưa có bài viết nào.</td></tr>
-              ) : filtered.map((article: any) => (
-                <tr key={article._id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="px-6 py-3.5 flex items-center gap-3">
-                    <div className="w-12 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
-                      {article.thumbnail ? (
-                        <img src={article.thumbnail} alt="" className="w-full h-full object-cover" />
-                      ) : <FileText className="w-4 h-4 text-slate-400 m-auto mt-3" />}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{article.title?.vi || 'Untitled'}</p>
-                      <p className="text-[11px] text-slate-400 font-mono">{article.slug}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <span className="bg-blue-50 text-blue-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
-                      {CATEGORIES.find(c => c.value === article.category)?.label || article.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-slate-600">{article.author}</td>
-                  <td className="px-6 py-3.5">
-                    <button
-                      onClick={() => togglePublishMutation.mutate({ id: article._id, val: !article.isPublished })}
-                      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
-                        article.isPublished
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                          : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
-                      }`}
-                    >
-                      {article.isPublished ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                      {article.isPublished ? 'Đã đăng' : 'Nháp'}
-                    </button>
-                  </td>
-                  <td className="px-6 py-3.5 text-right space-x-1.5">
-                    <button onClick={() => openEditModal(article)}
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs">Sửa</button>
-                    <button onClick={() => { if (confirm('Xóa bài viết này?')) deleteMutation.mutate(article._id); }}
-                      className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs">Xóa</button>
-                  </td>
-                </tr>
-              ))}
+              ) : (
+                filtered.map((article: any) => (
+                  <NewsTableRow
+                    key={article._id}
+                    article={article}
+                    onEdit={openEditModal}
+                    onDelete={handleDelete}
+                    onTogglePublish={handleTogglePublish}
+                  />
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -247,33 +287,64 @@ export default function AdminNewsPage() {
             </div>
 
             <form onSubmit={handleSave} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Tiêu đề (Tiếng Việt) *</label>
-                  <input required value={titleVi} onChange={e => setTitleVi(e.target.value)}
-                    placeholder="VD: Top 10 điểm đến đẹp nhất Việt Nam"
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h3 className="font-bold text-slate-800">Thông tin bài viết & Đa ngôn ngữ</h3>
                 </div>
+
+                <AdminI18nTabs
+                  activeLang={activeLang}
+                  onChange={setActiveLang}
+                  hasContent={{
+                    vi: !!title.vi,
+                    en: !!title.en,
+                    zh: !!title.zh,
+                    ko: !!title.ko,
+                    ja: !!title.ja,
+                  }}
+                  label="Chọn ngôn ngữ nhập liệu cho Tiêu đề, Tóm tắt & Nội dung:"
+                />
+
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Tiêu đề (Tiếng Anh)</label>
-                  <input value={titleEn} onChange={e => setTitleEn(e.target.value)}
-                    placeholder="EN: Top 10 Most Beautiful Destinations"
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
+                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                    Tiêu đề ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                  </label>
+                  <input
+                    required={activeLang === 'vi'}
+                    value={title[activeLang] || ''}
+                    onChange={(e) => setTitle((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                    placeholder={activeLang === 'vi' ? 'VD: Top 10 điểm đến đẹp nhất Việt Nam' : `Tiêu đề bằng tiếng ${activeLang.toUpperCase()}...`}
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold"
+                  />
                 </div>
-              </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Tóm tắt (Excerpt) *</label>
-                <textarea rows={2} required value={excerptVi} onChange={e => setExcerptVi(e.target.value)}
-                  placeholder="Tóm tắt ngắn gọn nội dung bài viết (hiển thị ở trang listing)..."
-                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-              </div>
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                    Tóm tắt Excerpt ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                  </label>
+                  <textarea
+                    rows={2}
+                    required={activeLang === 'vi'}
+                    value={excerpt[activeLang] || ''}
+                    onChange={(e) => setExcerpt((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                    placeholder="Tóm tắt ngắn gọn nội dung bài viết (hiển thị ở trang listing)..."
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Nội dung bài viết (Tiếng Việt) *</label>
-                <textarea rows={8} required value={contentVi} onChange={e => setContentVi(e.target.value)}
-                  placeholder="Nội dung đầy đủ bài viết. Hỗ trợ HTML tags (<h2>, <p>, <ul>, <li>, <strong>)..."
-                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-[11px]" />
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                    Nội dung bài viết ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                  </label>
+                  <textarea
+                    rows={8}
+                    required={activeLang === 'vi'}
+                    value={content[activeLang] || ''}
+                    onChange={(e) => setContent((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                    placeholder="Nội dung đầy đủ bài viết. Hỗ trợ HTML tags (<h2>, <p>, <ul>, <li>, <strong>)..."
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-[11px]"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

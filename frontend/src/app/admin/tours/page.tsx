@@ -1,16 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Plus, Edit, Trash2, Star, X, Search, Image as ImageIcon, Upload, Loader2, Check, Calendar, MapPin, Sparkles, Compass } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
+import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 
 const fetchAdminTours = async () => {
   const res: any = await api.get('/tours?limit=100');
   return res?.data || [];
 };
+
+interface TourTableRowProps {
+  tour: any;
+  onEdit: (tour: any) => void;
+  onDelete: (id: string) => void;
+}
+
+const TourTableRow = memo(function TourTableRow({ tour, onEdit, onDelete }: TourTableRowProps) {
+  const [imgSrc, setImgSrc] = useState(tour.images?.[0] || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800');
+  const title = typeof tour.title === 'string' ? tour.title : (tour.title?.vi || 'N/A');
+  const id = tour._id || tour.id;
+
+  return (
+    <tr className="hover:bg-slate-50/80 transition-colors">
+      <td className="px-6 py-3.5 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={() => setImgSrc('https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800')}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-slate-400">
+              <ImageIcon className="w-4 h-4" />
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="font-semibold text-slate-900 line-clamp-1">{title}</p>
+          <p className="text-[11px] text-slate-400 font-mono">{tour.slug}</p>
+        </div>
+      </td>
+      <td className="px-6 py-3.5">
+        <span className="bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
+          {tour.destination}
+        </span>
+      </td>
+      <td className="px-6 py-3.5 font-medium">{tour.duration} ngày</td>
+      <td className="px-6 py-3.5">
+        <p className="font-bold text-slate-900">{formatPrice(tour.price)}</p>
+        {tour.originalPrice && (
+          <p className="text-[11px] text-slate-400 line-through">{formatPrice(tour.originalPrice)}</p>
+        )}
+      </td>
+      <td className="px-6 py-3.5">
+        {tour.isFeatured ? (
+          <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
+            <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> Nổi bật
+          </span>
+        ) : (
+          <span className="text-slate-400 text-[11px]">Thường</span>
+        )}
+      </td>
+      <td className="px-6 py-3.5 text-right space-x-1.5">
+        <button
+          onClick={() => onEdit(tour)}
+          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs"
+        >
+          Sửa
+        </button>
+        <button
+          onClick={() => onDelete(id)}
+          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs"
+        >
+          Xóa
+        </button>
+      </td>
+    </tr>
+  );
+});
 
 export default function ToursAdminPage() {
   const queryClient = useQueryClient();
@@ -21,10 +94,9 @@ export default function ToursAdminPage() {
   const [editingTour, setEditingTour] = useState<any>(null);
 
   // Form State
-  const [titleVi, setTitleVi] = useState('');
-  const [titleEn, setTitleEn] = useState('');
-  const [descriptionVi, setDescriptionVi] = useState('');
-  const [descriptionEn, setDescriptionEn] = useState('');
+  const [activeLang, setActiveLang] = useState<string>('vi');
+  const [title, setTitle] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [description, setDescription] = useState<Record<string, string>>(createEmptyI18nRecord());
   const [price, setPrice] = useState(1500000);
   const [originalPrice, setOriginalPrice] = useState(2000000);
   const [duration, setDuration] = useState(3);
@@ -169,10 +241,9 @@ export default function ToursAdminPage() {
 
   const openCreateModal = () => {
     setEditingTour(null);
-    setTitleVi('');
-    setTitleEn('');
-    setDescriptionVi('');
-    setDescriptionEn('');
+    setActiveLang('vi');
+    setTitle(createEmptyI18nRecord());
+    setDescription(createEmptyI18nRecord());
     setPrice(2000000);
     setOriginalPrice(2500000);
     setDuration(3);
@@ -197,10 +268,9 @@ export default function ToursAdminPage() {
 
   const openEditModal = (tour: any) => {
     setEditingTour(tour);
-    setTitleVi(tour.title?.vi || (typeof tour.title === 'string' ? tour.title : ''));
-    setTitleEn(tour.title?.en || '');
-    setDescriptionVi(tour.description?.vi || (typeof tour.description === 'string' ? tour.description : ''));
-    setDescriptionEn(tour.description?.en || '');
+    setActiveLang('vi');
+    setTitle(toI18nRecord(tour.title));
+    setDescription(toI18nRecord(tour.description));
     setPrice(tour.price || 0);
     setOriginalPrice(tour.originalPrice || 0);
     setDuration(tour.duration || 1);
@@ -252,7 +322,7 @@ export default function ToursAdminPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = (titleVi || 'tour-' + Date.now())
+    const slug = (title.vi || 'tour-' + Date.now())
       .toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[đĐ]/g, 'd')
@@ -263,11 +333,16 @@ export default function ToursAdminPage() {
       ? images 
       : ['https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800'];
 
-    const formattedHighlights = highlights.map(h => ({ vi: h, en: h }));
-    const formattedItinerary = itinerary.map(day => ({
-      title: { vi: day.title, en: day.title },
-      description: { vi: day.description, en: day.description }
-    }));
+    const formattedHighlights = highlights
+      .filter(h => h && h.trim())
+      .map(h => ({ vi: h.trim(), en: h.trim() }));
+
+    const formattedItinerary = itinerary
+      .filter(day => day.title && day.title.trim())
+      .map(day => ({
+        title: { vi: day.title.trim(), en: day.title.trim() },
+        description: { vi: day.description || '', en: day.description || '' }
+      }));
     const formattedDepartureDates = departureDates
       .filter(dep => dep.date)
       .map(dep => ({
@@ -278,20 +353,8 @@ export default function ToursAdminPage() {
 
     const payload = {
       slug: editingTour ? editingTour.slug : slug,
-      title: {
-        vi: titleVi,
-        en: titleEn || titleVi,
-        zh: titleEn || titleVi,
-        ko: titleEn || titleVi,
-        ja: titleEn || titleVi,
-      },
-      description: {
-        vi: descriptionVi,
-        en: descriptionEn || descriptionVi,
-        zh: descriptionEn || descriptionVi,
-        ko: descriptionEn || descriptionVi,
-        ja: descriptionEn || descriptionVi,
-      },
+      title: sanitizeI18nRecord(title),
+      description: sanitizeI18nRecord(description),
       price: Number(price),
       originalPrice: Number(originalPrice),
       duration: Number(duration),
@@ -311,15 +374,18 @@ export default function ToursAdminPage() {
     saveMutation.mutate(payload);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = useCallback((id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa tour này?')) return;
     deleteMutation.mutate(id);
-  };
+  }, [deleteMutation]);
 
-  const filteredTours = tours.filter((t: any) => {
-    const titleText = typeof t.title === 'string' ? t.title : (t.title?.vi || '');
-    return titleText.toLowerCase().includes(search.toLowerCase()) || (t.destination || '').toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredTours = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return tours.filter((t: any) => {
+      const titleText = typeof t.title === 'string' ? t.title : (t.title?.vi || '');
+      return !s || titleText.toLowerCase().includes(s) || (t.destination || '').toLowerCase().includes(s);
+    });
+  }, [tours, search]);
 
   if (isLoading) return <AdminTableSkeleton cols={6} rows={7} />;
 
@@ -378,65 +444,14 @@ export default function ToursAdminPage() {
                   <td colSpan={6} className="px-6 py-6 text-center text-slate-400">Chưa có tour nào được tìm thấy.</td>
                 </tr>
               ) : (
-                filteredTours.map((tour: any) => {
-                  const title = typeof tour.title === 'string' ? tour.title : (tour.title?.vi || 'N/A');
-                  const id = tour._id || tour.id;
-
-                  return (
-                    <tr key={id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-6 py-3.5 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
-                          {tour.images?.[0] ? (
-                            <img src={tour.images[0]} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-400">
-                              <ImageIcon className="w-4 h-4" />
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900 line-clamp-1">{title}</p>
-                          <p className="text-[11px] text-slate-400 font-mono">{tour.slug}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-3.5">
-                        <span className="bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
-                          {tour.destination}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3.5 font-medium">{tour.duration} ngày</td>
-                      <td className="px-6 py-3.5">
-                        <p className="font-bold text-slate-900">{formatPrice(tour.price)}</p>
-                        {tour.originalPrice && (
-                          <p className="text-[11px] text-slate-400 line-through">{formatPrice(tour.originalPrice)}</p>
-                        )}
-                      </td>
-                      <td className="px-6 py-3.5">
-                        {tour.isFeatured ? (
-                          <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> Nổi bật
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 text-[11px]">Thường</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-3.5 text-right space-x-1.5">
-                        <button
-                          onClick={() => openEditModal(tour)}
-                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs"
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          onClick={() => handleDelete(id)}
-                          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs"
-                        >
-                          Xóa
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredTours.map((tour: any) => (
+                  <TourTableRow
+                    key={tour._id || tour.id}
+                    tour={tour}
+                    onEdit={openEditModal}
+                    onDelete={handleDelete}
+                  />
+                ))
               )}
             </tbody>
           </table>
@@ -459,39 +474,46 @@ export default function ToursAdminPage() {
             <form onSubmit={handleSave} className="space-y-6 text-xs">
               {/* Basic Info */}
               <div className="space-y-4">
-                <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">1. Thông Tin Cơ Bản</h3>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <h3 className="font-bold text-slate-900">1. Thông Tin Cơ Bản & Đa Ngôn Ngữ</h3>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Tên Tour (Tiếng Việt) *</label>
-                    <input
-                      type="text"
-                      required
-                      value={titleVi}
-                      onChange={(e) => setTitleVi(e.target.value)}
-                      placeholder="VD: Hồ Gươm & Phố Cổ Hà Nội..."
-                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Tên Tour (Tiếng Anh)</label>
-                    <input
-                      type="text"
-                      value={titleEn}
-                      onChange={(e) => setTitleEn(e.target.value)}
-                      placeholder="VD: Hanoi Old Quarter Tour..."
-                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
+                <AdminI18nTabs
+                  activeLang={activeLang}
+                  onChange={setActiveLang}
+                  hasContent={{
+                    vi: !!title.vi,
+                    en: !!title.en,
+                    zh: !!title.zh,
+                    ko: !!title.ko,
+                    ja: !!title.ja,
+                  }}
+                  label="Chọn ngôn ngữ nhập liệu cho Tên & Mô tả Tour:"
+                />
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                    Tên Tour ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                  </label>
+                  <input
+                    type="text"
+                    required={activeLang === 'vi'}
+                    value={title[activeLang] || ''}
+                    onChange={(e) => setTitle((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                    placeholder={activeLang === 'vi' ? 'VD: Hồ Gươm & Phố Cổ Hà Nội...' : `Tên tour bằng tiếng ${activeLang.toUpperCase()}...`}
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
+                  />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Mô tả Tour *</label>
+                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                    Mô tả Tour ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                  </label>
                   <textarea
                     rows={3}
-                    required
-                    value={descriptionVi}
-                    onChange={(e) => setDescriptionVi(e.target.value)}
+                    required={activeLang === 'vi'}
+                    value={description[activeLang] || ''}
+                    onChange={(e) => setDescription((prev) => ({ ...prev, [activeLang]: e.target.value }))}
                     placeholder="Mô tả chi tiết về trải nghiệm tour..."
                     className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
                   />

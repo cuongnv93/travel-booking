@@ -54,7 +54,7 @@ export const seedDataInternal = async () => {
           'Discover the heart of the thousand-year-old capital. Visit the romantic Hoan Kiem Lake, the mystical Ngoc Son Temple, and stroll through the ancient 36 Streets.'
         ),
         images: [
-          'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800',
+          'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
           'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
         ],
         price: 1500000,
@@ -90,7 +90,7 @@ export const seedDataInternal = async () => {
         ),
         images: [
           'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
-          'https://images.unsplash.com/photo-1587573088695-cb4fb810d613?w=800',
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
         ],
         price: 4200000,
         originalPrice: 5500000,
@@ -234,7 +234,7 @@ export const seedDataInternal = async () => {
         ),
         images: [
           'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
-          'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800',
+          'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
         ],
         price: 3200000,
         originalPrice: 4000000,
@@ -381,7 +381,7 @@ export const seedDataInternal = async () => {
           'Tổng hợp đầy đủ kinh nghiệm du lịch Hà Nội tự túc 2026: ăn gì, ở đâu, đi đâu, di chuyển như thế nào để tiết kiệm nhất.',
           'Complete guide to self-touring Hanoi in 2026: what to eat, where to stay, where to go, and how to get around most economically.'
         ),
-        thumbnail: 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800',
+        thumbnail: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
         category: 'experience',
         author: 'Nguyễn Hương Giang',
         isPublished: true,
@@ -464,7 +464,7 @@ export const seedDataInternal = async () => {
         images: [
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop',
           'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1542314831-c6a4d14d8373?q=80&w=1600&auto=format&fit=crop'
+          'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1600&auto=format&fit=crop'
         ],
         pricePerNight: 1000000,
         stars: 4,
@@ -605,7 +605,7 @@ export const seedDataInternal = async () => {
             size: 120,
             bedType: '2 Giường King',
             amenities: ['Hồ bơi riêng', 'View biển trực diện', 'Bồn tắm', 'Quản gia riêng'],
-            images: ['https://images.unsplash.com/photo-1542314831-c6a4d14d8373?w=800']
+            images: ['https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800']
           }
         ]
       },

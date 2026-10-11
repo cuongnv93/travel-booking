@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const TOUR_LANDMARK_MAP = {
   'ha-long-bay': [
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'nha-trang-diving': [
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200',
@@ -11,11 +11,11 @@ const TOUR_LANDMARK_MAP = {
   ],
   'ho-guom-hanoi': [
     'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'da-nang-ba-na-hills': [
     'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200',
-    'https://images.unsplash.com/photo-1587573088695-cb4fb810d613?w=1200'
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200'
   ],
   'ban-gioc-cao-bang': [
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
@@ -26,12 +26,12 @@ const TOUR_LANDMARK_MAP = {
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200'
   ],
   'sapa-fansipan': [
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200',
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'hue-culture-tour': [
     'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ]
 };
 

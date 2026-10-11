@@ -66,7 +66,14 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, req.body, { new: true });
+    const { name, phone, address, avatar } = req.body;
+    const allowedUpdates: Record<string, any> = {};
+    if (name !== undefined) allowedUpdates.name = String(name).trim();
+    if (phone !== undefined) allowedUpdates.phone = String(phone).trim();
+    if (address !== undefined) allowedUpdates.address = String(address).trim();
+    if (avatar !== undefined) allowedUpdates.avatar = String(avatar).trim();
+
+    const user = await User.findByIdAndUpdate(req.user._id, allowedUpdates, { new: true }).select('-password');
     res.json(user);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -88,6 +95,11 @@ export const updateUserRole = async (req: Request, res: Response) => {
     if (!['user', 'admin'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role' });
     }
+    const currentUserId = (req as any).user?._id?.toString();
+    if (currentUserId && currentUserId === req.params.id && role !== 'admin') {
+      return res.status(400).json({ message: 'Không thể tự hạ quyền quản trị viên của chính mình' });
+    }
+
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
@@ -98,6 +110,11 @@ export const updateUserRole = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
+    const currentUserId = (req as any).user?._id?.toString();
+    if (currentUserId && currentUserId === req.params.id) {
+      return res.status(400).json({ message: 'Không thể tự xóa tài khoản quản trị của chính mình' });
+    }
+
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json({ message: 'User deleted successfully' });

@@ -48,7 +48,11 @@ export const getAllAdmin = async (req: Request, res: Response) => {
 
 export const getBySlug = async (req: Request, res: Response) => {
   try {
-    const news = await News.findOne({ slug: req.params.slug });
+    const { slug } = req.params;
+    let news = await News.findOne({ slug });
+    if (!news && /^[0-9a-fA-F]{24}$/.test(slug)) {
+      news = await News.findById(slug);
+    }
     if (!news) return res.status(404).json({ message: 'News not found' });
     res.json(news);
   } catch (error: any) {
@@ -56,9 +60,24 @@ export const getBySlug = async (req: Request, res: Response) => {
   }
 };
 
+const generateSlug = (title: string) => {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
+};
+
 export const create = async (req: Request, res: Response) => {
   try {
     const data = { ...req.body };
+    if (!data.slug) {
+      const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tin-tuc');
+      data.slug = generateSlug(String(titleStr));
+    }
     if (data.isPublished && !data.publishedAt) {
       data.publishedAt = new Date();
     }
@@ -72,6 +91,10 @@ export const create = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   try {
     const data = { ...req.body };
+    if (!data.slug && data.title) {
+      const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tin-tuc');
+      data.slug = generateSlug(String(titleStr));
+    }
     // Set publishedAt when publishing for the first time
     if (data.isPublished) {
       const existing = await News.findById(req.params.id);

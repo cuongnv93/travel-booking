@@ -6,8 +6,14 @@ import api from '@/lib/api';
 import {
   Settings, Globe, Phone, Mail, MapPin, Share2, CreditCard,
   Save, CheckCircle2, Loader2, Image as ImageIcon, Plus, Trash2,
-  Upload, ArrowUp, ArrowDown, LayoutTemplate, FileText, Quote, Star
+  Upload, ArrowUp, ArrowDown, LayoutTemplate, FileText, Quote, Star,
+  Plane, Award, Building2, ShieldAlert, Sparkles, RefreshCw, AlertTriangle, Layers, Video
 } from 'lucide-react';
+import { HomeBlocksSettingsTab, DestinationItem, WhyChooseUsItem, StatCounterItem } from '@/components/admin/settings/HomeBlocksSettingsTab';
+import { FlightsSettingsTab, AirportItem, AirlineItem } from '@/components/admin/settings/FlightsSettingsTab';
+import { VisaSettingsTab, VisaCountryItem, VisaProcessStepItem, VisaStatBadgeItem } from '@/components/admin/settings/VisaSettingsTab';
+import { BranchesSettingsTab, BranchItem, WorkingHoursConfig, CoreValueItem } from '@/components/admin/settings/BranchesSettingsTab';
+import { PoliciesSettingsTab, TourDefaultPolicies, BusinessLicenseConfig } from '@/components/admin/settings/PoliciesSettingsTab';
 
 type MultiLang = { vi: string; en: string; zh: string; ko: string; ja: string };
 
@@ -40,7 +46,7 @@ interface HeroSlide {
 
 const DEFAULT_SLIDES: HeroSlide[] = [
   {
-    image: 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1600',
+    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
     title: {
       vi: 'Khám Phá Hà Nội Ngàn Năm Văn Hiến',
       en: 'Explore Thousand-Year-Old Hanoi Culture',
@@ -103,22 +109,47 @@ const fetchSettings = async () => {
   return Array.isArray(res) ? res : (res?.data || []);
 };
 
-function BannerUploadCard({
+function MediaBannerUploadCard({
   label,
-  value,
-  onChange,
-  placeholder,
+  imageValue,
+  onImageChange,
+  videoValue,
+  onVideoChange,
+  imagePlaceholder,
+  videoPlaceholder,
 }: {
   label: string;
-  value: string;
-  onChange: (val: string) => void;
-  placeholder: string;
+  imageValue: string;
+  onImageChange: (val: string) => void;
+  videoValue: string;
+  onVideoChange: (val: string) => void;
+  imagePlaceholder: string;
+  videoPlaceholder: string;
 }) {
   return (
-    <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/60 space-y-2">
-      <label className="font-bold text-slate-800 block text-xs">{label}</label>
-      <div className="h-36 bg-slate-800 rounded-xl overflow-hidden relative group shadow-inner">
-        <img src={value} alt={label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+    <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/60 space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="font-bold text-slate-800 block text-xs">{label}</label>
+        {videoValue && (
+          <span className="inline-flex items-center gap-1 text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full">
+            <Video className="w-3 h-3" /> Video Nền
+          </span>
+        )}
+      </div>
+
+      <div className="h-36 bg-slate-900 rounded-xl overflow-hidden relative group shadow-inner">
+        {videoValue ? (
+          <video
+            src={videoValue}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <img src={imageValue} alt={label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        )}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <label className="bg-white/90 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer flex items-center gap-1.5 shadow-md hover:bg-white transition-colors">
             <Upload className="w-4 h-4 text-blue-600" />
@@ -134,7 +165,8 @@ function BannerUploadCard({
                   formData.append('image', e.target.files[0]);
                   const res: any = await api.post('/upload', formData);
                   const url = res.url || res.path || res.imageUrl;
-                  onChange(url.startsWith('http') ? url : `http://localhost:5000${url}`);
+                  const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
+                  onImageChange(url.startsWith('http') ? url : `${backendOrigin}${url}`);
                 } catch (err: any) {
                   alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
                 }
@@ -143,22 +175,73 @@ function BannerUploadCard({
           </label>
         </div>
       </div>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-xs font-mono"
-      />
+
+      <div className="space-y-1">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-600">
+          <ImageIcon className="w-3 h-3 text-blue-500" /> URL Ảnh Bìa / Poster:
+        </div>
+        <input
+          value={imageValue}
+          onChange={(e) => onImageChange(e.target.value)}
+          placeholder={imagePlaceholder}
+          className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-xs font-mono"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-600">
+          <Video className="w-3 h-3 text-purple-500" /> URL Video Nền:
+        </div>
+        <input
+          value={videoValue}
+          onChange={(e) => onVideoChange(e.target.value)}
+          placeholder={videoPlaceholder}
+          className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-purple-500 text-xs font-mono"
+        />
+      </div>
     </div>
   );
 }
 
 export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'hero' | 'banners' | 'general' | 'social' | 'payment' | 'pages' | 'testimonials'>('hero');
+  const [activeTab, setActiveTab] = useState<
+    'hero' | 'banners' | 'general' | 'social' | 'payment' | 'pages' | 'testimonials' |
+    'home_blocks' | 'flights' | 'visa' | 'branches' | 'policies'
+  >('hero');
   const [successMsg, setSuccessMsg] = useState('');
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [langTab, setLangTab] = useState<'vi' | 'en' | 'zh' | 'ko' | 'ja'>('vi');
+  const [showReseedConfirm, setShowReseedConfirm] = useState(false);
+
+  // Master Dynamic CMS States
+  const [destinations, setDestinations] = useState<DestinationItem[]>([]);
+  const [whyChooseUs, setWhyChooseUs] = useState<WhyChooseUsItem[]>([]);
+  const [statsCounters, setStatsCounters] = useState<StatCounterItem[]>([]);
+  const [airports, setAirports] = useState<AirportItem[]>([]);
+  const [airlines, setAirlines] = useState<AirlineItem[]>([]);
+  const [visaCountries, setVisaCountries] = useState<VisaCountryItem[]>([]);
+  const [visaProcessSteps, setVisaProcessSteps] = useState<VisaProcessStepItem[]>([]);
+  const [visaStatsBadges, setVisaStatsBadges] = useState<VisaStatBadgeItem[]>([]);
+  const [branches, setBranches] = useState<BranchItem[]>([]);
+  const [workingHours, setWorkingHours] = useState<WorkingHoursConfig>({
+    weekdays: { vi: '', en: '' },
+    weekend: { vi: '', en: '' },
+    hotlineNote: { vi: '', en: '' },
+  });
+  const [coreValues, setCoreValues] = useState<CoreValueItem[]>([]);
+  const [tourPolicies, setTourPolicies] = useState<TourDefaultPolicies>({
+    inclusions: [],
+    exclusions: [],
+    importantNotes: [],
+  });
+  const [hotelAmenities, setHotelAmenities] = useState<string[]>([]);
+  const [businessLicense, setBusinessLicense] = useState<BusinessLicenseConfig>({
+    taxCode: '',
+    issuedBy: '',
+    internationalLicense: '',
+    hotlineComplaints: '',
+  });
 
   // Testimonials State
   const [reviews, setReviews] = useState<Array<{ id: number; name: string; role: string; content: string; rating: number }>>([
@@ -171,14 +254,23 @@ export default function AdminSettingsPage() {
     },
   ]);
 
-  // Page Banners State (7 Subpages)
+  // Page Banners State (Subpages + Background Videos)
   const [toursBanner, setToursBanner] = useState('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600');
+  const [toursVideo, setToursVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/mountains.mp4');
   const [hotelsBanner, setHotelsBanner] = useState('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600');
+  const [hotelsVideo, setHotelsVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/glide-over-coastal-beach.mp4');
   const [flightsBanner, setFlightsBanner] = useState('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600');
+  const [flightsVideo, setFlightsVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/airplane.mp4');
   const [visaBanner, setVisaBanner] = useState('https://images.unsplash.com/photo-1544717305-2782549b5136?w=1600');
+  const [visaVideo, setVisaVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/travel.mp4');
   const [newsBanner, setNewsBanner] = useState('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600');
+  const [newsVideo, setNewsVideo] = useState('https://res.cloudinary.com/demo/video/upload/so_0,eo_12,q_auto,w_1280,ac_none/forest_bike.mp4');
   const [specialtiesBanner, setSpecialtiesBanner] = useState('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600');
+  const [specialtiesVideo, setSpecialtiesVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/walking.mp4');
   const [contactBanner, setContactBanner] = useState('https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1600');
+  const [contactVideo, setContactVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/travel.mp4');
+  const [lookupBanner, setLookupBanner] = useState('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600');
+  const [lookupVideo, setLookupVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/airplane.mp4');
 
   // Pages Content
   const [visaContent, setVisaContent] = useState('');
@@ -217,6 +309,8 @@ export default function AdminSettingsPage() {
         api.get('/pages/about').catch(() => ({}))
       ]);
       return {
+        rawVisa: visaRes || {},
+        rawAbout: aboutRes || {},
         visa: visaRes?.content?.vi || '',
         about: aboutRes?.content?.vi || ''
       };
@@ -246,12 +340,21 @@ export default function AdminSettingsPage() {
           }));
         } else if (s.key === 'page_banners') {
           if (s.value?.toursBanner) setToursBanner(s.value.toursBanner);
+          if (s.value?.toursVideo) setToursVideo(s.value.toursVideo);
           if (s.value?.hotelsBanner) setHotelsBanner(s.value.hotelsBanner);
+          if (s.value?.hotelsVideo) setHotelsVideo(s.value.hotelsVideo);
           if (s.value?.flightsBanner) setFlightsBanner(s.value.flightsBanner);
+          if (s.value?.flightsVideo) setFlightsVideo(s.value.flightsVideo);
           if (s.value?.visaBanner) setVisaBanner(s.value.visaBanner);
+          if (s.value?.visaVideo) setVisaVideo(s.value.visaVideo);
           if (s.value?.newsBanner) setNewsBanner(s.value.newsBanner);
+          if (s.value?.newsVideo) setNewsVideo(s.value.newsVideo);
           if (s.value?.specialtiesBanner) setSpecialtiesBanner(s.value.specialtiesBanner);
+          if (s.value?.specialtiesVideo) setSpecialtiesVideo(s.value.specialtiesVideo);
           if (s.value?.contactBanner) setContactBanner(s.value.contactBanner);
+          if (s.value?.contactVideo) setContactVideo(s.value.contactVideo);
+          if (s.value?.lookupBanner) setLookupBanner(s.value.lookupBanner);
+          if (s.value?.lookupVideo) setLookupVideo(s.value.lookupVideo);
         } else if (s.key === 'testimonials' && Array.isArray(s.value) && s.value.length > 0) {
           setReviews(s.value);
         } else if (s.key === 'site_info') {
@@ -268,6 +371,34 @@ export default function AdminSettingsPage() {
           setBankAccount(s.value?.bankAccount || '999988887777');
           setBankHolder(s.value?.bankHolder || 'CÔNG TY TNHH DU LỊCH TRAVEL');
           setEnableBooking(s.value?.enableBooking !== false);
+        } else if (s.key === 'home_featured_destinations' && Array.isArray(s.value)) {
+          setDestinations(s.value);
+        } else if (s.key === 'home_why_choose_us' && Array.isArray(s.value)) {
+          setWhyChooseUs(s.value);
+        } else if (s.key === 'home_stats_counters' && Array.isArray(s.value)) {
+          setStatsCounters(s.value);
+        } else if (s.key === 'flight_airports' && Array.isArray(s.value)) {
+          setAirports(s.value);
+        } else if (s.key === 'flight_airlines' && Array.isArray(s.value)) {
+          setAirlines(s.value);
+        } else if (s.key === 'visa_countries_catalog' && Array.isArray(s.value)) {
+          setVisaCountries(s.value);
+        } else if (s.key === 'visa_process_steps' && Array.isArray(s.value)) {
+          setVisaProcessSteps(s.value);
+        } else if (s.key === 'visa_stats_badges' && Array.isArray(s.value)) {
+          setVisaStatsBadges(s.value);
+        } else if (s.key === 'company_branches' && Array.isArray(s.value)) {
+          setBranches(s.value);
+        } else if (s.key === 'working_hours' && s.value) {
+          setWorkingHours(s.value);
+        } else if (s.key === 'about_core_values' && Array.isArray(s.value)) {
+          setCoreValues(s.value);
+        } else if (s.key === 'tour_default_inclusions_exclusions' && s.value) {
+          setTourPolicies(s.value);
+        } else if (s.key === 'hotel_amenities_master' && Array.isArray(s.value)) {
+          setHotelAmenities(s.value);
+        } else if (s.key === 'layout_business_license' && s.value) {
+          setBusinessLicense(s.value);
         }
       });
     }
@@ -284,12 +415,21 @@ export default function AdminSettingsPage() {
           group: 'general',
           value: {
             toursBanner,
+            toursVideo,
             hotelsBanner,
+            hotelsVideo,
             flightsBanner,
+            flightsVideo,
             visaBanner,
+            visaVideo,
             newsBanner,
+            newsVideo,
             specialtiesBanner,
+            specialtiesVideo,
             contactBanner,
+            contactVideo,
+            lookupBanner,
+            lookupVideo,
           },
         }),
         api.put('/settings/site_info', {
@@ -310,25 +450,67 @@ export default function AdminSettingsPage() {
         }),
         api.put('/pages/visa', {
           slug: 'visa',
-          title: { vi: 'Dịch vụ Visa' },
-          content: { vi: visaContent },
+          title: { ...(pagesData?.rawVisa?.title || {}), vi: pagesData?.rawVisa?.title?.vi || 'Dịch vụ Visa' },
+          content: { ...(pagesData?.rawVisa?.content || {}), vi: visaContent },
         }),
         api.put('/pages/about', {
           slug: 'about',
-          title: { vi: 'Về Chúng Tôi' },
-          content: { vi: aboutContent },
+          title: { ...(pagesData?.rawAbout?.title || {}), vi: pagesData?.rawAbout?.title?.vi || 'Về Chúng Tôi' },
+          content: { ...(pagesData?.rawAbout?.content || {}), vi: aboutContent },
+        }),
+        // Batch atomic save for all Master Dynamic CMS modules
+        api.put('/settings/batch/update', {
+          settings: [
+            { key: 'home_featured_destinations', group: 'home', value: destinations },
+            { key: 'home_why_choose_us', group: 'home', value: whyChooseUs },
+            { key: 'home_stats_counters', group: 'home', value: statsCounters },
+            { key: 'flight_airports', group: 'flights', value: airports },
+            { key: 'flight_airlines', group: 'flights', value: airlines },
+            { key: 'visa_countries_catalog', group: 'visa', value: visaCountries },
+            { key: 'visa_process_steps', group: 'visa', value: visaProcessSteps },
+            { key: 'visa_stats_badges', group: 'visa', value: visaStatsBadges },
+            { key: 'company_branches', group: 'contact', value: branches },
+            { key: 'working_hours', group: 'contact', value: workingHours },
+            { key: 'about_core_values', group: 'about', value: coreValues },
+            { key: 'tour_default_inclusions_exclusions', group: 'policy', value: tourPolicies },
+            { key: 'hotel_amenities_master', group: 'policy', value: hotelAmenities },
+            { key: 'layout_business_license', group: 'layout', value: businessLicense },
+          ],
         }),
       ]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      queryClient.invalidateQueries({ queryKey: ['setting'] });
       queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
       queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
-      setSuccessMsg('Đã lưu cấu hình cài đặt hệ thống & Banner trang thành công!');
+      setSuccessMsg('Đã lưu cấu hình cài đặt hệ thống & Toàn bộ dữ liệu Master thành công!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
     onError: (err: any) => alert('Lỗi lưu cài đặt: ' + (err.response?.data?.message || err.message)),
+  });
+
+  const reseedMutation = useMutation({
+    mutationFn: async () => {
+      return await api.post('/settings/seed-master?force=true');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      queryClient.invalidateQueries({ queryKey: ['setting'] });
+      queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
+      queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
+      setShowReseedConfirm(false);
+      setSuccessMsg('Đã khôi phục và nạp lại toàn bộ dữ liệu mẫu master thành công!');
+      setTimeout(() => setSuccessMsg(''), 4000);
+    },
+    onError: (err: any) => {
+      setShowReseedConfirm(false);
+      alert('Lỗi nạp dữ liệu mẫu: ' + (err.response?.data?.message || err.message));
+    },
   });
 
   const handleSave = (e: React.FormEvent) => {
@@ -358,7 +540,7 @@ export default function AdminSettingsPage() {
     setSlides([
       ...slides,
       {
-        image: 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1600',
+        image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
         title: normalizeMultiLang('Tiêu Đề Slide Mới'),
         subtitle: normalizeMultiLang('Mô tả ngắn gọn cho slide mới trên trang chủ'),
         ctaText: normalizeMultiLang('Khám Phá Ngay'),
@@ -405,83 +587,135 @@ export default function AdminSettingsPage() {
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Cài Đặt Hệ Thống & Banner Các Trang</h1>
           <p className="text-xs text-slate-500 mt-1">Cấu hình Slide Hero, Banner các trang con, thông tin website và thanh toán</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saveMutation.isPending}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-semibold px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
-        >
-          {saveMutation.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" />Đang lưu...</>
-          ) : (
-            <><Save className="w-4 h-4" />Lưu Tất Cả Cấu Hình</>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowReseedConfirm(true)}
+            disabled={reseedMutation.isPending}
+            className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            title="Khôi phục hoặc nạp lại dữ liệu danh mục ban đầu"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${reseedMutation.isPending ? 'animate-spin' : ''}`} />
+            <span>Nạp Dữ Liệu Mẫu (Seeds)</span>
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saveMutation.isPending}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+          >
+            {saveMutation.isPending ? (
+              <><Loader2 className="w-3.5 h-3.5 animate-spin" />Đang lưu...</>
+            ) : (
+              <><Save className="w-3.5 h-3.5" />Lưu Tất Cả Cấu Hình</>
+            )}
+          </button>
+        </div>
       </div>
 
       {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3.5 rounded-xl text-xs flex items-center gap-2.5 animate-in fade-in duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span className="font-semibold">{successMsg}</span>
         </div>
       )}
 
-      {/* Tabs Bar */}
-      <div className="bg-white border border-slate-200/80 rounded-xl p-2 flex gap-2 overflow-x-auto">
+      {/* Segmented Tabs Bar */}
+      <div className="bg-slate-100/90 border border-slate-200/80 rounded-xl p-1 flex gap-1 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('hero')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'hero' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'hero' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <LayoutTemplate className="w-4 h-4" /> Slide Hero Trang Chủ ({slides.length})
+          <LayoutTemplate className="w-3.5 h-3.5" /> Slide Hero ({slides.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('home_blocks')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'home_blocks' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <Layers className="w-3.5 h-3.5" /> Khối Trang Chủ ({destinations.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('flights')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'flights' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <Plane className="w-3.5 h-3.5" /> Sân Bay & Hãng Bay ({airports.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('visa')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'visa' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <Award className="w-3.5 h-3.5" /> Visa & Thủ Tục ({visaCountries.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('branches')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'branches' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5" /> Chi Nhánh & Giờ Làm ({branches.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('policies')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'policies' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <ShieldAlert className="w-3.5 h-3.5" /> Điều Khoản & Tiện Ích
         </button>
         <button
           onClick={() => setActiveTab('banners')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'banners' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'banners' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <ImageIcon className="w-4 h-4" /> Banner Trang Con (7)
+          <ImageIcon className="w-3.5 h-3.5" /> Banner Trang Con (7)
         </button>
         <button
           onClick={() => setActiveTab('general')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'general' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'general' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <Globe className="w-4 h-4" /> Thông tin chung
+          <Globe className="w-3.5 h-3.5" /> Thông Tin Chung
         </button>
         <button
           onClick={() => setActiveTab('social')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'social' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'social' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <Share2 className="w-4 h-4" /> Mạng xã hội
+          <Share2 className="w-3.5 h-3.5" /> Mạng Xã Hội
         </button>
         <button
           onClick={() => setActiveTab('payment')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'payment' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'payment' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <CreditCard className="w-4 h-4" /> Thanh toán & Ngân hàng
+          <CreditCard className="w-3.5 h-3.5" /> Thanh Toán & Ngân Hàng
         </button>
         <button
           onClick={() => setActiveTab('pages')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'pages' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'pages' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <FileText className="w-4 h-4" /> Trang Tĩnh (Pages)
+          <FileText className="w-3.5 h-3.5" /> Trang Tĩnh (Pages)
         </button>
         <button
           onClick={() => setActiveTab('testimonials')}
-          className={`py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors shrink-0 ${
-            activeTab === 'testimonials' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'testimonials' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <Quote className="w-4 h-4" /> Đánh Giá Khách Hàng ({reviews.length})
+          <Quote className="w-3.5 h-3.5" /> Đánh Giá Khách Hàng ({reviews.length})
         </button>
       </div>
 
@@ -529,6 +763,38 @@ export default function AdminSettingsPage() {
                       <label className="font-semibold text-slate-700 block">Hình Ảnh Slide *</label>
                       <div className="h-36 bg-slate-800 rounded-xl overflow-hidden relative group">
                         <img src={slide.image} alt={slide.title?.vi || 'Slide'} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <label className="bg-white/95 text-slate-800 text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer flex items-center gap-1.5 shadow-md hover:bg-white transition-colors">
+                            {uploadingIndex === idx ? (
+                              <><Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" /> Đang tải...</>
+                            ) : (
+                              <><Upload className="w-3.5 h-3.5 text-blue-600" /> Tải Ảnh Lên</>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              disabled={uploadingIndex !== null}
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                try {
+                                  setUploadingIndex(idx);
+                                  const formData = new FormData();
+                                  formData.append('image', file);
+                                  const res: any = await api.post('/upload', formData);
+                                  const url = res.url || res.path || res.imageUrl;
+                                  const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
+                                  handleSlideChange(idx, 'image', url.startsWith('http') ? url : `${backendOrigin}${url}`);
+                                } catch (err: any) {
+                                  alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
+                                } finally {
+                                  setUploadingIndex(null);
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
                       </div>
                       <input
                         value={slide.image}
@@ -592,52 +858,82 @@ export default function AdminSettingsPage() {
         {activeTab === 'banners' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Quản Lý Banner Ảnh Lớn Tất Cả 7 Trang Subpage</h2>
-              <p className="text-slate-500 text-[11px]">Hình ảnh banner kích thước lớn hiển thị ở đầu các trang danh mục du lịch</p>
+              <h2 className="text-sm font-bold text-slate-900">Quản Lý Banner & Video Nền Tất Cả Trang Con</h2>
+              <p className="text-slate-500 text-[11px]">Tùy chỉnh ảnh bìa dự phòng (Poster) và video nền điện ảnh (MP4/WebM) phát tự động cho các trang</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="1. Trang Tours (/tours)"
-                value={toursBanner}
-                onChange={setToursBanner}
-                placeholder="URL Banner trang Tours..."
+                imageValue={toursBanner}
+                onImageChange={setToursBanner}
+                videoValue={toursVideo}
+                onVideoChange={setToursVideo}
+                imagePlaceholder="URL Poster trang Tours..."
+                videoPlaceholder="URL Video MP4/WebM (VD: mountains.mp4)..."
               />
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="2. Trang Khách Sạn (/hotels)"
-                value={hotelsBanner}
-                onChange={setHotelsBanner}
-                placeholder="URL Banner trang Khách Sạn..."
+                imageValue={hotelsBanner}
+                onImageChange={setHotelsBanner}
+                videoValue={hotelsVideo}
+                onVideoChange={setHotelsVideo}
+                imagePlaceholder="URL Poster trang Khách Sạn..."
+                videoPlaceholder="URL Video MP4/WebM (VD: coastal-beach.mp4)..."
               />
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="3. Trang Vé Máy Bay (/flights)"
-                value={flightsBanner}
-                onChange={setFlightsBanner}
-                placeholder="URL Banner trang Vé Máy Bay..."
+                imageValue={flightsBanner}
+                onImageChange={setFlightsBanner}
+                videoValue={flightsVideo}
+                onVideoChange={setFlightsVideo}
+                imagePlaceholder="URL Poster trang Vé Máy Bay..."
+                videoPlaceholder="URL Video MP4/WebM (VD: airplane.mp4)..."
               />
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="4. Trang Thủ Tục Visa (/visa)"
-                value={visaBanner}
-                onChange={setVisaBanner}
-                placeholder="URL Banner trang Visa..."
+                imageValue={visaBanner}
+                onImageChange={setVisaBanner}
+                videoValue={visaVideo}
+                onVideoChange={setVisaVideo}
+                imagePlaceholder="URL Poster trang Visa..."
+                videoPlaceholder="URL Video MP4/WebM (VD: travel.mp4)..."
               />
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="5. Trang Tin Tức & Cẩm Nang (/news)"
-                value={newsBanner}
-                onChange={setNewsBanner}
-                placeholder="URL Banner trang Tin Tức..."
+                imageValue={newsBanner}
+                onImageChange={setNewsBanner}
+                videoValue={newsVideo}
+                onVideoChange={setNewsVideo}
+                imagePlaceholder="URL Poster trang Tin Tức..."
+                videoPlaceholder="URL Video MP4/WebM (VD: forest_bike.mp4)..."
               />
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="6. Trang Đặc Sản Địa Phương (/specialties)"
-                value={specialtiesBanner}
-                onChange={setSpecialtiesBanner}
-                placeholder="URL Banner trang Đặc Sản..."
+                imageValue={specialtiesBanner}
+                onImageChange={setSpecialtiesBanner}
+                videoValue={specialtiesVideo}
+                onVideoChange={setSpecialtiesVideo}
+                imagePlaceholder="URL Poster trang Đặc Sản..."
+                videoPlaceholder="URL Video MP4/WebM (VD: walking.mp4)..."
               />
-              <BannerUploadCard
+              <MediaBannerUploadCard
                 label="7. Trang Liên Hệ (/contact)"
-                value={contactBanner}
-                onChange={setContactBanner}
-                placeholder="URL Banner trang Liên Hệ..."
+                imageValue={contactBanner}
+                onImageChange={setContactBanner}
+                videoValue={contactVideo}
+                onVideoChange={setContactVideo}
+                imagePlaceholder="URL Poster trang Liên Hệ..."
+                videoPlaceholder="URL Video MP4/WebM (VD: travel.mp4)..."
+              />
+              <MediaBannerUploadCard
+                label="8. Trang Tra Cứu Booking (/booking-lookup)"
+                imageValue={lookupBanner}
+                onImageChange={setLookupBanner}
+                videoValue={lookupVideo}
+                onVideoChange={setLookupVideo}
+                imagePlaceholder="URL Poster tra cứu booking..."
+                videoPlaceholder="URL Video MP4/WebM (VD: airplane.mp4)..."
               />
             </div>
           </div>
@@ -907,7 +1203,111 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         )}
+
+        {/* Tab: Home Blocks Master Settings */}
+        {activeTab === 'home_blocks' && (
+          <div className="animate-in fade-in duration-200">
+            <HomeBlocksSettingsTab
+              destinations={destinations}
+              setDestinations={setDestinations}
+              whyChooseUs={whyChooseUs}
+              setWhyChooseUs={setWhyChooseUs}
+              statsCounters={statsCounters}
+              setStatsCounters={setStatsCounters}
+            />
+          </div>
+        )}
+
+        {/* Tab: Flights Master Settings */}
+        {activeTab === 'flights' && (
+          <div className="animate-in fade-in duration-200">
+            <FlightsSettingsTab
+              airports={airports}
+              setAirports={setAirports}
+              airlines={airlines}
+              setAirlines={setAirlines}
+            />
+          </div>
+        )}
+
+        {/* Tab: Visa Master Settings */}
+        {activeTab === 'visa' && (
+          <div className="animate-in fade-in duration-200">
+            <VisaSettingsTab
+              countries={visaCountries}
+              setCountries={setVisaCountries}
+              processSteps={visaProcessSteps}
+              setProcessSteps={setVisaProcessSteps}
+              statsBadges={visaStatsBadges}
+              setStatsBadges={setVisaStatsBadges}
+            />
+          </div>
+        )}
+
+        {/* Tab: Branches & Working Hours Master Settings */}
+        {activeTab === 'branches' && (
+          <div className="animate-in fade-in duration-200">
+            <BranchesSettingsTab
+              branches={branches}
+              setBranches={setBranches}
+              workingHours={workingHours}
+              setWorkingHours={setWorkingHours}
+              coreValues={coreValues}
+              setCoreValues={setCoreValues}
+            />
+          </div>
+        )}
+
+        {/* Tab: Policies & Amenities Master Settings */}
+        {activeTab === 'policies' && (
+          <div className="animate-in fade-in duration-200">
+            <PoliciesSettingsTab
+              tourPolicies={tourPolicies}
+              setTourPolicies={setTourPolicies}
+              hotelAmenities={hotelAmenities}
+              setHotelAmenities={setHotelAmenities}
+              businessLicense={businessLicense}
+              setBusinessLicense={setBusinessLicense}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Confirmation Modal for Master Data Reseeding */}
+      {showReseedConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-amber-600">
+              <AlertTriangle className="w-6 h-6 shrink-0" />
+              <h3 className="font-bold text-slate-900 text-base">Khôi Phục Dữ Liệu Master Ban Đầu?</h3>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Thao tác này sẽ gọi API nạp lại toàn bộ 15 danh mục dữ liệu mẫu chuẩn (Điểm đến nổi bật, Sân bay, Hãng bay, Danh mục Visa, Quy trình 4 bước, Chi nhánh, Điều khoản tour, Tiện ích khách sạn...).
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowReseedConfirm(false)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                type="button"
+                onClick={() => reseedMutation.mutate()}
+                disabled={reseedMutation.isPending}
+                className="px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              >
+                {reseedMutation.isPending ? (
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" />Đang nạp dữ liệu...</>
+                ) : (
+                  <><RefreshCw className="w-3.5 h-3.5" />Xác Nhận Nạp Lại</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -34,4 +34,6 @@ const newsSchema = new Schema<INews>({
   createdAt: { type: Date, default: Date.now }
 });
 
+newsSchema.index({ isPublished: 1, category: 1, publishedAt: -1 });
+
 export default mongoose.model<INews>('News', newsSchema);

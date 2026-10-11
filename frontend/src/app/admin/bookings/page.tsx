@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import {
   CheckCircle2, XCircle, Clock, Search, Filter, Eye,
-  Building2, Compass, DollarSign, Calendar, Phone, Mail, User, ShieldAlert
+  Building2, Compass, DollarSign, Calendar, Phone, Mail, User, ShieldAlert, Plane
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -23,6 +23,111 @@ const fetchBookingStats = async () => {
     return null;
   }
 };
+
+interface BookingTableRowProps {
+  booking: any;
+  onSelectBooking: (booking: any) => void;
+  onUpdateStatus: (id: string, newStatus: string) => void;
+  isUpdating: boolean;
+}
+
+const BookingTableRow = memo(function BookingTableRow({
+  booking: b,
+  onSelectBooking,
+  onUpdateStatus,
+  isUpdating,
+}: BookingTableRowProps) {
+  const isHotel = b.type === 'hotel';
+  const isFlight = b.type === 'flight';
+  const serviceTitle = isHotel
+    ? (b.hotelId?.name?.vi || b.hotelId?.name || 'Khách sạn')
+    : isFlight
+    ? (`Chuyến bay ${b.flightId?.flightNumber || ''} (${b.flightId?.from || ''} - ${b.flightId?.to || ''})`.trim() || 'Vé máy bay')
+    : (b.tourId?.title?.vi || b.tourId?.title || 'Tour du lịch');
+
+  const travelDate = b.travelDate || b.checkIn;
+  const formattedDate = travelDate ? new Date(travelDate).toLocaleDateString('vi-VN') : 'N/A';
+
+  return (
+    <tr className="hover:bg-slate-50/80 transition-colors">
+      <td className="px-6 py-3.5 font-mono font-bold text-blue-600">{b.bookingCode}</td>
+      <td className="px-6 py-3.5">
+        {isHotel ? (
+          <span className="bg-purple-50 text-purple-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-purple-200 flex items-center gap-1 w-fit">
+            <Building2 className="w-3 h-3" /> Hotel
+          </span>
+        ) : isFlight ? (
+          <span className="bg-sky-50 text-sky-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-sky-200 flex items-center gap-1 w-fit">
+            <Plane className="w-3 h-3" /> Flight
+          </span>
+        ) : (
+          <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1 w-fit">
+            <Compass className="w-3 h-3" /> Tour
+          </span>
+        )}
+      </td>
+      <td className="px-6 py-3.5">
+        <p className="font-semibold text-slate-900">{b.customerInfo?.name}</p>
+        <p className="text-[11px] text-slate-400">{b.customerInfo?.phone}</p>
+      </td>
+      <td className="px-6 py-3.5 font-semibold text-slate-900 max-w-xs truncate" title={serviceTitle}>
+        {serviceTitle}
+      </td>
+      <td className="px-6 py-3.5 font-medium text-slate-600">
+        {formattedDate}
+      </td>
+      <td className="px-6 py-3.5 font-extrabold text-slate-900">
+        {formatPrice(b.totalPrice)}
+      </td>
+      <td className="px-6 py-3.5">
+        {b.status === 'confirmed' ? (
+          <span className="bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-emerald-200 inline-flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Đã xác nhận
+          </span>
+        ) : b.status === 'completed' ? (
+          <span className="bg-blue-50 text-blue-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-blue-200 inline-flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3 text-blue-600" /> Hoàn thành
+          </span>
+        ) : b.status === 'cancelled' ? (
+          <span className="bg-red-50 text-red-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-red-200 inline-flex items-center gap-1">
+            <XCircle className="w-3 h-3 text-red-600" /> Đã hủy
+          </span>
+        ) : (
+          <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
+            <Clock className="w-3 h-3 text-amber-600" /> Chờ xác nhận
+          </span>
+        )}
+      </td>
+      <td className="px-6 py-3.5 text-right space-x-1">
+        <button
+          onClick={() => onSelectBooking(b)}
+          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-md transition-colors inline-flex items-center gap-1"
+        >
+          <Eye className="w-3.5 h-3.5" /> Chi tiết
+        </button>
+
+        {b.status === 'pending' && (
+          <>
+            <button
+              onClick={() => onUpdateStatus(b._id, 'confirmed')}
+              disabled={isUpdating}
+              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+            >
+              Xác nhận
+            </button>
+            <button
+              onClick={() => onUpdateStatus(b._id, 'cancelled')}
+              disabled={isUpdating}
+              className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+            >
+              Hủy
+            </button>
+          </>
+        )}
+      </td>
+    </tr>
+  );
+});
 
 export default function BookingsAdminPage() {
   const queryClient = useQueryClient();
@@ -56,19 +161,34 @@ export default function BookingsAdminPage() {
     },
   });
 
-  const handleUpdateStatus = (id: string, newStatus: string) => {
+  const handleUpdateStatus = useCallback((id: string, newStatus: string) => {
     updateStatusMutation.mutate({ id, status: newStatus });
-  };
+  }, [updateStatusMutation]);
 
-  const filteredBookings = bookings.filter((b: any) => {
-    const codeMatch = (b.bookingCode || '').toLowerCase().includes(search.toLowerCase());
-    const nameMatch = (b.customerInfo?.name || '').toLowerCase().includes(search.toLowerCase());
-    const emailMatch = (b.customerInfo?.email || '').toLowerCase().includes(search.toLowerCase());
-    const phoneMatch = (b.customerInfo?.phone || '').toLowerCase().includes(search.toLowerCase());
-    const statusMatch = !statusFilter || b.status === statusFilter;
-    const typeMatch = !typeFilter || (typeFilter === 'hotel' ? b.type === 'hotel' : b.type !== 'hotel');
-    return (codeMatch || nameMatch || emailMatch || phoneMatch) && statusMatch && typeMatch;
-  });
+  const handleSelectBooking = useCallback((booking: any) => {
+    setSelectedBooking(booking);
+  }, []);
+
+  const pendingCount = useMemo(() => {
+    return stats?.pendingCount ?? bookings.filter((b: any) => b.status === 'pending').length;
+  }, [stats?.pendingCount, bookings]);
+
+  const confirmedCount = useMemo(() => {
+    return stats?.confirmedCount ?? bookings.filter((b: any) => b.status === 'confirmed').length;
+  }, [stats?.confirmedCount, bookings]);
+
+  const filteredBookings = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return bookings.filter((b: any) => {
+      const codeMatch = !s || (b.bookingCode || '').toLowerCase().includes(s);
+      const nameMatch = !s || (b.customerInfo?.name || '').toLowerCase().includes(s);
+      const emailMatch = !s || (b.customerInfo?.email || '').toLowerCase().includes(s);
+      const phoneMatch = !s || (b.customerInfo?.phone || '').toLowerCase().includes(s);
+      const statusMatch = !statusFilter || b.status === statusFilter;
+      const typeMatch = !typeFilter || b.type === typeFilter;
+      return (codeMatch || nameMatch || emailMatch || phoneMatch) && statusMatch && typeMatch;
+    });
+  }, [bookings, search, statusFilter, typeFilter]);
 
   if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
 
@@ -82,44 +202,51 @@ export default function BookingsAdminPage() {
 
       {/* Stats Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <Compass className="w-5 h-5" />
+        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tổng Số Đơn</span>
+            <span className="p-2 rounded-lg bg-slate-100 text-slate-600">
+              <Compass className="w-4 h-4" />
+            </span>
           </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase">Tổng số đơn</p>
-            <p className="text-xl font-bold text-slate-900">{stats?.totalBookings || bookings.length}</p>
+          <p className="text-2xl font-bold font-mono text-slate-900 mt-2">{stats?.totalBookings || bookings.length}</p>
+        </div>
+
+        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Chờ Xác Nhận</span>
+            <span className="p-2 rounded-lg bg-slate-100 text-slate-600">
+              <Clock className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <p className="text-2xl font-bold font-mono text-slate-900">{pendingCount}</p>
+            {pendingCount > 0 && (
+              <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                Cần duyệt
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Clock className="w-5 h-5" />
+        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Đã Xác Nhận</span>
+            <span className="p-2 rounded-lg bg-slate-100 text-slate-600">
+              <CheckCircle2 className="w-4 h-4" />
+            </span>
           </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase">Chờ xác nhận</p>
-            <p className="text-xl font-bold text-amber-600">{stats?.pendingCount ?? bookings.filter((b: any) => b.status === 'pending').length}</p>
-          </div>
+          <p className="text-2xl font-bold font-mono text-slate-900 mt-2">{confirmedCount}</p>
         </div>
 
-        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-5 h-5" />
+        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tổng Doanh Thu</span>
+            <span className="p-2 rounded-lg bg-slate-100 text-slate-600">
+              <DollarSign className="w-4 h-4" />
+            </span>
           </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase">Đã xác nhận</p>
-            <p className="text-xl font-bold text-emerald-600">{stats?.confirmedCount ?? bookings.filter((b: any) => b.status === 'confirmed').length}</p>
-          </div>
-        </div>
-
-        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-            <DollarSign className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase">Tổng doanh thu</p>
-            <p className="text-xl font-bold text-purple-600">{formatPrice(stats?.totalRevenue || 0)}</p>
-          </div>
+          <p className="text-xl font-bold font-mono text-slate-900 mt-2">{formatPrice(stats?.totalRevenue || 0)}</p>
         </div>
       </div>
 
@@ -145,6 +272,7 @@ export default function BookingsAdminPage() {
             <option value="">Tất cả dịch vụ</option>
             <option value="tour">Tour Du Lịch</option>
             <option value="hotel">Khách Sạn & Resort</option>
+            <option value="flight">Vé Máy Bay</option>
           </select>
 
           <select
@@ -155,6 +283,7 @@ export default function BookingsAdminPage() {
             <option value="">Tất cả trạng thái</option>
             <option value="pending">Chờ xác nhận (Pending)</option>
             <option value="confirmed">Đã xác nhận (Confirmed)</option>
+            <option value="completed">Đã hoàn thành (Completed)</option>
             <option value="cancelled">Đã hủy (Cancelled)</option>
           </select>
         </div>
@@ -186,87 +315,15 @@ export default function BookingsAdminPage() {
                   <td colSpan={8} className="px-6 py-6 text-center text-slate-400">Chưa có đơn đặt tour/khách sạn nào.</td>
                 </tr>
               ) : (
-                filteredBookings.map((b: any) => {
-                  const isHotel = b.type === 'hotel';
-                  const serviceTitle = isHotel
-                    ? (b.hotelId?.name?.vi || b.hotelId?.name || 'Khách sạn')
-                    : (b.tourId?.title?.vi || b.tourId?.title || 'Tour du lịch');
-
-                  const travelDate = b.travelDate || b.checkIn;
-                  const formattedDate = travelDate ? new Date(travelDate).toLocaleDateString('vi-VN') : 'N/A';
-
-                  return (
-                    <tr key={b._id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-6 py-3.5 font-mono font-bold text-blue-600">{b.bookingCode}</td>
-                      <td className="px-6 py-3.5">
-                        {isHotel ? (
-                          <span className="bg-purple-50 text-purple-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-purple-200 flex items-center gap-1 w-fit">
-                            <Building2 className="w-3 h-3" /> Hotel
-                          </span>
-                        ) : (
-                          <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1 w-fit">
-                            <Compass className="w-3 h-3" /> Tour
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-3.5">
-                        <p className="font-semibold text-slate-900">{b.customerInfo?.name}</p>
-                        <p className="text-[11px] text-slate-400">{b.customerInfo?.phone}</p>
-                      </td>
-                      <td className="px-6 py-3.5 font-semibold text-slate-900 max-w-xs truncate" title={serviceTitle}>
-                        {serviceTitle}
-                      </td>
-                      <td className="px-6 py-3.5 font-medium text-slate-600">
-                        {formattedDate}
-                      </td>
-                      <td className="px-6 py-3.5 font-extrabold text-slate-900">
-                        {formatPrice(b.totalPrice)}
-                      </td>
-                      <td className="px-6 py-3.5">
-                        {b.status === 'confirmed' ? (
-                          <span className="bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-emerald-200 inline-flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Đã xác nhận
-                          </span>
-                        ) : b.status === 'cancelled' ? (
-                          <span className="bg-red-50 text-red-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-red-200 inline-flex items-center gap-1">
-                            <XCircle className="w-3 h-3 text-red-600" /> Đã hủy
-                          </span>
-                        ) : (
-                          <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-amber-600" /> Chờ xác nhận
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-3.5 text-right space-x-1">
-                        <button
-                          onClick={() => setSelectedBooking(b)}
-                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-md transition-colors inline-flex items-center gap-1"
-                        >
-                          <Eye className="w-3.5 h-3.5" /> Chi tiết
-                        </button>
-
-                        {b.status === 'pending' && (
-                          <>
-                            <button
-                              onClick={() => handleUpdateStatus(b._id, 'confirmed')}
-                              disabled={updateStatusMutation.isPending}
-                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
-                            >
-                              Xác nhận
-                            </button>
-                            <button
-                              onClick={() => handleUpdateStatus(b._id, 'cancelled')}
-                              disabled={updateStatusMutation.isPending}
-                              className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
-                            >
-                              Hủy
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredBookings.map((b: any) => (
+                  <BookingTableRow
+                    key={b._id}
+                    booking={b}
+                    onSelectBooking={handleSelectBooking}
+                    onUpdateStatus={handleUpdateStatus}
+                    isUpdating={updateStatusMutation.isPending}
+                  />
+                ))
               )}
             </tbody>
           </table>
@@ -300,9 +357,9 @@ export default function BookingsAdminPage() {
                   {selectedBooking.customerInfo?.address && (
                     <p className="col-span-2"><span className="font-semibold text-slate-500">Địa chỉ:</span> {selectedBooking.customerInfo.address}</p>
                   )}
-                  {selectedBooking.customerInfo?.note && (
-                    <p className="col-span-2 bg-amber-50 p-2 rounded-lg border border-amber-200/60 text-amber-900">
-                      <span className="font-bold">Ghi chú:</span> {selectedBooking.customerInfo.note}
+                  {(selectedBooking.customerInfo?.notes || selectedBooking.customerInfo?.note) && (
+                    <p className="col-span-2 bg-amber-50 p-2.5 rounded-lg border border-amber-200/60 text-amber-900">
+                      <span className="font-bold">Ghi chú:</span> {selectedBooking.customerInfo.notes || selectedBooking.customerInfo.note}
                     </p>
                   )}
                 </div>
@@ -313,16 +370,27 @@ export default function BookingsAdminPage() {
                 <p className="font-bold text-slate-800 border-b border-slate-100 pb-1.5">Thông Tin Dịch Vụ</p>
                 <p className="font-bold text-sm text-slate-900">
                   {selectedBooking.type === 'hotel'
-                    ? (selectedBooking.hotelId?.name?.vi || selectedBooking.hotelId?.name)
-                    : (selectedBooking.tourId?.title?.vi || selectedBooking.tourId?.title)}
+                    ? (selectedBooking.hotelId?.name?.vi || selectedBooking.hotelId?.name || 'Khách sạn')
+                    : selectedBooking.type === 'flight'
+                    ? (`Chuyến bay ${selectedBooking.flightId?.flightNumber || ''} (${selectedBooking.flightId?.from || ''} - ${selectedBooking.flightId?.to || ''})`.trim() || 'Vé máy bay')
+                    : (selectedBooking.tourId?.title?.vi || selectedBooking.tourId?.title || 'Tour du lịch')}
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 pt-1 text-slate-700">
-                  <p><span className="font-semibold text-slate-500">Ngày đi / Checkin:</span> {new Date(selectedBooking.travelDate || selectedBooking.checkIn).toLocaleDateString('vi-VN')}</p>
+                  <p><span className="font-semibold text-slate-500">Ngày đi / Checkin:</span> {selectedBooking.travelDate || selectedBooking.checkIn ? new Date(selectedBooking.travelDate || selectedBooking.checkIn).toLocaleDateString('vi-VN') : 'N/A'}</p>
                   {selectedBooking.checkOut && (
                     <p><span className="font-semibold text-slate-500">Ngày Checkout:</span> {new Date(selectedBooking.checkOut).toLocaleDateString('vi-VN')}</p>
                   )}
                   <p><span className="font-semibold text-slate-500">Số khách / phòng:</span> {selectedBooking.guests?.adults || 1} người lớn, {selectedBooking.guests?.children || 0} trẻ em</p>
+                  {selectedBooking.couponCode && (
+                    <p className="col-span-2">
+                      <span className="font-semibold text-slate-500">Voucher / Giảm giá:</span>{' '}
+                      <span className="inline-flex items-center gap-1 font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        {selectedBooking.couponCode} (-{formatPrice(selectedBooking.discount || 0)})
+                      </span>
+                    </p>
+                  )}
+                  <p><span className="font-semibold text-slate-500">Thanh toán:</span> <span className="font-semibold text-slate-800">{selectedBooking.paymentStatus === 'paid' ? 'Đã thanh toán' : selectedBooking.paymentStatus === 'refunded' ? 'Đã hoàn tiền' : 'Chưa thanh toán'}</span></p>
                   <p><span className="font-semibold text-slate-500">Tổng thanh toán:</span> <span className="font-bold text-blue-600 text-sm">{formatPrice(selectedBooking.totalPrice)}</span></p>
                 </div>
               </div>

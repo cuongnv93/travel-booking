@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useRouter, usePathname, useParams } from 'next/navigation';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,7 +33,7 @@ const shortCodes: Record<string, string> = {
   ja: 'JA',
 };
 
-export default function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome: boolean }) {
+function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
@@ -50,7 +51,7 @@ export default function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: b
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const switchLanguage = (newLocale: string) => {
+  const switchLanguage = useCallback((newLocale: string) => {
     if (newLocale === locale) return;
 
     const currentPath = pathname;
@@ -58,7 +59,7 @@ export default function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: b
 
     router.push(newPath || `/${newLocale}`);
     setIsOpen(false);
-  };
+  }, [locale, pathname, router]);
 
   return (
     <div className="relative" ref={ref}>
@@ -72,9 +73,11 @@ export default function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: b
             : 'text-slate-800 bg-slate-100/90 hover:bg-slate-200/90 border-slate-200/80'
         )}
       >
-        <img
+        <Image
           src={flagImages[locale] || flagImages.vi}
           alt={locale}
+          width={20}
+          height={14}
           className="w-5 h-3.5 object-cover rounded-xs shadow-xs shrink-0 border border-black/10"
         />
         <span className="font-extrabold uppercase tracking-wider">{shortCodes[locale] || locale}</span>
@@ -101,9 +104,11 @@ export default function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: b
                 )}
               >
                 <div className="flex items-center gap-2.5">
-                  <img
+                  <Image
                     src={flagImages[l]}
                     alt={l}
+                    width={20}
+                    height={14}
                     className="w-5 h-3.5 object-cover rounded-xs shadow-xs shrink-0 border border-black/10"
                   />
                   <span className="font-semibold text-slate-800 text-xs">{names[l]}</span>
@@ -117,3 +122,5 @@ export default function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: b
     </div>
   );
 }
+
+export default memo(LanguageSwitcher);

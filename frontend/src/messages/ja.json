@@ -9,7 +9,10 @@
     "specialties": "特産品",
     "contact": "お問い合わせ",
     "admin": "管理画面",
+    "profile": "マイページ",
+    "myBookings": "予約履歴",
     "myCart": "カート",
+    "login": "ログイン",
     "logout": "ログアウト"
   },
   "hero": {
@@ -48,9 +51,11 @@
     "duration": "時間:",
     "from": "から",
     "perNight": "1泊から",
-    "readMore": "続きを読む →"
+    "readMore": "続きを読む →",
+    "newsDefaultCategory": "旅行ガイド"
   },
   "featured": {
+    "badge": "最高の旅行体験",
     "title": "注目のツアーパッケージ",
     "subtitle": "大人気の旅行プランをチェック",
     "viewAll": "すべて見る",
@@ -71,6 +76,7 @@
     "viewAll": "すべてのホテルを見る"
   },
   "newsSection": {
+    "badge": "旅のストーリー",
     "title": "旅行ガイド＆コツ",
     "subtitle": "最新の旅情報、攻略ガイド、旅行記をお届け",
     "viewAll": "記事一覧を見る",
@@ -81,6 +87,7 @@
     "title": "ご利用者様からの評価"
   },
   "whyUs": {
+    "badge": "卓越した価値",
     "title": "選ばれる理由",
     "items": {
       "trust": "高い信頼性",
@@ -224,7 +231,16 @@
     "payment_method_note": "決済方法",
     "payment_vietqr": "VietQR振込",
     "payment_office": "オフィス支払い",
-    "error_checkout_failed": "予約の作成に失敗しました。再度お試しください。"
+    "error_checkout_failed": "予約の作成に失敗しました。再度お試しください。",
+    "hotelBadge": "ホテル",
+    "flightBadge": "航空券",
+    "checkinDate": "チェックイン:",
+    "stepServices": "サービス",
+    "stepInfo": "お客様情報",
+    "stepPayment": "お支払い",
+    "maintenanceBadge": "メンテナンス中",
+    "onlineDisabledDesc": "オンライン決済は現在メンテナンス中のため利用できません",
+    "onlineDisabledTitle": "オンライン決済システム一時メンテナンス中"
   },
   "booking": {
     "success": "ご予約が完了しました！",
@@ -261,7 +277,9 @@
     "roleAdmin": "管理者",
     "roleCustomer": "メンバーカスタマー",
     "addressLabel": "取引住所",
-    "saveBtn": "変更を保存"
+    "saveBtn": "変更を保存",
+    "updateError": "プロフィールの更新に失敗しました。もう一度お試しください。",
+    "addressPlaceholder": "ご住所を入力してください..."
   },
   "common": {
     "loading": "読み込み中...",
@@ -275,7 +293,15 @@
     "select": "選択",
     "viewDetails": "詳細を見る",
     "viewAll": "すべて見る",
-    "readMore": "続きを読む"
+    "readMore": "続きを読む",
+    "workingHours": "営業時間",
+    "editor": "編集者",
+    "viewAndBook": "確認して予約",
+    "verifiedSystem": "Travelシステム認証済み",
+    "checkInDate": "チェックイン日:",
+    "hotTour": "人気ツアー",
+    "hotelType": "ホテル",
+    "flightType": "航空券"
   },
   "footer": {
     "about": "Travel Booking",
@@ -311,7 +337,11 @@
     "readyTitle": "次の旅行の準備はできましたか？",
     "readySub": "数千の魅力的な目的地があなたを待っています。",
     "exploreToursBtn": "ツアーを見る",
-    "contactBtn": "お問い合わせ"
+    "contactBtn": "お問い合わせ",
+    "metaTitleFallback": "会社案内 - Travel Booking",
+    "titleFallback": "Travel Booking について",
+    "contentFallback": "コンテンツは準備中です...",
+    "description": "最高のおもてなしと専任スタッフが、心に残る素晴らしい旅を演出します。"
   },
   "contact": {
     "heroTag": "☎️ 24/7 サポート",
@@ -319,6 +349,7 @@
     "heroSub": "お客様のご質問に耳を傾け、サポートいたします。",
     "infoTitle": "連絡先情報",
     "hqTitle": "本社",
+    "mainBranch": "本社",
     "hotlineTitle": "カスタマーホットライン",
     "hotlineSub": "フリーダイヤル 24/7",
     "emailTitle": "相談メール",
@@ -330,13 +361,16 @@
     "emailLabel": "メール *",
     "phoneLabel": "電話番号 *",
     "subjectLabel": "件名",
+    "subjectPlaceholder": "ツアー相談、ホテル予約...",
     "msgLabel": "メッセージ内容 *",
+    "msgPlaceholder": "お問い合わせ内容を入力してください...",
     "submitBtn": "メッセージを送信",
     "successTitle": "送信成功！",
     "successDesc": "ご連絡ありがとうございます。メッセージを受け取りました。",
     "anotherMsgBtn": "別のメッセージを送信"
   },
   "lookup": {
+    "badge": "オンライン予約検索システム",
     "heroTitle": "ツアー予約の確認",
     "heroSub": "予約コード（例：TRV-123456）を入力して旅行のステータスを確認してください",
     "placeholder": "予約コードを入力",
@@ -375,7 +409,39 @@
     "amount": "金額:",
     "content": "振込説明:",
     "homeBtn": "ホーム",
-    "lookupBtn": "注文検索"
+    "lookupBtn": "注文検索",
+    "title": "ご予約が完了しました！",
+    "subtitle": "Travel Booking をご利用いただき誠にありがとうございます。予約を承りました。",
+    "bookingCodeLabel": "予約確認コード",
+    "saveCodeNote": "旅程の照会に必要なため、このコードを保存してください。",
+    "loadingDetails": "予約詳細を読み込み中...",
+    "bookedService": "予約サービス",
+    "hotel": "ホテル",
+    "tour": "ツアー",
+    "pendingStatus": "確認待ち",
+    "rooms": "室",
+    "guests": "名",
+    "adults": "大人",
+    "children": "子供",
+    "booker": "予約者名",
+    "phone": "電話番号",
+    "email": "メールアドレス",
+    "vietqrTitle": "VietQR 銀行振込",
+    "vietqrSubtitle": "QRコードを読み取って正確な金額と内容で即時振込",
+    "vietqrAlt": "支払いQRコード",
+    "mbBank": "MB Bank（軍隊商業株式銀行）",
+    "accountNumber": "口座番号：",
+    "accountOwner": "口座名義：",
+    "companyName": "TRAVEL BOOKING 株式会社",
+    "transferContent": "振込人名義・内容：",
+    "homeButton": "トップページ",
+    "lookupButton": "予約照会",
+    "officePaymentTitle": "店頭支払い / 仮予約",
+    "officePaymentDesc": "ご予約がシステムに登録されました",
+    "waitingPayment": "お支払い待ち",
+    "officePaymentNotice": "ありがとうございます！予約情報が担当者に送信されました。支店でのお支払い、または15〜30分以内にスタッフからのご連絡をお待ちください。",
+    "hotline247": "24時間年中無休サポート:",
+    "bookingCodeShort": "予約コード:"
   },
   "visa": {
     "heroTitle": "観光ビザ申請サポートサービス",
@@ -514,11 +580,35 @@
     "instantTicketDesc": "お支払い完了後、Eチケットと予約コードがすぐにメールへ送信されます。"
   },
   "filters": {
+    "searchPlaceholder": "ホテル名または都市名で検索...",
+    "filter": "フィルター",
+    "categories": "ツアーカテゴリ",
+    "allCategories": "すべてのカテゴリ",
+    "clearFilters": "フィルターをクリア",
+    "noResults": "一致する結果が見つかりませんでした",
     "destinations": "地域で絞り込む",
     "allDests": "すべての目的地",
     "priceRange": "価格帯",
     "starRating": "星評価",
-    "allStars": "すべて"
+    "allStars": "すべて",
+    "priceAll": "すべての価格帯",
+    "priceUnder1m": "100万VND未満",
+    "price1to2m": "100万 – 200万VND",
+    "price2to4m": "200万 – 400万VND",
+    "priceAbove4m": "400万VND以上",
+    "allToursTitle": "すべてのツアーパッケージを探す",
+    "allToursSubtitle": "Travelが厳選したお得で安心のベストツアープランをお選びください。",
+    "featuredToursTitle": "2026年 注目のおすすめツアー",
+    "featuredToursSubtitle": "多くの旅行者から5つ星評価を獲得した極上の旅程を厳選。",
+    "destToursTitle": "{dest} の人気ツアーパッケージ",
+    "destToursSubtitle": "{dest} で現在お申し込み可能な最も魅力的なツアーです。",
+    "destinationBadge": "目的地: {dest}",
+    "hotTripBadge": "魅力あふれる旅",
+    "toursFound": "件のツアー",
+    "sortBy": "並び替え:",
+    "sortNewest": "最新順",
+    "sortPriceAsc": "料金: 安い順",
+    "sortPriceDesc": "料金: 高い順"
   },
   "flashSale": {
     "title": "🔥 タイムセール開催中",
@@ -590,7 +680,8 @@
     "errFillInfo": "氏名、Eメール、電話番号を入力してください。",
     "errSelectDates": "チェックイン日とチェックアウト日を選択してください。",
     "errInvalidDates": "チェックアウト日はチェックイン日より後である必要があります。",
-    "selectedLabel": "選択済み: "
+    "selectedLabel": "選択済み: ",
+    "error": "予約中にエラーが発生しました。もう一度お試しください。"
   },
   "specialtiesPage": {
     "badge": "🍜 ベトナム3大地域の郷土料理",
@@ -608,5 +699,72 @@
     "noMatchTitle": "該当する料理が見つかりません",
     "noMatchSub": "検索キーワードや地域フィルターを変更してください。",
     "refPrice": "参考価格"
+  },
+  "tourDetail": {
+    "duration": "所要日数",
+    "destination": "目的地",
+    "groupSize": "定員",
+    "peopleUnit": "名",
+    "insurance": "旅行保険",
+    "included": "含む",
+    "recentSchedule": "直近の出発スケジュール",
+    "colDate": "出発日",
+    "colPrice": "ツアー料金",
+    "colStatus": "空席状況",
+    "colAction": "選択",
+    "slotsLeft": "残り {slots} 席",
+    "selectedBtn": "選択済み ✓",
+    "selectDateBtn": "日付を選択",
+    "highlightsTitle": "ツアーの見どころ",
+    "itineraryTitle": "詳細日程 ({days}日間)",
+    "itineraryContactNote": "日別詳細スケジュールはカスタマーサポートまでお問い合わせください。",
+    "importantNotesTitle": "注意事項・規約",
+    "inclusionsTitle": "料金に含まれるもの:",
+    "exclusionsTitle": "料金に含まれないもの:",
+    "photosCount": "{current} / {total} 枚",
+    "reviewsCount": "{count} 件のレビュー",
+    "relatedTours": "おすすめの関連ツアー",
+    "viewAllTours": "すべてのツアーを見る",
+    "tourNotFound": "ツアー情報が見つかりません"
+  },
+  "tourBooking": {
+    "pricePerGuest": "お一人様料金",
+    "slotsAvailable": "空席あり",
+    "selectDeparture": "出発日を選択 *",
+    "selectDeparturePlaceholder": "-- 出発日を選択してください --",
+    "slotsRemaining": "(残り {slots} 席)",
+    "departureDate": "出発日 *",
+    "adultsLabel": "大人 (12歳以上)",
+    "childrenLabel": "お子様 (70%料金)",
+    "subtotalLabel": "合計金額",
+    "taxFeeIncluded": "諸税・サービス料込",
+    "bookNowBtn": "今すぐツアーを予約",
+    "directConsult": "直接お電話でご相談 (1800 646 888)",
+    "instantHold": "即時予約確定",
+    "securePayment": "100% 安全な決済",
+    "errSelectDate": "出発日を選択してください"
+  },
+  "userBookings": {
+    "backToProfile": "マイページへ戻る",
+    "title": "ご予約履歴",
+    "subtitle": "旅程や予約ステータスを詳細にご確認いただけます",
+    "exploreMore": "+ 新しいツアーを探す",
+    "tabAll": "すべての予約",
+    "tabPending": "確認待ち",
+    "tabConfirmed": "予約確定",
+    "tabCancelled": "キャンセル済み",
+    "emptyTitle": "この項目に予約はありません",
+    "emptyDesc": "Travelで最高の新しい旅の体験を見つけましょう！",
+    "viewToursBtn": "ツアー一覧を見る",
+    "cancelSuccess": "予約をキャンセルしました",
+    "cancelConfirm": "この予約をキャンセルしてもよろしいですか？",
+    "cancelError": "キャンセル処理に失敗しました",
+    "orderCode": "予約番号",
+    "viewDetail": "詳細",
+    "cancelOrder": "予約をキャンセル",
+    "defaultHotel": "ホテル・リゾート",
+    "defaultFlight": "航空券",
+    "defaultTour": "パッケージツアー",
+    "flightNumber": "便名 {code}"
   }
 }

@@ -32,6 +32,8 @@ export interface IHotel extends Document {
   amenities: string[];
   rooms: IRoom[];
   policies: string[];
+  checkInTime?: string;
+  checkOutTime?: string;
   locationDetails: {
     lat?: number;
     lng?: number;
@@ -70,6 +72,8 @@ const hotelSchema = new Schema<IHotel>({
   amenities: [{ type: String }],
   rooms: [roomSchema],
   policies: [{ type: String }],
+  checkInTime: { type: String, default: '14:00' },
+  checkOutTime: { type: String, default: '12:00' },
   locationDetails: {
     lat: { type: Number },
     lng: { type: Number },
@@ -84,5 +88,9 @@ const hotelSchema = new Schema<IHotel>({
   flashSaleEnd: { type: Date },
   createdAt: { type: Date, default: Date.now }
 });
+
+hotelSchema.index({ isActive: 1, location: 1, stars: -1 });
+hotelSchema.index({ isActive: 1, isFlashSale: 1, flashSaleEnd: 1 });
+hotelSchema.index({ pricePerNight: 1 });
 
 export default mongoose.model<IHotel>('Hotel', hotelSchema);

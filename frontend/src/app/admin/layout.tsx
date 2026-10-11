@@ -3,6 +3,7 @@
 import '../globals.css';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { NextIntlClientProvider } from 'next-intl';
@@ -24,6 +25,8 @@ import {
   ShieldCheck,
   ExternalLink,
   FileText,
+  Tag,
+  PhoneCall,
 } from 'lucide-react';
 import { Providers } from '../[locale]/providers';
 
@@ -34,6 +37,8 @@ const NAV_GROUPS = [
       { label: 'Tổng quan', href: '/admin', icon: LayoutDashboard },
       { label: 'Quản lý Tours', href: '/admin/tours', icon: Compass },
       { label: 'Quản lý Bookings', href: '/admin/bookings', icon: CalendarCheck },
+      { label: 'Đăng Ký Tư Vấn', href: '/admin/consultations', icon: PhoneCall },
+      { label: 'Mã Giảm Giá', href: '/admin/coupons', icon: Tag },
     ]
   },
   {
@@ -95,26 +100,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Dark Sidebar */}
           <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col shrink-0 text-slate-300 select-none z-30">
             {/* Brand Header */}
-            <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 text-white font-black text-lg flex items-center justify-center">
-                  T
+            <div className="h-16 px-5 flex items-center justify-between border-b border-slate-800/80">
+              <div className="flex items-center gap-2.5">
+                <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-xs">
+                  <Image
+                    src="/timesgreen-logo.png"
+                    alt="TimesGreen Logo"
+                    fill
+                    sizes="32px"
+                    className="object-contain"
+                  />
                 </div>
                 <div>
-                  <span className="font-extrabold text-white tracking-tight text-sm flex items-center gap-1">
-                    Travel CMS <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
-                  </span>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">Control Panel</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-white tracking-tight text-sm">TimesGreen</span>
+                    <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.2 rounded font-mono font-medium">CMS</span>
+                  </div>
+                  <span className="block text-[10px] text-slate-500 font-medium font-mono">Control Center</span>
                 </div>
               </div>
             </div>
 
             {/* Navigation Groups */}
-            {/* FIX: transition-colors instead of transition-all — prevents layout recalc on hover */}
-            <div className="px-3.5 py-5 flex-1 space-y-6 overflow-y-auto">
+            <div className="px-3 py-4 flex-1 space-y-5 overflow-y-auto">
               {NAV_GROUPS.map(group => (
                 <div key={group.label}>
-                  <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">{group.label}</p>
+                  <p className="px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{group.label}</p>
                   <div className="space-y-0.5">
                     {group.items.map(item => {
                       const Icon = item.icon;
@@ -124,13 +135,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           key={item.href}
                           href={item.href}
                           prefetch={true}
-                          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-colors ${
                             isActive
-                              ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold'
-                              : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                              ? 'bg-slate-800 text-white font-semibold shadow-xs border-l-2 border-blue-500'
+                              : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200 font-medium'
                           }`}
                         >
-                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
                           <span>{item.label}</span>
                         </Link>
                       );
@@ -141,18 +152,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             {/* Shortcuts & Logout */}
-            <div className="p-3.5 border-t border-slate-800 space-y-0.5">
+            <div className="p-3 border-t border-slate-800/80 space-y-0.5">
               <Link
                 href="/vi"
                 target="_blank"
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-teal-400" />
-                Xem trang web chính
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                Xem website chính
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-red-400 hover:bg-red-950/30 hover:text-red-300 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Đăng xuất</span>
@@ -162,12 +173,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            {/* FIX: Removed backdrop-blur-md — expensive GPU op causing frame drops. Using solid bg instead */}
-            <header className="h-16 bg-white border-b border-slate-200/80 px-8 flex items-center justify-between shrink-0 shadow-sm">
+            <header className="h-16 bg-white border-b border-slate-200/80 px-8 flex items-center justify-between shrink-0 shadow-2xs">
               <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
                 <span className="text-slate-400">Admin</span>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-                <span className="text-slate-900 font-bold">{currentNav.label}</span>
+                <span className="text-slate-900 font-semibold">{currentNav.label}</span>
               </div>
 
               <div className="flex items-center gap-4">
@@ -176,19 +186,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <input
                     type="text"
                     placeholder="Tìm kiếm trong CMS..."
-                    className="w-60 bg-slate-100 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-64 bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:outline-none transition-colors"
                   />
                 </div>
 
-                <button className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors relative border border-slate-200">
+                <button className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors relative border border-slate-200 cursor-pointer">
                   <Bell className="w-4 h-4 text-slate-600" />
-                  <span className="w-2 h-2 rounded-full bg-orange-500 absolute top-1.5 right-1.5" />
+                  <span className="w-2 h-2 rounded-full bg-blue-600 absolute top-1.5 right-1.5" />
                 </button>
 
                 <div className="h-4 w-px bg-slate-200" />
 
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-teal-400 text-white font-black text-xs flex items-center justify-center">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center justify-center ring-1 ring-slate-800">
                     {user?.name ? user.name[0].toUpperCase() : 'A'}
                   </div>
                   <div className="text-left hidden sm:block">

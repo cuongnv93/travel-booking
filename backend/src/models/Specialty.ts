@@ -32,4 +32,6 @@ const specialtySchema = new Schema<ISpecialty>({
   createdAt: { type: Date, default: Date.now }
 });
 
+specialtySchema.index({ isActive: 1, region: 1 });
+
 export default mongoose.model<ISpecialty>('Specialty', specialtySchema);

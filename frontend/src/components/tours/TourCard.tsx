@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import SmartImage from '@/components/ui/SmartImage';
 import { Star, Clock, Tag, Heart, Users, Flame } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { formatPrice, getI18nText } from '@/lib/utils';
@@ -61,7 +63,12 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
   const { saved, toggle } = useWishlist(tour.slug);
 
   const hasImage = tour.images && tour.images.length > 0 && tour.images[0].startsWith('http');
+  const [imgSrc, setImgSrc] = useState(hasImage ? tour.images![0] : '');
   const destName = tour.destination || tour.location || 'Việt Nam';
+
+  const handleImgError = useCallback(() => {
+    setImgSrc('https://images.unsplash.com/photo-1528127269322-539801943592?w=800');
+  }, []);
 
   // Memoized calculations
   const titleText = useMemo(() => getI18nText(tour.title, currentLocale), [tour.title, currentLocale]);
@@ -91,15 +98,17 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
   );
 
   return (
-    <Link href={`/${currentLocale}/tours/${tour.slug}`}>
-      <Card className="overflow-hidden group h-full cursor-pointer hover:-translate-y-2 transition-all duration-300 relative">
+    <Link href={`/${currentLocale}/tours/${tour.slug}`} className="h-full block">
+      <Card className="overflow-hidden group h-full cursor-pointer hover:-translate-y-2 transition-all duration-300 relative flex flex-col justify-between">
         {/* Image */}
-        <div className="h-52 bg-slate-800 relative overflow-hidden">
-          {hasImage ? (
-            <img
-              src={tour.images![0]}
+        <div className="h-52 bg-slate-100 relative overflow-hidden">
+          {hasImage || imgSrc ? (
+            <SmartImage
+              src={imgSrc || tour.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800'}
               alt={titleText}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${tour.imageGradient || 'from-blue-500 to-indigo-600'} flex items-center justify-center text-white font-bold text-base p-4 text-center`}>
@@ -107,10 +116,8 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
             </div>
           )}
 
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
-
           {/* Top badges */}
-          <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+          <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
             {/* Left — discount & low stock badges */}
             <div className="flex flex-col gap-1.5">
               {discount >= 5 && (
@@ -154,7 +161,7 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-5 flex flex-col justify-between">
+        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
               {titleText}

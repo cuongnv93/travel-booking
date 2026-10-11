@@ -1,17 +1,24 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, ShieldCheck, Loader2, Sparkles, Calendar, Users, Phone, User, ChevronDown, Check } from 'lucide-react';
+import api from '@/lib/api';
+import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
 
 interface CountryOption {
   key: string;
   flag: string;
-  nameKey: string;
+  name: string;
 }
 
-const COUNTRY_OPTIONS: CountryOption[] = [
+interface VisaConsultationFormProps {
+  countries?: any[];
+  locale?: string;
+}
+
+const COUNTRY_OPTIONS = [
   { key: 'Japan', flag: 'https://flagcdn.com/w40/jp.png', nameKey: 'japanName' },
   { key: 'Korea', flag: 'https://flagcdn.com/w40/kr.png', nameKey: 'koreaName' },
   { key: 'Schengen', flag: 'https://flagcdn.com/w40/eu.png', nameKey: 'europeName' },
@@ -20,19 +27,65 @@ const COUNTRY_OPTIONS: CountryOption[] = [
   { key: 'Canada', flag: 'https://flagcdn.com/w40/ca.png', nameKey: 'canadaName' },
 ];
 
-export default function VisaConsultationForm() {
+function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsultationFormProps) {
   const t = useTranslations('visa');
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedCountryKey, setSelectedCountryKey] = useState<string>('Japan');
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
+
+  const countryOptions: CountryOption[] = useMemo(() => {
+    if (countries && Array.isArray(countries) && countries.length > 0) {
+      return countries.map((c: any, idx: number) => {
+        const key = c.id || c.code || c.key || `country_${idx}`;
+        const flag = c.flag || '🌐';
+        let name = key;
+        if (typeof c.name === 'object' && c.name) {
+          name = c.name[locale] || c.name.vi || c.name.en || key;
+        } else if (typeof c.name === 'string' && c.name) {
+          name = c.name;
+        } else if (c.nameKey) {
+          try {
+            name = t(c.nameKey as any) || key;
+          } catch {
+            name = key;
+          }
+        }
+        return { key, flag, name };
+      });
+    }
+
+    return COUNTRY_OPTIONS.map((c) => ({
+      key: c.key,
+      flag: c.flag,
+      name: (() => {
+        try {
+          return t(c.nameKey as any) || c.key;
+        } catch {
+          return c.key;
+        }
+      })(),
+    }));
+  }, [countries, locale, t]);
+
+  const [selectedCountryKey, setSelectedCountryKey] = useState<string>(() => countryOptions[0]?.key || 'Japan');
+
+  useEffect(() => {
+    if (countryOptions.length > 0 && !countryOptions.some((c) => c.key === selectedCountryKey)) {
+      setSelectedCountryKey(countryOptions[0].key);
+    }
+  }, [countryOptions, selectedCountryKey]);
 
   const [travelDate, setTravelDate] = useState('');
   const [guests, setGuests] = useState('1');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Attempt to auto-sync any locally queued consultation leads
+  useEffect(() => {
+    flushPendingConsultations();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,29 +94,54 @@ export default function VisaConsultationForm() {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
-  const selectedCountry = COUNTRY_OPTIONS.find((c) => c.key === selectedCountryKey) || COUNTRY_OPTIONS[0];
+  const selectedCountry = useMemo(() => {
+    return countryOptions.find((c) => c.key === selectedCountryKey) || countryOptions[0] || { key: 'default', flag: '🌐', name: 'Quốc gia' };
+  }, [countryOptions, selectedCountryKey]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone) return;
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    const payload = {
+      name: name.trim(),
+      phone: phone.trim(),
+      country: selectedCountry.name,
+      travelDate: travelDate || undefined,
+      guests: guests || 1,
+      type: 'visa' as const,
+    };
+
+    try {
+      await api.post('/consultations', payload);
       setIsSubmitting(false);
       setSubmitted(true);
-    }, 800);
-  };
-
-  const getCountryName = (c: CountryOption) => {
-    try {
-      return t(c.nameKey as any) || c.key;
-    } catch {
-      return c.key;
+    } catch (err: any) {
+      console.warn('Network issue submitting consultation, storing locally for guaranteed capture:', err);
+      // Guarantee zero data loss by storing offline queue
+      enqueueConsultationLead(payload);
+      setIsSubmitting(false);
+      setSubmitted(true);
     }
-  };
+  }, [name, phone, selectedCountry.name, travelDate, guests]);
+
+  const renderFlag = useCallback((flag: string, alt: string) => {
+    if (typeof flag === 'string' && flag.startsWith('http')) {
+      return (
+        <img
+          src={flag}
+          alt={alt}
+          className="w-5 h-3.5 object-cover rounded-xs shadow-2xs border border-black/10 shrink-0"
+        />
+      );
+    }
+    return <span className="text-sm leading-none shrink-0">{flag}</span>;
+  }, []);
 
   return (
     <div className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-xl space-y-5 relative overflow-hidden">
@@ -141,12 +219,8 @@ export default function VisaConsultationForm() {
               className="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-xl px-3.5 py-3 text-slate-900 font-medium flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-blue-100 border-slate-200 cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
-                <img
-                  src={selectedCountry.flag}
-                  alt={selectedCountry.key}
-                  className="w-5 h-3.5 object-cover rounded-xs shadow-2xs border border-black/10 shrink-0"
-                />
-                <span className="font-semibold text-slate-800 text-xs">{getCountryName(selectedCountry)}</span>
+                {renderFlag(selectedCountry.flag, selectedCountry.name)}
+                <span className="font-semibold text-slate-800 text-xs">{selectedCountry.name}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isCountryOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -158,9 +232,9 @@ export default function VisaConsultationForm() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 6, scale: 0.98 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute left-0 right-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 py-1.5 z-50 overflow-hidden"
+                  className="absolute left-0 right-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 py-1.5 z-50 overflow-hidden max-h-60 overflow-y-auto"
                 >
-                  {COUNTRY_OPTIONS.map((c) => (
+                  {countryOptions.map((c) => (
                     <button
                       key={c.key}
                       type="button"
@@ -173,12 +247,8 @@ export default function VisaConsultationForm() {
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <img
-                          src={c.flag}
-                          alt={c.key}
-                          className="w-5 h-3.5 object-cover rounded-xs shadow-2xs border border-black/10 shrink-0"
-                        />
-                        <span className="text-slate-800 text-xs">{getCountryName(c)}</span>
+                        {renderFlag(c.flag, c.name)}
+                        <span className="text-slate-800 text-xs">{c.name}</span>
                       </div>
                       {selectedCountryKey === c.key && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
                     </button>
@@ -251,3 +321,6 @@ export default function VisaConsultationForm() {
     </div>
   );
 }
+
+const VisaConsultationForm = memo(VisaConsultationFormComponent);
+export default VisaConsultationForm;

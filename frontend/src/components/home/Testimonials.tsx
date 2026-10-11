@@ -1,12 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { memo, useState } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import api from '@/lib/api';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import { getI18nText } from '@/lib/utils';
+import { useTestimonials } from '@/hooks/useSettings';
 
 const DEFAULT_REVIEWS = [
   {
@@ -63,7 +67,7 @@ const DEFAULT_REVIEWS = [
   },
 ];
 
-function ReviewCard({ review, locale }: { review: any; locale: string }) {
+const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; locale: string }) {
   const nameText = getI18nText(review.name, locale) || 'Khách hàng';
   const roleText = getI18nText(review.role, locale) || 'Du khách';
   const contentText = getI18nText(review.content, locale) || '';
@@ -99,56 +103,35 @@ function ReviewCard({ review, locale }: { review: any; locale: string }) {
       </div>
     </div>
   );
-}
+});
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-
-export default function Testimonials() {
+function TestimonialsComponent() {
   const t = useTranslations('testimonials');
   const locale = (useParams()?.locale as string) || 'vi';
 
-  const { data: settings = [] } = useQuery({
-    queryKey: ['public-settings'],
-    queryFn: async () => {
-      const res: any = await api.get('/settings');
-      return Array.isArray(res) ? res : (res?.data || []);
-    },
-    placeholderData: keepPreviousData,
-  });
-
-  const reviewsSetting = settings.find((s: any) => s.key === 'testimonials')?.value;
-  const baseReviews: any[] =
-    Array.isArray(reviewsSetting) && reviewsSetting.length > 0
-      ? reviewsSetting
-      : DEFAULT_REVIEWS;
+  const { data: baseReviews } = useTestimonials();
+  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
   return (
     <section className="py-16 bg-slate-50/60 relative overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 text-center mb-12">
-        <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-2">
+        <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-1.5">
           {t('tag', { fallback: 'Ý KIẾN KHÁCH HÀNG' })}
         </span>
         <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
           {t('title', { fallback: 'Đánh Giá Từ Khách Hàng' })}
         </h2>
-        <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full" />
+        <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full" />
       </div>
 
       <div className="container mx-auto px-4 md:px-12 relative">
         <Swiper
-          modules={[Autoplay, Navigation, Pagination]}
+          modules={[Autoplay, Pagination]}
+          onSwiper={setSwiperInstance}
           spaceBetween={24}
           slidesPerView={1}
           loop={true}
           autoplay={{ delay: 3500, disableOnInteraction: false }}
-          navigation={{
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          }}
           pagination={{ clickable: true, el: '.custom-pagination' }}
           breakpoints={{
             640: { slidesPerView: 2 },
@@ -163,11 +146,28 @@ export default function Testimonials() {
           ))}
         </Swiper>
 
-        <button className="swiper-button-prev !left-0 !w-9 !h-9 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-sm"></button>
-        <button className="swiper-button-next !right-0 !w-9 !h-9 !rounded-full !bg-white/90 hover:!bg-white !text-slate-700 hover:!text-blue-600 !border !border-slate-200/80 !shadow-lg hover:!scale-110 transition-all after:!text-sm"></button>
+        {/* Custom Navigation Buttons (Left & Right) */}
+        <button
+          type="button"
+          onClick={() => swiperInstance?.slidePrev()}
+          aria-label="Previous review"
+          className="hidden sm:flex absolute -left-2 md:-left-4 top-[45%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 shadow-md hover:shadow-xl hover:scale-110 active:scale-95 transition-all items-center justify-center cursor-pointer group"
+        >
+          <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => swiperInstance?.slideNext()}
+          aria-label="Next review"
+          className="hidden sm:flex absolute -right-2 md:-right-4 top-[45%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 shadow-md hover:shadow-xl hover:scale-110 active:scale-95 transition-all items-center justify-center cursor-pointer group"
+        >
+          <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+        </button>
         
-        <div className="custom-pagination flex justify-center gap-2 mt-4"></div>
+        <div className="custom-pagination flex justify-center items-center gap-2 mt-4"></div>
       </div>
     </section>
   );
 }
+
+export default memo(TestimonialsComponent);

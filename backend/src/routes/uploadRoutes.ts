@@ -39,9 +39,14 @@ router.post('/', upload.single('image'), (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Please select an image file to upload' });
   }
 
-  const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+  const host = req.get('host') || 'localhost:5000';
+  const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
+  const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
   res.json({
     url: imageUrl,
+    path: `/uploads/${req.file.filename}`,
     filename: req.file.filename,
     message: 'Image uploaded successfully'
   });

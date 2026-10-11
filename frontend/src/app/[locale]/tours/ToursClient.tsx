@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
 import TourCard from '@/components/tours/TourCard';
 import { Filter, SlidersHorizontal, MapPin, Sparkles, X } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { useTourDestinations } from '@/hooks/useTourDestinations';
+import { VideoBackground } from '@/components/ui/VideoBackground';
 
 const fetchFilteredTours = async ({ destination, category, priceRange, sort, isFeatured }: any) => {
   let queryStr = '/tours?';
@@ -24,14 +27,17 @@ const fetchFilteredTours = async ({ destination, category, priceRange, sort, isF
 interface Props {
   initialTours: any[];
   toursBanner: string;
+  toursVideo?: string;
 }
 
-export default function ToursClient({ initialTours, toursBanner }: Props) {
+export default function ToursClient({ initialTours, toursBanner, toursVideo = 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/mountains.mp4' }: Props) {
   const locale = useParams().locale as string;
   const searchParams = useSearchParams();
   const t = useTranslations('filters');
 
   const DEFAULT_BANNER = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600';
+
+  const { data: tourDestinations = [] } = useTourDestinations();
 
   const initialDest = searchParams.get('destination') || '';
   const initialCat = searchParams.get('category') || '';
@@ -52,74 +58,110 @@ export default function ToursClient({ initialTours, toursBanner }: Props) {
   const { data: tours = initialTours, isLoading } = useQuery({
     queryKey: ['tours', { destination, category, priceRange, sort, isFeatured: isFeaturedParam }],
     queryFn: () => fetchFilteredTours({ destination, category, priceRange, sort, isFeatured: isFeaturedParam }),
-    placeholderData: hasFilter ? keepPreviousData : initialTours as any,
-    enabled: hasFilter, // only re-fetch when filters are applied; use initialTours otherwise
+    placeholderData: hasFilter ? keepPreviousData : (initialTours as any),
+    enabled: hasFilter,
   });
 
   const displayTours = hasFilter ? tours : (tours.length ? tours : initialTours);
 
   const bannerTitle = useMemo(() => {
-    if (destination) return `Các Gói Du Lịch Tại ${destination}`;
-    if (isFeaturedParam) return 'Gói Du Lịch Nổi Bật 2026';
-    return 'Khám Phá Tất Cả Gói Du Lịch';
-  }, [destination, isFeaturedParam]);
+    if (destination) return t('destToursTitle', { dest: destination });
+    if (isFeaturedParam) return t('featuredToursTitle');
+    return t('allToursTitle');
+  }, [destination, isFeaturedParam, t]);
 
   const bannerSubtitle = useMemo(() => {
-    if (destination) return `Danh sách các tour hấp dẫn nhất đang có sẵn tại ${destination}.`;
-    if (isFeaturedParam) return 'Tuyển chọn những hành trình tuyệt vời nhất được đông đảo du khách đánh giá 5 sao.';
-    return 'Tìm kiếm và lựa chọn những tour du lịch tuyệt vời nhất với giá hấp dẫn từ Travel.';
-  }, [destination, isFeaturedParam]);
+    if (destination) return t('destToursSubtitle', { dest: destination });
+    if (isFeaturedParam) return t('featuredToursSubtitle');
+    return t('allToursSubtitle');
+  }, [destination, isFeaturedParam, t]);
 
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
       {/* Banner */}
-      <div className="h-72 md:h-96 rounded-3xl overflow-hidden relative mb-8 shadow-2xl bg-slate-900 group">
-        <img
-          src={toursBanner}
-          alt="Tours Banner"
-          onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_BANNER; }}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-900/20" />
-        <div className="absolute bottom-8 left-8 right-8 z-10 max-w-2xl text-white">
+      <VideoBackground
+        videoSrc={toursVideo}
+        videoSources={[
+          { src: toursVideo, type: 'video/mp4' },
+          { src: 'https://res.cloudinary.com/demo/video/upload/so_0,eo_12,q_auto,w_1280,ac_none/rafting.mp4', type: 'video/mp4' }
+        ]}
+        posterSrc={toursBanner || DEFAULT_BANNER}
+        fallbackPosterSrc={DEFAULT_BANNER}
+        overlayGradient="bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/25"
+        className="h-72 md:h-96 rounded-3xl mb-8 shadow-2xl flex items-end"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="p-8 max-w-2xl text-white"
+        >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold mb-3 text-amber-300">
             {destination ? <MapPin className="w-3.5 h-3.5 text-amber-300" /> : <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
-            <span>{destination ? `Điểm Đến: ${destination}` : 'Chuyến Đi Hấp Dẫn'}</span>
+            <span>{destination ? t('destinationBadge', { dest: destination }) : t('hotTripBadge')}</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold mb-3 tracking-tight leading-tight">{bannerTitle}</h1>
           <p className="text-blue-100/90 text-sm md:text-base leading-relaxed">{bannerSubtitle}</p>
-        </div>
-      </div>
+        </motion.div>
+      </VideoBackground>
 
       {/* Active Filter Badges */}
-      {(destination || category || priceRange) && (
-        <div className="flex flex-wrap items-center gap-2 mb-6 bg-blue-50/80 p-3 rounded-2xl border border-blue-100">
-          <span className="text-xs font-extrabold text-blue-900 flex items-center gap-1.5 mr-2">
-            <Filter className="w-3.5 h-3.5 text-blue-600" /> Đang lọc theo:
-          </span>
-          {destination && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-blue-200 text-blue-800 text-xs font-bold">
-              Điểm đến: {destination}
-              <button onClick={() => setDestination('')}><X className="w-3.5 h-3.5" /></button>
+      <AnimatePresence>
+        {(destination || category || priceRange) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-wrap items-center gap-2 mb-6 bg-blue-50/80 p-3 rounded-2xl border border-blue-100 overflow-hidden"
+          >
+            <span className="text-xs font-extrabold text-blue-900 flex items-center gap-1.5 mr-2">
+              <Filter className="w-3.5 h-3.5 text-blue-600" /> {t('filter', { fallback: 'Đang lọc theo:' })}
             </span>
-          )}
-          {category && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-blue-200 text-blue-800 text-xs font-bold">
-              Danh mục: {category}
-              <button onClick={() => setCategory('')}><X className="w-3.5 h-3.5" /></button>
-            </span>
-          )}
-          {priceRange && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-blue-200 text-blue-800 text-xs font-bold">
-              Giá: {priceRange}
-              <button onClick={() => setPriceRange('')}><X className="w-3.5 h-3.5" /></button>
-            </span>
-          )}
-          <button onClick={() => { setDestination(''); setCategory(''); setPriceRange(''); }} className="text-xs font-extrabold text-red-600 hover:underline ml-auto">
-            Xóa tất cả bộ lọc
-          </button>
-        </div>
-      )}
+            <AnimatePresence mode="popLayout">
+              {destination && (
+                <motion.span
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-blue-200 text-blue-800 text-xs font-bold shadow-2xs"
+                >
+                  {destination}
+                  <button onClick={() => setDestination('')}><X className="w-3.5 h-3.5" /></button>
+                </motion.span>
+              )}
+              {category && (
+                <motion.span
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-blue-200 text-blue-800 text-xs font-bold shadow-2xs"
+                >
+                  {category}
+                  <button onClick={() => setCategory('')}><X className="w-3.5 h-3.5" /></button>
+                </motion.span>
+              )}
+              {priceRange && (
+                <motion.span
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-blue-200 text-blue-800 text-xs font-bold shadow-2xs"
+                >
+                  {priceRange}
+                  <button onClick={() => setPriceRange('')}><X className="w-3.5 h-3.5" /></button>
+                </motion.span>
+              )}
+            </AnimatePresence>
+            <button onClick={() => { setDestination(''); setCategory(''); setPriceRange(''); }} className="text-xs font-extrabold text-red-600 hover:underline ml-auto cursor-pointer">
+              {t('clearFilters', { fallback: 'Xóa tất cả bộ lọc' })}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filter */}
@@ -128,11 +170,11 @@ export default function ToursClient({ initialTours, toursBanner }: Props) {
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2 font-bold text-lg text-slate-900">
                 <Filter className="w-5 h-5 text-blue-600" />
-                <span>Bộ Lọc Tour</span>
+                <span>{t('filter', { fallback: 'Bộ Lọc' })}</span>
               </div>
               {(destination || category || priceRange) && (
                 <button onClick={() => { setDestination(''); setCategory(''); setPriceRange(''); }} className="text-xs text-red-500 hover:underline font-medium">
-                  Xóa lọc
+                  {t('clearFilters', { fallback: 'Xóa lọc' })}
                 </button>
               )}
             </div>
@@ -143,17 +185,17 @@ export default function ToursClient({ initialTours, toursBanner }: Props) {
                 <select value={destination} onChange={(e) => setDestination(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium">
                   <option value="">{t('allDests', { fallback: 'Tất cả điểm đến' })}</option>
-                  {['Hà Nội','Đà Nẵng','Phú Quốc','Sa Pa','Hạ Long','Cao Bằng','Nha Trang','Huế','TP. Hồ Chí Minh'].map(d => (
+                  {tourDestinations.map((d: string) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">Loại hình du lịch</label>
+                <label className="font-semibold text-slate-700 block mb-2">{t('categories')}</label>
                 <select value={category} onChange={(e) => setCategory(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium">
-                  <option value="">Tất cả danh mục</option>
+                  <option value="">{t('allCategories')}</option>
                   <option value="city-tour">City Tour</option>
                   <option value="beach">Du lịch Biển</option>
                   <option value="nature">Khám phá thiên nhiên</option>
@@ -162,13 +204,13 @@ export default function ToursClient({ initialTours, toursBanner }: Props) {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">{t('priceRange', { fallback: 'Mức giá' })}</label>
+                <label className="font-semibold text-slate-700 block mb-2">{t('priceRange')}</label>
                 <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium">
-                  <option value="">Tất cả mức giá</option>
-                  <option value="under2m">Dưới 2.000.000đ</option>
-                  <option value="2m-5m">2.000.000đ - 5.000.000đ</option>
-                  <option value="above5m">Trên 5.000.000đ</option>
+                  <option value="">{t('priceAll')}</option>
+                  <option value="under2m">{t('priceUnder1m')}</option>
+                  <option value="2m-5m">{t('price1to2m')}</option>
+                  <option value="above5m">{t('priceAbove4m')}</option>
                 </select>
               </div>
             </div>
@@ -179,39 +221,58 @@ export default function ToursClient({ initialTours, toursBanner }: Props) {
         <main className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-100">
             <p className="text-sm font-medium text-slate-600">
-              Hiển thị <span className="font-bold text-blue-600">{displayTours.length}</span> chuyến đi phù hợp
+              <span className="font-bold text-blue-600">{displayTours.length}</span> {t('toursFound')}
             </p>
             <div className="flex items-center gap-2 self-end sm:self-auto">
               <SlidersHorizontal className="w-4 h-4 text-slate-400" />
-              <span className="text-sm text-slate-500">Sắp xếp:</span>
+              <span className="text-sm text-slate-500">{t('sortBy')}</span>
               <select value={sort} onChange={(e) => setSort(e.target.value)}
                 className="text-sm border border-slate-200 rounded-lg p-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600">
-                <option value="">Mới nhất</option>
-                <option value="price_asc">Giá: Thấp đến Cao</option>
-                <option value="price_desc">Giá: Cao đến Thấp</option>
+                <option value="">{t('sortNewest')}</option>
+                <option value="price_asc">{t('sortPriceAsc')}</option>
+                <option value="price_desc">{t('sortPriceDesc')}</option>
               </select>
             </div>
           </div>
 
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1,2,3,4,5,6].map((n) => <div key={n} className="h-80 rounded-2xl bg-slate-100 animate-pulse" />)}
+              {[1, 2, 3, 4, 5, 6].map((n) => <div key={n} className="h-80 rounded-2xl bg-slate-100 animate-pulse" />)}
             </div>
           ) : displayTours.length === 0 ? (
-            <div className="bg-white p-12 rounded-3xl border border-slate-100 text-center">
-              <p className="text-xl font-bold text-slate-800 mb-2">Chưa có tour nào tại địa điểm này</p>
-              <p className="text-slate-500 text-sm mb-6">Thử chọn địa điểm khác hoặc xóa tất cả bộ lọc.</p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white p-12 rounded-3xl border border-slate-100 text-center"
+            >
+              <p className="text-xl font-bold text-slate-800 mb-2">{t('noResults', { fallback: 'Chưa có tour nào tại địa điểm này' })}</p>
               <button onClick={() => { setDestination(''); setCategory(''); setPriceRange(''); setSort(''); }}
-                className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md">
-                Xem tất cả các tour
+                className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md mt-4 cursor-pointer">
+                {t('clearFilters', { fallback: 'Xem tất cả các tour' })}
               </button>
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayTours.map((tour: any) => (
-                <TourCard key={tour._id || tour.id} tour={tour} locale={locale} />
+            <motion.div
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {displayTours.map((tour: any, idx: number) => (
+                <motion.div
+                  key={tour._id || tour.id}
+                  layout
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.32,
+                    delay: Math.min(idx * 0.04, 0.24),
+                    ease: 'easeOut'
+                  }}
+                >
+                  <TourCard tour={tour} locale={locale} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </main>
       </div>

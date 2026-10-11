@@ -9,7 +9,10 @@
     "specialties": "Local Specialties",
     "contact": "Contact",
     "admin": "Admin CMS",
+    "profile": "My Account",
+    "myBookings": "My Bookings",
     "myCart": "My Cart",
+    "login": "Sign In",
     "logout": "Logout"
   },
   "hero": {
@@ -48,9 +51,11 @@
     "duration": "Duration:",
     "from": "From",
     "perNight": "1 night from",
-    "readMore": "Read more →"
+    "readMore": "Read more →",
+    "newsDefaultCategory": "Travel Guide"
   },
   "featured": {
+    "badge": "Top Experiences",
     "title": "Featured Travel Packages",
     "subtitle": "Discover our most popular travel tours",
     "viewAll": "View All",
@@ -71,6 +76,7 @@
     "viewAll": "View All Hotels"
   },
   "newsSection": {
+    "badge": "Travel Stories",
     "title": "Travel Guides & Tips",
     "subtitle": "Stay updated with the latest travel tips, stories, and itineraries",
     "viewAll": "View All Articles",
@@ -81,6 +87,7 @@
     "title": "Customer Testimonials"
   },
   "whyUs": {
+    "badge": "Outstanding Value",
     "title": "Why Choose Us",
     "items": {
       "trust": "Top Reliability",
@@ -224,7 +231,16 @@
     "payment_method_note": "Method",
     "payment_vietqr": "VietQR Transfer",
     "payment_office": "Pay at office",
-    "error_checkout_failed": "Checkout failed, please try again."
+    "error_checkout_failed": "Checkout failed, please try again.",
+    "hotelBadge": "Hotel",
+    "flightBadge": "Flight",
+    "checkinDate": "Check-in:",
+    "stepServices": "Services",
+    "stepInfo": "Information",
+    "stepPayment": "Payment",
+    "maintenanceBadge": "Maintenance",
+    "onlineDisabledDesc": "Online payment gateway is temporarily unavailable",
+    "onlineDisabledTitle": "Online payment gateway is under maintenance"
   },
   "booking": {
     "success": "Booking Successful!",
@@ -261,7 +277,9 @@
     "roleAdmin": "Administrator",
     "roleCustomer": "Member Customer",
     "addressLabel": "Trading Address",
-    "saveBtn": "Save Changes"
+    "saveBtn": "Save Changes",
+    "updateError": "Failed to update profile, please try again.",
+    "addressPlaceholder": "Enter your address (e.g., District 1, Ho Chi Minh City)..."
   },
   "common": {
     "loading": "Loading...",
@@ -275,7 +293,15 @@
     "select": "Select",
     "viewDetails": "View Details",
     "viewAll": "View All",
-    "readMore": "Read More"
+    "readMore": "Read More",
+    "workingHours": "Working Hours",
+    "editor": "Editor",
+    "viewAndBook": "View & Book",
+    "verifiedSystem": "Verified by Travel System",
+    "checkInDate": "Check-in Date:",
+    "hotTour": "Hot Tour",
+    "hotelType": "Hotel",
+    "flightType": "Flight Ticket"
   },
   "footer": {
     "about": "Travel Booking",
@@ -311,7 +337,11 @@
     "readyTitle": "Ready for your next trip?",
     "readySub": "Thousands of exciting destinations await you.",
     "exploreToursBtn": "Explore Tours",
-    "contactBtn": "Contact Us"
+    "contactBtn": "Contact Us",
+    "metaTitleFallback": "About Us - Travel Booking",
+    "titleFallback": "About Travel Booking",
+    "contentFallback": "Content is being updated...",
+    "description": "Creating unforgettable travel journeys with premier services and dedicated professionals."
   },
   "contact": {
     "heroTag": "☎️ 24/7 Support",
@@ -319,6 +349,7 @@
     "heroSub": "We are always here to listen and ready to support you.",
     "infoTitle": "Contact Information",
     "hqTitle": "Headquarters",
+    "mainBranch": "Headquarters",
     "hotlineTitle": "Customer Hotline",
     "hotlineSub": "Toll-free 24/7",
     "emailTitle": "Consulting Email",
@@ -330,13 +361,16 @@
     "emailLabel": "Email *",
     "phoneLabel": "Phone Number *",
     "subjectLabel": "Subject",
+    "subjectPlaceholder": "Tour inquiry, hotel booking...",
     "msgLabel": "Message Content *",
+    "msgPlaceholder": "Enter your message here...",
     "submitBtn": "Send Message",
     "successTitle": "Message Sent Successfully!",
     "successDesc": "Thank you for contacting us. We have received your message.",
     "anotherMsgBtn": "Send another message"
   },
   "lookup": {
+    "badge": "Online Order Lookup System",
     "heroTitle": "Lookup Tour Booking",
     "heroSub": "Enter booking code (e.g., TRV-123456) to check trip status",
     "placeholder": "Enter tour booking code",
@@ -375,7 +409,39 @@
     "amount": "Amount:",
     "content": "Transfer description:",
     "homeBtn": "Home",
-    "lookupBtn": "Lookup order"
+    "lookupBtn": "Lookup order",
+    "title": "Booking Confirmed Successfully!",
+    "subtitle": "Thank you for choosing Travel Booking. We have received your reservation details.",
+    "bookingCodeLabel": "Your Booking Code",
+    "saveCodeNote": "Please save this code to look up your trip status.",
+    "loadingDetails": "Loading booking details...",
+    "bookedService": "Booked Service",
+    "hotel": "Hotel",
+    "tour": "Tour",
+    "pendingStatus": "Pending Confirmation",
+    "rooms": "rooms",
+    "guests": "guests",
+    "adults": "adults",
+    "children": "children",
+    "booker": "Booker",
+    "phone": "Phone",
+    "email": "Email",
+    "vietqrTitle": "Bank Transfer via VietQR",
+    "vietqrSubtitle": "Scan the QR code to transfer with exact memo and amount",
+    "vietqrAlt": "Payment QR Code",
+    "mbBank": "MB Bank (Military Commercial Joint Stock Bank)",
+    "accountNumber": "Account Number:",
+    "accountOwner": "Account Name:",
+    "companyName": "TRAVEL BOOKING CO., LTD",
+    "transferContent": "Transfer Memo:",
+    "homeButton": "Home",
+    "lookupButton": "Lookup Booking",
+    "officePaymentTitle": "Office Payment / Reserve Slot",
+    "officePaymentDesc": "Your reservation has been recorded in our system",
+    "waitingPayment": "Awaiting Payment",
+    "officePaymentNotice": "Thank you! Your reservation has been forwarded to our travel specialist. You may pay at our branch or wait for our customer representative to contact you within 15-30 minutes.",
+    "hotline247": "24/7 Support Hotline:",
+    "bookingCodeShort": "Booking Code:"
   },
   "visa": {
     "heroTitle": "Comprehensive Tourist Visa Support Service",
@@ -514,11 +580,35 @@
     "instantTicketDesc": "Receive booking code & e-ticket sent directly to your Email/WhatsApp instantly."
   },
   "filters": {
+    "searchPlaceholder": "Search by name or destination...",
+    "filter": "Filter",
+    "categories": "Travel Categories",
+    "allCategories": "All Categories",
+    "clearFilters": "Clear Filters",
+    "noResults": "No matching results found",
     "destinations": "Filter by region",
     "allDests": "All destinations",
     "priceRange": "Price Range",
     "starRating": "Star Rating",
-    "allStars": "All"
+    "allStars": "All",
+    "priceAll": "All Price Ranges",
+    "priceUnder1m": "Under 1 Million",
+    "price1to2m": "1 – 2 Million",
+    "price2to4m": "2 – 4 Million",
+    "priceAbove4m": "Above 4 Million",
+    "allToursTitle": "Explore All Tour Packages",
+    "allToursSubtitle": "Search and choose the best travel packages at attractive prices from Travel.",
+    "featuredToursTitle": "Featured Tour Packages 2026",
+    "featuredToursSubtitle": "Curated wonderful journeys highly rated 5 stars by travelers.",
+    "destToursTitle": "Tour Packages in {dest}",
+    "destToursSubtitle": "List of most attractive tours currently available in {dest}.",
+    "destinationBadge": "Destination: {dest}",
+    "hotTripBadge": "Exciting Journey",
+    "toursFound": "trips",
+    "sortBy": "Sort by:",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low"
   },
   "flashSale": {
     "title": "🔥 GOLDEN HOUR FLASH SALE",
@@ -590,7 +680,8 @@
     "errFillInfo": "Please fill in your Full Name, Email, and Phone Number.",
     "errSelectDates": "Please select check-in and check-out dates.",
     "errInvalidDates": "Check-out date must be after check-in date.",
-    "selectedLabel": "Selected: "
+    "selectedLabel": "Selected: ",
+    "error": "An error occurred while booking. Please try again."
   },
   "specialtiesPage": {
     "badge": "🍜 3-Region Culinary Specialties",
@@ -608,5 +699,72 @@
     "noMatchTitle": "No matching dishes found",
     "noMatchSub": "Try changing your search query or location/region filter.",
     "refPrice": "Price from"
+  },
+  "tourDetail": {
+    "duration": "Duration",
+    "destination": "Destination",
+    "groupSize": "Group Size",
+    "peopleUnit": "people",
+    "insurance": "Insurance",
+    "included": "Included",
+    "recentSchedule": "Upcoming Departures",
+    "colDate": "Departure Date",
+    "colPrice": "Tour Price",
+    "colStatus": "Status",
+    "colAction": "Action",
+    "slotsLeft": "{slots} slots left",
+    "selectedBtn": "Selected ✓",
+    "selectDateBtn": "Select Date",
+    "highlightsTitle": "Tour Highlights",
+    "itineraryTitle": "Detailed Itinerary ({days} Days)",
+    "itineraryContactNote": "Please contact our customer support for full daily itinerary details.",
+    "importantNotesTitle": "Important Notes & Terms",
+    "inclusionsTitle": "Price Includes:",
+    "exclusionsTitle": "Price Excludes:",
+    "photosCount": "{current} / {total} Photos",
+    "reviewsCount": "{count} reviews",
+    "relatedTours": "Other Featured Tours For You",
+    "viewAllTours": "View all tours",
+    "tourNotFound": "Tour information not found"
+  },
+  "tourBooking": {
+    "pricePerGuest": "Price per guest",
+    "slotsAvailable": "Available",
+    "selectDeparture": "Select departure date *",
+    "selectDeparturePlaceholder": "-- Select departure date --",
+    "slotsRemaining": "({slots} slots left)",
+    "departureDate": "Departure date *",
+    "adultsLabel": "Adults (≥12y)",
+    "childrenLabel": "Children (70% price)",
+    "subtotalLabel": "SUBTOTAL",
+    "taxFeeIncluded": "Taxes & fees included",
+    "bookNowBtn": "BOOK TOUR NOW",
+    "directConsult": "Direct Consultation (1800 646 888)",
+    "instantHold": "Instant reservation",
+    "securePayment": "100% secure payment",
+    "errSelectDate": "Please select a departure date"
+  },
+  "userBookings": {
+    "backToProfile": "Back to Profile",
+    "title": "Booking History",
+    "subtitle": "Track your trip status and booking details",
+    "exploreMore": "+ Explore New Tours",
+    "tabAll": "All Bookings",
+    "tabPending": "Pending",
+    "tabConfirmed": "Confirmed",
+    "tabCancelled": "Cancelled",
+    "emptyTitle": "No bookings found in this section",
+    "emptyDesc": "Choose an exciting new journey experience with Travel!",
+    "viewToursBtn": "Explore Tours",
+    "cancelSuccess": "Booking cancelled successfully",
+    "cancelConfirm": "Are you sure you want to cancel this booking?",
+    "cancelError": "Error cancelling booking",
+    "orderCode": "Order Code",
+    "viewDetail": "Details",
+    "cancelOrder": "Cancel Booking",
+    "defaultHotel": "Hotel & Resort",
+    "defaultFlight": "Flight Ticket",
+    "defaultTour": "Package Tour",
+    "flightNumber": "Flight {code}"
   }
 }

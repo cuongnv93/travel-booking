@@ -4,5 +4,6 @@ import { getFlashSaleItems, seedFlashSale } from '../controllers/flashSaleContro
 const router = Router();
 
 router.get('/', getFlashSaleItems);
+router.post('/seed', seedFlashSale);
 
 export default router;

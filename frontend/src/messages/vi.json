@@ -9,7 +9,10 @@
     "specialties": "Đặc sản địa phương",
     "contact": "Liên hệ",
     "admin": "Trang Admin",
+    "profile": "Tài khoản của tôi",
+    "myBookings": "Lịch sử đặt chỗ",
     "myCart": "Giỏ hàng của tôi",
+    "login": "Đăng nhập",
     "logout": "Đăng xuất"
   },
   "hero": {
@@ -48,9 +51,11 @@
     "duration": "Thời gian:",
     "from": "Từ",
     "perNight": "1 đêm từ",
-    "readMore": "Đọc thêm →"
+    "readMore": "Đọc thêm →",
+    "newsDefaultCategory": "Cẩm nang du lịch"
   },
   "featured": {
+    "badge": "Trải Nghiệm Đỉnh Cao",
     "title": "Gói Du Lịch Nổi Bật",
     "subtitle": "Khám phá các tour du lịch được yêu thích nhất",
     "viewAll": "Xem tất cả",
@@ -71,6 +76,7 @@
     "viewAll": "Xem tất cả khách sạn"
   },
   "newsSection": {
+    "badge": "Góc Cẩm Nang",
     "title": "Cẩm Nang & Kinh Nghiệm Du Lịch",
     "subtitle": "Cập nhật những thông tin, mẹo hay và hành trình khám phá mới nhất",
     "viewAll": "Xem tất cả bài viết",
@@ -81,6 +87,7 @@
     "title": "Đánh Giá Từ Khách Hàng"
   },
   "whyUs": {
+    "badge": "Giá Trị Vượt Trội",
     "title": "Tại sao chọn chúng tôi",
     "items": {
       "trust": "Uy tín hàng đầu",
@@ -224,7 +231,16 @@
     "payment_method_note": "Phương thức",
     "payment_vietqr": "Chuyển khoản VietQR",
     "payment_office": "Thanh toán tại văn phòng",
-    "error_checkout_failed": "Đặt tour thất bại, vui lòng thử lại."
+    "error_checkout_failed": "Đặt tour thất bại, vui lòng thử lại.",
+    "hotelBadge": "Khách Sạn",
+    "flightBadge": "Vé Máy Bay",
+    "checkinDate": "Nhận phòng:",
+    "stepServices": "Dịch Vụ",
+    "stepInfo": "Thông Tin",
+    "stepPayment": "Thanh Toán",
+    "maintenanceBadge": "Tạm bảo trì",
+    "onlineDisabledDesc": "Cổng thanh toán trực tuyến tạm thời không khả dụng",
+    "onlineDisabledTitle": "Cổng thanh toán online tạm thời bảo trì nâng cấp"
   },
   "booking": {
     "success": "Đặt Tour Thành Công!",
@@ -261,7 +277,9 @@
     "roleAdmin": "Quản Trị Viên (Admin)",
     "roleCustomer": "Khách Hàng Thành Viên",
     "addressLabel": "Địa chỉ giao dịch",
-    "saveBtn": "Lưu Thay Đổi"
+    "saveBtn": "Lưu Thay Đổi",
+    "updateError": "Cập nhật thông tin thất bại, vui lòng thử lại.",
+    "addressPlaceholder": "Nhập địa chỉ của bạn (VD: Quận 1, TP. Hồ Chí Minh)..."
   },
   "common": {
     "loading": "Đang tải dữ liệu...",
@@ -275,7 +293,15 @@
     "select": "Chọn",
     "viewDetails": "Xem Chi Tiết",
     "viewAll": "Xem Tất Cả",
-    "readMore": "Đọc Thêm"
+    "readMore": "Đọc Thêm",
+    "workingHours": "Giờ làm việc",
+    "editor": "Biên tập viên",
+    "viewAndBook": "Xem & Đặt",
+    "verifiedSystem": "Xác thực bởi hệ thống Travel",
+    "checkInDate": "Ngày check-in:",
+    "hotTour": "Tour Hot",
+    "hotelType": "Khách Sạn",
+    "flightType": "Vé Máy Bay"
   },
   "footer": {
     "about": "Travel Booking",
@@ -311,7 +337,11 @@
     "readyTitle": "Bạn đã sẵn sàng cho chuyến đi tiếp theo?",
     "readySub": "Hàng ngàn điểm đến thú vị đang chờ đón bạn.",
     "exploreToursBtn": "Khám Phá Tour",
-    "contactBtn": "Liên Hệ Tư Vấn"
+    "contactBtn": "Liên Hệ Tư Vấn",
+    "metaTitleFallback": "Về Chúng Tôi - Travel Booking",
+    "titleFallback": "Giới Thiệu Về Chúng Tôi",
+    "contentFallback": "Nội dung đang được cập nhật...",
+    "description": "Kiến tạo những hành trình du lịch khó quên với dịch vụ hàng đầu và đội ngũ tận tâm."
   },
   "contact": {
     "heroTag": "☎️ Hỗ Trợ 24/7",
@@ -319,6 +349,7 @@
     "heroSub": "Chúng tôi luôn lắng nghe và sẵn sàng hỗ trợ mọi thắc mắc của bạn.",
     "infoTitle": "Thông Tin Liên Hệ",
     "hqTitle": "Trụ Sở Chính",
+    "mainBranch": "Trụ sở chính",
     "hotlineTitle": "Tổng Đài Khách Hàng",
     "hotlineSub": "Miễn phí cước gọi 24/7",
     "emailTitle": "Email Tư Vấn",
@@ -330,13 +361,16 @@
     "emailLabel": "Email *",
     "phoneLabel": "Số điện thoại *",
     "subjectLabel": "Chủ đề cần tư vấn",
+    "subjectPlaceholder": "Tư vấn tour, đặt phòng...",
     "msgLabel": "Nội dung tin nhắn *",
+    "msgPlaceholder": "Nhập nội dung cần hỗ trợ...",
     "submitBtn": "Gửi Tin Nhắn",
     "successTitle": "Gửi Thông Tin Thành Công!",
     "successDesc": "Cảm ơn bạn đã liên hệ. Chúng tôi đã nhận được tin nhắn.",
     "anotherMsgBtn": "Gửi tin nhắn khác"
   },
   "lookup": {
+    "badge": "Hệ Thống Tra Cứu Trực Tuyến",
     "heroTitle": "Tra Cứu Đơn Đặt Tour",
     "heroSub": "Nhập mã đặt chỗ (VD: TRV-123456) để kiểm tra tình trạng chuyến đi",
     "placeholder": "Nhập mã đặt tour (VD: TRV-891234)",
@@ -375,7 +409,39 @@
     "amount": "Số tiền:",
     "content": "Nội dung CK:",
     "homeBtn": "Trang chủ",
-    "lookupBtn": "Tra cứu đơn hàng"
+    "lookupBtn": "Tra cứu đơn hàng",
+    "title": "Đặt Chỗ Thành Công!",
+    "subtitle": "Cảm ơn bạn đã lựa chọn Travel Booking. Chúng tôi đã nhận được thông tin đặt chỗ của bạn.",
+    "bookingCodeLabel": "Mã đặt chỗ của bạn",
+    "saveCodeNote": "Vui lòng lưu lại mã này để tra cứu tình trạng chuyến đi.",
+    "loadingDetails": "Đang tải chi tiết đơn đặt...",
+    "bookedService": "Dịch vụ đã đặt",
+    "hotel": "Khách sạn",
+    "tour": "Tour du lịch",
+    "pendingStatus": "Chờ xác nhận",
+    "rooms": "phòng",
+    "guests": "khách",
+    "adults": "người lớn",
+    "children": "trẻ em",
+    "booker": "Người đặt",
+    "phone": "Số điện thoại",
+    "email": "Email",
+    "vietqrTitle": "Thanh Toán Chuyển Khoản Qua VietQR",
+    "vietqrSubtitle": "Quét mã QR để chuyển khoản chính xác nội dung & số tiền",
+    "vietqrAlt": "Mã QR thanh toán",
+    "mbBank": "MB Bank (Ngân hàng Quân Đội)",
+    "accountNumber": "Số tài khoản:",
+    "accountOwner": "Chủ tài khoản:",
+    "companyName": "CÔNG TY TNHH DU LỊCH TRAVEL BOOKING",
+    "transferContent": "Nội dung CK:",
+    "homeButton": "Trang chủ",
+    "lookupButton": "Tra cứu đơn hàng",
+    "officePaymentTitle": "Thanh Toán Tại Văn Phòng / Giữ Chỗ",
+    "officePaymentDesc": "Đơn hàng của bạn đã được ghi nhận trên hệ thống",
+    "waitingPayment": "Chờ thanh toán",
+    "officePaymentNotice": "Cảm ơn quý khách! Đơn đặt chỗ đã được chuyển tới chuyên viên tư vấn. Quý khách có thể đến trực tiếp các chi nhánh của chúng tôi để thanh toán hoặc chờ tổng đài viên liên hệ xác nhận trong vòng 15-30 phút.",
+    "hotline247": "Tổng đài hỗ trợ 24/7:",
+    "bookingCodeShort": "Mã đặt chỗ:"
   },
   "visa": {
     "heroTitle": "Dịch Vụ Hỗ Trợ Visa Du Lịch Trọn Gói",
@@ -514,11 +580,35 @@
     "instantTicketDesc": "Nhận mã đặt chỗ & vé điện tử gửi thẳng qua Email/Zalo ngay sau khi thanh toán."
   },
   "filters": {
+    "searchPlaceholder": "Tìm theo tên hoặc thành phố...",
+    "filter": "Bộ lọc",
+    "categories": "Loại hình du lịch",
+    "allCategories": "Tất cả danh mục",
+    "clearFilters": "Xóa bộ lọc",
+    "noResults": "Không tìm thấy kết quả phù hợp",
     "destinations": "Lọc theo khu vực",
     "allDests": "Tất cả điểm đến",
     "priceRange": "Khoảng giá",
     "starRating": "Hạng sao",
-    "allStars": "Tất cả"
+    "allStars": "Tất cả",
+    "priceAll": "Tất cả mức giá",
+    "priceUnder1m": "Dưới 1 triệu",
+    "price1to2m": "1 – 2 triệu",
+    "price2to4m": "2 – 4 triệu",
+    "priceAbove4m": "Trên 4 triệu",
+    "allToursTitle": "Khám Phá Tất Cả Gói Du Lịch",
+    "allToursSubtitle": "Tìm kiếm và lựa chọn những tour du lịch tuyệt vời nhất với giá hấp dẫn từ Travel.",
+    "featuredToursTitle": "Gói Du Lịch Nổi Bật 2026",
+    "featuredToursSubtitle": "Tuyển chọn những hành trình tuyệt vời nhất được đông đảo du khách đánh giá 5 sao.",
+    "destToursTitle": "Các Gói Du Lịch Tại {dest}",
+    "destToursSubtitle": "Danh sách các tour hấp dẫn nhất đang có sẵn tại {dest}.",
+    "destinationBadge": "Điểm Đến: {dest}",
+    "hotTripBadge": "Chuyến Đi Hấp Dẫn",
+    "toursFound": "chuyến đi",
+    "sortBy": "Sắp xếp:",
+    "sortNewest": "Mới nhất",
+    "sortPriceAsc": "Giá: Thấp đến Cao",
+    "sortPriceDesc": "Giá: Cao đến Thấp"
   },
   "flashSale": {
     "title": "🔥 FLASH SALE GIỜ VÀNG",
@@ -590,7 +680,8 @@
     "errFillInfo": "Vui lòng điền đầy đủ Họ tên, Email và Số điện thoại.",
     "errSelectDates": "Vui lòng chọn ngày nhận phòng và trả phòng.",
     "errInvalidDates": "Ngày trả phòng phải sau ngày nhận phòng.",
-    "selectedLabel": "Đã chọn: "
+    "selectedLabel": "Đã chọn: ",
+    "error": "Đã có lỗi xảy ra khi đặt phòng, vui lòng thử lại."
   },
   "specialtiesPage": {
     "badge": "🍜 Ẩm Thực & Món Ngon 3 Miền",
@@ -608,5 +699,72 @@
     "noMatchTitle": "Không tìm thấy món ăn phù hợp",
     "noMatchSub": "Hãy thử thay đổi từ khóa hoặc bộ lọc địa điểm / vùng miền.",
     "refPrice": "Giá tham khảo từ"
+  },
+  "tourDetail": {
+    "duration": "Thời gian",
+    "destination": "Điểm đến",
+    "groupSize": "Quy mô đoàn",
+    "peopleUnit": "người",
+    "insurance": "Bảo hiểm",
+    "included": "Bao gồm",
+    "recentSchedule": "Lịch Khởi Hành Gần Nhất",
+    "colDate": "Ngày khởi hành",
+    "colPrice": "Giá tour",
+    "colStatus": "Tình trạng",
+    "colAction": "Lựa chọn",
+    "slotsLeft": "Còn {slots} chỗ",
+    "selectedBtn": "Đã chọn ✓",
+    "selectDateBtn": "Chọn ngày",
+    "highlightsTitle": "Điểm Nhấn Chương Trình Nổi Bật",
+    "itineraryTitle": "Lịch Trình Chi Tiết Khám Phá ({days} ngày)",
+    "itineraryContactNote": "Vui lòng liên hệ bộ phận CSKH để nhận bản lịch trình chi tiết theo ngày.",
+    "importantNotesTitle": "Những Thông Tin Cần Lưu Ý & Điều Khoản",
+    "inclusionsTitle": "Giá Tour Đã Bao Gồm:",
+    "exclusionsTitle": "Giá Tour Không Bao Gồm:",
+    "photosCount": "{current} / {total} Ảnh",
+    "reviewsCount": "{count} đánh giá",
+    "relatedTours": "Các Tour Nổi Bật Khác Dành Cho Bạn",
+    "viewAllTours": "Xem tất cả tour",
+    "tourNotFound": "Không tìm thấy thông tin tour"
+  },
+  "tourBooking": {
+    "pricePerGuest": "Giá tour 1 khách",
+    "slotsAvailable": "Còn chỗ",
+    "selectDeparture": "Chọn đợt khởi hành *",
+    "selectDeparturePlaceholder": "-- Chọn ngày khởi hành --",
+    "slotsRemaining": "(Còn {slots} chỗ)",
+    "departureDate": "Ngày khởi hành *",
+    "adultsLabel": "Người lớn (≥12t)",
+    "childrenLabel": "Trẻ em (70% giá)",
+    "subtotalLabel": "TỔNG TẠM TÍNH",
+    "taxFeeIncluded": "Đã bao gồm thuế & phí",
+    "bookNowBtn": "ĐẶT TOUR NGAY",
+    "directConsult": "Tư Vấn Trực Tiếp (1800 646 888)",
+    "instantHold": "Giữ chỗ tức thì",
+    "securePayment": "Thanh toán an toàn 100%",
+    "errSelectDate": "Vui lòng chọn ngày khởi hành"
+  },
+  "userBookings": {
+    "backToProfile": "Trở về Hồ sơ cá nhân",
+    "title": "Lịch Sử Đơn Đặt Dịch Vụ",
+    "subtitle": "Theo dõi chi tiết trạng thái và lịch trình các chuyến đi của bạn",
+    "exploreMore": "+ Khám Phá Tour Mới",
+    "tabAll": "Tất Cả Đơn",
+    "tabPending": "Chờ Xác Nhận",
+    "tabConfirmed": "Đã Xác Nhận",
+    "tabCancelled": "Đã Hủy",
+    "emptyTitle": "Chưa có đơn đặt nào ở mục này",
+    "emptyDesc": "Hãy chọn cho mình một trải nghiệm hành trình mới tuyệt vời cùng Travel!",
+    "viewToursBtn": "Xem Danh Sách Tours",
+    "cancelSuccess": "Đã hủy đơn thành công",
+    "cancelConfirm": "Bạn có chắc chắn muốn hủy đơn đặt này?",
+    "cancelError": "Lỗi hủy đơn",
+    "orderCode": "Mã đơn",
+    "viewDetail": "Chi tiết",
+    "cancelOrder": "Hủy đơn",
+    "defaultHotel": "Khách Sạn & Resort",
+    "defaultFlight": "Vé máy bay",
+    "defaultTour": "Tour Du Lịch",
+    "flightNumber": "Chuyến bay {code}"
   }
 }

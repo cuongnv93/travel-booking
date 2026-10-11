@@ -8,7 +8,7 @@ import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 
 const fetchAdminUsers = async () => {
   const res: any = await api.get('/auth/users');
-  return res || [];
+  return Array.isArray(res) ? res : (res?.data || []);
 };
 
 export default function UsersAdminPage() {

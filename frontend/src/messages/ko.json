@@ -9,7 +9,10 @@
     "specialties": "특산품",
     "contact": "문의하기",
     "admin": "관리자",
+    "profile": "내 계정",
+    "myBookings": "예약 내역",
     "myCart": "장바구니",
+    "login": "로그인",
     "logout": "로그아웃"
   },
   "hero": {
@@ -48,9 +51,11 @@
     "duration": "시간:",
     "from": "부터",
     "perNight": "1박부터",
-    "readMore": "더 읽기 →"
+    "readMore": "더 읽기 →",
+    "newsDefaultCategory": "여행 가이드"
   },
   "featured": {
+    "badge": "최고의 여행 경험",
     "title": "추천 여행 패키지",
     "subtitle": "가장 인기 있는 여행 상품을 만나보세요",
     "viewAll": "전체 보기",
@@ -71,6 +76,7 @@
     "viewAll": "전체 호텔 보기"
   },
   "newsSection": {
+    "badge": "여행 이야기",
     "title": "여행 가이드 & 팁",
     "subtitle": "최신 여행 정보, 유용한 팁 및 코스를 확인하세요",
     "viewAll": "전체 글 보기",
@@ -81,6 +87,7 @@
     "title": "고객들의 생생한 생생후기"
   },
   "whyUs": {
+    "badge": "탁월한 가치",
     "title": "왜 저희를 선택해야 할까요?",
     "items": {
       "trust": "최고의 신뢰성",
@@ -224,7 +231,16 @@
     "payment_method_note": "결제 방식",
     "payment_vietqr": "VietQR 계좌 이체",
     "payment_office": "방문 결제",
-    "error_checkout_failed": "예약에 실패했습니다. 다시 시도해 주세요."
+    "error_checkout_failed": "예약에 실패했습니다. 다시 시도해 주세요.",
+    "hotelBadge": "호텔",
+    "flightBadge": "항공권",
+    "checkinDate": "체크인:",
+    "stepServices": "서비스",
+    "stepInfo": "정보 입력",
+    "stepPayment": "결제하기",
+    "maintenanceBadge": "점검 중",
+    "onlineDisabledDesc": "온라인 결제 시스템이 일시적으로 이용 불가합니다",
+    "onlineDisabledTitle": "온라인 결제 게이트웨이 시스템 점검 중"
   },
   "booking": {
     "success": "예약이 성공적으로 완료되었습니다!",
@@ -261,7 +277,9 @@
     "roleAdmin": "관리자",
     "roleCustomer": "회원 고객",
     "addressLabel": "거래 주소",
-    "saveBtn": "변경 사항 저장"
+    "saveBtn": "변경 사항 저장",
+    "updateError": "프로필 업데이트 실패, 다시 시도해 주세요.",
+    "addressPlaceholder": "주소를 입력해 주세요..."
   },
   "common": {
     "loading": "불러오는 중...",
@@ -275,7 +293,15 @@
     "select": "선택",
     "viewDetails": "상세 보기",
     "viewAll": "모두 보기",
-    "readMore": "더 đọc기"
+    "readMore": "더 đọc기",
+    "workingHours": "운영 시간",
+    "editor": "에디터",
+    "viewAndBook": "상세 및 예약",
+    "verifiedSystem": "Travel 시스템 공식 인증",
+    "checkInDate": "체크인 일자:",
+    "hotTour": "인기 투어",
+    "hotelType": "호텔",
+    "flightType": "항공권"
   },
   "footer": {
     "about": "Travel Booking",
@@ -311,7 +337,11 @@
     "readyTitle": "다음 여행을 준비하셨나요?",
     "readySub": "수천 개의 흥미로운 목적지가 여러분을 기다립니다.",
     "exploreToursBtn": "투어 탐색",
-    "contactBtn": "문의하기"
+    "contactBtn": "문의하기",
+    "metaTitleFallback": "회사 소개 - Travel Booking",
+    "titleFallback": "Travel Booking 소개",
+    "contentFallback": "콘텐츠 업데이트 중입니다...",
+    "description": "최고의 서비스와 헌신적인 전문가들이 잊지 못할 여행 여정을 선사합니다."
   },
   "contact": {
     "heroTag": "☎️ 24/7 지원",
@@ -319,6 +349,7 @@
     "heroSub": "저희는 항상 귀하의 질문에 귀 기울이고 지원할 준비가 되어 있습니다.",
     "infoTitle": "연락처 정보",
     "hqTitle": "본사",
+    "mainBranch": "본사",
     "hotlineTitle": "고객 센터",
     "hotlineSub": "수신자 부담 24/7",
     "emailTitle": "상담 이메일",
@@ -330,13 +361,16 @@
     "emailLabel": "이메일 *",
     "phoneLabel": "전화번호 *",
     "subjectLabel": "주제",
+    "subjectPlaceholder": "투어 상담, 호텔 예약...",
     "msgLabel": "메시지 내용 *",
+    "msgPlaceholder": "문의하실 내용을 입력해 주세요...",
     "submitBtn": "메시지 보내기",
     "successTitle": "메시지가 성공적으로 전송되었습니다!",
     "successDesc": "연락해 주셔서 감사합니다. 귀하의 메시지를 받았습니다.",
     "anotherMsgBtn": "다른 메시지 보내기"
   },
   "lookup": {
+    "badge": "온라인 예약 조회 시스템",
     "heroTitle": "투어 예약 조회",
     "heroSub": "예약 코드(예: TRV-123456)를 입력하여 여행 상태를 확인하세요",
     "placeholder": "투어 예약 코드 입력",
@@ -375,7 +409,39 @@
     "amount": "금액:",
     "content": "송금 설명:",
     "homeBtn": "홈",
-    "lookupBtn": "주문 조회"
+    "lookupBtn": "주문 조회",
+    "title": "예약이 성공적으로 완료되었습니다!",
+    "subtitle": "Travel Booking을 선택해 주셔서 감사합니다. 예약 정보가 접수되었습니다.",
+    "bookingCodeLabel": "예약 번호",
+    "saveCodeNote": "예약 조회를 위해 이 코드를 보관해 주세요.",
+    "loadingDetails": "예약 정보를 불러오는 중...",
+    "bookedService": "예약 서비스",
+    "hotel": "호텔",
+    "tour": "투어",
+    "pendingStatus": "확인 대기 중",
+    "rooms": "개 객실",
+    "guests": "명 투숙객",
+    "adults": "성인",
+    "children": "어린이",
+    "booker": "예약자",
+    "phone": "연락처",
+    "email": "이메일",
+    "vietqrTitle": "VietQR 계좌 이체",
+    "vietqrSubtitle": "QR 코드를 스캔하여 정확한 금액과 내용으로 간편 이체",
+    "vietqrAlt": "결제 QR 코드",
+    "mbBank": "MB 은행 (군대합자상업은행)",
+    "accountNumber": "계좌번호:",
+    "accountOwner": "예금주:",
+    "companyName": "TRAVEL BOOKING 관광 유한회사",
+    "transferContent": "이체 메모:",
+    "homeButton": "홈으로",
+    "lookupButton": "예약 조회",
+    "officePaymentTitle": "사무소 직접 결제 / 예약 홀딩",
+    "officePaymentDesc": "예약이 시스템에 등록되었습니다",
+    "waitingPayment": "결제 대기",
+    "officePaymentNotice": "감사합니다! 예약이 담당자에게 전달되었습니다. 지점을 방문하여 결제하시거나 15~30분 이내에 상담원의 연락을 기다려 주세요.",
+    "hotline247": "24/7 고객센터:",
+    "bookingCodeShort": "예약 번호:"
   },
   "visa": {
     "heroTitle": "비자 지원 서비스",
@@ -514,11 +580,35 @@
     "instantTicketDesc": "결제 직후 이메일로 예약 코드와 전자 티켓이 즉시 전송됩니다."
   },
   "filters": {
+    "searchPlaceholder": "호텔 이름 또는 도시 검색...",
+    "filter": "필터",
+    "categories": "여행 카테고리",
+    "allCategories": "모든 카테고리",
+    "clearFilters": "필터 초기화",
+    "noResults": "일치하는 결과가 없습니다",
     "destinations": "지역별 필터",
     "allDests": "모든 목적지",
     "priceRange": "가격 범위",
     "starRating": "별점 등급",
-    "allStars": "모두"
+    "allStars": "모두",
+    "priceAll": "전체 가격대",
+    "priceUnder1m": "100만 동 이하",
+    "price1to2m": "100만 – 200만 동",
+    "price2to4m": "200만 – 400만 동",
+    "priceAbove4m": "400만 동 이상",
+    "allToursTitle": "모든 여행 패키지 둘러보기",
+    "allToursSubtitle": "Travel에서 가장 매력적인 가격으로 최고의 여행 패키지를 만나보세요.",
+    "featuredToursTitle": "2026 베스트 추천 투어",
+    "featuredToursSubtitle": "수많은 여행객이 별점 5점으로 극찬한 최고의 여정을 엄선했습니다.",
+    "destToursTitle": "{dest} 추천 여행 패키지",
+    "destToursSubtitle": "{dest}에서 지금 이용 가능한 가장 매력적인 투어 목록입니다.",
+    "destinationBadge": "여행지: {dest}",
+    "hotTripBadge": "설레는 여행",
+    "toursFound": "개 여정",
+    "sortBy": "정렬:",
+    "sortNewest": "최신순",
+    "sortPriceAsc": "가격: 낮은순",
+    "sortPriceDesc": "가격: 높은순"
   },
   "flashSale": {
     "title": "🔥 골든 타임 타임 딜",
@@ -590,7 +680,8 @@
     "errFillInfo": "이름, 이메일, 전화번호를 입력해 주세요.",
     "errSelectDates": "체크인 및 체크아웃 날짜를 선택해 주세요.",
     "errInvalidDates": "체크아웃 날짜는 체크인 날짜 이후여야 합니다.",
-    "selectedLabel": "선택됨: "
+    "selectedLabel": "선택됨: ",
+    "error": "예약 중 오류가 발생했습니다. 다시 시도해 주세요."
   },
   "specialtiesPage": {
     "badge": "🍜 베트남 3대 지역 향토 음식",
@@ -608,5 +699,72 @@
     "noMatchTitle": "조건에 맞는 음식이 없습니다",
     "noMatchSub": "검색어나 지역 필터를 변경해 보세요.",
     "refPrice": "참고 가격"
+  },
+  "tourDetail": {
+    "duration": "여행 기간",
+    "destination": "목적지",
+    "groupSize": "모집 인원",
+    "peopleUnit": "명",
+    "insurance": "여행자 보험",
+    "included": "포함",
+    "recentSchedule": "최근 출발 일정",
+    "colDate": "출발일",
+    "colPrice": "투어 가격",
+    "colStatus": "예약 상태",
+    "colAction": "선택",
+    "slotsLeft": "{slots}자리 남음",
+    "selectedBtn": "선택됨 ✓",
+    "selectDateBtn": "날짜 선택",
+    "highlightsTitle": "주요 핵심 일정",
+    "itineraryTitle": "상세 탐방 일정 ({days}일)",
+    "itineraryContactNote": "상세한 일자별 일정표는 고객센터로 문의해주세요.",
+    "importantNotesTitle": "유의사항 및 예약 규정",
+    "inclusionsTitle": "포함 내역:",
+    "exclusionsTitle": "불포함 내역:",
+    "photosCount": "{current} / {total} 사진",
+    "reviewsCount": "{count}개 리뷰",
+    "relatedTours": "추천 인기 투어",
+    "viewAllTours": "전체 투어 보기",
+    "tourNotFound": "투어 정보를 찾을 수 없습니다"
+  },
+  "tourBooking": {
+    "pricePerGuest": "1인 기준 투어 가격",
+    "slotsAvailable": "예약 가능",
+    "selectDeparture": "출발 일정 선택 *",
+    "selectDeparturePlaceholder": "-- 출발일을 선택하세요 --",
+    "slotsRemaining": "({slots}자리 남음)",
+    "departureDate": "출발일 *",
+    "adultsLabel": "성인 (12세 이상)",
+    "childrenLabel": "어린이 (70% 적용)",
+    "subtotalLabel": "예상 결제 금액",
+    "taxFeeIncluded": "세금 및 수수료 포함",
+    "bookNowBtn": "지금 바로 예약하기",
+    "directConsult": "전문 상담 문의 (1800 646 888)",
+    "instantHold": "즉시 좌석 확보",
+    "securePayment": "100% 안전 결제",
+    "errSelectDate": "출발 일정을 선택해주세요"
+  },
+  "userBookings": {
+    "backToProfile": "프로필로 돌아가기",
+    "title": "예약 내역 조회",
+    "subtitle": "고객님의 여행 상태와 일정을 상세히 확인하세요",
+    "exploreMore": "+ 신규 투어 탐색",
+    "tabAll": "전체 예약",
+    "tabPending": "확인 대기",
+    "tabConfirmed": "예약 확정",
+    "tabCancelled": "취소 완료",
+    "emptyTitle": "해당 내역의 예약이 없습니다",
+    "emptyDesc": "Travel과 함께 멋진 새로운 여행을 지금 시작해보세요!",
+    "viewToursBtn": "투어 목록 보기",
+    "cancelSuccess": "예약이 성공적으로 취소되었습니다",
+    "cancelConfirm": "이 예약을 정말로 취소하시겠습니까?",
+    "cancelError": "예약 취소 오류",
+    "orderCode": "주문 번호",
+    "viewDetail": "상세 보기",
+    "cancelOrder": "예약 취소",
+    "defaultHotel": "호텔 & 리조트",
+    "defaultFlight": "항공권",
+    "defaultTour": "패키지 투어",
+    "flightNumber": "항공편 {code}"
   }
 }

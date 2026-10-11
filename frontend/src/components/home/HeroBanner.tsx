@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import api from '@/lib/api';
-import { getI18nText } from '@/lib/utils';
+import { getI18nText, cn } from '@/lib/utils';
 
 const DEFAULT_SLIDES = [
   {
@@ -69,26 +70,13 @@ const DEFAULT_SLIDES = [
   },
 ];
 
-const fetchHeroBanners = async () => {
-  try {
-    const res: any = await api.get('/settings/hero_banners');
-    if (res?.value && Array.isArray(res.value) && res.value.length > 0) {
-      return res.value;
-    }
-  } catch (err) {
-    // fallback
-  }
-  return DEFAULT_SLIDES;
-};
+import { useHeroBanners } from '@/hooks/useSettings';
 
-export default function HeroBanner() {
+function HeroBannerComponent() {
   const locale = useParams().locale as string;
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const { data: slides = DEFAULT_SLIDES } = useQuery({
-    queryKey: ['hero-banners-setting'],
-    queryFn: fetchHeroBanners,
-  });
+  const { data: slides } = useHeroBanners();
 
   const total = slides.length;
 
@@ -100,21 +88,21 @@ export default function HeroBanner() {
     return () => clearInterval(timer);
   }, [total]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + total) % total);
-  };
+  }, [total]);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % total);
-  };
+  }, [total]);
 
   const current = slides[currentSlide] || slides[0] || DEFAULT_SLIDES[0];
 
-  const titleText = getI18nText(current.title, locale) || 'Khám Phá Cùng Travel';
-  const subtitleText = getI18nText(current.subtitle, locale) || 'Trải nghiệm những chuyến đi tuyệt vời';
-  const ctaText = getI18nText(current.ctaText, locale) || 'Khám Phá Ngay';
+  const titleText = useMemo(() => getI18nText(current.title, locale) || 'Khám Phá Cùng Travel', [current.title, locale]);
+  const subtitleText = useMemo(() => getI18nText(current.subtitle, locale) || 'Trải nghiệm những chuyến đi tuyệt vời', [current.subtitle, locale]);
+  const ctaText = useMemo(() => getI18nText(current.ctaText, locale) || 'Khám Phá Ngay', [current.ctaText, locale]);
 
-  const getLink = (rawLink?: string) => {
+  const getLink = useCallback((rawLink?: string) => {
     if (!rawLink) return `/${locale}/tours`;
     if (rawLink.startsWith('http')) return rawLink;
     if (rawLink.startsWith('/')) {
@@ -122,31 +110,31 @@ export default function HeroBanner() {
       return `/${locale}${rawLink}`;
     }
     return `/${locale}/${rawLink}`;
-  };
+  }, [locale]);
 
   return (
-    <section className="relative w-full h-[65vh] md:h-[82vh] flex items-center justify-center overflow-hidden bg-slate-950">
+    <section className="relative w-full min-h-[580px] sm:min-h-[620px] md:min-h-[700px] lg:h-[84vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 pt-16 pb-24 sm:pt-20 sm:pb-32 md:pb-36">
       {/* Background Image Slideshow */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         <motion.div
           key={currentSlide}
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: 'easeInOut' }}
           className="absolute inset-0 z-0"
         >
-          <img
+          <Image
             src={current.image || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600'}
             alt={titleText}
-            onError={(e: any) => {
-              e.target.onerror = null;
-              e.target.src = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600';
-            }}
-            className="w-full h-full object-cover"
+            fill
+            priority={currentSlide === 0}
+            sizes="100vw"
+            quality={85}
+            className="object-cover"
           />
-          {/* Gradient Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-900/40" />
+          {/* Gradient Ambient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-slate-900/30" />
         </motion.div>
       </AnimatePresence>
 
@@ -161,16 +149,16 @@ export default function HeroBanner() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col items-center"
           >
-            <h1 className="text-3xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 tracking-tight leading-tight drop-shadow-lg">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 sm:mb-4 tracking-tight leading-tight drop-shadow-lg max-w-3xl">
               {titleText}
             </h1>
 
-            <p className="text-sm md:text-xl text-blue-100 mb-8 font-light max-w-2xl drop-shadow-md">
+            <p className="text-xs sm:text-base md:text-xl text-blue-100 mb-6 sm:mb-8 font-normal max-w-2xl drop-shadow-md px-2">
               {subtitleText}
             </p>
 
             <Link href={getLink(current.ctaLink)}>
-              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base md:text-lg px-8 py-4 rounded-full shadow-2xl shadow-blue-900/60 hover:shadow-blue-900/90 hover:-translate-y-0.5 transition-all flex items-center gap-2 group">
+              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3.5 sm:py-4 rounded-full shadow-2xl shadow-blue-900/60 hover:shadow-blue-900/90 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2 group cursor-pointer">
                 <span>{ctaText}</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -179,25 +167,45 @@ export default function HeroBanner() {
         </AnimatePresence>
       </div>
 
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows (Desktop & Tablet) */}
       {total > 1 && (
         <>
           <button
             onClick={prevSlide}
             aria-label="Previous slide"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/30 hover:bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all hover:scale-110"
+            className="hidden sm:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/35 hover:bg-black/65 backdrop-blur-md text-white items-center justify-center border border-white/20 transition-all hover:scale-110 cursor-pointer"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={nextSlide}
             aria-label="Next slide"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/30 hover:bg-black/60 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all hover:scale-110"
+            className="hidden sm:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/35 hover:bg-black/65 backdrop-blur-md text-white items-center justify-center border border-white/20 transition-all hover:scale-110 cursor-pointer"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
         </>
       )}
+
+      {/* Slide Indicator Dots */}
+      {total > 1 && (
+        <div className="absolute bottom-16 sm:bottom-24 md:bottom-28 z-20 flex items-center justify-center gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCurrentSlide(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={cn(
+                'h-2 rounded-full transition-all duration-300 cursor-pointer',
+                currentSlide === i ? 'w-8 bg-blue-500 shadow-sm shadow-blue-500/50' : 'w-2 bg-white/40 hover:bg-white/70'
+              )}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
+
+export default memo(HeroBannerComponent);

@@ -23,3 +23,7 @@ export const paginate = (data: any[], total: number, page: number, limit: number
     }
   };
 };
+
+export const escapeRegex = (text: string): string => {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+};

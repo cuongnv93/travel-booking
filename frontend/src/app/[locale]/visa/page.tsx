@@ -9,6 +9,8 @@ import {
 import Link from 'next/link';
 import TourCard from '@/components/tours/TourCard';
 import VisaConsultationForm from '@/components/visa/VisaConsultationForm';
+import { VideoBackground } from '@/components/ui/VideoBackground';
+import { DEFAULT_PAGE_BANNERS } from '@/lib/constants';
 import { getTranslations } from 'next-intl/server';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -41,12 +43,74 @@ async function getFeaturedTours() {
   }
 }
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }> | { locale: string };
+}): Promise<Metadata> {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
   const page = await getPageData('visa');
-  if (!page) return { title: 'Dịch Vụ Visa | Travel Booking' };
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
-  const title = getI18nText(page.title, locale) || 'Dịch Vụ Hỗ Trợ Visa Du Lịch Trọn Gói';
-  return { title: `${title} | Travel Booking` };
+  const titles: Record<string, string> = {
+    vi: 'Dịch Vụ Tư Vấn Visa Du Lịch & Định Cư Trọn Gói Tỷ Lệ Đậu Cao',
+    en: 'Tourist & Travel Visa Consultation Services | High Approval Rate',
+    zh: '专业出境旅游签证与商务签证代办咨询服务',
+    ko: '신속하고 안전한 여행 비자 발급 대행 & 맞춤 컨설팅',
+    ja: '安心の旅行ビザ申請サポート＆ビザ取得代行相談',
+  };
+
+  const descriptions: Record<string, string> = {
+    vi: 'Dịch vụ làm visa du lịch trọn gói nhanh chóng, tỷ lệ đậu cao cho các nước Châu Á, Châu Âu, Mỹ, Úc. Tư vấn hồ sơ miễn phí, hỗ trợ chuyên nghiệp 24/7.',
+    en: 'Hassle-free tourist visa services with high approval rates for Asia, Europe, USA, Australia. Free document review and 24/7 dedicated assistance.',
+    zh: '高效便捷的全球旅游签证代办服务，欧美澳亚签证高通过率，专业资料审核与24/7全程指导。',
+    ko: '아시아, 유럽, 미국, 호주 등 주요 국가 여행 비자 대행. 높은 승인율과 무료 서류 검토, 24시간 맞춤 상담.',
+    ja: 'アジア、欧州、米国、豪州など各国の観光ビザ取得を徹底サポート。高合格率、無料書類チェック、24時間対応。',
+  };
+
+  const title = page ? (getI18nText(page.title, locale) || titles[locale] || titles.vi) : (titles[locale] || titles.vi);
+  const description = page ? (getI18nText(page.description, locale) || descriptions[locale] || descriptions.vi) : (descriptions[locale] || descriptions.vi);
+
+  return {
+    title,
+    description,
+    keywords: [
+      'dich vu visa', 'lam visa', 'visa du lich', 'visa chau au', 'visa my',
+      'visa nhat ban', 'visa han quoc', 'tourist visa'
+    ],
+    alternates: {
+      canonical: `${baseUrl}/${locale}/visa`,
+      languages: {
+        vi: `${baseUrl}/vi/visa`,
+        en: `${baseUrl}/en/visa`,
+        zh: `${baseUrl}/zh/visa`,
+        ko: `${baseUrl}/ko/visa`,
+        ja: `${baseUrl}/ja/visa`,
+        'x-default': `${baseUrl}/vi/visa`,
+      },
+    },
+    openGraph: {
+      title: `${title} | Travel Booking`,
+      description,
+      url: `${baseUrl}/${locale}/visa`,
+      type: 'website',
+      images: [
+        {
+          url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200&h=630&fit=crop',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200&h=630&fit=crop'],
+    },
+  };
 }
 
 export default async function VisaPage({ params: { locale } }: { params: { locale: string } }) {
@@ -54,6 +118,10 @@ export default async function VisaPage({ params: { locale } }: { params: { local
   const page = await getPageData('visa');
   const settings = await getSettingsData();
   const featuredTours = await getFeaturedTours();
+
+  const dynamicCountries = settings.find((s: any) => s.key === 'visa_countries_catalog')?.value;
+  const dynamicSteps = settings.find((s: any) => s.key === 'visa_process_steps')?.value;
+  const dynamicBadges = settings.find((s: any) => s.key === 'visa_stats_badges')?.value;
 
   const VISA_COUNTRIES = [
     {
@@ -103,48 +171,80 @@ export default async function VisaPage({ params: { locale } }: { params: { local
       step: '01',
       title: t('step1Title'),
       desc: t('step1Desc'),
-      icon: HelpCircle,
+      icon: 'HelpCircle',
       color: 'bg-blue-600 text-white',
     },
     {
       step: '02',
       title: t('step2Title'),
       desc: t('step2Desc'),
-      icon: FileCheck,
+      icon: 'FileCheck',
       color: 'bg-indigo-600 text-white',
     },
     {
       step: '03',
       title: t('step3Title'),
       desc: t('step3Desc'),
-      icon: UserCheck,
+      icon: 'UserCheck',
       color: 'bg-purple-600 text-white',
     },
     {
       step: '04',
       title: t('step4Title'),
       desc: t('step4Desc'),
-      icon: Award,
+      icon: 'Award',
       color: 'bg-emerald-600 text-white',
     },
   ];
 
+  const countriesList = Array.isArray(dynamicCountries) && dynamicCountries.length > 0
+    ? dynamicCountries
+    : VISA_COUNTRIES;
+
+  const stepsList = Array.isArray(dynamicSteps) && dynamicSteps.length > 0
+    ? dynamicSteps
+    : PROCESS_STEPS;
+
+  const statsList = Array.isArray(dynamicBadges) && dynamicBadges.length > 0
+    ? dynamicBadges
+    : [
+        { label: t('statCountryLabel'), value: '50+', sub: t('statCountrySub'), icon: 'Globe', color: 'text-purple-600 bg-purple-50' },
+        { label: t('statPassLabel'), value: '99.2%', sub: t('statPassSub'), icon: 'ShieldCheck', color: 'text-emerald-600 bg-emerald-50' },
+        { label: t('statTimeLabel'), value: '24h', sub: t('statTimeSub'), icon: 'Clock', color: 'text-blue-600 bg-blue-50' },
+        { label: t('statQualityLabel'), value: '100%', sub: t('statQualitySub'), icon: 'Award', color: 'text-amber-600 bg-amber-50' },
+      ];
+
   const pageBanners = settings.find((s: any) => s.key === 'page_banners')?.value;
-  const visaBanner = pageBanners?.visaBanner || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1600';
+  const visaBanner = pageBanners?.visaBanner || DEFAULT_PAGE_BANNERS.visaBanner;
+  const visaVideo = pageBanners?.visaVideo || DEFAULT_PAGE_BANNERS.visaVideo;
 
   const title = page ? getI18nText(page.title, locale) : t('heroTitle');
+
+  const ICON_MAP: Record<string, any> = {
+    HelpCircle,
+    FileCheck,
+    UserCheck,
+    Award,
+    Globe,
+    ShieldCheck,
+    Clock,
+    Sparkles,
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 mt-20 space-y-12">
       {/* Hero Banner */}
-      <div className="h-72 md:h-96 rounded-3xl overflow-hidden relative shadow-xl bg-slate-900 group">
-        <img
-          src={visaBanner}
-          alt="Visa Banner"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-900/20" />
-        <div className="absolute bottom-8 left-8 right-8 z-10 max-w-3xl text-white">
+      <VideoBackground
+        videoSrc={visaVideo}
+        videoSources={[
+          { src: visaVideo, type: 'video/mp4' },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a9/Flight_landing_Pune_Airport.webm/Flight_landing_Pune_Airport.webm.480p.vp9.webm', type: 'video/webm' }
+        ]}
+        posterSrc={visaBanner}
+        overlayGradient="bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/25"
+        className="h-72 md:h-96 rounded-3xl shadow-xl flex items-end"
+      >
+        <div className="p-8 max-w-3xl text-white">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/30 backdrop-blur-md border border-purple-400/40 text-xs font-bold mb-3 text-purple-200">
             <Sparkles className="w-3.5 h-3.5 text-purple-300" />
             <span>{t('reason1Title')}</span>
@@ -156,27 +256,25 @@ export default async function VisaPage({ params: { locale } }: { params: { local
             {t('heroSub')}
           </p>
         </div>
-      </div>
+      </VideoBackground>
 
       {/* Highlights Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: t('statCountryLabel'), value: '50+', sub: t('statCountrySub'), icon: Globe, color: 'text-purple-600 bg-purple-50' },
-          { label: t('statPassLabel'), value: '99.2%', sub: t('statPassSub'), icon: ShieldCheck, color: 'text-emerald-600 bg-emerald-50' },
-          { label: t('statTimeLabel'), value: '24h', sub: t('statTimeSub'), icon: Clock, color: 'text-blue-600 bg-blue-50' },
-          { label: t('statQualityLabel'), value: '100%', sub: t('statQualitySub'), icon: Award, color: 'text-amber-600 bg-amber-50' },
-        ].map((stat, i) => {
-          const Icon = stat.icon;
+        {statsList.map((stat: any, i: number) => {
+          const IconComponent = typeof stat.icon === 'string' ? (ICON_MAP[stat.icon] || Award) : (stat.icon || Award);
+          const label = typeof stat.label === 'object' ? (stat.label[locale] || stat.label.vi || stat.label.en) : stat.label;
+          const sub = typeof stat.sub === 'object' ? (stat.sub[locale] || stat.sub.vi || stat.sub.en) : stat.sub;
+
           return (
             <div key={i} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-500">{stat.label}</span>
-                <div className={`w-9 h-9 rounded-xl ${stat.color} flex items-center justify-center`}>
-                  <Icon className="w-5 h-5" />
+                <span className="text-xs font-bold text-slate-500">{label}</span>
+                <div className={`w-9 h-9 rounded-xl ${stat.color || 'text-blue-600 bg-blue-50'} flex items-center justify-center`}>
+                  <IconComponent className="w-5 h-5" />
                 </div>
               </div>
               <p className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{stat.value}</p>
-              <p className="text-xs text-slate-400 font-medium mt-1">{stat.sub}</p>
+              <p className="text-xs text-slate-400 font-medium mt-1">{sub}</p>
             </div>
           );
         })}
@@ -224,42 +322,61 @@ export default async function VisaPage({ params: { locale } }: { params: { local
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {VISA_COUNTRIES.map((country, idx) => (
-                <div
-                  key={idx}
-                  className={`bg-gradient-to-br ${country.bg} border ${country.border} p-6 rounded-3xl shadow-sm hover:shadow-md transition-all group flex flex-col justify-between`}
-                >
-                  <div>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-4xl leading-none">{country.flag}</span>
-                        <div>
-                          <h3 className="font-bold text-slate-900 text-base group-hover:text-purple-700 transition-colors">
-                            {country.name}
-                          </h3>
-                          <span className="inline-block text-xs font-semibold bg-white/90 text-purple-700 px-2.5 py-0.5 rounded-full border border-purple-100 mt-1">
-                            {country.tag}
-                          </span>
+              {countriesList.map((country: any, idx: number) => {
+                const name = typeof country.name === 'object' ? (country.name[locale] || country.name.vi || country.name.en) : country.name;
+                const desc = typeof country.desc === 'object' ? (country.desc[locale] || country.desc.vi || country.desc.en) : country.desc;
+                const time = typeof country.processingTime === 'object'
+                  ? (country.processingTime[locale] || country.processingTime.vi || country.processingTime.en)
+                  : (country.processingTime || country.time || '');
+                const passBadge = country.passRate || country.passBadge || '99%';
+                const tag = country.tag || '';
+                const bg = country.bg || 'from-rose-50/80 to-amber-50/50';
+                const border = country.border || 'border-rose-100';
+                const isImageFlag = typeof country.flag === 'string' && country.flag.startsWith('http');
+
+                return (
+                  <div
+                    key={country.key || idx}
+                    className={`bg-gradient-to-br ${bg} border ${border} p-6 rounded-3xl shadow-sm hover:shadow-md transition-all group flex flex-col justify-between`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          {isImageFlag ? (
+                            <img src={country.flag} alt={name} className="w-9 h-6 object-cover rounded shadow-xs border border-slate-200 shrink-0" />
+                          ) : (
+                            <span className="text-4xl leading-none">{country.flag}</span>
+                          )}
+                          <div>
+                            <h3 className="font-bold text-slate-900 text-base group-hover:text-purple-700 transition-colors">
+                              {name}
+                            </h3>
+                            {tag && (
+                              <span className="inline-block text-xs font-semibold bg-white/90 text-purple-700 px-2.5 py-0.5 rounded-full border border-purple-100 mt-1">
+                                {tag}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
+
+                      <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                        {desc}
+                      </p>
                     </div>
 
-                    <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                      {country.desc}
-                    </p>
+                    <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-700">
+                      <span className="flex items-center gap-1.5 text-slate-500">
+                        <Clock className="w-3.5 h-3.5 text-blue-500" />
+                        {time}
+                      </span>
+                      <span className="font-bold text-emerald-700 bg-emerald-100/90 px-2.5 py-1 rounded-full text-xs">
+                        {passBadge}
+                      </span>
+                    </div>
                   </div>
-
-                  <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-700">
-                    <span className="flex items-center gap-1.5 text-slate-500">
-                      <Clock className="w-3.5 h-3.5 text-blue-500" />
-                      {country.time}
-                    </span>
-                    <span className="font-bold text-emerald-700 bg-emerald-100/90 px-2.5 py-1 rounded-full text-xs">
-                      {country.passBadge}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -272,19 +389,23 @@ export default async function VisaPage({ params: { locale } }: { params: { local
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {PROCESS_STEPS.map((step) => {
-                const Icon = step.icon;
+              {stepsList.map((step: any, sIdx: number) => {
+                const IconComponent = typeof step.icon === 'string' ? (ICON_MAP[step.icon] || Award) : (step.icon || Award);
+                const stepTitle = typeof step.title === 'object' ? (step.title[locale] || step.title.vi || step.title.en) : step.title;
+                const stepDesc = typeof step.desc === 'object' ? (step.desc[locale] || step.desc.vi || step.desc.en) : step.desc;
+                const stepColor = step.color || (sIdx === 0 ? 'bg-blue-600 text-white' : sIdx === 1 ? 'bg-indigo-600 text-white' : sIdx === 2 ? 'bg-purple-600 text-white' : 'bg-emerald-600 text-white');
+
                 return (
-                  <div key={step.step} className="bg-white border border-slate-200 p-6 rounded-2xl relative flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                  <div key={step.step || sIdx} className="bg-white border border-slate-200 p-6 rounded-2xl relative flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`w-10 h-10 rounded-xl ${step.color} flex items-center justify-center shadow-md font-bold text-sm`}>
-                        <Icon className="w-5 h-5" />
+                      <div className={`w-10 h-10 rounded-xl ${stepColor} flex items-center justify-center shadow-md font-bold text-sm`}>
+                        <IconComponent className="w-5 h-5" />
                       </div>
                       <span className="text-3xl font-bold text-slate-300 font-sans">{step.step}</span>
                     </div>
                     <div>
-                      <h4 className="font-bold text-base text-slate-900 mb-1.5">{step.title}</h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">{step.desc}</p>
+                      <h4 className="font-bold text-base text-slate-900 mb-1.5">{stepTitle}</h4>
+                      <p className="text-xs text-slate-500 leading-relaxed">{stepDesc}</p>
                     </div>
                   </div>
                 );
@@ -351,7 +472,7 @@ export default async function VisaPage({ params: { locale } }: { params: { local
 
         {/* Right Column */}
         <div className="space-y-6 lg:sticky lg:top-24">
-          <VisaConsultationForm />
+          <VisaConsultationForm countries={countriesList} locale={locale} />
         </div>
       </div>
 

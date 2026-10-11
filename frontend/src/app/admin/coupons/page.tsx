@@ -9,7 +9,7 @@ import { formatPrice } from '@/lib/utils';
 
 const fetchCoupons = async () => {
   const res: any = await api.get('/coupons');
-  return res || [];
+  return Array.isArray(res) ? res : (res?.data || []);
 };
 
 export default function CouponsAdminPage() {

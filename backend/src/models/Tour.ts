@@ -29,6 +29,10 @@ export interface ITour extends Document {
   isFlashSale?: boolean;
   flashSalePrice?: number;
   flashSaleEnd?: Date;
+  inclusions?: any[];
+  exclusions?: any[];
+  importantNotes?: any[];
+  cancellationPolicy?: any;
   createdAt: Date;
 }
 
@@ -60,7 +64,16 @@ const tourSchema = new Schema<ITour>({
   isFlashSale: { type: Boolean, default: false },
   flashSalePrice: { type: Number },
   flashSaleEnd: { type: Date },
+  inclusions: [{ type: Schema.Types.Mixed }],
+  exclusions: [{ type: Schema.Types.Mixed }],
+  importantNotes: [{ type: Schema.Types.Mixed }],
+  cancellationPolicy: { type: Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now }
 });
+
+tourSchema.index({ isActive: 1, isFeatured: 1, createdAt: -1 });
+tourSchema.index({ destination: 1, price: 1 });
+tourSchema.index({ category: 1, price: 1 });
+tourSchema.index({ isActive: 1, isFlashSale: 1, flashSaleEnd: 1 });
 
 export default mongoose.model<ITour>('Tour', tourSchema);

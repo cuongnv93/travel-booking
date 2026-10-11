@@ -36,30 +36,55 @@ async function getFeaturedTours() {
 }
 
 export async function generateMetadata({
-  params: { locale, slug }
+  params
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }> | { locale: string; slug: string };
 }): Promise<Metadata> {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const slug = resolved?.slug || '';
   const article = await getArticleData(slug);
   const t = await getTranslations({ locale, namespace: 'newsDetail' });
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   if (!article) {
     return {
-      title: t('notFoundTitle', { fallback: 'Không tìm thấy bài viết | Travel News' }),
-      description: t('notFoundDesc', { fallback: 'Bài viết không tồn tại hoặc đã bị gỡ bỏ.' })
+      title: t('notFoundTitle'),
+      description: t('notFoundDesc')
     };
   }
 
   const title = getI18nText(article.title, locale);
   const excerpt = getI18nText(article.excerpt, locale);
+  const image = article.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200';
 
   return {
-    title: `${title} | Travel`,
+    title: `${title} | Travel News`,
     description: excerpt.substring(0, 160),
+    keywords: [article.category, 'tin tuc du lich', 'cam nang du lich', title],
+    alternates: {
+      canonical: `${baseUrl}/${locale}/news/${slug}`,
+      languages: {
+        vi: `${baseUrl}/vi/news/${slug}`,
+        en: `${baseUrl}/en/news/${slug}`,
+        zh: `${baseUrl}/zh/news/${slug}`,
+        ko: `${baseUrl}/ko/news/${slug}`,
+        ja: `${baseUrl}/ja/news/${slug}`,
+        'x-default': `${baseUrl}/vi/news/${slug}`,
+      },
+    },
     openGraph: {
+      title: `${title} | Travel News`,
+      description: excerpt.substring(0, 160),
+      url: `${baseUrl}/${locale}/news/${slug}`,
+      type: 'article',
+      images: [{ url: image, width: 1200, height: 630, alt: title }]
+    },
+    twitter: {
+      card: 'summary_large_image',
       title,
       description: excerpt.substring(0, 160),
-      images: [article.thumbnail || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200']
+      images: [image],
     }
   };
 }
@@ -78,16 +103,16 @@ export default async function NewsDetailPage({
     return (
       <div className="container mx-auto px-4 py-28 mt-12 text-center max-w-lg">
         <h1 className="text-2xl font-extrabold mb-3 text-slate-900">
-          {t('notFoundTitle', { fallback: 'Không Tìm Thấy Bài Viết Này' })}
+          {t('notFoundTitle')}
         </h1>
         <p className="text-slate-500 mb-8 text-sm">
-          {t('notFoundDesc', { fallback: 'Bài viết có thể đã bị thay đổi đường dẫn hoặc tạm dừng hiển thị.' })}
+          {t('notFoundDesc')}
         </p>
         <Link
           href={`/${locale}/news`}
           className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold px-6 py-3 rounded-2xl hover:bg-blue-600 transition-all"
         >
-          <ArrowLeft className="w-4 h-4" /> {t('backToNews', { fallback: 'Quay lại danh sách Tin Tức' })}
+          <ArrowLeft className="w-4 h-4" /> {t('backToNews')}
         </Link>
       </div>
     );
@@ -96,7 +121,7 @@ export default async function NewsDetailPage({
   const title = getI18nText(article.title, locale);
   const content = getI18nText(article.content, locale);
   const excerpt = getI18nText(article.excerpt, locale);
-  const thumbnail = article.thumbnail || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200';
+  const thumbnail = article.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200';
   const publishDate = new Date(article.publishedAt || article.createdAt || Date.now()).toLocaleDateString(
     locale === 'vi' ? 'vi-VN' : locale === 'zh' ? 'zh-CN' : locale === 'ja' ? 'ja-JP' : locale === 'ko' ? 'ko-KR' : 'en-US',
     { day: '2-digit', month: '2-digit', year: 'numeric' }
@@ -127,11 +152,11 @@ export default async function NewsDetailPage({
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-slate-200/80 pb-4">
           <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium overflow-x-auto whitespace-nowrap">
             <Link href={`/${locale}`} className="hover:text-blue-600 transition-colors">
-              {t('home', { fallback: 'Trang Chủ' })}
+              {t('home')}
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
             <Link href={`/${locale}/news`} className="hover:text-blue-600 transition-colors">
-              {t('news', { fallback: 'Cẩm Nang Du Lịch' })}
+              {t('news')}
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
             <span className="text-slate-900 font-semibold truncate max-w-[280px]">{title}</span>
@@ -141,7 +166,7 @@ export default async function NewsDetailPage({
             href={`/${locale}/news`}
             className="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-600 hover:text-blue-700 bg-blue-50 px-3.5 py-1.5 rounded-full transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> {t('allArticles', { fallback: 'Tất cả bài viết' })}
+            <ArrowLeft className="w-3.5 h-3.5" /> {t('allArticles')}
           </Link>
         </div>
 
@@ -156,7 +181,7 @@ export default async function NewsDetailPage({
               <div className="flex flex-wrap items-center gap-3">
                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5" />
-                  {article.category || t('news', { fallback: 'Kinh nghiệm du lịch' })}
+                  {article.category || t('news')}
                 </span>
                 <span className="text-xs text-slate-500 font-bold flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -164,7 +189,7 @@ export default async function NewsDetailPage({
                 </span>
                 <span className="text-xs text-slate-500 font-bold flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  {t('readTime', { fallback: '5 phút đọc' })}
+                  {t('readTime')}
                 </span>
               </div>
 
@@ -179,7 +204,7 @@ export default async function NewsDetailPage({
                 </div>
                 <div>
                   <h4 className="text-xs font-extrabold text-slate-900">{article.author || 'Travel'}</h4>
-                  <p className="text-[11px] text-slate-500">{t('authorRole', { fallback: 'Cẩm Nang & Mẹo Hữu Ích Cho Chuyến Đi' })}</p>
+                  <p className="text-[11px] text-slate-500">{t('authorRole')}</p>
                 </div>
               </div>
             </div>
@@ -212,13 +237,13 @@ export default async function NewsDetailPage({
                 </div>
                 <div>
                   <h4 className="font-extrabold text-sm text-slate-900">{article.author || 'Travel Editor'}</h4>
-                  <p className="text-xs text-slate-500">{t('authorBio', { fallback: 'Chia sẻ kiến thức & trải nghiệm du lịch Việt Nam 3 miền' })}</p>
+                  <p className="text-xs text-slate-500">{t('authorBio')}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs cursor-pointer hover:bg-slate-100 transition-colors">
                 <Share2 className="w-4 h-4 text-blue-600" />
-                <span>{t('shareArticle', { fallback: 'Chia sẻ bài viết' })}</span>
+                <span>{t('shareArticle')}</span>
               </div>
             </div>
           </main>
@@ -229,14 +254,14 @@ export default async function NewsDetailPage({
               <div className="border-b border-slate-100 pb-3">
                 <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-500" />
-                  {t('relatedTitle', { fallback: 'Bài Viết Liên Quan' })}
+                  {t('relatedTitle')}
                 </h3>
               </div>
 
               <div className="space-y-4">
                 {relatedArticles.map((relItem: any) => {
                   const relTitle = getI18nText(relItem.title, locale);
-                  const relThumb = relItem.thumbnail || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=600';
+                  const relThumb = relItem.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=600';
                   const relDate = new Date(relItem.publishedAt || relItem.createdAt || Date.now()).toLocaleDateString(
                     locale === 'vi' ? 'vi-VN' : locale === 'zh' ? 'zh-CN' : locale === 'ja' ? 'ja-JP' : locale === 'ko' ? 'ko-KR' : 'en-US'
                   );
@@ -272,7 +297,7 @@ export default async function NewsDetailPage({
                 href={`/${locale}/news`}
                 className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs py-2.5 rounded-xl text-center block transition-colors shadow-xs"
               >
-                {t('viewAllArticles', { fallback: 'Xem Tất Cả Bài Viết →' })}
+                {t('viewAllArticles')}
               </Link>
             </div>
           </aside>
@@ -284,17 +309,17 @@ export default async function NewsDetailPage({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div>
               <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-1">
-                {t('recommendedBadge', { fallback: '🌴 GỢI Ý HÀNH TRÌNH' })}
+                {t('recommendedBadge')}
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {t('featuredToursTitle', { fallback: 'Các Tour Du Lịch Nổi Bật' })}
+                {t('featuredToursTitle')}
               </h2>
             </div>
             <Link
               href={`/${locale}/tours`}
               className="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-600 hover:text-blue-700 bg-white border border-slate-200/90 px-4 py-2 rounded-xl shadow-xs hover:shadow-md transition-all"
             >
-              {t('viewAllTours', { fallback: 'Xem Tất Cả Tours' })} <ArrowUpRight className="w-4 h-4" />
+              {t('viewAllTours')} <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -302,7 +327,7 @@ export default async function NewsDetailPage({
             {featuredTours.map((tour: any) => {
               const tourId = tour._id || tour.id;
               const tourTitle = getI18nText(tour.title, locale);
-              const tourImage = tour.images?.[0] || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=800';
+              const tourImage = tour.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
 
               return (
                 <div 
@@ -344,7 +369,7 @@ export default async function NewsDetailPage({
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
                       <div>
                         <span className="text-[10px] text-slate-400 block font-medium">
-                          {t('priceFrom', { fallback: 'Giá chỉ từ' })}
+                          {t('priceFrom')}
                         </span>
                         <span className="font-extrabold text-base text-orange-600">{formatPrice(tour.price || 0)}</span>
                       </div>
@@ -353,7 +378,7 @@ export default async function NewsDetailPage({
                         href={`/${locale}/tours/${tour.slug || tourId}`}
                         className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-colors shrink-0"
                       >
-                        {t('bookNow', { fallback: 'Đặt Ngay' })}
+                        {t('bookNow')}
                       </Link>
                     </div>
                   </div>

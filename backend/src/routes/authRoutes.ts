@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { register, login, refreshToken, getMe, updateProfile, getAllUsers, updateUserRole, deleteUser } from '../controllers/authController';
 import { protect, adminOnly } from '../middleware/auth';
+import { authLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', authLimiter, register);
+router.post('/login', authLimiter, login);
 router.post('/refresh', refreshToken);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);

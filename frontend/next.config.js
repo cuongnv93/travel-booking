@@ -9,6 +9,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -19,10 +20,24 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
       },
       {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000',
         pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '5000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
       },
     ],
   },

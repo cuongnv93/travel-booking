@@ -15,11 +15,15 @@ async function getTourData(slug: string) {
 }
 
 export async function generateMetadata({
-  params: { locale, slug }
+  params
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }> | { locale: string; slug: string };
 }): Promise<Metadata> {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const slug = resolved?.slug || '';
   const tour = await getTourData(slug);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   if (!tour) {
     return {
@@ -30,19 +34,27 @@ export async function generateMetadata({
 
   const title = getI18nText(tour.title, locale);
   const description = getI18nText(tour.description, locale);
-  const image = tour.images?.[0] || 'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200';
+  const image = tour.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200';
 
   return {
     title: `${title} | Tour Du Lịch Travel`,
     description: description.substring(0, 160),
     keywords: [tour.destination, tour.category, 'dat tour du lich', title],
     alternates: {
-      canonical: `http://localhost:3000/${locale}/tours/${slug}`,
+      canonical: `${baseUrl}/${locale}/tours/${slug}`,
+      languages: {
+        vi: `${baseUrl}/vi/tours/${slug}`,
+        en: `${baseUrl}/en/tours/${slug}`,
+        zh: `${baseUrl}/zh/tours/${slug}`,
+        ko: `${baseUrl}/ko/tours/${slug}`,
+        ja: `${baseUrl}/ja/tours/${slug}`,
+        'x-default': `${baseUrl}/vi/tours/${slug}`,
+      },
     },
     openGraph: {
       title: `${title} | Travel Booking`,
       description: description.substring(0, 160),
-      url: `http://localhost:3000/${locale}/tours/${slug}`,
+      url: `${baseUrl}/${locale}/tours/${slug}`,
       siteName: 'Travel Booking',
       type: 'article',
       images: [{ url: image, width: 1200, height: 630, alt: title }]

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const LANDMARK_IMAGES = {
   'Hà Nội': [
     'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'Đà Nẵng': [
     'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200',
@@ -15,10 +15,10 @@ const LANDMARK_IMAGES = {
   ],
   'Hạ Long': [
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200'
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'Sa Pa': [
-    'https://images.unsplash.com/photo-1509030450996-93f2e3d84074?w=1200',
+    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
     'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
   ],
   'Nha Trang': [

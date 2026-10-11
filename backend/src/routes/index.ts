@@ -12,6 +12,7 @@ import searchRoutes from './searchRoutes';
 import flightRoutes from './flightRoutes';
 import flashSaleRoutes from './flashSaleRoutes';
 import couponRoutes from './couponRoutes';
+import consultationRoutes from './consultationRoutes';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/search', searchRoutes);
 router.use('/flights', flightRoutes);
 router.use('/flash-sale', flashSaleRoutes);
 router.use('/coupons', couponRoutes);
+router.use('/consultations', consultationRoutes);
 
 export default router;

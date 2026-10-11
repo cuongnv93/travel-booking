@@ -20,9 +20,25 @@ export const getBySlug = async (req: Request, res: Response) => {
   }
 };
 
+const generateSlug = (title: string) => {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
+};
+
 export const create = async (req: Request, res: Response) => {
   try {
-    const specialty = await Specialty.create(req.body);
+    const data = { ...req.body };
+    if (!data.slug) {
+      const nameStr = typeof data.name === 'string' ? data.name : (data.name?.vi || data.name?.en || Object.values(data.name || {})[0] || 'dac-san');
+      data.slug = generateSlug(String(nameStr));
+    }
+    const specialty = await Specialty.create(data);
     res.status(201).json(specialty);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -31,7 +47,12 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const specialty = await Specialty.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const data = { ...req.body };
+    if (!data.slug && data.name) {
+      const nameStr = typeof data.name === 'string' ? data.name : (data.name?.vi || data.name?.en || Object.values(data.name || {})[0] || 'dac-san');
+      data.slug = generateSlug(String(nameStr));
+    }
+    const specialty = await Specialty.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!specialty) return res.status(404).json({ message: 'Specialty not found' });
     res.json(specialty);
   } catch (error: any) {
