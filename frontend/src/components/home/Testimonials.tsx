@@ -73,7 +73,7 @@ const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; l
   const contentText = getI18nText(review.content, locale) || '';
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden h-full flex flex-col group">
+    <div className="bg-white border border-slate-200/80 rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden h-full min-h-[300px] flex flex-col group">
       <Quote className="absolute top-5 right-5 w-12 h-12 text-blue-100/70 group-hover:text-blue-200/90 transition-colors rotate-180 pointer-events-none" />
 
       {/* Rating Stars */}
@@ -87,7 +87,7 @@ const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; l
       </div>
 
       {/* Review Content */}
-      <p className="text-slate-600 text-sm leading-relaxed italic mb-6 flex-1 line-clamp-5">
+      <p className="text-slate-600 text-sm leading-relaxed italic mb-6 flex-1 line-clamp-4">
         &ldquo;{contentText}&rdquo;
       </p>
 
@@ -130,6 +130,7 @@ function TestimonialsComponent() {
           onSwiper={setSwiperInstance}
           spaceBetween={24}
           slidesPerView={1}
+          autoHeight={false}
           loop={true}
           autoplay={{ delay: 3500, disableOnInteraction: false }}
           pagination={{ clickable: true, el: '.custom-pagination' }}
@@ -137,10 +138,10 @@ function TestimonialsComponent() {
             640: { slidesPerView: 2 },
             1024: { slidesPerView: 3 },
           }}
-          className="!pb-12"
+          className="!pb-12 [&_.swiper-wrapper]:!items-stretch"
         >
           {baseReviews.map((review, idx) => (
-            <SwiperSlide key={review.id || idx} className="h-auto">
+            <SwiperSlide key={review.id || idx} className="!h-auto flex">
               <ReviewCard review={review} locale={locale} />
             </SwiperSlide>
           ))}
