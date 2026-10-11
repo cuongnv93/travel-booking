@@ -14,7 +14,8 @@ import { useParams } from 'next/navigation';
 export default function ProfileClient() {
   const locale = useParams().locale as string;
   const t = useTranslations('profile');
-  const { user, setUser } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');

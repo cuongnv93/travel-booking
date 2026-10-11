@@ -8,6 +8,7 @@ import { Search, Compass, Building2, Newspaper, ArrowRight, MapPin, Star } from 
 import api from '@/lib/api';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import Link from 'next/link';
+import { SmartImage } from '@/components/ui/SmartImage';
 
 const executeSearch = async (queryStr: string) => {
   if (!queryStr) return { tours: [], hotels: [], news: [] };
@@ -151,8 +152,14 @@ export default function SearchClient() {
                     <Link key={item._id || item.slug} href={`/${locale}/tours/${item.slug}`}>
                       <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden hover:shadow-xl transition-all group h-full flex flex-col">
                         <div className="h-44 bg-slate-900 relative overflow-hidden">
-                          <img src={thumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-extrabold px-3 py-1 rounded-full">
+                          <SmartImage
+                            src={thumb}
+                            alt={title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-extrabold px-3 py-1 rounded-full z-10">
                             📍 {item.destination}
                           </span>
                         </div>
@@ -191,8 +198,14 @@ export default function SearchClient() {
                     <Link key={item._id || item.slug} href={`/${locale}/hotels/${item.slug}`}>
                       <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden hover:shadow-xl transition-all group h-full flex flex-col">
                         <div className="h-44 bg-slate-900 relative overflow-hidden">
-                          <img src={thumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                          <div className="absolute top-3 left-3 bg-amber-500 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                          <SmartImage
+                            src={thumb}
+                            alt={name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute top-3 left-3 bg-amber-500 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1 z-10">
                             <Star className="w-3 h-3 fill-white" /> {item.stars}★
                           </div>
                         </div>
@@ -230,8 +243,14 @@ export default function SearchClient() {
                   return (
                     <Link key={item._id || item.id} href={`/${locale}/news/${item.slug || item._id || item.id}`}>
                       <div className="bg-white border border-slate-200/80 rounded-2xl p-4 flex gap-4 hover:shadow-md transition-all group">
-                        <div className="w-24 h-24 rounded-xl bg-slate-900 shrink-0 overflow-hidden">
-                          <img src={thumb} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <div className="w-24 h-24 rounded-xl bg-slate-900 shrink-0 overflow-hidden relative">
+                          <SmartImage
+                            src={thumb}
+                            alt={title}
+                            fill
+                            sizes="96px"
+                            className="object-cover group-hover:scale-105 transition-transform"
+                          />
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-md">

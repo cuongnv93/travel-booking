@@ -17,13 +17,16 @@ export default function MobileMenu() {
   const t = useTranslations();
   const locale = useParams().locale as string;
   const pathname = usePathname();
-  const router = useRouter();
-  const { isMobileMenuOpen, setMobileMenuOpen } = useUiStore();
-  const { user, isAuthenticated, logout } = useAuthStore();
-  const cartItems = useCartStore((state) => state.items);
-  const cartItemsCount = cartItems.reduce(
-    (total, item) => total + item.guests.adults + item.guests.children,
-    0
+  const isMobileMenuOpen = useUiStore((state) => state.isMobileMenuOpen);
+  const setMobileMenuOpen = useUiStore((state) => state.setMobileMenuOpen);
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
+  const cartItemsCount = useCartStore((state) =>
+    state.items.reduce(
+      (total, item) => total + (item.guests?.adults || 0) + (item.guests?.children || 0),
+      0
+    )
   );
 
   // Determine if current route is the Home page
