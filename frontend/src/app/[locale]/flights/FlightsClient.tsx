@@ -394,11 +394,12 @@ function FlightsContent() {
               <motion.div
                 key={flight._id}
                 layout
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
                 transition={{
-                  duration: 0.3,
-                  delay: Math.min(idx * 0.05, 0.25),
+                  duration: 0.38,
+                  delay: Math.min((idx % 4) * 0.06, 0.2),
                   ease: 'easeOut'
                 }}
               >

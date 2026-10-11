@@ -367,11 +367,12 @@ export default function HotelDetailClient() {
                     {hotel.rooms.map((room: any, idx: number) => (
                       <motion.div
                         key={room._id || idx}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-30px' }}
                         transition={{
-                          duration: 0.35,
-                          delay: Math.min(idx * 0.05, 0.25),
+                          duration: 0.38,
+                          delay: Math.min((idx % 3) * 0.08, 0.24),
                           ease: 'easeOut'
                         }}
                       >

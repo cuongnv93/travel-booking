@@ -261,11 +261,12 @@ export default function ToursClient({ initialTours, toursBanner, toursVideo = 'h
                 <motion.div
                   key={tour._id || tour.id}
                   layout
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
                   transition={{
-                    duration: 0.32,
-                    delay: Math.min(idx * 0.04, 0.24),
+                    duration: 0.4,
+                    delay: Math.min((idx % 3) * 0.08, 0.24),
                     ease: 'easeOut'
                   }}
                 >
