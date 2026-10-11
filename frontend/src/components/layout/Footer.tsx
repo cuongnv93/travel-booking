@@ -50,7 +50,7 @@ export default function Footer() {
                   className="object-contain"
                 />
               </div>
-              <h3 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-300">
+              <h3 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600">
                 TimesGreen
               </h3>
             </div>
