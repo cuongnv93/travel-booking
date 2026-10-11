@@ -48,7 +48,6 @@ function UserLoginForm() {
         router.push(`/${locale}`);
       }
     } catch (err: any) {
-      console.error('Auth error:', err);
       setError(err.response?.data?.message || t('loginError') || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
       setLoading(false);
