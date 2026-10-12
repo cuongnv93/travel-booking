@@ -70,10 +70,10 @@ function AdminLoginForm() {
               className="object-contain"
             />
           </div>
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight pt-1">
-            Đăng Nhập Quản Trị CMS
+          <h1 className="text-xl font-black tracking-tight pt-1 bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600">
+            TimesGreen
           </h1>
-          <p className="text-xs text-slate-500">TimesGreen Control Panel & Dịch Vụ</p>
+          <p className="text-xs text-slate-500 font-medium">Control Panel & Quản Trị Dịch Vụ</p>
         </div>
 
         {/* Expired Warning */}

@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-white tracking-tight text-sm">TimesGreen</span>
+                    <span className="font-black text-sm tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400">TimesGreen</span>
                     <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.2 rounded font-mono font-medium">CMS</span>
                   </div>
                   <span className="block text-[10px] text-slate-500 font-medium font-mono">Control Center</span>

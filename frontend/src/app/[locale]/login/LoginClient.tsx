@@ -116,8 +116,8 @@ function UserLoginForm() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-[11px] font-black tracking-widest text-emerald-700 uppercase mt-1.5 group-hover:text-blue-600 transition-colors">
-                TimesGreen Travel
+              <span className="text-xl sm:text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 mt-2">
+                TimesGreen
               </span>
             </Link>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">
