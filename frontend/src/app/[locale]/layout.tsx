@@ -197,10 +197,10 @@ export default async function LocaleLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
-        <div className="flex flex-col min-h-screen relative">
+        <div className="flex flex-col min-h-screen relative overflow-x-hidden w-full">
           <NavigationProgress />
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow w-full">{children}</main>
           <Footer />
           <FloatingChat />
           <MobileMenu />
