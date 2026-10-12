@@ -9,12 +9,14 @@ import { Input } from '@/components/ui/Input';
 import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function ProfileClient() {
+  const router = useRouter();
   const locale = useParams().locale as string;
   const t = useTranslations('profile');
   const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const setUser = useAuthStore((state) => state.setUser);
 
   const [name, setName] = useState('');
@@ -25,12 +27,16 @@ export default function ProfileClient() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/login?expired=true`);
+      return;
+    }
     if (user) {
       setName(user.name || '');
       setPhone((user as any).phone || '');
       setAddress((user as any).address || '');
     }
-  }, [user]);
+  }, [user, isAuthenticated, router, locale]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();

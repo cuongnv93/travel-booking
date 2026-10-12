@@ -37,11 +37,8 @@ function UserLoginForm() {
       if (isLogin) {
         const res: any = await api.post('/auth/login', { email, password });
         login(res.user, res.accessToken);
-        if (res.user.role === 'admin') {
-          router.push('/admin');
-        } else {
-          router.push(`/${locale}`);
-        }
+        // Customer login on landing page always directs to the customer portal/home
+        router.push(`/${locale}`);
       } else {
         const res: any = await api.post('/auth/register', { name, email, password, phone });
         login(res.user, res.accessToken);

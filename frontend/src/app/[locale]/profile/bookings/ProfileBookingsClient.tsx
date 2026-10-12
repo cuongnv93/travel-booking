@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Clock, CheckCircle2, XCircle, ShoppingBag, X,
@@ -9,8 +9,9 @@ import {
 import { formatPrice, getI18nText, formatLocalizedDate } from '@/lib/utils';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useAuthStore } from '@/stores/authStore';
 
 const fetchUserBookings = async () => {
   try {
@@ -22,11 +23,19 @@ const fetchUserBookings = async () => {
 };
 
 export default function ProfileBookingsClient() {
+  const router = useRouter();
   const locale = useParams().locale as string;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const t = useTranslations('userBookings');
   const tBooking = useTranslations('booking');
   const tCommon = useTranslations('common');
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/login?expired=true`);
+    }
+  }, [isAuthenticated, router, locale]);
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
@@ -34,6 +43,7 @@ export default function ProfileBookingsClient() {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['user-bookings'],
     queryFn: fetchUserBookings,
+    enabled: isAuthenticated,
   });
 
   const cancelMutation = useMutation({
