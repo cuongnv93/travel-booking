@@ -45,7 +45,7 @@ function UserLoginForm() {
         router.push(`/${locale}`);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || t('loginError') || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+      setError(getLocalizedError(err, locale, t('loginError')));
     } finally {
       setLoading(false);
     }

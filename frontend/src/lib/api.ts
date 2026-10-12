@@ -23,6 +23,21 @@ api.interceptors.request.use(
       }
     }
 
+    // Attach Accept-Language based on current URL path or navigator language
+    if (typeof window !== 'undefined') {
+      try {
+        const pathSegments = window.location.pathname.split('/');
+        const matchedLocale = pathSegments[1];
+        if (['vi', 'en', 'zh', 'ko', 'ja'].includes(matchedLocale)) {
+          (config.headers as any)['Accept-Language'] = matchedLocale;
+        } else {
+          (config.headers as any)['Accept-Language'] = 'vi';
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+
     // For FormData: remove Content-Type so axios auto-sets multipart/form-data + boundary
     if (config.data instanceof FormData) {
       delete (config.headers as any)['Content-Type'];

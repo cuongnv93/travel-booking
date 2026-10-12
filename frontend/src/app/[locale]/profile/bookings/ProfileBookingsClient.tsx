@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/authStore';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 const fetchUserBookings = async () => {
   try {
@@ -54,7 +55,7 @@ export default function ProfileBookingsClient() {
       setSelectedBooking(null);
     },
     onError: (err: any) => {
-      alert(`${t('cancelError')}: ${err.response?.data?.message || err.message}`);
+      alert(`${t('cancelError')}: ${getLocalizedError(err, locale)}`);
     }
   });
 

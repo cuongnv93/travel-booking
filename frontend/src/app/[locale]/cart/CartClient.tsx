@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 interface CartItemCardProps {
   item: any;
@@ -185,11 +186,11 @@ export default function CartClient() {
         setCouponApplied(true);
       }
     } catch (err: any) {
-      setCouponError(err.response?.data?.message || t('coupon_invalid'));
+      setCouponError(getLocalizedError(err, locale, t('coupon_invalid')));
       setDiscount(0);
       setCouponApplied(false);
     }
-  }, [couponCode, t]);
+  }, [couponCode, locale, t]);
 
   // Adjust adult/children count
   const handleGuestChange = useCallback((item: any, guestType: 'adults' | 'children', delta: number) => {
@@ -265,7 +266,7 @@ export default function CartClient() {
       router.push(`/${locale}/booking-success?code=${code}`);
     } catch (err: any) {
       console.error('Checkout error:', err);
-      setError(err.response?.data?.message || t('error_checkout_failed'));
+      setError(getLocalizedError(err, locale, t('error_checkout_failed')));
     } finally {
       setLoading(false);
     }

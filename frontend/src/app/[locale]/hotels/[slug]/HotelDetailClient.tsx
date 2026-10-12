@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import SmartImage from '@/components/ui/SmartImage';
 import { useHotelAmenitiesMaster } from '@/hooks/useSettings';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 const AMENITY_ICONS: Record<string, string> = {
   'WiFi miễn phí': '📶', 'Hồ bơi': '🏊', 'Buffet sáng': '🍳', 'Spa & Massage': '💆',
@@ -183,7 +184,7 @@ export default function HotelDetailClient() {
       setError('');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    onError: (err: any) => setError(err.response?.data?.message || t('error')),
+    onError: (err: any) => setError(getLocalizedError(err, locale, t('error'))),
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {

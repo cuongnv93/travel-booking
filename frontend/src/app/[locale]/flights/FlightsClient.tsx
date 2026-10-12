@@ -13,6 +13,7 @@ import { VideoBackground } from '@/components/ui/VideoBackground';
 import { formatPrice } from '@/lib/utils';
 import TourCard from '@/components/tours/TourCard';
 import { useAirportsCatalog, useAirlinesCatalog, usePageBanners, DEFAULT_AIRPORTS, DEFAULT_AIRLINES, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 const AIRPORTS = DEFAULT_AIRPORTS;
 
@@ -201,7 +202,7 @@ function FlightsContent() {
         setSelectedFlight(null);
       }
     } catch (err: any) {
-      setBookingError(err.response?.data?.message || err.message || 'Lỗi xử lý đặt vé');
+      setBookingError(getLocalizedError(err, locale));
     } finally {
       setIsSubmitting(false);
     }

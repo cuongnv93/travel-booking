@@ -12,6 +12,7 @@ import { formatPrice, getI18nText, formatLocalizedDate } from '@/lib/utils';
 import api from '@/lib/api';
 import { usePageBanners, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
 import { useBookingLookup } from '@/hooks/useBookingLookup';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 export default function BookingLookupClient() {
   const t = useTranslations('lookup');
@@ -42,7 +43,7 @@ export default function BookingLookupClient() {
   };
 
   const errorMessage = isError
-    ? ((queryError as any)?.response?.data?.message || t('notFoundError'))
+    ? getLocalizedError(queryError, locale, t('notFoundError'))
     : '';
 
   return (

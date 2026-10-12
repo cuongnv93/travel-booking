@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 export default function ProfileClient() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function ProfileClient() {
         setSuccess(true);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || t('updateError'));
+      setError(getLocalizedError(err, locale, t('updateError')));
     } finally {
       setLoading(false);
     }
