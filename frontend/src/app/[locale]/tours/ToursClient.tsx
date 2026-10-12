@@ -196,10 +196,10 @@ export default function ToursClient({ initialTours, toursBanner, toursVideo = 'h
                 <select value={category} onChange={(e) => setCategory(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50 font-medium">
                   <option value="">{t('allCategories')}</option>
-                  <option value="city-tour">City Tour</option>
-                  <option value="beach">Du lịch Biển</option>
-                  <option value="nature">Khám phá thiên nhiên</option>
-                  <option value="culture">Văn hóa & Lịch sử</option>
+                  <option value="city-tour">{t('catCityTour', { fallback: 'City Tour' })}</option>
+                  <option value="beach">{t('catBeach', { fallback: 'Du lịch Biển' })}</option>
+                  <option value="nature">{t('catNature', { fallback: 'Khám phá thiên nhiên' })}</option>
+                  <option value="culture">{t('catCulture', { fallback: 'Văn hóa & Lịch sử' })}</option>
                 </select>
               </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
@@ -33,11 +33,12 @@ const shortCodes: Record<string, string> = {
   ja: 'JA',
 };
 
+import { useLocale } from 'next-intl';
+
 function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
-  const locale = (params.locale as string) || 'vi';
+  const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -52,14 +53,27 @@ function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome:
   }, []);
 
   const switchLanguage = useCallback((newLocale: string) => {
-    if (newLocale === locale) return;
+    if (newLocale === locale) {
+      setIsOpen(false);
+      return;
+    }
 
-    const currentPath = pathname;
-    const newPath = currentPath.replace(`/${locale}`, `/${newLocale}`);
+    // Persist NEXT_LOCALE cookie so next-intl middleware and server components always pick it up
+    try {
+      document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000;SameSite=Lax`;
+    } catch {}
 
-    router.push(newPath || `/${newLocale}`);
+    const segments = (pathname || '').split('/');
+    if (LOCALES.includes(segments[1] as any)) {
+      segments[1] = newLocale;
+    } else {
+      segments.splice(1, 0, newLocale);
+    }
+    const newPath = segments.join('/') || `/${newLocale}`;
+
     setIsOpen(false);
-  }, [locale, pathname, router]);
+    window.location.href = newPath;
+  }, [locale, pathname]);
 
   return (
     <div className="relative" ref={ref}>

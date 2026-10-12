@@ -5,17 +5,34 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { X, User as UserIcon, Calendar, ShoppingCart, Shield, LogOut, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { useParams, useRouter, usePathname } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter, usePathname } from 'next/navigation';
 import { useUiStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
-import { NAV_ITEMS } from '@/lib/constants';
+import { NAV_ITEMS, LOCALES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+
+const flagImages: Record<string, string> = {
+  vi: 'https://flagcdn.com/w40/vn.png',
+  en: 'https://flagcdn.com/w40/gb.png',
+  zh: 'https://flagcdn.com/w40/cn.png',
+  ko: 'https://flagcdn.com/w40/kr.png',
+  ja: 'https://flagcdn.com/w40/jp.png',
+};
+
+const shortCodes: Record<string, string> = {
+  vi: 'VI',
+  en: 'EN',
+  zh: 'ZH',
+  ko: 'KO',
+  ja: 'JA',
+};
 
 export default function MobileMenu() {
   const t = useTranslations();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
+  const router = useRouter();
   const pathname = usePathname();
   const isMobileMenuOpen = useUiStore((state) => state.isMobileMenuOpen);
   const setMobileMenuOpen = useUiStore((state) => state.setMobileMenuOpen);
@@ -219,6 +236,49 @@ export default function MobileMenu() {
                   </Link>
                 </>
               )}
+            </div>
+
+            {/* Language Switcher in Mobile Drawer */}
+            <div className="p-3 border-t border-slate-100 bg-slate-50/70">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Ngôn ngữ / Language</p>
+              <div className="grid grid-cols-5 gap-1.5">
+                {LOCALES.map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => {
+                      if (l === locale) return;
+                      try {
+                        document.cookie = `NEXT_LOCALE=${l};path=/;max-age=31536000;SameSite=Lax`;
+                      } catch {}
+                      const segments = (pathname || '').split('/');
+                      if (LOCALES.includes(segments[1] as any)) {
+                        segments[1] = l;
+                      } else {
+                        segments.splice(1, 0, l);
+                      }
+                      const newPath = segments.join('/') || `/${l}`;
+                      setMobileMenuOpen(false);
+                      window.location.href = newPath;
+                    }}
+                    className={cn(
+                      'flex flex-col items-center justify-center py-2 px-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer',
+                      locale === l
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-blue-400'
+                    )}
+                  >
+                    <Image
+                      src={flagImages[l]}
+                      alt={l}
+                      width={18}
+                      height={12}
+                      className="w-4.5 h-3 object-cover rounded-xs mb-1 shadow-2xs border border-black/10"
+                    />
+                    <span>{shortCodes[l]}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Logout button if authenticated */}

@@ -129,24 +129,60 @@ export const DEFAULT_AIRLINES = [
 export const DEFAULT_BRANCHES = [
   {
     id: 'hcm',
-    name: { vi: 'Trụ Sở Chính TP. Hồ Chí Minh', en: 'Ho Chi Minh City Headquarter' },
-    address: { vi: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh', en: '123 Nguyen Hue Street, District 1, Ho Chi Minh City' },
+    name: {
+      vi: 'Trụ Sở Chính TP. Hồ Chí Minh',
+      en: 'Ho Chi Minh City Headquarter',
+      zh: '胡志明市总公司',
+      ko: '호치민시 본사',
+      ja: 'ホーチミン市本社'
+    },
+    address: {
+      vi: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      en: '123 Nguyen Hue Street, District 1, Ho Chi Minh City',
+      zh: '胡志明市第一郡阮惠大道 123 号',
+      ko: '호치민시 1군 응우옌후에 거리 123',
+      ja: 'ホーチミン市1区グエンフエ通り123'
+    },
     phone: '1800 646 888',
     email: 'hcm@travel.com',
     isMain: true,
   },
   {
     id: 'danang',
-    name: { vi: 'Chi Nhánh Đà Nẵng', en: 'Da Nang Regional Office' },
-    address: { vi: '168 Nguyễn Văn Linh, Phường Vĩnh Trung, Quận Thanh Khê, Đà Nẵng', en: '168 Nguyen Van Linh, Thanh Khe, Da Nang' },
+    name: {
+      vi: 'Chi Nhánh Đà Nẵng',
+      en: 'Da Nang Regional Office',
+      zh: '岘港分公司',
+      ko: '다낭 지사',
+      ja: 'ダナン支社'
+    },
+    address: {
+      vi: '168 Nguyễn Văn Linh, Phường Vĩnh Trung, Quận Thanh Khê, Đà Nẵng',
+      en: '168 Nguyen Van Linh, Thanh Khe, Da Nang',
+      zh: '岘港市清溪郡阮文灵路 168 号',
+      ko: '다낭시 탄케군 응우옌반린 거리 168',
+      ja: 'ダナン市タインケー区グエンヴァンリン通り168'
+    },
     phone: '0236 388 9999',
     email: 'danang@travel.com',
     isMain: false,
   },
   {
     id: 'hanoi',
-    name: { vi: 'Văn Phòng Đại Diện Hà Nội', en: 'Hanoi Representative Office' },
-    address: { vi: '45 Tràng Tiền, Phường Tràng Tiền, Quận Hoàn Kiếm, Hà Nội', en: '45 Trang Tien Street, Hoan Kiem District, Hanoi' },
+    name: {
+      vi: 'Văn Phòng Đại Diện Hà Nội',
+      en: 'Hanoi Representative Office',
+      zh: '河内代表处',
+      ko: '하노이 지사',
+      ja: 'ハノイ支社'
+    },
+    address: {
+      vi: '45 Tràng Tiền, Phường Tràng Tiền, Quận Hoàn Kiếm, Hà Nội',
+      en: '45 Trang Tien Street, Hoan Kiem District, Hanoi',
+      zh: '河内市还剑郡长钱路 45 号',
+      ko: '하노이시 호안끼엠군 짱띠엔 거리 45',
+      ja: 'ハノイ市ホアンキエム区チャンティエン通り45'
+    },
     phone: '024 3999 8888',
     email: 'hanoi@travel.com',
     isMain: false,
@@ -154,9 +190,27 @@ export const DEFAULT_BRANCHES = [
 ];
 
 export const DEFAULT_WORKING_HOURS = {
-  weekdays: { vi: 'Thứ Hai - Thứ Sáu: 08:00 - 21:00', en: 'Monday - Friday: 08:00 - 21:00' },
-  weekend: { vi: 'Thứ Bảy - Chủ Nhật: 08:30 - 18:00', en: 'Saturday - Sunday: 08:30 - 18:00' },
-  hotlineNote: { vi: 'Tổng đài chăm sóc khách hàng hỗ trợ 24/7 kể cả ngày Lễ & Tết', en: 'Customer Care Hotline operates 24/7 including Public Holidays' },
+  weekdays: {
+    vi: 'Thứ Hai - Thứ Sáu: 08:00 - 21:00',
+    en: 'Monday - Friday: 08:00 - 21:00',
+    zh: '周一至周五：08:00 - 21:00',
+    ko: '월요일 - 금요일: 08:00 - 21:00',
+    ja: '月曜日 - 金曜日: 08:00 - 21:00'
+  },
+  weekend: {
+    vi: 'Thứ Bảy - Chủ Nhật: 08:30 - 18:00',
+    en: 'Saturday - Sunday: 08:30 - 18:00',
+    zh: '周六至周日：08:30 - 18:00',
+    ko: '토요일 - 일요일: 08:30 - 18:00',
+    ja: '土曜日 - 日曜日: 08:30 - 18:00'
+  },
+  hotlineNote: {
+    vi: 'Tổng đài chăm sóc khách hàng hỗ trợ 24/7 kể cả ngày Lễ & Tết',
+    en: 'Customer Care Hotline operates 24/7 including Public Holidays',
+    zh: '客服热线 24/7 全天候支持，节假日无休',
+    ko: '고객 센터 24시간 연중무휴 지원',
+    ja: 'カスタマーサポート 24時間年中無休'
+  },
 };
 
 export const DEFAULT_TOUR_POLICIES = {

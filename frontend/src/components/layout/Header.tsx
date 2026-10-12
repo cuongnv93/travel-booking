@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, LayoutGroup } from 'framer-motion';
 import { ShoppingCart, User as UserIcon, Menu, LogOut, Shield, ChevronDown, Calendar } from 'lucide-react';
 import { NAV_ITEMS } from '@/lib/constants';
@@ -16,7 +16,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header() {
   const t = useTranslations();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
