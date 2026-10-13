@@ -3,8 +3,8 @@
 import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -15,7 +15,7 @@ import { getLocalizedError } from '@/lib/errorUtils';
 function UserLoginForm() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const isExpired = searchParams.get('expired') === 'true';
   const login = useAuthStore(state => state.login);

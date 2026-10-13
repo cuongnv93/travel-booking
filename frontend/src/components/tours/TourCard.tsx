@@ -6,8 +6,7 @@ import SmartImage from '@/components/ui/SmartImage';
 import { Star, Clock, Tag, Heart, Users, Flame } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { formatPrice, getI18nText } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { I18nText } from '@/types';
 
@@ -58,8 +57,8 @@ function useWishlist(slug: string) {
 
 function TourCardComponent({ tour, locale }: TourCardProps) {
   const t = useTranslations();
-  const params = useParams();
-  const currentLocale = locale || (params?.locale as string) || 'vi';
+  const activeLocale = useLocale();
+  const currentLocale = locale || activeLocale || 'vi';
   const { saved, toggle } = useWishlist(tour.slug);
 
   const hasImage = tour.images && tour.images.length > 0 && tour.images[0].startsWith('http');

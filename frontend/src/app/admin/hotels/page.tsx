@@ -171,6 +171,8 @@ export default function AdminHotelsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
       queryClient.invalidateQueries({ queryKey: ['hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       setIsModalOpen(false);
     },
     onError: (err: any) => alert('Lỗi lưu khách sạn: ' + (err.response?.data?.message || err.message)),
@@ -181,6 +183,8 @@ export default function AdminHotelsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
       queryClient.invalidateQueries({ queryKey: ['hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
     },
   });
 

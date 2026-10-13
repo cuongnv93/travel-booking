@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter, useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Compass, Building2, Newspaper, ArrowRight, MapPin, Star } from 'lucide-react';
 import api from '@/lib/api';
@@ -27,7 +27,7 @@ const executeSearch = async (queryStr: string) => {
 export default function SearchClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const t = useTranslations('search');
 
   const initialQuery = searchParams.get('q') || '';
@@ -216,7 +216,7 @@ export default function SearchClient() {
                           </div>
                           <div className="flex justify-between items-end border-t border-slate-100 pt-3">
                             <span className="text-xs text-slate-400 font-bold">{t('perNight')}</span>
-                            <span className="text-lg font-extrabold text-purple-600">{formatPrice(item.price)}</span>
+                            <span className="text-lg font-extrabold text-purple-600">{formatPrice(item.pricePerNight || item.price)}</span>
                           </div>
                         </div>
                       </div>

@@ -759,7 +759,7 @@ export async function runMasterSettingsSeed(forceUpdate = false): Promise<{ seed
       }
     }
 
-    cacheService.del('settings_all');
+    cacheService.flush();
     return {
       seededCount,
       message: `Master settings seed completed successfully (${seededCount} items inserted/updated).`

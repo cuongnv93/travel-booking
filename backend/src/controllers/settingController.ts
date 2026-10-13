@@ -183,9 +183,7 @@ export const seedMaster = async (req: Request, res: Response) => {
 
 export const seedMultiLang = async (_req: Request, res: Response) => {
   try {
-    cacheService.del('settings_all');
-    cacheService.del('setting_hero_banners');
-    cacheService.del('setting_site_info');
+    cacheService.flush();
     const slides = [
       {
         image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',

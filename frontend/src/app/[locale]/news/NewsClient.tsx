@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, User, ArrowRight, Tag } from 'lucide-react';
 import { getI18nText, formatLocalizedDate } from '@/lib/utils';
@@ -113,7 +112,7 @@ function NewsClientComponent({
   newsBanner,
   newsVideo = 'https://res.cloudinary.com/demo/video/upload/so_0,eo_12,q_auto,w_1280,ac_none/forest_bike.mp4',
 }: Props) {
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const t = useTranslations('newsSection');
   const tCommon = useTranslations('common');
   const [selectedCategory, setSelectedCategory] = useState('');

@@ -5,12 +5,11 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
-import { useParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { Flame, ArrowRight, Zap, Star } from 'lucide-react';
 import api from '@/lib/api';
 import { formatPrice, getI18nText } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 const fetchFlashSaleItems = async () => {
   try {
@@ -186,7 +185,7 @@ const FlashSaleCard = memo(function FlashSaleCard({
 });
 
 export default function FlashSaleSection() {
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
   const t = useTranslations('flashSale');
   const tCommon = useTranslations('common');
 

@@ -2,8 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Shield, Wallet, HeadphonesIcon, MapPin, LucideIcon,
   Users, Star, Sparkles, Award, Clock, HeartHandshake
@@ -64,7 +63,7 @@ const FeatureCard = memo(function FeatureCard({
 
 function WhyChooseUsComponent() {
   const t = useTranslations('whyUs');
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
 
   const { data: dynamicWhyUs } = useWhyChooseUs();
   const { data: dynamicStats } = useHomeStatsCounters();

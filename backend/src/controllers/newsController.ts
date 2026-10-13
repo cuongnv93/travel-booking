@@ -83,6 +83,7 @@ export const create = async (req: Request, res: Response) => {
       data.publishedAt = new Date();
     }
     const news = await News.create(data);
+    cacheService.flush();
     res.status(201).json(news);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -108,6 +109,7 @@ export const update = async (req: Request, res: Response) => {
     }
     const news = await News.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!news) return res.status(404).json({ message: 'News not found' });
+    cacheService.flush();
     res.json(news);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -121,6 +123,7 @@ export const deleteNews = async (req: Request, res: Response) => {
     }
     const news = await News.findByIdAndDelete(req.params.id);
     if (!news) return res.status(404).json({ message: 'News not found' });
+    cacheService.flush();
     res.json({ message: 'News removed' });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Utensils, MapPin, Search, X, Filter, Navigation } from 'lucide-react';
 import { formatPrice, getI18nText } from '@/lib/utils';
@@ -87,7 +86,7 @@ function SpecialtiesClientComponent({
   specialtiesBanner,
   specialtiesVideo = 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/walking.mp4',
 }: Props) {
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const t = useTranslations('specialtiesPage');
 
   const [searchQuery, setSearchQuery] = useState('');

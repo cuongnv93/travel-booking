@@ -2,13 +2,12 @@
 
 import { memo, useMemo, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
 import { ArrowRight, Calendar, Newspaper } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import { useParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { getI18nText } from '@/lib/utils';
@@ -96,7 +95,7 @@ const NewsCardItem = memo(function NewsCardItem({ item, index, locale }: NewsCar
 export default function NewsSection() {
   const t = useTranslations('newsSection');
   const tCommon = useTranslations('common');
-  const locale = useParams().locale as string;
+  const locale = useLocale();
 
   const { data: news = [], isLoading } = useQuery({
     queryKey: ['latest-news-home'],

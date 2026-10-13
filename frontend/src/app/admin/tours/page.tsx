@@ -220,6 +220,7 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       setIsModalOpen(false);
     },
     onError: (err: any) => {
@@ -233,6 +234,8 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
     },
     onError: (err: any) => {
       alert('Lỗi xóa tour: ' + err.message);

@@ -57,7 +57,9 @@ export default function ManagePages() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-page', activePage] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pages'] });
       queryClient.invalidateQueries({ queryKey: ['pages', activePage] });
+      queryClient.invalidateQueries({ queryKey: ['pages'] });
       setStatusMsg({ type: 'success', text: 'Nội dung trang đã được lưu thành công!' });
       setTimeout(() => setStatusMsg(null), 4000);
     },

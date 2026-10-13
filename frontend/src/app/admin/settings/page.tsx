@@ -486,6 +486,9 @@ export default function AdminSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['setting'] });
       queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
       queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pages'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-page'] });
+      queryClient.invalidateQueries({ queryKey: ['pages'] });
       setSuccessMsg('Đã lưu cấu hình cài đặt hệ thống & Toàn bộ dữ liệu Master thành công!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
@@ -503,6 +506,9 @@ export default function AdminSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['setting'] });
       queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
       queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pages'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-page'] });
+      queryClient.invalidateQueries({ queryKey: ['pages'] });
       setShowReseedConfirm(false);
       setSuccessMsg('Đã khôi phục và nạp lại toàn bộ dữ liệu mẫu master thành công!');
       setTimeout(() => setSuccessMsg(''), 4000);

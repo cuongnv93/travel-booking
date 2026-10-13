@@ -1,11 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
-import { useParams } from 'next/navigation';
 import { MapPin, ArrowRight, Compass } from 'lucide-react';
 import { useMemo, useCallback, memo, useState } from 'react';
 import { useFeaturedDestinations } from '@/hooks/useSettings';
@@ -76,7 +75,7 @@ const DestinationCard = memo(function DestinationCard({ destName, queryParam, ph
 
 export default function DestinationsSection() {
   const t = useTranslations('destinations');
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
 
   const { data: dynamicDestinations } = useFeaturedDestinations();
 

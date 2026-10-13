@@ -3,8 +3,7 @@
 import { memo, useCallback, useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
@@ -117,7 +116,7 @@ const FeaturedHotelCard = memo(function FeaturedHotelCard({
 export default function FeaturedHotels() {
   const t = useTranslations('featuredHotels');
   const tCommon = useTranslations('common');
-  const locale = useParams().locale as string;
+  const locale = useLocale();
 
   const { data: hotels = [], isLoading } = useQuery({
     queryKey: ['featured-hotels'],

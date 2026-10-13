@@ -2,8 +2,7 @@
 
 import { memo, useState } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -107,7 +106,7 @@ const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; l
 
 function TestimonialsComponent() {
   const t = useTranslations('testimonials');
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
 
   const { data: baseReviews } = useTestimonials();
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);

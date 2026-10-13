@@ -1,12 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { Star, Clock, ArrowRight, Tag, Compass } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { formatPrice, getI18nText } from '@/lib/utils';
-import { useParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { CardSkeleton } from '@/components/ui/Skeleton';
@@ -19,7 +18,7 @@ const fetchFeaturedTours = async () => {
 
 export default function FeaturedTours() {
   const t = useTranslations();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
 
   const { data: tours = [], isLoading } = useQuery({
     queryKey: ['featured-tours'],

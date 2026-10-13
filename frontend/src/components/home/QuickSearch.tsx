@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-import { useRouter, useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Search, MapPin, Calendar, Users, Plane, Hotel, Map, Flame, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ const POPULAR_DESTINATIONS = [
 function QuickSearchComponent() {
   const t = useTranslations('search');
   const router = useRouter();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
 
   const [activeTab, setActiveTab] = useState<'tours' | 'hotels' | 'flights'>('tours');
   const [destination, setDestination] = useState('');
