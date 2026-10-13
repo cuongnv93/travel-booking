@@ -183,8 +183,8 @@ export default function CartClient() {
         ...prev,
         name: prev.name || currentUser.name || '',
         email: prev.email || currentUser.email || '',
-        phone: prev.phone || (currentUser as any).phone || '',
-        address: prev.address || (currentUser as any).address || '',
+        phone: prev.phone || currentUser.phone || '',
+        address: prev.address || currentUser.address || '',
       }));
     }
   }, [currentUser]);
@@ -252,41 +252,49 @@ export default function CartClient() {
     setLoading(true);
 
     try {
-      const firstItem = items[0];
-      const itemId = firstItem.itemData._id || firstItem.itemData.id;
+      const codes: string[] = [];
 
-      let payload: any = {
-        type: firstItem.type,
-        travelDate: firstItem.travelDate,
-        guests: firstItem.guests,
-        totalPrice: finalTotal,
-        discount: discount,
-        couponCode: couponApplied ? couponCode : undefined,
-        customerInfo: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          notes: `[${t('payment_method_note')}: ${paymentMethod === 'vietqr' ? t('payment_vietqr') : t('payment_office')}] ${formData.notes || ''}`
-        }
-      };
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const itemId = item.itemData._id || item.itemData.id;
+        const itemDiscount = i === 0 ? discount : 0;
+        const itemTotal = Math.max(0, item.totalPrice - itemDiscount);
 
-      if (firstItem.type === 'tour') payload.tourId = itemId;
-      if (firstItem.type === 'hotel') payload.hotelId = itemId;
-      if (firstItem.type === 'flight') payload.flightId = itemId;
+        const payload: any = {
+          type: item.type,
+          travelDate: item.travelDate,
+          guests: item.guests,
+          totalPrice: itemTotal,
+          discount: itemDiscount,
+          couponCode: (i === 0 && couponApplied) ? couponCode : undefined,
+          customerInfo: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            address: formData.address,
+            notes: `[${t('payment_method_note')}: ${paymentMethod === 'vietqr' ? t('payment_vietqr') : t('payment_office')}] ${formData.notes || ''}`
+          }
+        };
 
-      const res: any = await api.post('/bookings', payload);
-      const code = res?.bookingCode || 'TRV-' + Math.floor(Math.random() * 1000000);
+        if (item.type === 'tour') payload.tourId = itemId;
+        if (item.type === 'hotel') payload.hotelId = itemId;
+        if (item.type === 'flight') payload.flightId = itemId;
 
+        const res: any = await api.post('/bookings', payload);
+        const code = res?.bookingCode || res?.data?.bookingCode;
+        if (code) codes.push(code);
+      }
+
+      const primaryCode = codes[0] || 'TRV-' + Math.floor(Math.random() * 1000000);
       clearCart();
-      router.push(`/${locale}/booking-success?code=${code}`);
+      router.push(`/${locale}/booking-success?code=${primaryCode}`);
     } catch (err: any) {
       console.error('Checkout error:', err);
       setError(getLocalizedError(err, locale, t('error_checkout_failed')));
     } finally {
       setLoading(false);
     }
-  }, [formData, items, finalTotal, discount, couponApplied, couponCode, paymentMethod, clearCart, locale, router, t]);
+  }, [formData, items, discount, couponApplied, couponCode, paymentMethod, clearCart, locale, router, t]);
 
   if (items.length === 0) {
     return (

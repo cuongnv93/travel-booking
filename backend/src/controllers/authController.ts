@@ -23,7 +23,19 @@ export const register = async (req: Request, res: Response) => {
 
     const user = await User.create({ name, email, password: hashedPassword, phone });
     const tokens = generateTokens(user._id as unknown as string);
-    res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, ...tokens });
+    res.status(201).json({
+      user: {
+        id: user._id,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        address: user.address || '',
+        role: user.role,
+        avatar: user.avatar || '',
+      },
+      ...tokens,
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -39,7 +51,19 @@ export const login = async (req: Request, res: Response) => {
     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
     const tokens = generateTokens(user._id as unknown as string);
-    res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, ...tokens });
+    res.json({
+      user: {
+        id: user._id,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        address: user.address || '',
+        role: user.role,
+        avatar: user.avatar || '',
+      },
+      ...tokens,
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

@@ -145,7 +145,7 @@ function FlightsContent() {
     if (currentUser) {
       setCustomerName((prev) => prev || currentUser.name || '');
       setCustomerEmail((prev) => prev || currentUser.email || '');
-      setCustomerPhone((prev) => prev || (currentUser as any).phone || '');
+      setCustomerPhone((prev) => prev || currentUser.phone || '');
     }
   }, [currentUser]);
 
@@ -200,6 +200,7 @@ function FlightsContent() {
           notes: `Đặt vé máy bay chuyến ${selectedFlight.flightNumber} (${selectedFlight.airline}) từ ${selectedFlight.from} đến ${selectedFlight.to} lúc ${selectedFlight.departureTime}`,
         },
         travelDate: new Date(departDate),
+        guests: { adults: 1, children: 0 },
         totalPrice: selectedFlight.price,
         status: 'pending',
       };

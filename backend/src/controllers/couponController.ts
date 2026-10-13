@@ -54,7 +54,7 @@ export const validate = async (req: Request, res: Response) => {
     const { code } = req.body;
     if (!code) return res.status(400).json({ message: 'Vui lòng nhập mã giảm giá' });
 
-    const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+    const coupon = await Coupon.findOne({ code: String(code).trim().toUpperCase() });
     if (!coupon) return res.status(404).json({ message: 'Mã giảm giá không hợp lệ' });
     if (!coupon.isActive) return res.status(400).json({ message: 'Mã giảm giá đã bị vô hiệu hóa' });
     if (new Date(coupon.validUntil) < new Date()) return res.status(400).json({ message: 'Mã giảm giá đã hết hạn' });

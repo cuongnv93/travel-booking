@@ -12,10 +12,12 @@ import api from '@/lib/api';
 import { useCompanyBranches, useWorkingHours, usePageBanners, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
 import { getLocalizedBranchInfo, getLocalizedHours } from '@/lib/settingsI18n';
 import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function ContactClient() {
   const t = useTranslations('contact');
   const locale = useLocale();
+  const currentUser = useAuthStore((state) => state.user);
 
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -24,6 +26,18 @@ export default function ContactClient() {
   useEffect(() => {
     flushPendingConsultations();
   }, []);
+
+  // Auto-fill customer info if user is authenticated
+  useEffect(() => {
+    if (currentUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || currentUser.name || '',
+        email: prev.email || currentUser.email || '',
+        phone: prev.phone || currentUser.phone || '',
+      }));
+    }
+  }, [currentUser]);
 
   const { data: branches = [] } = useCompanyBranches();
   const { data: workingHours } = useWorkingHours();

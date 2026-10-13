@@ -192,7 +192,7 @@ export default function BookingLookupClient() {
                     <div className="space-y-2.5 text-sm">
                       <p className="font-extrabold text-slate-900 text-base line-clamp-2">
                         {booking.type === 'hotel'
-                          ? (getI18nText(booking.hotelId?.name, locale) || tCommon('hotelType'))
+                          ? `${getI18nText(booking.hotelId?.name, locale) || tCommon('hotelType')}${booking.roomName ? ` - ${booking.roomName}` : ''}`
                           : booking.type === 'flight'
                           ? (`${tCommon('flightType')} ${booking.flightId?.flightNumber || ''} (${booking.flightId?.from || ''} - ${booking.flightId?.to || ''})`.trim() || tCommon('flightType'))
                           : (getI18nText(booking.tourId?.title, locale) || t('defaultTourTitle'))}

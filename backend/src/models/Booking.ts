@@ -11,6 +11,7 @@ export interface IBooking extends Document {
   travelDate: Date;
   checkIn?: Date;
   checkOut?: Date;
+  roomName?: string;
   guests: {
     adults: number;
     children: number;
@@ -41,6 +42,7 @@ const bookingSchema = new Schema<IBooking>({
   travelDate: { type: Date },
   checkIn: { type: Date },
   checkOut: { type: Date },
+  roomName: { type: String },
   guests: {
     adults: { type: Number, default: 1 },
     children: { type: Number, default: 0 }

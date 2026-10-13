@@ -140,7 +140,7 @@ export default function ProfileBookingsClient() {
             const isHotel = b.type === 'hotel';
             const isFlight = b.type === 'flight';
             const title = isHotel
-              ? (getI18nText(b.hotelId?.name, locale) || t('defaultHotel'))
+              ? `${getI18nText(b.hotelId?.name, locale) || t('defaultHotel')}${b.roomName ? ` (${b.roomName})` : ''}`
               : isFlight
               ? (b.flightId?.flightNumber ? t('flightNumber', { code: b.flightId.flightNumber }) : t('defaultFlight'))
               : (getI18nText(b.tourId?.title, locale) || t('defaultTour'));
@@ -176,7 +176,7 @@ export default function ProfileBookingsClient() {
                     <h3 className="font-extrabold text-base sm:text-lg text-slate-900 line-clamp-1">{title}</h3>
                     <p className="text-xs text-slate-500 mt-1">
                       <span className="font-semibold text-slate-600">
-                        {b.guests?.adults || 1} {tBooking('confirmed') ? '' : ''} • {b.guests?.children || 0}
+                        {b.guests?.adults || 1} {tLookup('adults')}{b.guests?.children > 0 && `, ${b.guests.children} ${tLookup('children')}`}
                       </span>
                     </p>
                   </div>
@@ -240,7 +240,7 @@ export default function ProfileBookingsClient() {
                 <p className="text-[11px] font-extrabold uppercase text-blue-600 tracking-wider">{t('viewDetail')}</p>
                 <p className="font-extrabold text-base text-slate-900">
                   {selectedBooking.type === 'hotel'
-                    ? (getI18nText(selectedBooking.hotelId?.name, locale) || t('defaultHotel'))
+                    ? `${getI18nText(selectedBooking.hotelId?.name, locale) || t('defaultHotel')}${selectedBooking.roomName ? ` (${selectedBooking.roomName})` : ''}`
                     : selectedBooking.type === 'flight'
                     ? (selectedBooking.flightId?.flightNumber ? t('flightNumber', { code: selectedBooking.flightId.flightNumber }) : t('defaultFlight'))
                     : (getI18nText(selectedBooking.tourId?.title, locale) || t('defaultTour'))}

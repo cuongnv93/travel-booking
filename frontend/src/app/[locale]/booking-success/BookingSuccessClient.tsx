@@ -59,7 +59,7 @@ export default function BookingSuccessClient() {
                   <span className="text-slate-400 block mb-0.5">{t('bookedService')}</span>
                   <p className="font-bold text-slate-900 text-sm">
                     {booking.type === 'hotel'
-                      ? getI18nText(booking.hotelId?.name, locale) || t('hotel')
+                      ? `${getI18nText(booking.hotelId?.name, locale) || t('hotel')}${booking.roomName ? ` (${booking.roomName})` : ''}`
                       : booking.type === 'flight'
                       ? `${booking.flightId?.airline || 'Vé máy bay'} ${booking.flightId?.flightNumber ? `(${booking.flightId.flightNumber})` : ''} ${booking.flightId?.from ? `• ${booking.flightId.from} → ${booking.flightId.to}` : ''}`.trim()
                       : getI18nText(booking.tourId?.title, locale) || t('tour')}

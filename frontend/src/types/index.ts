@@ -12,6 +12,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
+  address?: string;
   role: 'admin' | 'user';
   avatar?: string;
 }
@@ -51,6 +52,9 @@ export interface Booking {
   type: 'tour' | 'hotel' | 'flight';
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   travelDate: string;
+  checkIn?: string;
+  checkOut?: string;
+  roomName?: string;
   guests: {
     adults: number;
     children: number;

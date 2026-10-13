@@ -34,8 +34,8 @@ export default function ProfileClient() {
     }
     if (user) {
       setName(user.name || '');
-      setPhone((user as any).phone || '');
-      setAddress((user as any).address || '');
+      setPhone(user.phone || '');
+      setAddress(user.address || '');
     }
   }, [user, isAuthenticated, router, locale]);
 

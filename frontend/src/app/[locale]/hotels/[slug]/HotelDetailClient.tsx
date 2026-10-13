@@ -142,7 +142,7 @@ export default function HotelDetailClient() {
         ...prev,
         name: prev.name || currentUser.name || '',
         email: prev.email || currentUser.email || '',
-        phone: prev.phone || (currentUser as any).phone || '',
+        phone: prev.phone || currentUser.phone || '',
       }));
     }
   }, [currentUser]);
@@ -182,6 +182,7 @@ export default function HotelDetailClient() {
         type: 'hotel',
         hotelId: hotel._id,
         roomId: selectedRoom?._id,
+        roomName: selectedRoom?.name,
         checkIn: formData.checkIn,
         checkOut: formData.checkOut,
         guests: { adults: formData.adults, children: formData.children },
