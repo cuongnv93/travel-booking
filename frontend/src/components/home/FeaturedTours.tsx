@@ -1,11 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { Star, Clock, ArrowRight, Tag, Compass } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
-import { formatPrice, getI18nText } from '@/lib/utils';
+import { ArrowRight, Compass } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { CardSkeleton } from '@/components/ui/Skeleton';

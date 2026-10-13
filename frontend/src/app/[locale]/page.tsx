@@ -30,9 +30,40 @@ export const generateMetadata = async ({ params }: { params: Promise<{ locale: s
     ja: 'Travel Booking で最高の旅を体験。国内外のツアー、お得な航空券、5つ星ホテルを最安値で予約。24時間カスタマーサポート。',
   };
 
+  const keywordsDict: Record<string, string[]> = {
+    vi: [
+      'du lịch', 'đặt tour du lịch', 'tour du lịch giá rẻ', 'tour hạ long',
+      'tour đà nẵng', 'tour phú quốc', 'tour sapa', 'vé máy bay giá rẻ',
+      'đặt phòng khách sạn', 'resort nghỉ dưỡng 5 sao', 'du lịch việt nam',
+      'combo du lịch', 'travel booking'
+    ],
+    en: [
+      'vietnam travel', 'vietnam tours', 'book vietnam tours', 'halong bay cruise tours',
+      'da nang travel packages', 'phu quoc resorts', 'cheap flights vietnam',
+      'luxury hotels vietnam', 'vietnam tour operator', 'travel booking'
+    ],
+    zh: [
+      '越南旅游', '越南旅游预订', '下龙湾游轮', '岘港旅游', '富国岛度假村',
+      '越南特价机票', '五星级海滨度假酒店', '越南旅行社', 'travel booking'
+    ],
+    ko: [
+      '베트남 여행', '베트남 투어 패키지', '다낭 여행', '하롱베이 크루즈',
+      '푸꾸옥 리조트', '베트남 특가 항공권', '베트남 호텔 예약', 'travel booking'
+    ],
+    ja: [
+      'ベトナム旅行', 'ベトナムツアー予約', 'ハロン湾クルーズ', 'ダナンリゾート',
+      'フーコック島ツアー', 'ベトナム格安航空券', 'ベトナムホテル予約', 'travel booking'
+    ],
+  };
+
+  const title = titles[locale] || titles.vi;
+  const description = descriptions[locale] || descriptions.vi;
+  const ogImageUrl = `${baseUrl}/og-image.jpg`;
+
   return {
-    title: titles[locale] || titles.vi,
-    description: descriptions[locale] || descriptions.vi,
+    title,
+    description,
+    keywords: keywordsDict[locale] || keywordsDict.vi,
     alternates: {
       canonical: `${baseUrl}/${locale}`,
       languages: {
@@ -42,6 +73,38 @@ export const generateMetadata = async ({ params }: { params: Promise<{ locale: s
         'ko': `${baseUrl}/ko`,
         'ja': `${baseUrl}/ja`,
         'x-default': `${baseUrl}/vi`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}`,
+      siteName: 'Travel Booking',
+      type: 'website',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
     },
   };
@@ -57,7 +120,7 @@ export default async function HomePage() {
         <QuickSearch />
       </div>
 
-      <div className="flex-1 space-y-16 sm:space-y-20 md:space-y-24 pb-16 sm:pb-24">
+      <main className="flex-1 space-y-16 sm:space-y-20 md:space-y-24 pb-16 sm:pb-24">
         <FeaturedTours />
         <DestinationsSection />
         <FeaturedHotels />
@@ -65,7 +128,7 @@ export default async function HomePage() {
         <WhyChooseUs />
         <Testimonials />
         <NewsSection />
-      </div>
+      </main>
     </div>
   );
 }

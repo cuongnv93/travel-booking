@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
 import { Star, Clock, Tag, Heart, Users, Flame } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
@@ -62,12 +61,8 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
   const { saved, toggle } = useWishlist(tour.slug);
 
   const hasImage = tour.images && tour.images.length > 0 && tour.images[0].startsWith('http');
-  const [imgSrc, setImgSrc] = useState(hasImage ? tour.images![0] : '');
+  const imageSource = hasImage ? tour.images![0] : (tour.images?.[0] || '');
   const destName = tour.destination || tour.location || 'Việt Nam';
-
-  const handleImgError = useCallback(() => {
-    setImgSrc('https://images.unsplash.com/photo-1528127269322-539801943592?w=800');
-  }, []);
 
   // Memoized calculations
   const titleText = useMemo(() => getI18nText(tour.title, currentLocale), [tour.title, currentLocale]);
@@ -101,12 +96,13 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
       <Card className="overflow-hidden group h-full cursor-pointer hover:-translate-y-2 transition-all duration-300 relative flex flex-col justify-between">
         {/* Image */}
         <div className="h-52 bg-slate-100 relative overflow-hidden">
-          {hasImage || imgSrc ? (
+          {hasImage || imageSource ? (
             <SmartImage
-              src={imgSrc || tour.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800'}
+              src={imageSource || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800'}
               alt={titleText}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              fallbackSrc="https://images.unsplash.com/photo-1528127269322-539801943592?w=800"
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (

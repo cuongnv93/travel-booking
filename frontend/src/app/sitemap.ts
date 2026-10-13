@@ -41,7 +41,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
     
     // Tours
-    const toursRes = await fetch(`${apiBase}/tours?limit=50`, { next: { revalidate: 3600 } }).catch(() => null);
+    const toursRes = await fetch(`${apiBase}/tours?limit=50`, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(3000),
+    }).catch(() => null);
     if (toursRes?.ok) {
       const data = await toursRes.json();
       const tours = Array.isArray(data) ? data : (data?.data || []);
@@ -60,7 +63,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     // Hotels
-    const hotelsRes = await fetch(`${apiBase}/hotels?limit=50`, { next: { revalidate: 3600 } }).catch(() => null);
+    const hotelsRes = await fetch(`${apiBase}/hotels?limit=50`, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(3000),
+    }).catch(() => null);
     if (hotelsRes?.ok) {
       const data = await hotelsRes.json();
       const hotels = Array.isArray(data) ? data : (data?.data || []);
@@ -79,7 +85,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     // News
-    const newsRes = await fetch(`${apiBase}/news?limit=50`, { next: { revalidate: 3600 } }).catch(() => null);
+    const newsRes = await fetch(`${apiBase}/news?limit=50`, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(3000),
+    }).catch(() => null);
     if (newsRes?.ok) {
       const data = await newsRes.json();
       const news = Array.isArray(data) ? data : (data?.data || []);

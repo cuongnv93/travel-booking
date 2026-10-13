@@ -1,11 +1,10 @@
 'use client';
 
-import { memo, useCallback, useState } from 'react';
+import { memo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
 import { Star, MapPin, ArrowRight, Building2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -39,11 +38,7 @@ const FeaturedHotelCard = memo(function FeaturedHotelCard({
   starsText,
 }: HotelCardProps) {
   const name = getI18nText(hotel.name, locale);
-  const [imgSrc, setImgSrc] = useState(hotel.images?.[0] || DEFAULT_HOTEL_IMG);
-
-  const handleImgError = useCallback(() => {
-    setImgSrc(DEFAULT_HOTEL_IMG);
-  }, []);
+  const imgSrc = hotel.images?.[0] || DEFAULT_HOTEL_IMG;
 
   return (
     <motion.div

@@ -13,6 +13,7 @@ async function serverFetch<T>(path: string, revalidate = 60): Promise<T> {
     const res = await fetch(`${BACKEND_URL}${path}`, {
       next: { revalidate },
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return [] as unknown as T;
     const json = await res.json();
@@ -47,4 +48,46 @@ export async function prefetchNews(category?: string): Promise<any[]> {
 
 export async function prefetchSettings(): Promise<any[]> {
   return serverFetch<any[]>('/settings', 300);
+}
+
+export async function prefetchTourBySlug(slug: string): Promise<any | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/tours/${slug}`, {
+      next: { revalidate: 60 },
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function prefetchHotelBySlug(slug: string): Promise<any | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/hotels/${slug}`, {
+      next: { revalidate: 60 },
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function prefetchNewsBySlug(slug: string): Promise<any | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/news/${slug}`, {
+      next: { revalidate: 60 },
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }

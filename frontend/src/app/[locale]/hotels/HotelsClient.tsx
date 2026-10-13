@@ -53,11 +53,7 @@ const HotelListingCard = memo(function HotelListingCard({
 }) {
   const name = getI18nText(hotel.name, locale);
   const description = getI18nText(hotel.description, locale);
-  const [image, setImage] = useState(hotel.images?.[0] || FALLBACK_HOTEL_IMG);
-
-  const handleImgError = useCallback(() => {
-    setImage(FALLBACK_HOTEL_IMG);
-  }, []);
+  const image = hotel.images?.[0] || FALLBACK_HOTEL_IMG;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">

@@ -28,16 +28,37 @@ export async function generateMetadata({
     ja: 'ベトナム各地から世界各国の人気ツアーまで豊富にご用意。充実のツアープランと安心サポートを特別価格でご案内。',
   };
 
+  const keywordsDict: Record<string, string[]> = {
+    vi: [
+      'tour du lịch', 'đặt tour du lịch', 'tour hạ long', 'tour đà nẵng', 'tour phú quốc',
+      'tour sapa', 'tour hà giang', 'tour miền tây', 'tour du lịch giá rẻ', 'tour du lịch trọn gói'
+    ],
+    en: [
+      'vietnam tours', 'book travel tour', 'ha long bay cruise tour', 'da nang package tour',
+      'phu quoc island tours', 'sapa trekking tour', 'best vietnam travel packages', 'vietnam vacation deals'
+    ],
+    zh: [
+      '越南旅游路线', '下龙湾游船预订', '岘港度假旅游', '富国岛自由行', '沙坝徒步游',
+      '越南跟团游特惠', '高品质越南旅游', '越南全景游'
+    ],
+    ko: [
+      '베트남 여행 패키지', '하롱베이 크루즈 예약', '다낭 패키지 여행', '푸꾸옥 섬 투어',
+      '사파 트레킹 투어', '베트남 자유여행 추천', '베트남 가족 여행'
+    ],
+    ja: [
+      'ベトナムツアー予約', 'ハロン湾クルーズツアー', 'ダナン格安ツアー', 'フーコック島ツアー',
+      'サパトレッキング', 'ベトナムパッケージ旅行', 'ベトナム観光おすすめ'
+    ],
+  };
+
   const title = titles[locale] || titles.vi;
   const description = descriptions[locale] || descriptions.vi;
+  const keywords = keywordsDict[locale] || keywordsDict.vi;
 
   return {
     title,
     description,
-    keywords: [
-      'tour du lich', 'dat tour', 'tour ha long', 'tour da nang', 'tour phu quoc',
-      'tour sapa', 'travel tours', 'book vietnam tour'
-    ],
+    keywords,
     alternates: {
       canonical: `${baseUrl}/${locale}/tours`,
       languages: {
@@ -72,7 +93,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function ToursPage() {
+export default async function ToursPage({
+  params
+}: {
+  params: Promise<{ locale: string }> | { locale: string };
+}) {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
+
   const [initialTours, settings] = await Promise.all([
     prefetchTours(),
     prefetchSettings(),
@@ -82,16 +111,36 @@ export default async function ToursPage() {
   const toursBanner = pageBanners?.toursBanner || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600';
   const toursVideo = pageBanners?.toursVideo || 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/mountains.mp4';
 
+  const toursSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Danh Sách Tour Du Lịch Nổi Bật',
+    url: `${baseUrl}/${locale}/tours`,
+    numberOfItems: initialTours.length,
+    itemListElement: initialTours.slice(0, 10).map((tour: any, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: typeof tour.title === 'string' ? tour.title : (tour.title?.[locale] || tour.title?.vi || 'Tour Du Lịch'),
+      url: `${baseUrl}/${locale}/tours/${tour.slug}`,
+    })),
+  };
+
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-8 mt-20">
-        <div className="h-72 md:h-96 rounded-3xl bg-slate-200 animate-pulse mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1,2,3,4,5,6].map(n => <div key={n} className="h-80 rounded-2xl bg-slate-100 animate-pulse" />)}
+    <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(toursSchema) }}
+      />
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-8 mt-20">
+          <div className="h-72 md:h-96 rounded-3xl bg-slate-200 animate-pulse mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1,2,3,4,5,6].map(n => <div key={n} className="h-80 rounded-2xl bg-slate-100 animate-pulse" />)}
+          </div>
         </div>
-      </div>
-    }>
-      <ToursClient initialTours={initialTours} toursBanner={toursBanner} toursVideo={toursVideo} />
-    </Suspense>
+      }>
+        <ToursClient initialTours={initialTours} toursBanner={toursBanner} toursVideo={toursVideo} />
+      </Suspense>
+    </main>
   );
 }

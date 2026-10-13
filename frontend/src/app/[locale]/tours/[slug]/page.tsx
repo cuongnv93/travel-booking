@@ -1,18 +1,7 @@
 import type { Metadata } from 'next';
 import TourDetailClient from '@/components/tours/TourDetailClient';
 import { getI18nText } from '@/lib/utils';
-import axios from 'axios';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-async function getTourData(slug: string) {
-  try {
-    const res = await axios.get(`${BACKEND_URL}/tours/${slug}`);
-    return res.data;
-  } catch (error) {
-    return null;
-  }
-}
+import { prefetchTourBySlug } from '@/lib/serverApi';
 
 export async function generateMetadata({
   params
@@ -22,7 +11,7 @@ export async function generateMetadata({
   const resolved = await Promise.resolve(params);
   const locale = resolved?.locale || 'vi';
   const slug = resolved?.slug || '';
-  const tour = await getTourData(slug);
+  const tour = await prefetchTourBySlug(slug);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   if (!tour) {
@@ -76,7 +65,7 @@ export default async function TourDetailPage({
   const resolved = await Promise.resolve(params);
   const locale = resolved?.locale || 'vi';
   const slug = resolved?.slug || '';
-  const tour = await getTourData(slug);
+  const tour = await prefetchTourBySlug(slug);
 
   if (!tour) {
     return (
@@ -86,6 +75,8 @@ export default async function TourDetailPage({
       </div>
     );
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   const tourSchema = {
     '@context': 'https://schema.org',
@@ -99,7 +90,7 @@ export default async function TourDetailPage({
       price: tour.price,
       priceCurrency: 'VND',
       availability: 'https://schema.org/InStock',
-      url: `http://localhost:3000/${locale}/tours/${slug}`
+      url: `${baseUrl}/${locale}/tours/${slug}`
     }
   };
 

@@ -1,18 +1,7 @@
 import type { Metadata } from 'next';
 import HotelDetailClient from './HotelDetailClient';
 import { getI18nText } from '@/lib/utils';
-import axios from 'axios';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-async function getHotelData(slug: string) {
-  try {
-    const res = await axios.get(`${BACKEND_URL}/hotels/${slug}`);
-    return res.data;
-  } catch (error) {
-    return null;
-  }
-}
+import { prefetchHotelBySlug } from '@/lib/serverApi';
 
 export async function generateMetadata({
   params
@@ -22,7 +11,7 @@ export async function generateMetadata({
   const resolved = await Promise.resolve(params);
   const locale = resolved?.locale || 'vi';
   const slug = resolved?.slug || '';
-  const hotel = await getHotelData(slug);
+  const hotel = await prefetchHotelBySlug(slug);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   if (!hotel) {
@@ -68,6 +57,46 @@ export async function generateMetadata({
   };
 }
 
-export default function HotelDetailPage() {
-  return <HotelDetailClient />;
+export default async function HotelDetailPage({
+  params
+}: {
+  params: Promise<{ locale: string; slug: string }> | { locale: string; slug: string };
+}) {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const slug = resolved?.slug || '';
+  const hotel = await prefetchHotelBySlug(slug);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
+
+  const hotelSchema = hotel ? {
+    '@context': 'https://schema.org',
+    '@type': 'Hotel',
+    name: getI18nText(hotel.name, locale),
+    description: getI18nText(hotel.description, locale),
+    image: hotel.images || [],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: hotel.city || hotel.location || 'Việt Nam',
+      streetAddress: hotel.address || hotel.location || '',
+      addressCountry: 'VN',
+    },
+    starRating: {
+      '@type': 'Rating',
+      ratingValue: hotel.stars || 5,
+    },
+    priceRange: hotel.pricePerNight ? `${hotel.pricePerNight} VND` : undefined,
+    url: `${baseUrl}/${locale}/hotels/${slug}`,
+  } : null;
+
+  return (
+    <>
+      {hotelSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(hotelSchema) }}
+        />
+      )}
+      <HotelDetailClient />
+    </>
+  );
 }

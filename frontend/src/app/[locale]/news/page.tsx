@@ -28,16 +28,37 @@ export async function generateMetadata({
     ja: '国内外の最新トラベルニュース、旅のお役立ちガイド、人気観光地レビューやご当地グルメ情報を発信。',
   };
 
+  const keywordsDict: Record<string, string[]> = {
+    vi: [
+      'tin tức du lịch', 'cẩm nang du lịch', 'kinh nghiệm du lịch', 'mẹo du lịch',
+      'địa điểm du lịch đẹp', 'ẩm thực du lịch', 'khám phá việt nam', 'lịch trình du lịch tự túc'
+    ],
+    en: [
+      'vietnam travel news', 'vietnam travel guide', 'travel tips vietnam', 'best places to visit vietnam',
+      'vietnam food guide', 'vietnam itinerary', 'southeast asia travel blog'
+    ],
+    zh: [
+      '越南旅游资讯', '越南旅游攻略', '越南自由行指南', '越南特色美食推荐',
+      '越南必去景点', '越南出行建议'
+    ],
+    ko: [
+      '베트남 여행 뉴스', '베트남 여행 꿀팁', '베트남 여행 가이드', '베트남 맛집 추천',
+      '베트남 자유여행 일정', '베트남 관광 명소'
+    ],
+    ja: [
+      'ベトナム旅行ニュース', 'ベトナム観光ガイド', 'ベトナム旅行記', 'ベトナムおすすめグルメ',
+      'ベトナムモデルコース', '東南アジア旅行情報'
+    ],
+  };
+
   const title = titles[locale] || titles.vi;
   const description = descriptions[locale] || descriptions.vi;
+  const keywords = keywordsDict[locale] || keywordsDict.vi;
 
   return {
     title,
     description,
-    keywords: [
-      'tin tuc du lich', 'cam nang du lich', 'kinh nghiem du lich', 'travel tips',
-      'vietnam travel guide', 'du lich viet nam'
-    ],
+    keywords,
     alternates: {
       canonical: `${baseUrl}/${locale}/news`,
       languages: {
@@ -72,7 +93,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function NewsPage() {
+export default async function NewsPage({
+  params
+}: {
+  params: Promise<{ locale: string }> | { locale: string };
+}) {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
+
   const [initialNews, settings] = await Promise.all([
     prefetchNews(),
     prefetchSettings(),
@@ -82,19 +111,39 @@ export default async function NewsPage() {
   const newsBanner = pageBanners?.newsBanner || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600';
   const newsVideo = pageBanners?.newsVideo || 'https://res.cloudinary.com/demo/video/upload/so_0,eo_12,q_auto,w_1280,ac_none/forest_bike.mp4';
 
+  const newsSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Cẩm Nang & Tin Tức Du Lịch Mới Nhất',
+    url: `${baseUrl}/${locale}/news`,
+    numberOfItems: initialNews.length,
+    itemListElement: initialNews.slice(0, 10).map((article: any, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: typeof article.title === 'string' ? article.title : (article.title?.[locale] || article.title?.vi || 'Tin Tức Du Lịch'),
+      url: `${baseUrl}/${locale}/news/${article.slug}`,
+    })),
+  };
+
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-12 mt-20">
-        <div className="h-64 md:h-80 rounded-3xl bg-slate-200 animate-pulse mb-10" />
-        <div className="space-y-6">
-          <div className="h-72 rounded-3xl bg-slate-100 animate-pulse" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1,2,3].map(n => <div key={n} className="h-64 rounded-3xl bg-slate-100 animate-pulse" />)}
+    <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsSchema) }}
+      />
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-12 mt-20">
+          <div className="h-64 md:h-80 rounded-3xl bg-slate-200 animate-pulse mb-10" />
+          <div className="space-y-6">
+            <div className="h-72 rounded-3xl bg-slate-100 animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1,2,3].map(n => <div key={n} className="h-64 rounded-3xl bg-slate-100 animate-pulse" />)}
+            </div>
           </div>
         </div>
-      </div>
-    }>
-      <NewsClient initialNews={initialNews} newsBanner={newsBanner} newsVideo={newsVideo} />
-    </Suspense>
+      }>
+        <NewsClient initialNews={initialNews} newsBanner={newsBanner} newsVideo={newsVideo} />
+      </Suspense>
+    </main>
   );
 }

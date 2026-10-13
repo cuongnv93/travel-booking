@@ -1,10 +1,9 @@
 'use client';
 
-import { memo, useMemo, useState, useCallback } from 'react';
+import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
 import { ArrowRight, Calendar, Newspaper } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
@@ -32,11 +31,8 @@ interface NewsCardItemProps {
 const NewsCardItem = memo(function NewsCardItem({ item, index, locale }: NewsCardItemProps) {
   const title = getI18nText(item.title, locale);
   const excerpt = getI18nText(item.excerpt || item.content, locale);
-  const [thumb, setThumb] = useState(item.thumbnail || FALLBACK_NEWS_THUMB);
-
-  const handleImgError = useCallback(() => {
-    setThumb(FALLBACK_NEWS_THUMB);
-  }, []);
+  const thumb = item.thumbnail || FALLBACK_NEWS_THUMB;
+  const newsHref = item.slug ? `/${locale}/news/${item.slug}` : `/${locale}/news`;
 
   const formattedDate = useMemo(() => {
     if (!item.createdAt) return '';
@@ -55,7 +51,7 @@ const NewsCardItem = memo(function NewsCardItem({ item, index, locale }: NewsCar
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <Link href={`/${locale}/news`}>
+      <Link href={newsHref}>
         <Card className="flex flex-col sm:flex-row overflow-hidden hover:shadow-lg transition-all group sm:h-52 border border-slate-200/80 rounded-2xl">
           <div className="sm:w-2/5 h-48 sm:h-full bg-slate-100 relative overflow-hidden shrink-0">
             <SmartImage

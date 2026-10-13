@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { Flame, ArrowRight, Zap, Star } from 'lucide-react';
@@ -92,13 +91,7 @@ const FlashSaleCard = memo(function FlashSaleCard({
 }: FlashSaleCardProps) {
   const isTour = item.itemType === 'tour' || !!item.destination;
   const targetLink = isTour ? `/${locale}/tours/${item.slug}` : `/${locale}/hotels/${item.slug}`;
-  const [imgSrc, setImgSrc] = useState(
-    item.images && item.images.length > 0 ? item.images[0] : DEFAULT_FLASH_IMG
-  );
-
-  const handleImgError = useCallback(() => {
-    setImgSrc(DEFAULT_FLASH_IMG);
-  }, []);
+  const imgSrc = item.images && item.images.length > 0 ? item.images[0] : DEFAULT_FLASH_IMG;
 
   const title = getI18nText(item.title || item.name, locale);
   const origPrice = item.originalPrice || item.price || item.pricePerNight;

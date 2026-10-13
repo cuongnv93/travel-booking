@@ -59,7 +59,6 @@ export default function Header() {
   const currentTab = hoveredPath !== null ? hoveredPath : activePath;
 
   const toggleMobileMenu = useUiStore((state) => state.toggleMobileMenu);
-  const toggleSearch = useUiStore((state) => state.toggleSearch);
   const cartItemsCount = useCartStore((state) =>
     state.items.reduce(
       (total, item) => total + (item.guests?.adults || 0) + (item.guests?.children || 0),

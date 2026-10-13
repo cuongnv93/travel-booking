@@ -48,11 +48,7 @@ const NewsGridCard = memo(function NewsGridCard({
 }) {
   const title = getI18nText(article.title, locale);
   const excerpt = getI18nText(article.excerpt, locale);
-  const [thumbnail, setThumbnail] = useState(article.thumbnail || FALLBACK_NEWS_IMG);
-
-  const handleImgError = useCallback(() => {
-    setThumbnail(FALLBACK_NEWS_IMG);
-  }, []);
+  const thumbnail = article.thumbnail || FALLBACK_NEWS_IMG;
 
   const formattedDate = useMemo(() => {
     const rawDate = article.publishedAt || article.createdAt;
@@ -203,10 +199,13 @@ function NewsClientComponent({
           >
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="h-72 lg:h-[380px] bg-slate-800 overflow-hidden relative">
-                <img
+                <SmartImage
                   src={featured.thumbnail || FALLBACK_NEWS_IMG}
                   alt={getI18nText(featured.title, locale)}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  fallbackSrc={FALLBACK_NEWS_IMG}
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur text-blue-700 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5" />

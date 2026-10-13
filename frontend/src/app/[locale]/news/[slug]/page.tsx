@@ -2,35 +2,22 @@ import type { Metadata } from 'next';
 import { Calendar, User, Tag, ArrowLeft, Share2, Clock, Sparkles, ChevronRight, Star, MapPin, ArrowUpRight } from 'lucide-react';
 import { getI18nText, formatPrice } from '@/lib/utils';
 import Link from 'next/link';
-import axios from 'axios';
 import { getTranslations } from 'next-intl/server';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-async function getArticleData(slug: string) {
-  try {
-    const res = await axios.get(`${BACKEND_URL}/news/${slug}`);
-    return res.data;
-  } catch (error) {
-    return null;
-  }
-}
+import { prefetchNewsBySlug, prefetchNews, prefetchTours } from '@/lib/serverApi';
 
 async function getRelatedArticles(currentSlug: string) {
   try {
-    const res = await axios.get(`${BACKEND_URL}/news?limit=6`);
-    const list = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+    const list = await prefetchNews();
     return list.filter((item: any) => item.slug !== currentSlug).slice(0, 5);
-  } catch (error) {
+  } catch {
     return [];
   }
 }
 
 async function getFeaturedTours() {
   try {
-    const res = await axios.get(`${BACKEND_URL}/tours?limit=4`);
-    return res.data?.data || (Array.isArray(res.data) ? res.data : []);
-  } catch (error) {
+    return await prefetchTours({ limit: '4' });
+  } catch {
     return [];
   }
 }
@@ -43,7 +30,7 @@ export async function generateMetadata({
   const resolved = await Promise.resolve(params);
   const locale = resolved?.locale || 'vi';
   const slug = resolved?.slug || '';
-  const article = await getArticleData(slug);
+  const article = await prefetchNewsBySlug(slug);
   const t = await getTranslations({ locale, namespace: 'newsDetail' });
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
@@ -97,7 +84,7 @@ export default async function NewsDetailPage({
   const resolved = await Promise.resolve(params);
   const locale = resolved?.locale || 'vi';
   const slug = resolved?.slug || '';
-  const article = await getArticleData(slug);
+  const article = await prefetchNewsBySlug(slug);
   const relatedArticles = await getRelatedArticles(slug);
   const featuredTours = await getFeaturedTours();
   const t = await getTranslations({ locale, namespace: 'newsDetail' });

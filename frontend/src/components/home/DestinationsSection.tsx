@@ -3,10 +3,9 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import SmartImage from '@/components/ui/SmartImage';
 import { MapPin, ArrowRight, Compass } from 'lucide-react';
-import { useMemo, useCallback, memo, useState } from 'react';
+import { useMemo, memo } from 'react';
 import { useFeaturedDestinations } from '@/hooks/useSettings';
 
 const DESTINATION_PHOTOS: Record<string, string> = {
@@ -34,11 +33,7 @@ interface DestinationCardProps {
 }
 
 const DestinationCard = memo(function DestinationCard({ destName, queryParam, photo, tag, locale, idx }: DestinationCardProps) {
-  const [imgSrc, setImgSrc] = useState(photo);
-
-  const handleError = useCallback(() => {
-    setImgSrc(FALLBACK_DEST_PHOTO);
-  }, []);
+  const imgSrc = photo || FALLBACK_DEST_PHOTO;
 
   return (
     <motion.div

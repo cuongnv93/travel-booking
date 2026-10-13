@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
@@ -29,11 +30,14 @@ export default function Footer() {
   const { data: socialLinks } = useSocialLinks();
   const { data: workingHours } = useWorkingHours();
 
+  const mainBranch = useMemo(
+    () => branches.find((b: any) => b.isMain) || branches[0],
+    [branches]
+  );
+
   if (pathname?.startsWith('/admin') || pathname?.includes('/login') || pathname?.includes('/register')) {
     return null;
   }
-
-  const mainBranch = branches.find((b: any) => b.isMain) || branches[0];
 
   return (
     <footer className="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-slate-800">
