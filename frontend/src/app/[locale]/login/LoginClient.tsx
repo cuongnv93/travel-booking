@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Mail, Lock, User, Phone, AlertCircle, ShieldAlert, Sparkles, Compass } from 'lucide-react';
 import api from '@/lib/api';
+import { getLocalizedError } from '@/lib/errorUtils';
 
 function UserLoginForm() {
   const t = useTranslations('auth');

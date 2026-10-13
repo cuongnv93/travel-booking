@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, useMemo, memo } from 'react';
-import { useTranslations } from 'next-intl';
-import { useRouter, useParams } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/stores/cartStore';
 import { formatPrice, getI18nText } from '@/lib/utils';
@@ -157,7 +157,7 @@ const CartItemCard = memo(function CartItemCard({
 export default function CartClient() {
   const t = useTranslations('cart');
   const router = useRouter();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateItem = useCartStore((state) => state.updateItem);

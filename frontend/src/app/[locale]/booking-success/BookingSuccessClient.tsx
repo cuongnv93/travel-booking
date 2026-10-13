@@ -1,8 +1,8 @@
 'use client';
 
-import { useSearchParams, useParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { CheckCircle2, Clock, MapPin, Calendar, User, Phone, Mail, ArrowRight, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ import { formatPrice, getI18nText, formatLocalizedDate } from '@/lib/utils';
 export default function BookingSuccessClient() {
   const t = useTranslations('success');
   const searchParams = useSearchParams();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const code = searchParams.get('code') || '';
 
   const { data: booking, isLoading, isError } = useQuery({

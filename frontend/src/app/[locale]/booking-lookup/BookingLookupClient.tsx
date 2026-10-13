@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, CheckCircle2, XCircle, Clock, AlertCircle, Ticket, User, Mail, Phone, Calendar, Users, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,7 @@ import { getLocalizedError } from '@/lib/errorUtils';
 export default function BookingLookupClient() {
   const t = useTranslations('lookup');
   const tCommon = useTranslations('common');
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const urlCode = (searchParams.get('code') || '').trim().toUpperCase();
 

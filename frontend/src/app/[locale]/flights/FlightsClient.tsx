@@ -4,9 +4,9 @@ import { useState, useEffect, useMemo, useCallback, memo, Suspense } from 'react
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Plane, Calendar, Users, ShieldCheck, Clock, Headphones, Loader2, X, CheckCircle2, Flame, ChevronRight, Ticket, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { VideoBackground } from '@/components/ui/VideoBackground';
@@ -99,7 +99,7 @@ const FlightCard = memo(function FlightCard({ flight, airlinesList = [], onSelec
 
 function FlightsContent() {
   const router = useRouter();
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
   const t = useTranslations('flights');
   const urlSearchParams = useSearchParams();
 

@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Booking from '../models/Booking';
 import Tour from '../models/Tour';
 import User from '../models/User';
+import Coupon from '../models/Coupon';
 import { generateBookingCode, escapeRegex } from '../utils/helpers';
 import { AuthRequest } from '../middleware/auth';
 import { sendBookingConfirmation } from '../utils/email';
@@ -24,8 +26,20 @@ export const create = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Clean up IDs to guarantee Mongoose never throws CastError
+    const bookingData: any = { ...req.body };
+    if (bookingData.flightId && !mongoose.Types.ObjectId.isValid(bookingData.flightId)) {
+      delete bookingData.flightId;
+    }
+    if (bookingData.tourId && !mongoose.Types.ObjectId.isValid(bookingData.tourId)) {
+      delete bookingData.tourId;
+    }
+    if (bookingData.hotelId && !mongoose.Types.ObjectId.isValid(bookingData.hotelId)) {
+      delete bookingData.hotelId;
+    }
+
     const booking = await Booking.create({
-      ...req.body,
+      ...bookingData,
       status: 'pending',
       paymentStatus: 'pending',
       travelDate,
@@ -33,6 +47,18 @@ export const create = async (req: AuthRequest, res: Response) => {
       userId: resolvedUserId,
     });
     
+    // Track coupon usage atomically if coupon was applied
+    if (booking.couponCode) {
+      try {
+        await Coupon.findOneAndUpdate(
+          { code: String(booking.couponCode).trim().toUpperCase() },
+          { $inc: { currentUses: 1 } }
+        );
+      } catch (couponErr) {
+        console.warn('Coupon usage tracking skipped:', couponErr);
+      }
+    }
+
     // Asynchronously send email without blocking the response
     if (booking.customerInfo?.email) {
       sendBookingConfirmation(booking.customerInfo.email, booking).catch(err => console.error('Failed to send booking email:', err));
@@ -76,6 +102,9 @@ export const getByUser = async (req: AuthRequest, res: Response) => {
 
 export const getById = async (req: AuthRequest, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
     const booking = await Booking.findById(req.params.id)
       .populate('tourId', 'title images slug destination duration')
       .populate('hotelId', 'name images slug location')
@@ -116,6 +145,9 @@ export const lookupByCode = async (req: Request, res: Response) => {
 
 export const updateStatus = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
       { status: req.body.status },
@@ -131,6 +163,9 @@ export const updateStatus = async (req: Request, res: Response) => {
 // User self-cancel (only pending bookings)
 export const cancelBooking = async (req: AuthRequest, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
     const booking = await Booking.findOne({ _id: req.params.id, userId: req.user._id });
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
     if (booking.status !== 'pending') {
@@ -138,6 +173,19 @@ export const cancelBooking = async (req: AuthRequest, res: Response) => {
     }
     booking.status = 'cancelled';
     await booking.save();
+
+    // Rollback coupon usage if applicable
+    if (booking.couponCode) {
+      try {
+        await Coupon.findOneAndUpdate(
+          { code: String(booking.couponCode).trim().toUpperCase(), currentUses: { $gt: 0 } },
+          { $inc: { currentUses: -1 } }
+        );
+      } catch (couponErr) {
+        console.warn('Coupon rollback skipped:', couponErr);
+      }
+    }
+
     res.json(booking);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

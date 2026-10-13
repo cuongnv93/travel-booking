@@ -58,7 +58,7 @@ api.interceptors.response.use(
     const status = error?.response?.status;
     if ((status === 401 || status === 403) && typeof window !== 'undefined') {
       const currentPath = window.location.pathname;
-      if (currentPath.includes('/admin')) {
+      if (currentPath.includes('/admin') && !currentPath.includes('/admin/login')) {
         try {
           localStorage.removeItem('auth-storage');
         } catch {}

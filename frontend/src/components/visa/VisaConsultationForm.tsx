@@ -88,6 +88,7 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
   }, []);
 
   useEffect(() => {
+    if (!isCountryOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (countryRef.current && !countryRef.current.contains(event.target as Node)) {
         setIsCountryOpen(false);
@@ -97,7 +98,7 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isCountryOpen]);
 
   const selectedCountry = useMemo(() => {
     return countryOptions.find((c) => c.key === selectedCountryKey) || countryOptions[0] || { key: 'default', flag: '🌐', name: 'Quốc gia' };

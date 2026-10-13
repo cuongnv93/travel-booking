@@ -8,16 +8,30 @@ export default function NavigationProgress() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (typeof document !== 'undefined' && pathname) {
+      const seg = pathname.split('/')[1];
+      if (['vi', 'en', 'zh', 'ko', 'ja'].includes(seg)) {
+        document.documentElement.lang = seg;
+      }
+    }
+
     setVisible(true);
     setProgress(10);
     const t1 = setTimeout(() => setProgress(40), 80);
     const t2 = setTimeout(() => setProgress(70), 200);
     const t3 = setTimeout(() => setProgress(90), 400);
+    let t5: NodeJS.Timeout | undefined;
     const t4 = setTimeout(() => {
       setProgress(100);
-      setTimeout(() => { setVisible(false); setProgress(0); }, 300);
+      t5 = setTimeout(() => { setVisible(false); setProgress(0); }, 300);
     }, 600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      if (t5) clearTimeout(t5);
+    };
   }, [pathname]);
 
   if (!visible && progress === 0) return null;

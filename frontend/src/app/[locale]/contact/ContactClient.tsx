@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -10,12 +10,12 @@ import { VideoBackground } from '@/components/ui/VideoBackground';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useCompanyBranches, useWorkingHours, usePageBanners, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
-import { useParams } from 'next/navigation';
+import { getLocalizedBranchInfo, getLocalizedHours } from '@/lib/settingsI18n';
 import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
 
 export default function ContactClient() {
   const t = useTranslations('contact');
-  const locale = (useParams()?.locale as string) || 'vi';
+  const locale = useLocale();
 
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -98,8 +98,7 @@ export default function ContactClient() {
 
             <div className="space-y-5">
               {branches.map((b: any, idx: number) => {
-                const bName = typeof b.name === 'object' ? (b.name[locale] || b.name.vi || b.name.en) : b.name;
-                const bAddr = typeof b.address === 'object' ? (b.address[locale] || b.address.vi || b.address.en) : b.address;
+                const { name: bName, address: bAddr } = getLocalizedBranchInfo(b, locale);
 
                 return (
                   <motion.div
@@ -150,15 +149,11 @@ export default function ContactClient() {
                   <span>{t('hoursTitle')}</span>
                 </div>
                 <div className="text-xs text-slate-600 space-y-1">
-                  <div>{(workingHours.weekdays as any)?.[locale] || workingHours.weekdays?.vi}</div>
-                  {workingHours.weekend && (
-                    <div>{(workingHours.weekend as any)?.[locale] || workingHours.weekend?.vi}</div>
-                  )}
-                  {workingHours.hotlineNote && (
-                    <div className="text-[11px] text-blue-600 font-medium pt-1">
-                      {(workingHours.hotlineNote as any)?.[locale] || workingHours.hotlineNote?.vi}
-                    </div>
-                  )}
+                  <div>{getLocalizedHours(workingHours, 'weekdays', locale)}</div>
+                  <div>{getLocalizedHours(workingHours, 'weekend', locale)}</div>
+                  <div className="text-[11px] text-blue-600 font-medium pt-1">
+                    {getLocalizedHours(workingHours, 'hotlineNote', locale)}
+                  </div>
                 </div>
               </div>
             )}

@@ -43,6 +43,7 @@ function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome:
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -50,7 +51,7 @@ function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome:
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   const switchLanguage = useCallback((newLocale: string) => {
     if (newLocale === locale) {

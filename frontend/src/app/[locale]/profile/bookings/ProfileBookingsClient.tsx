@@ -9,8 +9,8 @@ import {
 import { formatPrice, getI18nText, formatLocalizedDate } from '@/lib/utils';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/authStore';
 import { getLocalizedError } from '@/lib/errorUtils';
 
@@ -25,7 +25,7 @@ const fetchUserBookings = async () => {
 
 export default function ProfileBookingsClient() {
   const router = useRouter();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const t = useTranslations('userBookings');
   const tBooking = useTranslations('booking');

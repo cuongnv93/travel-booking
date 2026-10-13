@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Star, MapPin, Search, Building2, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
@@ -10,7 +10,7 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import SmartImage from '@/components/ui/SmartImage';
 import { VideoBackground } from '@/components/ui/VideoBackground';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useHotelLocations } from '@/hooks/useHotelLocations';
 
 const fetchHotels = async (params: Record<string, string>) => {
@@ -120,7 +120,7 @@ function HotelsClientComponent({
   hotelsBanner,
   hotelsVideo = 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/glide-over-coastal-beach.mp4',
 }: Props) {
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const t = useTranslations('filters');
   const tCommon = useTranslations('common');

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
@@ -73,7 +73,7 @@ const DEFAULT_SLIDES = [
 import { useHeroBanners } from '@/hooks/useSettings';
 
 function HeroBannerComponent() {
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const { data: slides } = useHeroBanners();

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import TourCard from '@/components/tours/TourCard';
 import { Filter, SlidersHorizontal, MapPin, Sparkles, X } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
@@ -31,7 +31,7 @@ interface Props {
 }
 
 export default function ToursClient({ initialTours, toursBanner, toursVideo = 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/mountains.mp4' }: Props) {
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const t = useTranslations('filters');
 

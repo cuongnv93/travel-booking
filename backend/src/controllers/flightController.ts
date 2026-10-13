@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import Flight from '../models/Flight';
 
+import mongoose from 'mongoose';
+
 const AIRLINES_CONFIG = [
   { name: 'Vietravel Airlines', logo: 'VU', prefix: 'VU', basePrice: 890000 },
   { name: 'Vietnam Airlines', logo: 'VN', prefix: 'VN', basePrice: 1450000 },
@@ -20,7 +22,7 @@ export const getAll = async (req: Request, res: Response) => {
 
     let flights = await Flight.find(filter).sort({ price: 1 }).lean();
 
-    // If no exact match in DB, generate realistic dynamic flights (including Vietravel Airlines)
+    // If no exact match in DB, generate realistic flights and persist them to DB
     if (!flights || flights.length === 0) {
       const generated: any[] = [];
       const times = [
@@ -34,11 +36,10 @@ export const getAll = async (req: Request, res: Response) => {
 
       AIRLINES_CONFIG.forEach((airline, index) => {
         const timeObj = times[index % times.length];
-        const flightNum = `${airline.prefix}-${100 + Math.floor(Math.random() * 800)}`;
+        const flightNum = `${airline.prefix}-${100 + index * 15}`;
         const priceVar = (index % 3) * 150000;
 
         generated.push({
-          _id: `dynamic-${fromCode}-${toCode}-${index}`,
           airline: airline.name,
           logo: airline.logo,
           flightNumber: flightNum,
@@ -53,7 +54,13 @@ export const getAll = async (req: Request, res: Response) => {
         });
       });
 
-      flights = generated;
+      try {
+        await Flight.insertMany(generated, { ordered: false });
+      } catch {
+        // Ignore duplicate key errors if already seeded
+      }
+
+      flights = await Flight.find(filter).sort({ price: 1 }).lean();
     }
 
     res.json(flights);
@@ -64,6 +71,9 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const getById = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Flight not found' });
+    }
     const flight = await Flight.findById(req.params.id);
     if (!flight) return res.status(404).json({ message: 'Flight not found' });
     res.json(flight);
@@ -83,6 +93,9 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Flight not found' });
+    }
     const flight = await Flight.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!flight) return res.status(404).json({ message: 'Flight not found' });
     res.json(flight);
@@ -93,6 +106,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const remove = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Flight not found' });
+    }
     const flight = await Flight.findByIdAndDelete(req.params.id);
     if (!flight) return res.status(404).json({ message: 'Flight not found' });
     res.json({ message: 'Flight deleted' });

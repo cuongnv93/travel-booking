@@ -6,15 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Shield, Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getLocalizedError } from '@/lib/errorUtils';
 
 export default function ProfileClient() {
   const router = useRouter();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const t = useTranslations('profile');
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, memo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
@@ -116,7 +116,8 @@ const HotelRoomCard = memo(function HotelRoomCard({
 
 export default function HotelDetailClient() {
   const t = useTranslations('hotelDetail');
-  const { locale, slug } = useParams() as { locale: string; slug: string };
+  const locale = useLocale();
+  const { slug } = useParams() as { slug: string };
   const router = useRouter();
   const [activeImg, setActiveImg] = useState(0);
   
