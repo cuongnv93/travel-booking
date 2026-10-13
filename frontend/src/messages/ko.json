@@ -707,7 +707,12 @@
     "filterRegionTag": "지역별:",
     "noMatchTitle": "조건에 맞는 음식이 없습니다",
     "noMatchSub": "검색어나 지역 필터를 변경해 보세요.",
-    "refPrice": "참고 가격"
+    "refPrice": "참고 가격",
+    "featuredToursBadge": "추천 여행 체험",
+    "featuredToursTitle": "미식 탐방 & 인기 추천 여행 패키지",
+    "locationToursTitle": "{location} 인기 추천 투어",
+    "featuredToursSubtitle": "각 지역의 대표 특산물과 문화를 직접 체험할 수 있는 베스트 투어 상품을 만나보세요.",
+    "viewAllTours": "모든 투어 보기"
   },
   "tourDetail": {
     "duration": "여행 기간",

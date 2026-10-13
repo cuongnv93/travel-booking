@@ -707,7 +707,12 @@
     "filterRegionTag": "按地区:",
     "noMatchTitle": "未找到符合条件的佳肴",
     "noMatchSub": "请尝试更改搜索关键词或地区筛选。",
-    "refPrice": "参考价格"
+    "refPrice": "参考价格",
+    "featuredToursBadge": "深度探索体验",
+    "featuredToursTitle": "精选美食与文化深度旅游线路",
+    "locationToursTitle": "{location} 精选旅游线路",
+    "featuredToursSubtitle": "精选高分旅游线路，带您亲临原产地感受地道美食与风土人情。",
+    "viewAllTours": "查看全部线路"
   },
   "tourDetail": {
     "duration": "行程天数",

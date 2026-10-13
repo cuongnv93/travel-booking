@@ -707,7 +707,12 @@
     "filterRegionTag": "Regions:",
     "noMatchTitle": "No matching dishes found",
     "noMatchSub": "Try changing your search query or location/region filter.",
-    "refPrice": "Price from"
+    "refPrice": "Price from",
+    "featuredToursBadge": "Top Travel Experiences",
+    "featuredToursTitle": "Featured Tours & Culinary Experiences",
+    "locationToursTitle": "Featured Tours in {location}",
+    "featuredToursSubtitle": "Explore hand-picked travel journeys bringing you directly to authentic regional dishes and culture.",
+    "viewAllTours": "View all tours"
   },
   "tourDetail": {
     "duration": "Duration",

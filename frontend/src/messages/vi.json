@@ -707,7 +707,12 @@
     "filterRegionTag": "Vùng miền:",
     "noMatchTitle": "Không tìm thấy món ăn phù hợp",
     "noMatchSub": "Hãy thử thay đổi từ khóa hoặc bộ lọc địa điểm / vùng miền.",
-    "refPrice": "Giá tham khảo từ"
+    "refPrice": "Giá tham khảo từ",
+    "featuredToursBadge": "Trải Nghiệm Khám Phá",
+    "featuredToursTitle": "Tour Du Lịch Nổi Bật Kết Hợp Ẩm Thực",
+    "locationToursTitle": "Tour Du Lịch Nổi Bật Tại {location}",
+    "featuredToursSubtitle": "Gợi ý các hành trình du lịch hấp dẫn đưa bạn đến tận nơi thưởng thức trọn vẹn đặc sản và văn hóa vùng miền.",
+    "viewAllTours": "Xem tất cả tour"
   },
   "tourDetail": {
     "duration": "Thời gian",

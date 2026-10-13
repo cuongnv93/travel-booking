@@ -3,18 +3,23 @@
 import { useState, useMemo, useCallback, memo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Utensils, MapPin, Search, X, Filter, Navigation } from 'lucide-react';
+import Link from 'next/link';
+import { Utensils, MapPin, Search, X, Filter, Navigation, Compass, ArrowRight } from 'lucide-react';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { VIETNAM_PROVINCES } from '@/lib/provinces';
 import { useVietnamProvinces } from '@/hooks/useVietnamProvinces';
 import SmartImage from '@/components/ui/SmartImage';
 import { VideoBackground } from '@/components/ui/VideoBackground';
+import TourCard from '@/components/tours/TourCard';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 interface Props {
   initialSpecialties: any[];
   initialProvinces: string[];
   specialtiesBanner: string;
   specialtiesVideo?: string;
+  initialTours?: any[];
 }
 
 const FALLBACK_SPECIALTY_IMG = 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800';
@@ -30,11 +35,7 @@ const SpecialtyCard = memo(function SpecialtyCard({
 }) {
   const name = getI18nText(item.name, locale);
   const description = getI18nText(item.description, locale);
-  const [image, setImage] = useState(item.image || FALLBACK_SPECIALTY_IMG);
-
-  const handleImgError = useCallback(() => {
-    setImage(FALLBACK_SPECIALTY_IMG);
-  }, []);
+  const image = item.image || FALLBACK_SPECIALTY_IMG;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
@@ -85,6 +86,7 @@ function SpecialtiesClientComponent({
   initialProvinces,
   specialtiesBanner,
   specialtiesVideo = 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/walking.mp4',
+  initialTours = [],
 }: Props) {
   const locale = useLocale();
   const t = useTranslations('specialtiesPage');
@@ -94,6 +96,35 @@ function SpecialtiesClientComponent({
   const [selectedLocation, setSelectedLocation] = useState('');
 
   const { data: provinces = VIETNAM_PROVINCES } = useVietnamProvinces(initialProvinces);
+
+  const { data: tours = initialTours } = useQuery({
+    queryKey: ['specialties-featured-tours'],
+    queryFn: async () => {
+      try {
+        const res: any = await api.get('/tours?limit=12');
+        return res?.data || (Array.isArray(res) ? res : []);
+      } catch {
+        return initialTours;
+      }
+    },
+    staleTime: 60000,
+    placeholderData: initialTours,
+  });
+
+  const locationTours = useMemo(() => {
+    if (!selectedLocation || !Array.isArray(tours) || tours.length === 0) return [];
+    const cleanFilter = selectedLocation.toLowerCase().replace(/^(tp\.|thành phố|tỉnh)\s*/gi, '').trim();
+    return tours.filter((tour: any) => {
+      const dest = (tour.destination || tour.location || '').toLowerCase();
+      const title = (typeof tour.title === 'string' ? tour.title : (tour.title?.[locale] || tour.title?.vi || '')).toLowerCase();
+      return dest.includes(cleanFilter) || title.includes(cleanFilter);
+    });
+  }, [tours, selectedLocation, locale]);
+
+  const displayTours = useMemo(() => {
+    if (locationTours.length > 0) return locationTours.slice(0, 6);
+    return Array.isArray(tours) ? tours.slice(0, 6) : [];
+  }, [locationTours, tours]);
 
   const regions = useMemo(() => [
     { key: '', label: t('allRegions') },
@@ -272,6 +303,45 @@ function SpecialtiesClientComponent({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Featured Travel Tours Section */}
+      {displayTours.length > 0 && (
+        <section className="mt-16 md:mt-24 pt-10 border-t border-slate-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+            <div>
+              <div className="text-xs font-extrabold text-blue-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <Compass className="w-4 h-4 text-blue-600" />
+                <span>{t('featuredToursBadge', { fallback: 'Trải Nghiệm Khám Phá' })}</span>
+              </div>
+              <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                {locationTours.length > 0
+                  ? t('locationToursTitle', { location: selectedLocation, fallback: `Tour Du Lịch Nổi Bật Tại ${selectedLocation}` })
+                  : t('featuredToursTitle', { fallback: 'Tour Du Lịch Nổi Bật Kết Hợp Ẩm Thực' })}
+              </h2>
+              <p className="text-slate-500 text-sm mt-1 max-w-xl font-normal leading-relaxed">
+                {t('featuredToursSubtitle', { fallback: 'Gợi ý các hành trình du lịch hấp dẫn đưa bạn đến tận nơi thưởng thức trọn vẹn đặc sản và văn hóa vùng miền.' })}
+              </p>
+            </div>
+            <Link
+              href={selectedLocation ? `/${locale}/tours?destination=${encodeURIComponent(selectedLocation.replace(/^(tp\.|thành phố|tỉnh)\s*/gi, '').trim())}` : `/${locale}/tours`}
+              className="inline-flex items-center gap-1.5 text-blue-600 font-bold hover:text-blue-700 transition-colors text-sm group shrink-0"
+            >
+              <span>{t('viewAllTours', { fallback: 'Xem tất cả tour' })}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {displayTours.map((tour: any) => (
+              <TourCard
+                key={tour._id || tour.id || tour.slug}
+                tour={tour}
+                locale={locale}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

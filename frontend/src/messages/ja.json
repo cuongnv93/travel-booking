@@ -707,7 +707,12 @@
     "filterRegionTag": "地域:",
     "noMatchTitle": "該当する料理が見つかりません",
     "noMatchSub": "検索キーワードや地域フィルターを変更してください。",
-    "refPrice": "参考価格"
+    "refPrice": "参考価格",
+    "featuredToursBadge": "おすすめ体験ツアー",
+    "featuredToursTitle": "ご当地グルメを味わうおすすめ人気ツアー",
+    "locationToursTitle": "{location}のおすすめ人気ツアー",
+    "featuredToursSubtitle": "各地の本場の味と名所を存分に満喫できる厳選ツアーをご案内します。",
+    "viewAllTours": "すべてのツアーを見る"
   },
   "tourDetail": {
     "duration": "所要日数",
