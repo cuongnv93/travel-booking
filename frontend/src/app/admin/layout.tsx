@@ -1,7 +1,7 @@
 'use client';
 
 import '../globals.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -27,6 +27,7 @@ import {
   FileText,
   Tag,
   PhoneCall,
+  Loader2,
 } from 'lucide-react';
 import { Providers } from '../[locale]/providers';
 
@@ -65,8 +66,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
   useEffect(() => {
-    if (pathname === '/admin/login') return;
+    if (pathname === '/admin/login') {
+      setIsAuthorized(true);
+      return;
+    }
 
     try {
       const authData = localStorage.getItem('auth-storage');
@@ -75,9 +81,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const savedUser = parsed?.state?.user;
 
       if (!token || !savedUser || savedUser.role !== 'admin') {
+        setIsAuthorized(false);
         window.location.href = '/admin/login?expired=true';
+        return;
       }
+      setIsAuthorized(true);
     } catch {
+      setIsAuthorized(false);
       window.location.href = '/admin/login?expired=true';
     }
   }, [pathname]);
@@ -89,6 +99,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-900 text-slate-300">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+          <p className="text-xs font-medium text-slate-400">Đang xác thực quyền quản trị...</p>
+        </div>
+      </div>
+    );
   }
 
   const allItems = NAV_GROUPS.flatMap(g => g.items);

@@ -301,7 +301,8 @@
     "checkInDate": "Check-in Date:",
     "hotTour": "Hot Tour",
     "hotelType": "Hotel",
-    "flightType": "Flight Ticket"
+    "flightType": "Flight Ticket",
+    "close": "Close"
   },
   "footer": {
     "about": "Travel Booking",
@@ -764,6 +765,7 @@
     "cancelConfirm": "Are you sure you want to cancel this booking?",
     "cancelError": "Error cancelling booking",
     "orderCode": "Order Code",
+    "totalAmount": "Total Amount",
     "viewDetail": "Details",
     "cancelOrder": "Cancel Booking",
     "defaultHotel": "Hotel & Resort",

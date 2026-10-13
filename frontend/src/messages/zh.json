@@ -301,7 +301,8 @@
     "checkInDate": "入住日期：",
     "hotTour": "热门行程",
     "hotelType": "酒店",
-    "flightType": "机票"
+    "flightType": "机票",
+    "close": "关闭"
   },
   "footer": {
     "about": "Travel Booking",
@@ -764,6 +765,7 @@
     "cancelConfirm": "您确定要取消此订单吗？",
     "cancelError": "取消订单失败",
     "orderCode": "订单编号",
+    "totalAmount": "订单总额",
     "viewDetail": "查看详情",
     "cancelOrder": "取消订单",
     "defaultHotel": "酒店与度假村",

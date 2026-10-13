@@ -301,7 +301,8 @@
     "checkInDate": "체크인 일자:",
     "hotTour": "인기 투어",
     "hotelType": "호텔",
-    "flightType": "항공권"
+    "flightType": "항공권",
+    "close": "닫기"
   },
   "footer": {
     "about": "Travel Booking",
@@ -764,6 +765,7 @@
     "cancelConfirm": "이 예약을 정말로 취소하시겠습니까?",
     "cancelError": "예약 취소 오류",
     "orderCode": "주문 번호",
+    "totalAmount": "총 결제금액",
     "viewDetail": "상세 보기",
     "cancelOrder": "예약 취소",
     "defaultHotel": "호텔 & 리조트",

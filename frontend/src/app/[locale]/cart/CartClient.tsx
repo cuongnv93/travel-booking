@@ -223,7 +223,7 @@ export default function CartClient() {
       newChildren = Math.max(0, currentChildren + delta);
     }
 
-    const pricePerAdult = item.itemData.price || 1000000;
+    const pricePerAdult = item.itemData.price || item.itemData.pricePerNight || 1000000;
     const pricePerChild = Math.round(pricePerAdult * 0.75);
     const newTotalPrice = (newAdults * pricePerAdult) + (newChildren * pricePerChild);
 

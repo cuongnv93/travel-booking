@@ -301,7 +301,8 @@
     "checkInDate": "Ngày check-in:",
     "hotTour": "Tour Hot",
     "hotelType": "Khách Sạn",
-    "flightType": "Vé Máy Bay"
+    "flightType": "Vé Máy Bay",
+    "close": "Đóng"
   },
   "footer": {
     "about": "Travel Booking",
@@ -764,6 +765,7 @@
     "cancelConfirm": "Bạn có chắc chắn muốn hủy đơn đặt này?",
     "cancelError": "Lỗi hủy đơn",
     "orderCode": "Mã đơn",
+    "totalAmount": "Tổng tiền",
     "viewDetail": "Chi tiết",
     "cancelOrder": "Hủy đơn",
     "defaultHotel": "Khách Sạn & Resort",

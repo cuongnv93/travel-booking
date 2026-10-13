@@ -301,7 +301,8 @@
     "checkInDate": "チェックイン日:",
     "hotTour": "人気ツアー",
     "hotelType": "ホテル",
-    "flightType": "航空券"
+    "flightType": "航空券",
+    "close": "閉じる"
   },
   "footer": {
     "about": "Travel Booking",
@@ -764,6 +765,7 @@
     "cancelConfirm": "この予約をキャンセルしてもよろしいですか？",
     "cancelError": "キャンセル処理に失敗しました",
     "orderCode": "予約番号",
+    "totalAmount": "合計金額",
     "viewDetail": "詳細",
     "cancelOrder": "予約をキャンセル",
     "defaultHotel": "ホテル・リゾート",
