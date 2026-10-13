@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/stores/cartStore';
+import { useAuthStore } from '@/stores/authStore';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { 
   ShoppingBag, Trash2, Calendar, Users, MapPin, ShieldCheck, 
@@ -164,6 +165,8 @@ export default function CartClient() {
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const clearCart = useCartStore((state) => state.clearCart);
 
+  const currentUser = useAuthStore((state) => state.user);
+
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '', notes: '' });
   const [paymentMethod, setPaymentMethod] = useState<'vietqr' | 'office'>('office');
   const [couponCode, setCouponCode] = useState('');
@@ -172,6 +175,19 @@ export default function CartClient() {
   const [couponError, setCouponError] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-fill customer info if user is authenticated
+  useEffect(() => {
+    if (currentUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || currentUser.name || '',
+        email: prev.email || currentUser.email || '',
+        phone: prev.phone || (currentUser as any).phone || '',
+        address: prev.address || (currentUser as any).address || '',
+      }));
+    }
+  }, [currentUser]);
 
   // Handle Coupon Code
   const handleApplyCoupon = useCallback(async () => {

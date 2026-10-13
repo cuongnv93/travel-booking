@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import News from '../models/News';
 import { paginate } from '../utils/helpers';
 
@@ -90,6 +91,9 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'News not found' });
+    }
     const data = { ...req.body };
     if (!data.slug && data.title) {
       const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tin-tuc');
@@ -112,6 +116,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const deleteNews = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'News not found' });
+    }
     const news = await News.findByIdAndDelete(req.params.id);
     if (!news) return res.status(404).json({ message: 'News not found' });
     res.json({ message: 'News removed' });

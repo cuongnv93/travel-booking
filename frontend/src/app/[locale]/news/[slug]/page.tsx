@@ -90,10 +90,13 @@ export async function generateMetadata({
 }
 
 export default async function NewsDetailPage({
-  params: { locale, slug }
+  params
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }> | { locale: string; slug: string };
 }) {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const slug = resolved?.slug || '';
   const article = await getArticleData(slug);
   const relatedArticles = await getRelatedArticles(slug);
   const featuredTours = await getFeaturedTours();

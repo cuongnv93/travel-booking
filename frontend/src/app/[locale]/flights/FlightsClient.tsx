@@ -14,6 +14,7 @@ import { formatPrice } from '@/lib/utils';
 import TourCard from '@/components/tours/TourCard';
 import { useAirportsCatalog, useAirlinesCatalog, usePageBanners, DEFAULT_AIRPORTS, DEFAULT_AIRLINES, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { useAuthStore } from '@/stores/authStore';
 
 const AIRPORTS = DEFAULT_AIRPORTS;
 
@@ -131,12 +132,22 @@ function FlightsContent() {
   }, [urlSearchParams, airportsList]);
 
   // Booking Modal State
+  const currentUser = useAuthStore((state) => state.user);
   const [selectedFlight, setSelectedFlight] = useState<any>(null);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState('');
+
+  // Auto-fill customer info when logged in
+  useEffect(() => {
+    if (currentUser) {
+      setCustomerName((prev) => prev || currentUser.name || '');
+      setCustomerEmail((prev) => prev || currentUser.email || '');
+      setCustomerPhone((prev) => prev || (currentUser as any).phone || '');
+    }
+  }, [currentUser]);
 
   const { data: flights = [], isLoading, refetch } = useQuery({
     queryKey: ['public-flights', searchParams],

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import User from '../models/User';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -91,6 +92,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const updateUserRole = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     const { role } = req.body;
     if (!['user', 'admin'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role' });
@@ -110,6 +114,9 @@ export const updateUserRole = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     const currentUserId = (req as any).user?._id?.toString();
     if (currentUserId && currentUserId === req.params.id) {
       return res.status(400).json({ message: 'Không thể tự xóa tài khoản quản trị của chính mình' });

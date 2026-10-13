@@ -60,6 +60,8 @@ export default function BookingSuccessClient() {
                   <p className="font-bold text-slate-900 text-sm">
                     {booking.type === 'hotel'
                       ? getI18nText(booking.hotelId?.name, locale) || t('hotel')
+                      : booking.type === 'flight'
+                      ? `${booking.flightId?.airline || 'Vé máy bay'} ${booking.flightId?.flightNumber ? `(${booking.flightId.flightNumber})` : ''} ${booking.flightId?.from ? `• ${booking.flightId.from} → ${booking.flightId.to}` : ''}`.trim()
                       : getI18nText(booking.tourId?.title, locale) || t('tour')}
                   </p>
                 </div>
@@ -74,6 +76,8 @@ export default function BookingSuccessClient() {
                   <span className="font-semibold text-slate-800">
                     {booking.type === 'hotel'
                       ? `${formatLocalizedDate(booking.checkIn, locale)} → ${formatLocalizedDate(booking.checkOut, locale)}`
+                      : booking.type === 'flight'
+                      ? `${formatLocalizedDate(booking.travelDate, locale)}${booking.flightId?.departureTime ? ` (${booking.flightId.departureTime})` : ''}`
                       : formatLocalizedDate(booking.travelDate, locale)}
                   </span>
                 </div>
@@ -82,6 +86,8 @@ export default function BookingSuccessClient() {
                   <span className="font-semibold text-slate-800">
                     {booking.type === 'hotel'
                       ? `${booking.rooms || 1} ${t('rooms')} (${booking.guests?.adults || 1} ${t('guests')})`
+                      : booking.type === 'flight'
+                      ? `${booking.guests?.adults || 1} ${t('adults')}${booking.guests?.children > 0 ? `, ${booking.guests.children} ${t('children')}` : ''}`
                       : `${booking.guests?.adults || 1} ${t('adults')}, ${booking.guests?.children || 0} ${t('children')}`}
                   </span>
                 </div>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { useTranslations } from 'next-intl';
-import { useRouter, useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { useCartStore } from '@/stores/cartStore';
@@ -35,7 +35,7 @@ interface TourBookingFormProps {
 function TourBookingFormComponent({ tour, selectedDateFromParent }: TourBookingFormProps) {
   const t = useTranslations('tourBooking');
   const router = useRouter();
-  const locale = useParams().locale as string;
+  const locale = useLocale();
   const addItem = useCartStore((state) => state.addItem);
 
   const [date, setDate] = useState(selectedDateFromParent || '');

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Specialty from '../models/Specialty';
 
 export const getAll = async (req: Request, res: Response) => {
@@ -47,6 +48,9 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Specialty not found' });
+    }
     const data = { ...req.body };
     if (!data.slug && data.name) {
       const nameStr = typeof data.name === 'string' ? data.name : (data.name?.vi || data.name?.en || Object.values(data.name || {})[0] || 'dac-san');
@@ -62,6 +66,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const deleteSpecialty = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Specialty not found' });
+    }
     const specialty = await Specialty.findByIdAndDelete(req.params.id);
     if (!specialty) return res.status(404).json({ message: 'Specialty not found' });
     res.json({ message: 'Specialty removed' });

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Tour from '../models/Tour';
 import { paginate, escapeRegex } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
@@ -169,6 +170,9 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Tour not found' });
+    }
     const data = { ...req.body };
     if (!data.slug && data.title) {
       const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
@@ -185,6 +189,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const deleteTour = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Tour not found' });
+    }
     const tour = await Tour.findByIdAndDelete(req.params.id);
     if (!tour) return res.status(404).json({ message: 'Tour not found' });
     cacheService.flush();
@@ -196,6 +203,9 @@ export const deleteTour = async (req: Request, res: Response) => {
 
 export const toggleFeatured = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Tour not found' });
+    }
     const tour = await Tour.findById(req.params.id);
     if (!tour) return res.status(404).json({ message: 'Tour not found' });
     tour.isFeatured = !tour.isFeatured;

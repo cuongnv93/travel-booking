@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Coupon from '../models/Coupon';
 
 export const create = async (req: Request, res: Response) => {
@@ -24,6 +25,9 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Không tìm thấy mã giảm giá' });
+    }
     const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!coupon) return res.status(404).json({ message: 'Không tìm thấy mã giảm giá' });
     res.json(coupon);
@@ -34,6 +38,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const remove = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Không tìm thấy mã giảm giá' });
+    }
     const coupon = await Coupon.findByIdAndDelete(req.params.id);
     if (!coupon) return res.status(404).json({ message: 'Không tìm thấy mã giảm giá' });
     res.json({ message: 'Đã xóa mã giảm giá' });

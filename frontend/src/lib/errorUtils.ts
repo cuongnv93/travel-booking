@@ -84,6 +84,48 @@ export const ERROR_TRANSLATIONS: Record<string, Record<string, string>> = {
     ko: '할인 코드가 존재하지 않거나 잘못되었습니다.',
     ja: 'クーポンコードが存在しないか、間違っています。',
   },
+  'Mã giảm giá không hợp lệ': {
+    vi: 'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
+    en: 'Invalid or inapplicable promo code.',
+    zh: '无效的优惠代码。',
+    ko: '유효하지 않은 할인 코드입니다.',
+    ja: '無効なクーポンコードです。',
+  },
+  'Vui lòng nhập mã giảm giá': {
+    vi: 'Vui lòng nhập mã giảm giá trước khi áp dụng.',
+    en: 'Please enter a coupon code.',
+    zh: '请输入优惠券代码。',
+    ko: '할인 코드를 입력해주세요.',
+    ja: 'クーポンコードを入力してください。',
+  },
+  'Mã giảm giá đã tồn tại': {
+    vi: 'Mã giảm giá này đã tồn tại trong hệ thống.',
+    en: 'This promo code already exists.',
+    zh: '该优惠券代码已存在。',
+    ko: '이미 존재하는 할인 코드입니다.',
+    ja: 'このクーポンコードは既に存在します。',
+  },
+  'Số hiệu chuyến bay đã tồn tại': {
+    vi: 'Số hiệu chuyến bay này đã tồn tại.',
+    en: 'Flight number already exists.',
+    zh: '航班号已存在。',
+    ko: '이미 존재하는 항공편 번호입니다.',
+    ja: 'この便名は既に存在します。',
+  },
+  'Không thể tự hạ quyền quản trị viên của chính mình': {
+    vi: 'Không thể tự hạ quyền quản trị viên của chính mình.',
+    en: 'You cannot demote your own admin account.',
+    zh: '无法降级您自己的管理员账户。',
+    ko: '자신의 관리자 권한을 강등할 수 없습니다.',
+    ja: '自分自身の管理者権限を降格することはできません。',
+  },
+  'Không thể tự xóa tài khoản quản trị của chính mình': {
+    vi: 'Không thể tự xóa tài khoản quản trị của chính mình.',
+    en: 'You cannot delete your own admin account.',
+    zh: '无法删除您自己的管理员账户。',
+    ko: '자신의 관리자 계정을 삭제할 수 없습니다.',
+    ja: '自分自身の管理者アカウントを削除することはできません。',
+  },
 
   // General & Network Errors
   'Network Error': {

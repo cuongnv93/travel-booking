@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Consultation from '../models/Consultation';
 import { escapeRegex } from '../utils/helpers';
 
@@ -83,6 +84,9 @@ export const getAll = async (req: Request, res: Response) => {
 export const updateStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ message: 'Không tìm thấy yêu cầu tư vấn' });
+    }
     const { status, notes } = req.body;
 
     const allowedStatuses = ['pending', 'contacted', 'completed', 'cancelled'];
@@ -109,6 +113,9 @@ export const updateStatus = async (req: Request, res: Response) => {
 export const remove = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ message: 'Không tìm thấy yêu cầu tư vấn' });
+    }
     const deleted = await Consultation.findByIdAndDelete(id);
 
     if (!deleted) {

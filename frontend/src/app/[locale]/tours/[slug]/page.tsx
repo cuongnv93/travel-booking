@@ -69,10 +69,13 @@ export async function generateMetadata({
 }
 
 export default async function TourDetailPage({
-  params: { locale, slug }
+  params
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }> | { locale: string; slug: string };
 }) {
+  const resolved = await Promise.resolve(params);
+  const locale = resolved?.locale || 'vi';
+  const slug = resolved?.slug || '';
   const tour = await getTourData(slug);
 
   if (!tour) {

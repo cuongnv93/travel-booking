@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import Link from 'next/link';
 import SmartImage from '@/components/ui/SmartImage';
 import { useHotelAmenitiesMaster } from '@/hooks/useSettings';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { useAuthStore } from '@/stores/authStore';
 
 const AMENITY_ICONS: Record<string, string> = {
   'WiFi miễn phí': '📶', 'Hồ bơi': '🏊', 'Buffet sáng': '🍳', 'Spa & Massage': '💆',
@@ -122,6 +123,7 @@ export default function HotelDetailClient() {
   const [activeImg, setActiveImg] = useState(0);
   
   // Booking State
+  const currentUser = useAuthStore((state) => state.user);
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '',
@@ -129,8 +131,21 @@ export default function HotelDetailClient() {
     roomsCount: 1, adults: 2, children: 0,
     notes: '',
   });
+  const [bookedCode, setBookedCode] = useState('');
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-fill customer info if user is authenticated
+  useEffect(() => {
+    if (currentUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || currentUser.name || '',
+        email: prev.email || currentUser.email || '',
+        phone: prev.phone || (currentUser as any).phone || '',
+      }));
+    }
+  }, [currentUser]);
 
   const { data: hotel, isLoading, isError } = useQuery({
     queryKey: ['hotel', slug],
@@ -180,7 +195,9 @@ export default function HotelDetailClient() {
         },
       });
     },
-    onSuccess: () => { 
+    onSuccess: (res: any) => { 
+      const code = res?.bookingCode || res?.data?.bookingCode || '';
+      setBookedCode(code);
       setSuccess(true); 
       setError('');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -312,7 +329,21 @@ export default function HotelDetailClient() {
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </motion.div>
             <h2 className="text-3xl font-bold text-slate-900 mb-3">{t('bookingSuccessTitle')}</h2>
-            <p className="text-slate-600 mb-8 text-lg">{t('bookingSuccessDesc')}</p>
+            <p className="text-slate-600 mb-6 text-lg">{t('bookingSuccessDesc')}</p>
+
+            {bookedCode && (
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 my-6 max-w-sm mx-auto">
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Mã đặt phòng</p>
+                <p className="text-2xl font-mono font-extrabold text-blue-600 tracking-wider">{bookedCode}</p>
+                <Link
+                  href={`/${locale}/booking-lookup?code=${bookedCode}`}
+                  className="inline-block mt-2 text-xs font-bold text-blue-600 hover:underline"
+                >
+                  Tra cứu đơn đặt phòng ngay &rarr;
+                </Link>
+              </div>
+            )}
+
             <div className="flex gap-4 justify-center">
               <button onClick={() => { setSuccess(false); setSelectedRoom(null); }} className="px-6 py-2.5 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 cursor-pointer">{t('bookAnotherRoom')}</button>
               <Link href={`/${locale}`} className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700">{t('backToHome')}</Link>

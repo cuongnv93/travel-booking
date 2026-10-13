@@ -215,6 +215,8 @@ export const getStats = async (_req: Request, res: Response) => {
       User.countDocuments(),
       Booking.find()
         .populate('tourId', 'title images slug')
+        .populate('hotelId', 'name images slug')
+        .populate('flightId', 'airline flightNumber from to')
         .populate('userId', 'name email')
         .sort({ createdAt: -1 })
         .limit(5)

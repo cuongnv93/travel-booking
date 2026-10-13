@@ -36,7 +36,7 @@ export const getAll = async (req: Request, res: Response) => {
 
       AIRLINES_CONFIG.forEach((airline, index) => {
         const timeObj = times[index % times.length];
-        const flightNum = `${airline.prefix}-${100 + index * 15}`;
+        const flightNum = `${airline.prefix}-${fromCode}${toCode}-${100 + index * 15}`;
         const priceVar = (index % 3) * 150000;
 
         generated.push({
@@ -87,6 +87,9 @@ export const create = async (req: Request, res: Response) => {
     const flight = await Flight.create(req.body);
     res.status(201).json(flight);
   } catch (error: any) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Số hiệu chuyến bay đã tồn tại' });
+    }
     res.status(500).json({ message: error.message });
   }
 };

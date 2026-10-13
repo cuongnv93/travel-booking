@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Hotel from '../models/Hotel';
 import { escapeRegex } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
@@ -89,6 +90,9 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
     cacheService.del('hotel_locations');
     cacheService.del('flash_sale_items');
     const data = { ...req.body };
@@ -106,6 +110,9 @@ export const update = async (req: Request, res: Response) => {
 
 export const deleteHotel = async (req: Request, res: Response) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
     cacheService.del('hotel_locations');
     cacheService.del('flash_sale_items');
     const hotel = await Hotel.findByIdAndDelete(req.params.id);

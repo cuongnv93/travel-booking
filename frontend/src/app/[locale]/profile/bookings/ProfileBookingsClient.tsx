@@ -30,6 +30,8 @@ export default function ProfileBookingsClient() {
   const t = useTranslations('userBookings');
   const tBooking = useTranslations('booking');
   const tCommon = useTranslations('common');
+  const tLookup = useTranslations('lookup');
+  const tAuth = useTranslations('auth');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -245,12 +247,15 @@ export default function ProfileBookingsClient() {
                 </p>
                 <div className="grid grid-cols-2 gap-2 pt-1 text-slate-700">
                   <p>
-                    <span className="text-slate-500 font-semibold">{selectedBooking.type === 'hotel' ? tCommon('checkInDate') : t('orderCode')}:</span>{' '}
+                    <span className="text-slate-500 font-semibold">{selectedBooking.type === 'hotel' ? tCommon('checkInDate') : tLookup('depDate')}:</span>{' '}
                     {formatLocalizedDate(selectedBooking.travelDate || selectedBooking.checkIn, locale) || 'N/A'}
                   </p>
-                  <p><span className="text-slate-500 font-semibold">Guests:</span> {selectedBooking.guests?.adults || 1} • {selectedBooking.guests?.children || 0}</p>
+                  <p>
+                    <span className="text-slate-500 font-semibold">{tLookup('guestsInfo')}:</span>{' '}
+                    {selectedBooking.guests?.adults || 1} {tLookup('adults')} {selectedBooking.guests?.children > 0 && `• ${selectedBooking.guests.children} ${tLookup('children')}`}
+                  </p>
                   <p className="col-span-2">
-                    <span className="text-slate-500 font-semibold">Total:</span>{' '}
+                    <span className="text-slate-500 font-semibold">{tLookup('totalAmt')}:</span>{' '}
                     <span className="text-base font-extrabold text-orange-600">{formatPrice(selectedBooking.totalPrice)}</span>
                   </p>
                 </div>
@@ -258,10 +263,10 @@ export default function ProfileBookingsClient() {
 
               {/* Customer Contact */}
               <div className="p-4 border border-slate-200 rounded-2xl space-y-1.5 text-slate-700">
-                <p className="font-bold text-slate-900 mb-1">{t('subtitle')}</p>
-                <p><span className="text-slate-500">Name:</span> {selectedBooking.customerInfo?.name}</p>
-                <p><span className="text-slate-500">Phone:</span> {selectedBooking.customerInfo?.phone}</p>
-                <p><span className="text-slate-500">Email:</span> {selectedBooking.customerInfo?.email}</p>
+                <p className="font-bold text-slate-900 mb-1">{tLookup('customerInfo')}</p>
+                <p><span className="text-slate-500">{tAuth('name')}:</span> {selectedBooking.customerInfo?.name}</p>
+                <p><span className="text-slate-500">{tAuth('phone')}:</span> {selectedBooking.customerInfo?.phone}</p>
+                <p><span className="text-slate-500">{tAuth('email')}:</span> {selectedBooking.customerInfo?.email}</p>
               </div>
             </div>
 
