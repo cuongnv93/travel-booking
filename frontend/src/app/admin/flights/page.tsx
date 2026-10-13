@@ -23,7 +23,7 @@ interface Flight {
 }
 
 const fetchFlights = async () => {
-  const res: any = await api.get('/flights');
+  const res: any = await api.get('/flights?all=true');
   return Array.isArray(res) ? res : (res?.data || []);
 };
 

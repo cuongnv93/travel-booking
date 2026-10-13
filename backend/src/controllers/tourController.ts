@@ -76,8 +76,16 @@ export const fixLandmarkImages = async (_req: Request, res: Response) => {
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10, destination, category, minPrice, maxPrice, sort, isFeatured } = req.query;
+    const { page = 1, limit = 10, destination, category, minPrice, maxPrice, sort, isFeatured, all, isActive } = req.query;
     const query: any = {};
+
+    // Filter isActive: true for public queries; respect all=true or explicit isActive
+    if (all !== 'true' && isActive === undefined) {
+      query.isActive = { $ne: false };
+    } else if (isActive !== undefined) {
+      query.isActive = isActive === 'true';
+    }
+
     if (destination) query.destination = new RegExp(escapeRegex(destination as string), 'i');
     if (category) query.category = category;
     if (isFeatured !== undefined) query.isFeatured = isFeatured === 'true';

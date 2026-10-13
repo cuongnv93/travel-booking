@@ -12,18 +12,31 @@ const AIRLINES_CONFIG = [
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const { from = 'SGN', to = 'HAN' } = req.query;
-    const fromCode = (from as string).toUpperCase();
-    const toCode = (to as string).toUpperCase();
+    const { from, to, all } = req.query;
+    const filter: any = {};
 
-    const filter: any = { isAvailable: { $ne: false } };
+    const fromCode = from ? String(from).trim().toUpperCase() : '';
+    const toCode = to ? String(to).trim().toUpperCase() : '';
+
+    if (all !== 'true') {
+      filter.isAvailable = { $ne: false };
+    }
+
     if (fromCode) filter.from = fromCode;
     if (toCode) filter.to = toCode;
 
+    // For public searches with no route specified, default to SGN -> HAN
+    if (all !== 'true' && !fromCode && !toCode) {
+      filter.from = 'SGN';
+      filter.to = 'HAN';
+    }
+
     let flights = await Flight.find(filter).sort({ price: 1 }).lean();
 
-    // If no exact match in DB, generate realistic flights and persist them to DB
-    if (!flights || flights.length === 0) {
+    // If client searched a specific route (or defaulted public route) and no flights exist, generate realistic flights
+    const targetFrom = filter.from || fromCode;
+    const targetTo = filter.to || toCode;
+    if (targetFrom && targetTo && (!flights || flights.length === 0)) {
       const generated: any[] = [];
       const times = [
         { dep: '06:15', arr: '08:25', dur: '2h 10m' },
@@ -36,15 +49,15 @@ export const getAll = async (req: Request, res: Response) => {
 
       AIRLINES_CONFIG.forEach((airline, index) => {
         const timeObj = times[index % times.length];
-        const flightNum = `${airline.prefix}-${fromCode}${toCode}-${100 + index * 15}`;
+        const flightNum = `${airline.prefix}-${targetFrom}${targetTo}-${100 + index * 15}`;
         const priceVar = (index % 3) * 150000;
 
         generated.push({
           airline: airline.name,
           logo: airline.logo,
           flightNumber: flightNum,
-          from: fromCode,
-          to: toCode,
+          from: targetFrom,
+          to: targetTo,
           departureTime: timeObj.dep,
           arrivalTime: timeObj.arr,
           duration: timeObj.dur,

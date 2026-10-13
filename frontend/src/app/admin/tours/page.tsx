@@ -9,7 +9,7 @@ import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 
 const fetchAdminTours = async () => {
-  const res: any = await api.get('/tours?limit=100');
+  const res: any = await api.get('/tours?all=true&limit=100');
   return res?.data || [];
 };
 

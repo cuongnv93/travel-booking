@@ -61,7 +61,7 @@ export default function BookingSuccessClient() {
                     {booking.type === 'hotel'
                       ? `${getI18nText(booking.hotelId?.name, locale) || t('hotel')}${booking.roomName ? ` (${booking.roomName})` : ''}`
                       : booking.type === 'flight'
-                      ? `${booking.flightId?.airline || 'Vé máy bay'} ${booking.flightId?.flightNumber ? `(${booking.flightId.flightNumber})` : ''} ${booking.flightId?.from ? `• ${booking.flightId.from} → ${booking.flightId.to}` : ''}`.trim()
+                      ? `${booking.flightId?.airline || t('flight')} ${booking.flightId?.flightNumber ? `(${booking.flightId.flightNumber})` : ''} ${booking.flightId?.from ? `• ${booking.flightId.from} → ${booking.flightId.to}` : ''}`.trim()
                       : getI18nText(booking.tourId?.title, locale) || t('tour')}
                   </p>
                 </div>

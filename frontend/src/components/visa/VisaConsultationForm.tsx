@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, ShieldCheck, Loader2, Sparkles, Calendar, Users, Phone, User, ChevronDown, Check } from 'lucide-react';
 import api from '@/lib/api';
 import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
+import { useAuthStore } from '@/stores/authStore';
 
 interface CountryOption {
   key: string;
@@ -29,11 +30,20 @@ const COUNTRY_OPTIONS = [
 
 function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsultationFormProps) {
   const t = useTranslations('visa');
+  const currentUser = useAuthStore((state) => state.user);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
+
+  // Auto-fill customer info when logged in
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.name) setName((prev) => prev || currentUser.name || '');
+      if (currentUser.phone) setPhone((prev) => prev || currentUser.phone || '');
+    }
+  }, [currentUser]);
 
   const countryOptions: CountryOption[] = useMemo(() => {
     if (countries && Array.isArray(countries) && countries.length > 0) {

@@ -148,12 +148,45 @@ export const updateStatus = async (req: Request, res: Response) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: 'Booking not found' });
     }
+
+    const previousBooking = await Booking.findById(req.params.id);
+    if (!previousBooking) return res.status(404).json({ message: 'Booking not found' });
+
+    const updateData: any = {};
+    if (req.body.status) updateData.status = req.body.status;
+    if (req.body.paymentStatus) updateData.paymentStatus = req.body.paymentStatus;
+
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { status: req.body.status },
+      updateData,
       { new: true }
     );
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    // Rollback coupon usage if status changed to cancelled
+    if (req.body.status === 'cancelled' && previousBooking.status !== 'cancelled' && booking.couponCode) {
+      try {
+        await Coupon.findOneAndUpdate(
+          { code: String(booking.couponCode).trim().toUpperCase(), currentUses: { $gt: 0 } },
+          { $inc: { currentUses: -1 } }
+        );
+      } catch (couponErr) {
+        console.warn('Coupon rollback skipped on admin cancel:', couponErr);
+      }
+    }
+
+    // Re-increment coupon usage if restored from cancelled to active
+    if (previousBooking.status === 'cancelled' && req.body.status && req.body.status !== 'cancelled' && booking.couponCode) {
+      try {
+        await Coupon.findOneAndUpdate(
+          { code: String(booking.couponCode).trim().toUpperCase() },
+          { $inc: { currentUses: 1 } }
+        );
+      } catch (couponErr) {
+        console.warn('Coupon re-increment skipped:', couponErr);
+      }
+    }
+
     res.json(booking);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

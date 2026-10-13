@@ -20,6 +20,7 @@ const STORAGE_KEY = 'pending_consultations_v1';
  * ensuring customer leads are NEVER lost.
  */
 export function enqueueConsultationLead(lead: Omit<PendingConsultation, 'id' | 'createdAt'>): void {
+  if (typeof window === 'undefined') return;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const list: PendingConsultation[] = raw ? JSON.parse(raw) : [];
@@ -39,6 +40,7 @@ export function enqueueConsultationLead(lead: Omit<PendingConsultation, 'id' | '
  * Flushes all locally stored leads to the backend server.
  */
 export async function flushPendingConsultations(): Promise<void> {
+  if (typeof window === 'undefined') return;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;

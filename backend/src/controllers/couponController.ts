@@ -4,7 +4,11 @@ import Coupon from '../models/Coupon';
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const coupon = await Coupon.create(req.body);
+    const data = { ...req.body };
+    if (data.code) {
+      data.code = String(data.code).trim().toUpperCase();
+    }
+    const coupon = await Coupon.create(data);
     res.status(201).json(coupon);
   } catch (error: any) {
     if (error.code === 11000) {
@@ -28,7 +32,11 @@ export const update = async (req: Request, res: Response) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(404).json({ message: 'Không tìm thấy mã giảm giá' });
     }
-    const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const data = { ...req.body };
+    if (data.code) {
+      data.code = String(data.code).trim().toUpperCase();
+    }
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, data, { new: true });
     if (!coupon) return res.status(404).json({ message: 'Không tìm thấy mã giảm giá' });
     res.json(coupon);
   } catch (error: any) {

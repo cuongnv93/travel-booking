@@ -215,7 +215,7 @@ export default function ContactClient() {
                       <label className="text-xs font-semibold text-slate-700 block mb-1.5">{t('nameLabel')}</label>
                       <Input
                         required
-                        placeholder="Nguyễn Văn A"
+                        placeholder={t('namePlaceholder')}
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       />
@@ -225,7 +225,7 @@ export default function ContactClient() {
                       <Input
                         required
                         type="email"
-                        placeholder="example@gmail.com"
+                        placeholder={t('emailPlaceholder')}
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       />
@@ -237,7 +237,7 @@ export default function ContactClient() {
                       <label className="text-xs font-semibold text-slate-700 block mb-1.5">{t('phoneLabel')}</label>
                       <Input
                         required
-                        placeholder="0912345678"
+                        placeholder={t('phonePlaceholder')}
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       />
