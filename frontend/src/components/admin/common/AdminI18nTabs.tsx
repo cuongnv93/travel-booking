@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, Copy } from 'lucide-react';
 
 export interface AdminLanguageOption {
   code: string;
@@ -41,14 +41,12 @@ export const toI18nRecord = (val: any, defaultVal = ''): Record<string, string> 
 };
 
 export const sanitizeI18nRecord = (rec: Record<string, string>): Record<string, string> => {
-  const vi = rec?.vi || '';
-  const en = rec?.en || vi;
   return {
-    vi,
-    en,
-    zh: rec?.zh || en || vi,
-    ko: rec?.ko || en || vi,
-    ja: rec?.ja || en || vi,
+    vi: rec?.vi?.trim() || '',
+    en: rec?.en?.trim() || '',
+    zh: rec?.zh?.trim() || '',
+    ko: rec?.ko?.trim() || '',
+    ja: rec?.ja?.trim() || '',
   };
 };
 
@@ -58,6 +56,7 @@ interface AdminI18nTabsProps {
   hasContent?: Record<string, boolean>;
   label?: string;
   className?: string;
+  onCopyFromVi?: () => void;
 }
 
 export const AdminI18nTabs = memo(function AdminI18nTabs({
@@ -66,6 +65,7 @@ export const AdminI18nTabs = memo(function AdminI18nTabs({
   hasContent,
   label,
   className = '',
+  onCopyFromVi,
 }: AdminI18nTabsProps) {
   return (
     <div className={`space-y-1.5 ${className}`}>
@@ -104,6 +104,18 @@ export const AdminI18nTabs = memo(function AdminI18nTabs({
             </button>
           );
         })}
+
+        {activeLang !== 'vi' && onCopyFromVi && (
+          <button
+            type="button"
+            onClick={onCopyFromVi}
+            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 border border-blue-200/80 rounded-lg shadow-2xs transition-all cursor-pointer"
+            title="Sao chép nội dung từ Tiếng Việt sang tab này để dịch nhanh"
+          >
+            <Copy className="w-3.5 h-3.5 text-blue-500" />
+            <span>Sao chép từ Tiếng Việt</span>
+          </button>
+        )}
       </div>
     </div>
   );

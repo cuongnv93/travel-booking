@@ -9,7 +9,7 @@ import { ArrowRight, Calendar, Newspaper } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { getI18nText } from '@/lib/utils';
+import { getI18nText, formatLocalizedDate } from '@/lib/utils';
 
 const fetchLatestNews = async () => {
   try {
@@ -18,6 +18,37 @@ const fetchLatestNews = async () => {
   } catch {
     return [];
   }
+};
+
+const CATEGORY_NAMES: Record<string, Record<string, string>> = {
+  experience: {
+    vi: 'Kinh nghiệm',
+    en: 'Experience',
+    zh: '旅行经验',
+    ko: '여행 팁',
+    ja: '旅行体験',
+  },
+  food: {
+    vi: 'Ẩm thực',
+    en: 'Cuisine',
+    zh: '美食天地',
+    ko: '미식 탐방',
+    ja: 'グルメ',
+  },
+  destination: {
+    vi: 'Điểm đến',
+    en: 'Destinations',
+    zh: '热门目的地',
+    ko: '추천 여행지',
+    ja: '観光スポット',
+  },
+  international: {
+    vi: 'Quốc tế',
+    en: 'International',
+    zh: '国际旅游',
+    ko: '해외 여행',
+    ja: '海外旅行',
+  },
 };
 
 const FALLBACK_NEWS_THUMB = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800';
@@ -35,14 +66,19 @@ const NewsCardItem = memo(function NewsCardItem({ item, index, locale }: NewsCar
   const newsHref = item.slug ? `/${locale}/news/${item.slug}` : `/${locale}/news`;
 
   const formattedDate = useMemo(() => {
-    if (!item.createdAt) return '';
-    try {
-      const d = new Date(item.createdAt);
-      return isNaN(d.getTime()) ? '' : d.toLocaleDateString(locale);
-    } catch {
-      return '';
-    }
-  }, [item.createdAt, locale]);
+    return formatLocalizedDate(item.createdAt || item.publishedAt, locale);
+  }, [item.createdAt, item.publishedAt, locale]);
+
+  const categoryLabel = useMemo(() => {
+    const cat = item.category || 'experience';
+    return (
+      CATEGORY_NAMES[cat]?.[locale] ||
+      CATEGORY_NAMES[cat]?.en ||
+      CATEGORY_NAMES[cat]?.vi ||
+      cat ||
+      'Travel'
+    );
+  }, [item.category, locale]);
 
   return (
     <motion.div
@@ -64,7 +100,7 @@ const NewsCardItem = memo(function NewsCardItem({ item, index, locale }: NewsCar
             />
             <div className="absolute top-3 left-3 z-10">
               <span className="bg-blue-600/90 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-sm">
-                {item.category || 'Travel'}
+                {categoryLabel}
               </span>
             </div>
           </div>

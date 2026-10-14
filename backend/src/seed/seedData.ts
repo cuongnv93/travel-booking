@@ -13,7 +13,13 @@ import { constants } from '../config/constants';
 
 dotenv.config();
 
-const createI18n = (vi: string, en: string) => ({ vi, en, zh: '', ko: '', ja: '' });
+const createI18n = (vi: string, en: string, zh = '', ko = '', ja = '') => ({
+  vi,
+  en: en || vi,
+  zh: zh || '',
+  ko: ko || '',
+  ja: ja || '',
+});
 
 const toSlug = (text: string) =>
   text
@@ -368,18 +374,30 @@ export const seedDataInternal = async () => {
       },
     ]);
 
-    // ========== NEWS (5 articles) ==========
+    // ========== NEWS (5 articles with full 5-language support) ==========
     await News.create([
       {
         slug: 'kinh-nghiem-du-lich-ha-noi-2026',
-        title: createI18n('Kinh nghiệm du lịch Hà Nội tự túc đầy đủ 2026', 'Complete Hanoi Self-Tour Guide 2026'),
+        title: createI18n(
+          'Kinh nghiệm du lịch Hà Nội tự túc đầy đủ 2026',
+          'Complete Hanoi Self-Tour Guide 2026',
+          '2026年河内自由行全攻略与旅游指南',
+          '2026년 하노이 자유여행 완벽 가이드',
+          '2026年 ハノイ個人旅行 完全攻略ガイド'
+        ),
         content: createI18n(
           '<h2>Hà Nội – Thủ đô ngàn năm văn hiến</h2><p>Hà Nội không chỉ là trung tâm chính trị mà còn là nơi lưu giữ những giá trị văn hóa, lịch sử đặc sắc nhất của Việt Nam. Từ Hồ Gươm thơ mộng, Phố cổ 36 phường nhộn nhịp đến Lăng Bác trang nghiêm – mỗi góc phố đều kể câu chuyện riêng của mình.</p><h3>Di chuyển</h3><p>Từ sân bay Nội Bài vào trung tâm: Xe buýt 86 (35.000đ) hoặc taxi (250.000-350.000đ). Trong thành phố nên đi Grab hoặc xe máy thuê.</p><h3>Ăn gì?</h3><p>Phở Bát Đàn, Bún chả Hàng Mành, Bún Ốc Cầu Gỗ, Bánh mì Phố Huế, Kem Tràng Tiền, Cà phê trứng Giảng.</p><h3>Chỗ ở</h3><p>Phố cổ: 300.000-800.000đ/đêm. Quận Hai Bà Trưng: yên tĩnh hơn, giá 500.000-1.500.000đ/đêm.</p>',
-          '<h2>Hanoi – Thousand-year-old Capital</h2><p>Hanoi is not only the political center but also the keeper of Vietnam\'s most distinctive cultural and historical values. From the poetic Hoan Kiem Lake, the bustling 36 Ancient Streets to the solemn Ho Chi Minh Mausoleum.</p>'
+          '<h2>Hanoi – Thousand-year-old Capital</h2><p>Hanoi is not only the political center but also the keeper of Vietnam\'s most distinctive cultural and historical values. From the poetic Hoan Kiem Lake, the bustling 36 Ancient Streets to the solemn Ho Chi Minh Mausoleum – every corner tells its own story.</p><h3>Transportation</h3><p>From Noi Bai Airport to city center: Bus 86 ($1.5) or taxi ($10-$15). In the city, use Grab or rent a motorbike.</p><h3>Must-try Cuisine</h3><p>Bat Dan Pho, Hang Manh Bun Cha, Cau Go Snail Noodles, Pho Hue Banh Mi, Trang Tien Ice Cream, Giang Egg Coffee.</p><h3>Accommodation</h3><p>Old Quarter: $15-$40/night. Hai Ba Trung district: quieter, $25-$70/night.</p>',
+          '<h2>河内 – 千年文化之都</h2><p>河内不仅是政治文化中心，更是越南悠久历史文化的核心。从诗意的还剑湖、熙攘的三十六行街到庄严的胡志明陵——每个转角都诉说着动人故事。</p><h3>交通指南</h3><p>内排机场到市区：86路公交车（约10元人民币）或网约车出租车（约80-100元）。市内推荐Grab打车或租借摩托车。</p><h3>必尝美食</h3><p>钵坛街牛肉粉、行慢街烤肉米线、木桥螺肉米线、长钱冰淇淋、鸡蛋咖啡。</p>',
+          '<h2>하노이 – 천년의 역사를 품은 수도</h2><p>하노이는 베트남의 독보적인 문화와 역사가 살아 숨쉬는 곳입니다. 서정적인 호안끼엠 호수, 활기 넘치는 36거리 구시가지부터 호치민 묘소까지 매 순간이 감동입니다.</p><h3>교통편</h3><p>노이바이 공항에서 시내까지: 86번 공항버스 또는 그랩 택시. 시내에서는 그랩 호출을 권장합니다.</p><h3>추천 미식</h3><p>밧단 쌀국수, 항만 분짜, 짱띠엔 아이스크림, 카페 지앙 에그커피.</p>',
+          '<h2>ハノイ – 千年の歴史が息づく首都</h2><p>ハノイはベトナムの伝統と文化が凝縮された魅力的な都です。風情あふれるホアンキエム湖、賑やかなハノイ旧市街36通り、厳かなホー・チ・ミン廟など見どころ満載です。</p><h3>アクセス</h3><p>ノイバイ国際空港から市内へ：86番バスまたはタクシー/Grab。市内移動はGrabが便利です。</p><h3>おすすめグルメ</h3><p>バットダン・フォー、ブンチャー、バインミー、エッグコーヒー。</p>'
         ),
         excerpt: createI18n(
           'Tổng hợp đầy đủ kinh nghiệm du lịch Hà Nội tự túc 2026: ăn gì, ở đâu, đi đâu, di chuyển như thế nào để tiết kiệm nhất.',
-          'Complete guide to self-touring Hanoi in 2026: what to eat, where to stay, where to go, and how to get around most economically.'
+          'Complete guide to self-touring Hanoi in 2026: what to eat, where to stay, where to go, and how to get around most economically.',
+          '2026年河内自由行综合指南：吃什么、住在哪里、必游景点以及最划算的交通方式。',
+          '2026년 하노이 자유여행 종합 팁: 맛집, 추천 숙소, 필수 명소 및 알뜰 교통 팁.',
+          '2026年ハノイ個人旅行ガイド：グルメ、宿泊エリア、観光名所、お得な移動方法を徹底解説。'
         ),
         thumbnail: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
         category: 'experience',
@@ -388,14 +406,26 @@ export const seedDataInternal = async () => {
       },
       {
         slug: 'top-mon-an-da-nang-phai-thu',
-        title: createI18n('Top 15 món ăn Đà Nẵng nhất định phải thử một lần', 'Top 15 must-try foods in Da Nang'),
+        title: createI18n(
+          'Top 15 món ăn Đà Nẵng nhất định phải thử một lần',
+          'Top 15 Must-Try Foods in Da Nang You Cannot Miss',
+          '岘港不可错过的15大特色地道美食精选',
+          '다낭에서 꼭 맛봐야 할 대표 미식 TOP 15',
+          'ダナン旅行で絶対に食べたい絶品ご当地グルメ15選'
+        ),
         content: createI18n(
           '<h2>Ẩm thực Đà Nẵng – Hòa quyện 3 miền</h2><p>Nằm ở vị trí địa lý giao thoa giữa Bắc và Nam, ẩm thực Đà Nẵng mang trong mình nét đặc trưng riêng biệt, vừa đậm đà của miền Trung, vừa phong phú đa dạng.</p><p>1. Mì Quảng - món ăn đặc trưng nhất; 2. Bánh tráng thịt heo - không ở đâu có; 3. Bún chả cá; 4. Bánh xèo Đà Nẵng cỡ lớn; 5. Cơm gà Hải Nam...</p>',
-          '<h2>Da Nang Cuisine – Blend of Three Regions</h2><p>Located at the geographic intersection of North and South, Da Nang cuisine carries its own unique character, both rich in Central flavor and diverse variety.</p>'
+          '<h2>Da Nang Cuisine – Blend of Three Regions</h2><p>Located at the geographic intersection of North and South, Da Nang cuisine carries its own unique character, both rich in Central flavor and diverse variety.</p><p>1. Quang Noodles (Mi Quang); 2. Pork belly rolled in rice paper; 3. Fish cake noodle soup; 4. Crispy Da Nang pancake; 5. Hoi An chicken rice...</p>',
+          '<h2>岘港美食 – 荟萃三地风味</h2><p>岘港美食兼具越南中部的浓郁鲜辣与南北的调和特色，风味独特且丰富多样。</p><p>1. 广南米粉（Mi Quang）；2. 猪肉米纸卷；3. 鲜鱼饼米线；4. 岘港特色大脆煎饼；5. 招牌海南鸡饭...</p>',
+          '<h2>다낭 미식 – 베트남 3대 지역의 조화</h2><p>다낭 음식은 중부 지역 특유의 깊은 풍미와 신선한 식재료가 어우러져 한국인 여행객에게도 큰 사랑을 받고 있습니다.</p><p>1. 미꽝(대표 국수); 2. 돼지고기 라이스페이퍼 롤; 3. 어묵 쌀국수; 4. 바삭한 반세오; 5. 하이난 치킨라이스...</p>',
+          '<h2>ダナンの名物グルメ – 3つの地域の調和</h2><p>ダナン料理はベトナム中部の奥深い旨味と新鮮な海の幸が融合した、日本人の口にもよく合う絶品グルメの宝庫です。</p><p>1. 名物ミークアン（和え麺）；2. 豚肉のライスペーパー巻き；3. さつま揚げ入り米粉麺；4. パリパリのバインセオ；5. チキンライス...</p>'
         ),
         excerpt: createI18n(
           'Khám phá nền ẩm thực phong phú và độc đáo của Đà Nẵng – từ Mì Quảng, bánh tráng thịt heo đến hải sản tươi ngon nhất miền Trung.',
-          'Discover the rich and unique cuisine of Da Nang – from Quang noodles, pork roll rice paper to the freshest Central Vietnam seafood.'
+          'Discover Da Nang\'s rich culinary scene – from iconic Quang noodles, pork rolls to the freshest seafood in Central Vietnam.',
+          '探索岘港丰富独特的饮食文化——从广南米粉、水煮猪肉卷到中部最鲜美多汁的海鲜大餐。',
+          '다낭의 다채롭고 특별한 미식을 탐험하세요 – 미꽝, 돼지고기 라이스페이퍼 롤부터 신선한 중부 해산물까지.',
+          'ダナンの豊かな食文化を探求——名物ミークアン、豚肉のライスペーパー巻きから新鮮なシーフードまで。'
         ),
         thumbnail: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
         category: 'food',
@@ -404,14 +434,26 @@ export const seedDataInternal = async () => {
       },
       {
         slug: 'phu-quoc-nen-di-mua-nao',
-        title: createI18n('Phú Quốc nên đi mùa nào? Bí kíp du lịch đảo ngọc 2026', 'When to visit Phu Quoc? 2026 Paradise Island Travel Tips'),
+        title: createI18n(
+          'Phú Quốc nên đi mùa nào? Bí kíp du lịch đảo ngọc 2026',
+          'Best Time to Visit Phu Quoc? 2026 Pearl Island Travel Guide',
+          '富国岛最佳旅游季节指南：2026珍珠岛出行秘籍',
+          '푸꾸옥 언제 가는 게 좋을까? 2026 진주섬 여행 꿀팁',
+          'フーコック島ベストシーズンはいつ？2026 観光完全ガイド'
+        ),
         content: createI18n(
           '<h2>Phú Quốc – 4 mùa đều đẹp</h2><p>Phú Quốc có 2 mùa chính: mùa khô (tháng 11 – tháng 4) và mùa mưa (tháng 5 – tháng 10). Mỗi mùa đều có vẻ đẹp và trải nghiệm riêng.</p><h3>Mùa cao điểm (tháng 11 – tháng 4)</h3><p>Thời tiết đẹp nhất, biển calme, lặn ngắm san hô tuyệt vời. Giá phòng cao hơn 30-50%, cần đặt trước.</p><h3>Mùa thấp điểm (tháng 5 – tháng 10)</h3><p>Giá rẻ hơn nhiều, ít đông. Một số ngày mưa nhưng vẫn có thể vui chơi indoor tại Vinpearl.</p>',
-          '<h2>Phu Quoc – Beautiful All Year Round</h2><p>Phu Quoc has 2 main seasons: dry season (November – April) and rainy season (May – October). Each season has its own beauty and experiences.</p>'
+          '<h2>Phu Quoc – Beautiful All Year Round</h2><p>Phu Quoc has 2 main seasons: dry season (November – April) and rainy season (May – October). Each season has its own beauty and experiences.</p><h3>Peak Season (Nov – Apr)</h3><p>Clear skies, calm crystal seas, ideal for snorkeling & diving. Room rates higher by 30-50%, advance booking recommended.</p><h3>Off-Peak Season (May – Oct)</h3><p>Much lower prices, fewer crowds, and lush green scenery with great indoor entertainment at VinWonders.</p>',
+          '<h2>富国岛 – 四季皆美的海岛度假胜地</h2><p>富国岛主要分为旱季（11月至次年4月）和雨季（5月至10月），各个季节均有独具特色的度假体验。</p><h3>旱季旺季（11月 - 4月）</h3><p>风和日丽，海水清澈见底，是浮潜与海滩度假的最佳时机。酒店房价较高，建议提前预订。</p><h3>淡季出行（5月 - 10月）</h3><p>性价比极高，游客较少，可尽情体验珍珠乐园与野生动物园等室内外娱乐设施。</p>',
+          '<h2>푸꾸옥 – 사계절 내내 아름다운 휴양지</h2><p>푸꾸옥은 건기(11월~4월)와 우기(5월~10월) 두 계절로 나뉘며 각 시즌마다 색다른 매력을 자랑합니다.</p><h3>성수기(11월 ~ 4월)</h3><p>파도가 잔잔하고 맑은 날씨가 이어져 스노클링 및 호핑 투어에 이상적입니다. 사전 숙소 예약 필수.</p><h3>비수기(5월 ~ 10월)</h3><p>가성비가 뛰어나고 여유로운 여행이 가능하며 빈원더스 등 실내외 테마파크를 알차게 즐길 수 있습니다.</p>',
+          '<h2>フーコック島 – 一年中楽しめる常夏の楽園</h2><p>フーコック島には乾季（11月〜4月）と雨季（5月〜10月）の2つの季節があり、それぞれ異なる楽しみ方ができます。</p><h3>ベストシーズン・乾季（11月〜4月）</h3><p>晴天が続き波も穏やかで、シュノーケリングやビーチでのんびり過ごすのに最適です。</p><h3>雨季・グリーンシーズン（5月〜10月）</h3><p>リゾートホテルが格安で宿泊でき、混雑を避けてリラックスした滞在が叶います。</p>'
         ),
         excerpt: createI18n(
           'Tư vấn chi tiết thời điểm lý tưởng để du lịch Phú Quốc, các lưu ý quan trọng và bí kíp tiết kiệm chi phí khi đến đảo ngọc.',
-          'Detailed advice on the ideal time to visit Phu Quoc, important notes and money-saving tips for your island trip.'
+          'Detailed advice on the ideal time to visit Phu Quoc, essential tips and budget-friendly secrets for the pearl island.',
+          '详细分析富国岛四季气候特征、最佳旅游时节、出行注意事项以及珍珠岛省钱实用小贴士。',
+          '푸꾸옥을 방문하기 가장 좋은 시기, 중요 체크리스트 및 알뜰한 여행 경비 절약 팁 상세 안내.',
+          'フーコック島旅行のベストシーズン、乾季・雨季の過ごし方、旅費を賢く抑えるお得なコツを解説。'
         ),
         thumbnail: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800',
         category: 'destination',
@@ -420,14 +462,26 @@ export const seedDataInternal = async () => {
       },
       {
         slug: 'halong-bay-cruise-guide',
-        title: createI18n('Hướng dẫn đặt du thuyền Hạ Long: Phân loại, giá cả và lưu ý', 'Ha Long Bay Cruise Guide: Types, Prices and Tips'),
+        title: createI18n(
+          'Hướng dẫn đặt du thuyền Hạ Long: Phân loại, giá cả và lưu ý',
+          'Ha Long Bay Cruise Guide: Star Ratings, Prices & Insider Tips',
+          '下龙湾游轮预订全攻略：星级分类、价格对比与避坑指南',
+          '하롱베이 크루즈 예약 가이드: 등급별 분류, 가격 및 필수 팁',
+          'ハロン湾クルーズ予約ガイド：クラス別比較・料金相場・注意点'
+        ),
         content: createI18n(
           '<h2>Du thuyền Hạ Long – Trải nghiệm đỉnh cao</h2><p>Du thuyền là cách tốt nhất để khám phá vịnh Hạ Long. Hiện có 3 phân khúc: Economy (1-1.5 triệu/đêm), Superior (2-3 triệu/đêm), Luxury (4-8 triệu/đêm).</p><h3>Nên chọn tour mấy ngày?</h3><p>2 ngày 1 đêm: phù hợp người ít thời gian. 3 ngày 2 đêm: trải nghiệm đầy đủ nhất. 4 ngày 3 đêm: cho người muốn khám phá vịnh Lan Hạ.</p>',
-          '<h2>Ha Long Bay Cruise – Peak Experience</h2><p>Cruises are the best way to explore Ha Long Bay. Currently 3 segments: Economy ($50-65/night), Superior ($85-130/night), Luxury ($175-350/night).</p>'
+          '<h2>Ha Long Bay Cruise – Peak Experience</h2><p>Cruises are the premier way to explore UNESCO World Heritage Ha Long Bay. Currently 3 main tiers: Economy ($50-65/night), Superior ($85-130/night), Luxury ($175-350/night).</p><h3>How Many Days to Choose?</h3><p>2 Days 1 Night: perfect for short visits. 3 Days 2 Nights: the most complete experience exploring caves & kayaking. 4 Days: deep exploration into pristine Lan Ha Bay.</p>',
+          '<h2>下龙湾游轮 – 顶级海上度假体验</h2><p>搭乘游轮是领略世界自然遗产下龙湾千峰竞秀的最佳方式。目前主要分为三个档次：经济型、高档型与顶级奢华型。</p><h3>游玩天数建议</h3><p>2天1晚：适合行程紧凑的游客。3天2晚：深度体验溶洞探秘、海上皮划艇的最佳选择。</p>',
+          '<h2>하롱베이 크루즈 – 베트남 최고의 힐링 여행</h2><p>유네스코 세계자연유산 하롱베이를 온전히 감상하는 가장 완벽한 방법은 1박 이상의 오버나잇 크루즈입니다.</p><h3>추천 일정</h3><p>1박 2일: 일정 여유가 적은 여행자에게 적합. 2박 3일: 카약, 동굴 탐험, 쿠킹 클래스까지 모두 즐기는 최적의 일정.</p>',
+          '<h2>ハロン湾クルーズ – 世界遺産を満喫する極上の船旅</h2><p>世界自然遺産ハロン湾の奇岩群を堪能するなら、宿泊型クルーズが一番のおすすめです。</p><h3>おすすめのクルーズ日数</h3><p>1泊2日：手軽にハロン湾の主要スポットを満喫。2泊3日：鍾乳洞探検やカヤック体験までゆったり楽しめます。</p>'
         ),
         excerpt: createI18n(
           'Hướng dẫn toàn diện về cách chọn du thuyền Hạ Long phù hợp: từ phân loại hạng sao, giá cả, thời gian đến những lưu ý quan trọng.',
-          'Comprehensive guide to choosing the right Ha Long Bay cruise: star ratings, prices, duration and important tips.'
+          'Comprehensive guide to choosing the right Ha Long Bay cruise: star categories, price ranges, itineraries and tips.',
+          '全面解析下龙湾游轮选择方法：从星级分级、行程天数、价格区间到登船重要注意事项。',
+          '하롱베이 크루즈 선택 완벽 가이드: 성급 분류, 가격대, 1박2일/2박3일 일정 및 필수 유의사항.',
+          'ハロン湾クルーズの選び方を徹底解説：星付きランク、料金相場、おすすめ泊数と予約時の注意点。'
         ),
         thumbnail: 'https://images.unsplash.com/photo-1559563458-527698bf5295?w=800',
         category: 'experience',
@@ -436,14 +490,26 @@ export const seedDataInternal = async () => {
       },
       {
         slug: 'kinh-nghiem-du-lich-sapa',
-        title: createI18n('Sa Pa mùa lúa vàng – Thiên đường ảnh đẹp nhất Việt Nam', 'Sa Pa Golden Rice Season – Vietnam\'s Most Beautiful Photo Paradise'),
+        title: createI18n(
+          'Sa Pa mùa lúa vàng – Thiên đường ảnh đẹp nhất Việt Nam',
+          'Sa Pa Golden Rice Season – Vietnam\'s Most Breathtaking Photo Paradise',
+          '沙坝金色梯田季 – 越南最壮丽的摄影天堂全解析',
+          '사파 황금빛 다랑이논 시즌 – 베트남 최고의 인생샷 명소',
+          'サパの黄金の棚田シーズン – ベトナム随一の絶景フォトスポット'
+        ),
         content: createI18n(
           '<h2>Sa Pa mùa vàng (tháng 9 – tháng 10)</h2><p>Đây là thời điểm đẹp nhất trong năm khi những thửa ruộng bậc thang chuyển sang màu vàng rực rỡ. Đặc biệt ấn tượng ở Mù Cang Chải, Tú Lệ và Y Tý.</p><h3>Cách đi Sa Pa</h3><p>Xe limousine từ Hà Nội: 200.000-350.000đ/người (4 tiếng). Tàu đêm từ ga Hà Nội: 200.000-600.000đ (8 tiếng). Fly đến Điện Biên rồi xe: nhanh hơn nhưng đắt hơn.</p>',
-          '<h2>Sa Pa Golden Season (September – October)</h2><p>This is the most beautiful time of year when the rice terraces turn a brilliant golden color. Especially impressive in Mu Cang Chai, Tu Le and Y Ty.</p>'
+          '<h2>Sa Pa Golden Season (September – October)</h2><p>This is the most breathtaking time of year when sweeping terraced rice fields transform into brilliant cascading gold. Particularly stunning in Mu Cang Chai, Tu Le, and Ta Van valley.</p><h3>Getting to Sa Pa</h3><p>Limousine bus from Hanoi: 4-5 hours via highway. Overnight sleeper train from Hanoi station: romantic and comfortable 8-hour journey.</p>',
+          '<h2>沙坝黄金梯田季（9月 - 10月）</h2><p>这是沙坝全年最壮丽的时节，层层叠叠的高山梯田换上金黄锦缎，宛如人间仙境，是摄影爱好者的朝圣之地。</p><h3>交通出行</h3><p>河内直达豪华商务车：约4-5小时高速路程。河内夜间卧铺火车：舒适惬意，清晨抵达老街站。</p>',
+          '<h2>사파 황금빛 다랑이논 시즌(9월 ~ 10월)</h2><p>푸른 계단식 논이 눈부신 황금빛으로 물드는 9~10월은 사파 여행의 백미이자 인생 사진을 남길 수 있는 최고의 계절입니다.</p><h3>사파 가는 법</h3><p>하노이에서 리무진 버스 이용 시 약 4~5시간 소요되며, 낭만적인 야간 침대 열차도 인기 있는 선택지입니다.</p>',
+          '<h2>サパの黄金色の棚田（9月〜10月）</h2><p>見渡す限りの棚田が黄金色に輝く秋のサパは、一年で最も美しい季節です。どこを切り取っても絵になる絶景が広がります。</p><h3>アクセス方法</h3><p>ハノイから高速リムジンバスで約4〜5時間、または風情ある寝台列車でのアクセスが一般的です。</p>'
         ),
         excerpt: createI18n(
           'Trải nghiệm Sa Pa mùa lúa vàng tháng 9-10: hướng dẫn chi tiết về cách đi, ở đâu, chụp ảnh ruộng bậc thang đẹp nhất.',
-          'Experience Sa Pa golden rice season September-October: detailed guide on how to get there, where to stay, and photograph the most beautiful rice terraces.'
+          'Experience Sa Pa golden rice season in Sep-Oct: comprehensive guide on transport, lodging, and best terrace photo spots.',
+          '9-10月沙坝金色梯田季深度体验：往返交通、景观住宿推荐与绝佳梯田机位指南。',
+          '9~10월 사파 황금빛 벼베기 시즌 여행: 교통편, 뷰 맛집 숙소, 최적의 다랑이논 포토존 가이드.',
+          '9〜10月限定のサパ黄金の棚田：行き方、絶景ロッジ、棚田を一番美しく撮影できるスポットを解説。'
         ),
         thumbnail: 'https://images.unsplash.com/photo-1512719994953-eabf50895df7?w=800',
         category: 'destination',

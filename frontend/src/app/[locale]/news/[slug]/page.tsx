@@ -129,6 +129,19 @@ export default async function NewsDetailPage({
     }
   };
 
+  const CATEGORY_NAMES: Record<string, Record<string, string>> = {
+    experience: { vi: 'Kinh nghiệm', en: 'Experience', zh: '旅行经验', ko: '여행 팁', ja: '旅行体験' },
+    food: { vi: 'Ẩm thực', en: 'Cuisine', zh: '美食天地', ko: '미식 탐방', ja: 'グルメ' },
+    destination: { vi: 'Điểm đến', en: 'Destinations', zh: '热门目的地', ko: '추천 여행지', ja: '観光スポット' },
+    international: { vi: 'Quốc tế', en: 'International', zh: '国际旅游', ko: '해외 여행', ja: '海外旅行' },
+  };
+
+  const categoryLabel = CATEGORY_NAMES[article.category]?.[locale] ||
+                        CATEGORY_NAMES[article.category]?.en ||
+                        CATEGORY_NAMES[article.category]?.vi ||
+                        article.category ||
+                        t('news');
+
   return (
     <div className="bg-slate-50/70 min-h-screen pb-24 pt-24">
       <script
@@ -171,7 +184,7 @@ export default async function NewsDetailPage({
               <div className="flex flex-wrap items-center gap-3">
                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5" />
-                  {article.category || t('news')}
+                  {categoryLabel}
                 </span>
                 <span className="text-xs text-slate-500 font-bold flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />

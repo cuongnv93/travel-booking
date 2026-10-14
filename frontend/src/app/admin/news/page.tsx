@@ -194,6 +194,13 @@ export default function AdminNewsPage() {
     setIsModalOpen(true);
   };
 
+  const handleCopyFromVi = useCallback(() => {
+    if (activeLang === 'vi') return;
+    setTitle((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    setExcerpt((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    setContent((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+  }, [activeLang]);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const slug = editingArticle?.slug || toSlug(title.vi || 'bai-viet-' + Date.now());
@@ -299,6 +306,7 @@ export default function AdminNewsPage() {
                 <AdminI18nTabs
                   activeLang={activeLang}
                   onChange={setActiveLang}
+                  onCopyFromVi={handleCopyFromVi}
                   hasContent={{
                     vi: !!title.vi,
                     en: !!title.en,
@@ -308,6 +316,12 @@ export default function AdminNewsPage() {
                   }}
                   label="Chọn ngôn ngữ nhập liệu cho Tiêu đề, Tóm tắt & Nội dung:"
                 />
+
+                <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                  {activeLang === 'vi'
+                    ? '📌 Tiếng Việt là ngôn ngữ bắt buộc. Các ngôn ngữ EN, ZH, KO, JA nếu để trống sẽ tự động fallback sang Tiếng Việt (hoặc Tiếng Anh) trên website.'
+                    : `💡 Đang chỉnh sửa Tiếng ${activeLang.toUpperCase()}. Bạn có thể bấm "Sao chép từ Tiếng Việt" phía trên để điền nhanh nội dung nháp.`}
+                </p>
 
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1 text-xs">

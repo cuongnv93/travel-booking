@@ -28,12 +28,29 @@ export function getI18nText(
 ): string {
   if (!i18nObj) return fallback;
   if (typeof i18nObj === 'string') return i18nObj || fallback;
-  return (
-    (i18nObj as Record<string, string>)[locale] ||
-    (i18nObj as Record<string, string>).vi ||
-    (i18nObj as Record<string, string>).en ||
-    fallback
-  );
+  const obj = i18nObj as Record<string, string>;
+
+  // 1. Direct match for requested locale
+  const direct = obj[locale]?.trim();
+  if (direct) return direct;
+
+  // 2. International fallback: if viewing non-VI locale (en, zh, ko, ja), prefer English before Vietnamese
+  if (locale !== 'vi') {
+    const enVal = obj.en?.trim();
+    if (enVal) return enVal;
+  }
+
+  // 3. Fallback to Vietnamese (primary platform language)
+  const viVal = obj.vi?.trim();
+  if (viVal) return viVal;
+
+  // 4. Any other language present
+  for (const key of ['en', 'zh', 'ko', 'ja']) {
+    const val = obj[key]?.trim();
+    if (val) return val;
+  }
+
+  return fallback;
 }
 
 export function formatLocalizedDate(
