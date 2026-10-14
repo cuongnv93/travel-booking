@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import {
   DollarSign, CalendarCheck, Compass, Users, ArrowUpRight,
-  TrendingUp, TrendingDown, BarChart3, Activity,
+  TrendingUp, TrendingDown, BarChart3,
 } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';

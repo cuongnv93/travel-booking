@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Shield, Search, Trash2, UserCog, Loader2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -52,12 +52,16 @@ export default function UsersAdminPage() {
     deleteMutation.mutate(user._id);
   };
 
-  const filteredUsers = users.filter((u: any) => {
-    return (
-      (u.name || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.email || '').toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const filteredUsers = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return users.filter((u: any) => {
+      return (
+        !s ||
+        (u.name || '').toLowerCase().includes(s) ||
+        (u.email || '').toLowerCase().includes(s)
+      );
+    });
+  }, [users, search]);
 
   if (isLoading) return <AdminTableSkeleton cols={6} rows={7} />;
 
@@ -95,11 +99,7 @@ export default function UsersAdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-6 text-center text-slate-400">Đang tải danh sách tài khoản...</td>
-                </tr>
-              ) : filteredUsers.length === 0 ? (
+              {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-6 text-center text-slate-400">Chưa có người dùng nào.</td>
                 </tr>

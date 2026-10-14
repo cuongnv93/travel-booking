@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Plus, X, Search, Upload, Loader2, Building2, Star, MapPin, Trash2, BedDouble } from 'lucide-react';
+import { Plus, X, Search, Upload, Loader2, Building2, Star, MapPin, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -300,9 +300,7 @@ export default function AdminHotelsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-6 text-center text-slate-400">Đang tải...</td></tr>
-              ) : filtered.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">
                   <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />Chưa có khách sạn nào.
                 </td></tr>
@@ -395,6 +393,47 @@ export default function AdminHotelsPage() {
                       <input required value={location} onChange={e => setLocation(e.target.value)} placeholder="VD: Đà Nẵng"
                         className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
                     </div>
+                  </div>
+
+                  {/* Flash Sale Controls */}
+                  <div className="bg-rose-50/80 border border-rose-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-rose-900 text-xs flex items-center gap-1.5">
+                        🔥 Cấu Hình Flash Sale Khách Sạn Giờ Vàng
+                      </span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isFlashSale}
+                          onChange={(e) => setIsFlashSale(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
+                      </label>
+                    </div>
+
+                    {isFlashSale && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                        <div>
+                          <label className="font-semibold text-slate-700 block mb-1 text-xs">Giá Flash Sale (VNĐ) *</label>
+                          <input
+                            type="number"
+                            value={flashSalePrice}
+                            onChange={(e) => setFlashSalePrice(Number(e.target.value))}
+                            className="w-full border border-rose-300 rounded-lg p-2 text-rose-600 font-extrabold focus:outline-none focus:border-rose-500 bg-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-semibold text-slate-700 block mb-1 text-xs">Thời Gian Kết Thúc Sale *</label>
+                          <input
+                            type="datetime-local"
+                            value={flashSaleEnd}
+                            onChange={(e) => setFlashSaleEnd(e.target.value)}
+                            className="w-full border border-rose-300 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-rose-500 bg-white text-xs font-mono"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-12 gap-4">

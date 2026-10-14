@@ -22,7 +22,6 @@ import {
   Utensils,
   Settings,
   Plane,
-  ShieldCheck,
   ExternalLink,
   FileText,
   Tag,

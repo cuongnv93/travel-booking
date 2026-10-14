@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import {
-  Settings, Globe, Phone, Mail, MapPin, Share2, CreditCard,
+  Globe, Phone, Mail, MapPin, Share2, CreditCard,
   Save, CheckCircle2, Loader2, Image as ImageIcon, Plus, Trash2,
-  Upload, ArrowUp, ArrowDown, LayoutTemplate, FileText, Quote, Star,
-  Plane, Award, Building2, ShieldAlert, Sparkles, RefreshCw, AlertTriangle, Layers, Video
+  Upload, LayoutTemplate, FileText, Quote,
+  Plane, Award, Building2, ShieldAlert, RefreshCw, AlertTriangle, Layers, Video
 } from 'lucide-react';
 import { HomeBlocksSettingsTab, DestinationItem, WhyChooseUsItem, StatCounterItem } from '@/components/admin/settings/HomeBlocksSettingsTab';
 import { FlightsSettingsTab, AirportItem, AirlineItem } from '@/components/admin/settings/FlightsSettingsTab';

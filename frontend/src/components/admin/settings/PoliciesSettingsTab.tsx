@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Plus, Trash2, ShieldAlert, Building2, FileText, CheckCircle2, XCircle, Info, Scale } from 'lucide-react';
+import { Plus, Trash2, ShieldAlert, Building2, CheckCircle2, XCircle, Info, Scale } from 'lucide-react';
 
 export interface TourDefaultPolicies {
   inclusions: string[];

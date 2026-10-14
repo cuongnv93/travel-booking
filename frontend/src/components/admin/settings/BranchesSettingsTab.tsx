@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Plus, Trash2, MapPin, Clock, Building, Compass, Phone, Mail, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, MapPin, Clock, Building, Compass, Phone, Mail } from 'lucide-react';
 import { AdminI18nTabs } from '@/components/admin/common/AdminI18nTabs';
 
 export interface BranchItem {

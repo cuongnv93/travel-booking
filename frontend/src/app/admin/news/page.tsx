@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Search, Image as ImageIcon, Upload, Loader2, FileText } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -55,7 +55,7 @@ const NewsTableRow = memo(function NewsTableRow({
           )}
         </div>
         <div>
-          <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{article.title?.vi || 'Untitled'}</p>
+          <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{getI18nText(article.title, 'vi') || 'Untitled'}</p>
           <p className="text-[11px] text-slate-400 font-mono">{article.slug}</p>
         </div>
       </td>
@@ -144,6 +144,7 @@ export default function AdminNewsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
       queryClient.invalidateQueries({ queryKey: ['news'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-news-home'] });
       setIsModalOpen(false);
     },
     onError: (err: any) => alert('Lỗi lưu bài viết: ' + (err.response?.data?.message || err.message)),
@@ -154,6 +155,7 @@ export default function AdminNewsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
       queryClient.invalidateQueries({ queryKey: ['news'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-news-home'] });
     },
     onError: (err: any) => alert('Lỗi xóa bài viết: ' + err.message),
   });
@@ -161,7 +163,11 @@ export default function AdminNewsPage() {
   const togglePublishMutation = useMutation({
     mutationFn: ({ id, val }: { id: string; val: boolean }) =>
       api.put(`/news/${id}`, { isPublished: val }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-news'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-news-home'] });
+    },
   });
 
   const resetForm = () => {
@@ -256,9 +262,7 @@ export default function AdminNewsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-6 text-center text-slate-400">Đang tải...</td></tr>
-              ) : filtered.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-6 text-center text-slate-400">Chưa có bài viết nào.</td></tr>
               ) : (
                 filtered.map((article: any) => (

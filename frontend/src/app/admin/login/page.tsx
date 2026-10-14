@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Mail, Lock, Shield, AlertCircle, ShieldAlert, ArrowLeft, Info } from 'lucide-react';
+import { Mail, Lock, AlertCircle, ShieldAlert, ArrowLeft, Info } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
 
 function AdminLoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const isExpired = searchParams.get('expired') === 'true';
   const login = useAuthStore((state) => state.login);

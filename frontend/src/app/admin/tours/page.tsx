@@ -220,6 +220,7 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+      queryClient.invalidateQueries({ queryKey: ['specialties-featured-tours'] });
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       setIsModalOpen(false);
     },
@@ -235,6 +236,7 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+      queryClient.invalidateQueries({ queryKey: ['specialties-featured-tours'] });
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
     },
     onError: (err: any) => {
@@ -438,11 +440,7 @@ export default function ToursAdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-6 text-center text-slate-400">Đang tải danh sách tours...</td>
-                </tr>
-              ) : filteredTours.length === 0 ? (
+              {filteredTours.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-6 text-center text-slate-400">Chưa có tour nào được tìm thấy.</td>
                 </tr>

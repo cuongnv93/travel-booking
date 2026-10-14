@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Plus, Trash2, Upload, MapPin, Shield, Star, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Upload, MapPin, Shield, Star } from 'lucide-react';
 import api from '@/lib/api';
 import { AdminI18nTabs } from '@/components/admin/common/AdminI18nTabs';
 

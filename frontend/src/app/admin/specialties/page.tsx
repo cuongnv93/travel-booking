@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Trash2, X, Search, Upload, Loader2, Utensils } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Plus, X, Search, Upload, Loader2, Utensils } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -119,15 +119,18 @@ export default function AdminSpecialtiesPage() {
     });
   };
 
-  const filtered = specialties.filter((s: any) => {
-    const name = getI18nText(s.name, 'vi') || (typeof s.name === 'string' ? s.name : '');
-    const q = search.toLowerCase();
-    return (
-      name.toLowerCase().includes(q) ||
-      (s.region || '').toLowerCase().includes(q) ||
-      (s.location || '').toLowerCase().includes(q)
-    );
-  });
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    return specialties.filter((s: any) => {
+      const name = getI18nText(s.name, 'vi') || (typeof s.name === 'string' ? s.name : '');
+      return (
+        !q ||
+        name.toLowerCase().includes(q) ||
+        (s.region || '').toLowerCase().includes(q) ||
+        (s.location || '').toLowerCase().includes(q)
+      );
+    });
+  }, [specialties, search]);
 
   if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
 
@@ -152,9 +155,7 @@ export default function AdminSpecialtiesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isLoading ? (
-          [1,2,3].map(n => <div key={n} className="h-48 rounded-xl bg-slate-100 animate-pulse" />)
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="col-span-3 bg-white p-12 rounded-xl border border-slate-200 text-center">
             <Utensils className="w-10 h-10 text-slate-300 mx-auto mb-3" />
             <p className="text-slate-500 text-sm">Chưa có đặc sản nào.</p>

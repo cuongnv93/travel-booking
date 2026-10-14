@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { Plane, Plus, Search, Edit3, Trash2, X, Check, Loader2 } from 'lucide-react';
+import { Plane, Plus, Search, Edit3, Trash2, X, Loader2 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 interface Flight {
@@ -128,15 +128,19 @@ export default function AdminFlightsPage() {
     }
   };
 
-  const filteredFlights = flights.filter(
-    (f: Flight) =>
-      f.flightNumber?.toLowerCase().includes(search.toLowerCase()) ||
-      f.airline?.toLowerCase().includes(search.toLowerCase()) ||
-      f.from?.toLowerCase().includes(search.toLowerCase()) ||
-      f.to?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredFlights = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return flights.filter(
+      (f: Flight) =>
+        !s ||
+        f.flightNumber?.toLowerCase().includes(s) ||
+        f.airline?.toLowerCase().includes(s) ||
+        f.from?.toLowerCase().includes(s) ||
+        f.to?.toLowerCase().includes(s)
+    );
+  }, [flights, search]);
 
-  if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
+  if (isLoading) return <AdminTableSkeleton cols={8} rows={7} />;
 
   return (
     <div className="space-y-6">
@@ -185,11 +189,7 @@ export default function AdminFlightsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={8} className="px-5 py-8 text-center text-slate-400">Đang tải danh sách chuyến bay...</td>
-                </tr>
-              ) : filteredFlights.length === 0 ? (
+              {filteredFlights.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-5 py-8 text-center text-slate-400">Chưa có chuyến bay nào.</td>
                 </tr>

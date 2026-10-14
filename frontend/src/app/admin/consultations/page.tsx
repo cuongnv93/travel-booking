@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useCallback, memo } from 'react';
 import {
-  PhoneCall, CheckCircle2, Clock, XCircle, Search, Filter,
-  Trash2, Mail, Phone, Calendar, Globe, User, RefreshCw, MessageSquare
+  PhoneCall, Search, Filter,
+  Trash2, Mail, Phone, Calendar, Globe, RefreshCw, MessageSquare
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';

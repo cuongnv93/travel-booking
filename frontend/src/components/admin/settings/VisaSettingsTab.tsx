@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Plus, Trash2, Award, Clock, ShieldCheck, Globe, FileCheck, HelpCircle, UserCheck, Star } from 'lucide-react';
+import { Plus, Trash2, Award, Globe, FileCheck } from 'lucide-react';
 import { AdminI18nTabs } from '@/components/admin/common/AdminI18nTabs';
 
 export interface VisaCountryItem {

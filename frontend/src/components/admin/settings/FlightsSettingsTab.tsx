@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Plus, Trash2, Plane, Building2, Globe } from 'lucide-react';
+import { Plus, Trash2, Plane, Building2 } from 'lucide-react';
 
 export interface AirportItem {
   code: string;

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Tag, Search, Trash2, Edit, Plus, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Tag, Search, Trash2, Plus, Loader2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -76,11 +76,14 @@ export default function CouponsAdminPage() {
     createMutation.mutate(formData);
   };
 
-  const filteredCoupons = coupons.filter((c: any) => {
-    return (c.code || '').toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredCoupons = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    return coupons.filter((c: any) => {
+      return (c.code || '').toLowerCase().includes(s);
+    });
+  }, [coupons, search]);
 
-  if (isLoading) return <AdminTableSkeleton cols={7} rows={5} />;
+  if (isLoading) return <AdminTableSkeleton cols={6} rows={5} />;
 
   return (
     <div className="space-y-6">
@@ -204,7 +207,7 @@ export default function CouponsAdminPage() {
                   required 
                   type="text" 
                   value={formData.code}
-                  onChange={(e) => setFormData({...formData, code: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase().trim() })}
                   className="w-full border border-slate-200 rounded-lg px-3 py-2 uppercase"
                 />
               </div>

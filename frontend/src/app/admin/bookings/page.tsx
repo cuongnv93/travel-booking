@@ -190,7 +190,7 @@ export default function BookingsAdminPage() {
     });
   }, [bookings, search, statusFilter, typeFilter]);
 
-  if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
+  if (isLoading) return <AdminTableSkeleton cols={8} rows={7} />;
 
   return (
     <div className="space-y-6">
@@ -306,11 +306,7 @@ export default function BookingsAdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={8} className="px-6 py-6 text-center text-slate-400">Đang tải danh sách đơn hàng...</td>
-                </tr>
-              ) : filteredBookings.length === 0 ? (
+              {filteredBookings.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-6 text-center text-slate-400">Chưa có đơn đặt tour/khách sạn nào.</td>
                 </tr>
