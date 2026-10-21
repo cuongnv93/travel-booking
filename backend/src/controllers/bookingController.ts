@@ -231,10 +231,11 @@ export const getStats = async (_req: Request, res: Response) => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [total, pending, confirmed, cancelled, revenueAll, revenueMonth, activeTours, totalUsers, recentBookings] = await Promise.all([
+    const [total, pending, confirmed, completed, cancelled, revenueAll, revenueMonth, activeTours, totalUsers, recentBookings] = await Promise.all([
       Booking.countDocuments(),
       Booking.countDocuments({ status: 'pending' }),
       Booking.countDocuments({ status: 'confirmed' }),
+      Booking.countDocuments({ status: 'completed' }),
       Booking.countDocuments({ status: 'cancelled' }),
       Booking.aggregate([
         { $match: { status: { $in: ['confirmed', 'completed'] } } },
@@ -268,6 +269,7 @@ export const getStats = async (_req: Request, res: Response) => {
       totalBookings: total,
       pendingCount: pending,
       confirmedCount: confirmed,
+      completedCount: completed,
       cancelledCount: cancelled,
       totalRevenue: revenueAll[0]?.total || 0,
       revenueThisMonth: revenueMonth[0]?.total || 0,

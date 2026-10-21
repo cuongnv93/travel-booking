@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Tour from '../models/Tour';
-import { paginate, escapeRegex } from '../utils/helpers';
+import { paginate, escapeRegex, buildDestinationRegex } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
 
 const generateSlug = (title: string) => {
@@ -86,7 +86,14 @@ export const getAll = async (req: Request, res: Response) => {
       query.isActive = isActive === 'true';
     }
 
-    if (destination) query.destination = new RegExp(escapeRegex(destination as string), 'i');
+    if (destination) {
+      const destRegex = buildDestinationRegex(destination as string);
+      query.$or = [
+        { destination: destRegex },
+        { 'title.vi': destRegex },
+        { 'title.en': destRegex },
+      ];
+    }
     if (category) query.category = category;
     if (isFeatured !== undefined) query.isFeatured = isFeatured === 'true';
     if (minPrice || maxPrice) {

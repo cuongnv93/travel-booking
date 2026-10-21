@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Hotel from '../models/Hotel';
-import { escapeRegex } from '../utils/helpers';
+import { escapeRegex, buildDestinationRegex } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
 
 export const getAll = async (req: Request, res: Response) => {
@@ -16,7 +16,15 @@ export const getAll = async (req: Request, res: Response) => {
       query.isActive = isActive === 'true';
     }
 
-    if (location) query.location = new RegExp(escapeRegex(location as string), 'i');
+    if (location) {
+      const locRegex = buildDestinationRegex(location as string);
+      query.$or = [
+        { location: locRegex },
+        { address: locRegex },
+        { 'name.vi': locRegex },
+        { 'name.en': locRegex },
+      ];
+    }
     if (stars) query.stars = Number(stars);
     if (priceMin || priceMax) {
       query.pricePerNight = {};

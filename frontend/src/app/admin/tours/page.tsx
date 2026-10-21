@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import api from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
+import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 
 const fetchAdminTours = async () => {
   const res: any = await api.get('/tours?all=true&limit=100');
@@ -325,6 +325,12 @@ export default function ToursAdminPage() {
     setIsModalOpen(true);
   };
 
+  const handleCopyFromVi = useCallback(() => {
+    if (activeLang === 'vi') return;
+    setTitle((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    setDescription((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+  }, [activeLang]);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const slug = (title.vi || 'tour-' + Date.now())
@@ -340,13 +346,31 @@ export default function ToursAdminPage() {
 
     const formattedHighlights = highlights
       .filter(h => h && h.trim())
-      .map(h => ({ vi: h.trim(), en: h.trim() }));
+      .map(h => ({
+        vi: h.trim(),
+        en: h.trim(),
+        zh: h.trim(),
+        ko: h.trim(),
+        ja: h.trim(),
+      }));
 
     const formattedItinerary = itinerary
       .filter(day => day.title && day.title.trim())
       .map(day => ({
-        title: { vi: day.title.trim(), en: day.title.trim() },
-        description: { vi: day.description || '', en: day.description || '' }
+        title: {
+          vi: day.title.trim(),
+          en: day.title.trim(),
+          zh: day.title.trim(),
+          ko: day.title.trim(),
+          ja: day.title.trim(),
+        },
+        description: {
+          vi: day.description || '',
+          en: day.description || '',
+          zh: day.description || '',
+          ko: day.description || '',
+          ja: day.description || '',
+        }
       }));
     const formattedDepartureDates = departureDates
       .filter(dep => dep.date)
@@ -482,6 +506,7 @@ export default function ToursAdminPage() {
                 <AdminI18nTabs
                   activeLang={activeLang}
                   onChange={setActiveLang}
+                  onCopyFromVi={handleCopyFromVi}
                   hasContent={{
                     vi: !!title.vi,
                     en: !!title.en,
@@ -491,6 +516,21 @@ export default function ToursAdminPage() {
                   }}
                   label="Chọn ngôn ngữ nhập liệu cho Tên & Mô tả Tour:"
                 />
+
+                {activeLang !== 'vi' && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-xs flex items-center justify-between">
+                    <span>
+                      Đang chỉnh sửa bản dịch <strong>{ADMIN_SUPPORTED_LANGUAGES.find(l => l.code === activeLang)?.label}</strong>. Nếu để trống, hệ thống sẽ tự động hiển thị bản dịch Tiếng Anh hoặc Tiếng Việt.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyFromVi}
+                      className="ml-3 shrink-0 px-2.5 py-1 bg-white border border-blue-300 rounded-lg text-blue-700 font-bold hover:bg-blue-100 transition-colors cursor-pointer"
+                    >
+                      Sao chép từ TV
+                    </button>
+                  </div>
+                )}
 
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1 text-xs">

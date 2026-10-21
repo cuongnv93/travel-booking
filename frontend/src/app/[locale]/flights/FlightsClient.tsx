@@ -10,7 +10,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Plane, Calendar, Users, ShieldCheck, Clock, Headphones, Loader2, X, CheckCircle2, Flame, ChevronRight, Ticket, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { VideoBackground } from '@/components/ui/VideoBackground';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, removeVietnameseTones } from '@/lib/utils';
 import TourCard from '@/components/tours/TourCard';
 import { useAirportsCatalog, useAirlinesCatalog, usePageBanners, DEFAULT_AIRPORTS, DEFAULT_AIRLINES, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
 import { getLocalizedError } from '@/lib/errorUtils';
@@ -20,15 +20,23 @@ const AIRPORTS = DEFAULT_AIRPORTS;
 
 function findAirportCode(query: string | null, customAirports = AIRPORTS): string | null {
   if (!query) return null;
-  const q = query.trim().toLowerCase();
-  const directMatch = customAirports.find((a: any) => a.code.toLowerCase() === q);
+  const raw = query.trim().toLowerCase();
+  const qClean = removeVietnameseTones(query);
+  const directMatch = customAirports.find((a: any) => a.code.toLowerCase() === raw || removeVietnameseTones(a.code) === qClean);
   if (directMatch) return directMatch.code;
+
   const nameMatch = customAirports.find((a: any) => {
     const cityObj = a.cities || a.city || {};
     const cityValues = typeof cityObj === 'object' ? Object.values(cityObj) : [cityObj];
+    const nameClean = removeVietnameseTones(a.name);
     return (
-      a.name.toLowerCase().includes(q) ||
-      cityValues.some((cityName: any) => typeof cityName === 'string' && (cityName.toLowerCase().includes(q) || q.includes(cityName.toLowerCase())))
+      nameClean.includes(qClean) ||
+      qClean.includes(nameClean) ||
+      cityValues.some((cityName: any) => {
+        if (typeof cityName !== 'string') return false;
+        const cnClean = removeVietnameseTones(cityName);
+        return cnClean.includes(qClean) || qClean.includes(cnClean);
+      })
     );
   });
   return nameMatch ? nameMatch.code : null;
@@ -113,12 +121,14 @@ function FlightsContent() {
   const [tripType, setTripType] = useState('roundtrip');
   const [fromCity, setFromCity] = useState(initialFrom);
   const [toCity, setToCity] = useState(initialTo);
-  const [departDate, setDepartDate] = useState(() => new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+  const initialDate = urlSearchParams.get('departDate') || urlSearchParams.get('date');
+  const [departDate, setDepartDate] = useState(() => initialDate || new Date(Date.now() + 86400000).toISOString().split('T')[0]);
   const [searchParams, setSearchParams] = useState({ from: initialFrom, to: initialTo });
 
   useEffect(() => {
     const dest = urlSearchParams.get('destination') || urlSearchParams.get('to');
     const fromParam = urlSearchParams.get('from');
+    const dateParam = urlSearchParams.get('departDate') || urlSearchParams.get('date');
     const matchedTo = findAirportCode(dest, airportsList);
     const matchedFrom = findAirportCode(fromParam, airportsList);
     if (matchedTo) {
@@ -128,6 +138,9 @@ function FlightsContent() {
     if (matchedFrom) {
       setFromCity(matchedFrom);
       setSearchParams((prev) => ({ ...prev, from: matchedFrom }));
+    }
+    if (dateParam) {
+      setDepartDate(dateParam);
     }
   }, [urlSearchParams, airportsList]);
 

@@ -111,18 +111,47 @@ const BookingTableRow = memo(function BookingTableRow({
             <button
               onClick={() => onUpdateStatus(b._id, 'confirmed')}
               disabled={isUpdating}
-              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
             >
               Xác nhận
             </button>
             <button
               onClick={() => onUpdateStatus(b._id, 'cancelled')}
               disabled={isUpdating}
-              className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+              className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
             >
               Hủy
             </button>
           </>
+        )}
+
+        {b.status === 'confirmed' && (
+          <>
+            <button
+              onClick={() => onUpdateStatus(b._id, 'completed')}
+              disabled={isUpdating}
+              className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              Hoàn thành
+            </button>
+            <button
+              onClick={() => onUpdateStatus(b._id, 'cancelled')}
+              disabled={isUpdating}
+              className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              Hủy
+            </button>
+          </>
+        )}
+
+        {b.status === 'cancelled' && (
+          <button
+            onClick={() => onUpdateStatus(b._id, 'pending')}
+            disabled={isUpdating}
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            Khôi phục
+          </button>
         )}
       </td>
     </tr>
@@ -177,6 +206,10 @@ export default function BookingsAdminPage() {
     return stats?.confirmedCount ?? bookings.filter((b: any) => b.status === 'confirmed').length;
   }, [stats?.confirmedCount, bookings]);
 
+  const completedCount = useMemo(() => {
+    return stats?.completedCount ?? bookings.filter((b: any) => b.status === 'completed').length;
+  }, [stats?.completedCount, bookings]);
+
   const filteredBookings = useMemo(() => {
     const s = search.toLowerCase().trim();
     return bookings.filter((b: any) => {
@@ -201,7 +234,7 @@ export default function BookingsAdminPage() {
       </div>
 
       {/* Stats Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Tổng Số Đơn</span>
@@ -237,6 +270,16 @@ export default function BookingsAdminPage() {
             </span>
           </div>
           <p className="text-2xl font-bold font-mono text-slate-900 mt-2">{confirmedCount}</p>
+        </div>
+
+        <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Đã Hoàn Thành</span>
+            <span className="p-2 rounded-lg bg-blue-50 text-blue-600">
+              <CheckCircle2 className="w-4 h-4" />
+            </span>
+          </div>
+          <p className="text-2xl font-bold font-mono text-blue-600 mt-2">{completedCount}</p>
         </div>
 
         <div className="bg-white border border-slate-200/80 p-4 rounded-xl shadow-2xs">
@@ -392,10 +435,66 @@ export default function BookingsAdminPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-slate-500">Đổi trạng thái:</span>
+                {selectedBooking.status !== 'confirmed' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdateStatus(selectedBooking._id, 'confirmed');
+                      setSelectedBooking({ ...selectedBooking, status: 'confirmed' });
+                    }}
+                    disabled={updateStatusMutation.isPending}
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Xác nhận
+                  </button>
+                )}
+                {selectedBooking.status !== 'completed' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdateStatus(selectedBooking._id, 'completed');
+                      setSelectedBooking({ ...selectedBooking, status: 'completed' });
+                    }}
+                    disabled={updateStatusMutation.isPending}
+                    className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Hoàn thành
+                  </button>
+                )}
+                {selectedBooking.status !== 'cancelled' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdateStatus(selectedBooking._id, 'cancelled');
+                      setSelectedBooking({ ...selectedBooking, status: 'cancelled' });
+                    }}
+                    disabled={updateStatusMutation.isPending}
+                    className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Hủy đơn
+                  </button>
+                )}
+                {selectedBooking.status === 'cancelled' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdateStatus(selectedBooking._id, 'pending');
+                      setSelectedBooking({ ...selectedBooking, status: 'pending' });
+                    }}
+                    disabled={updateStatusMutation.isPending}
+                    className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  >
+                    Về Chờ xử lý
+                  </button>
+                )}
+              </div>
               <button
+                type="button"
                 onClick={() => setSelectedBooking(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition-colors"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition-colors cursor-pointer"
               >
                 Đóng
               </button>

@@ -6,17 +6,38 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Search, MapPin, Calendar, Users, Plane, Hotel, Map, Flame, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getI18nText, removeVietnameseTones } from '@/lib/utils';
+import { useFeaturedDestinations, DEFAULT_DESTINATIONS } from '@/hooks/useSettings';
 
-const POPULAR_DESTINATIONS = [
-  { name: 'Đà Nẵng', tag: 'Biển & Resort 5★', image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=200' },
-  { name: 'Phú Quốc', tag: 'Đảo Ngọc Ngắm San Hô', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200' },
-  { name: 'Hà Nội', tag: 'Văn Hóa Phố Cổ 36 Phường', image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=200' },
-  { name: 'Sa Pa', tag: 'Sương Mờ Ruộng Bậc Thang', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200' },
-  { name: 'Hạ Long', tag: 'Kỳ Quan Du Thuyền UNESCO', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=200' },
-  { name: 'Cao Bằng', tag: 'Thác Bản Giốc Hùng Vĩ', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=200' },
-  { name: 'Nha Trang', tag: 'Vịnh Biển Đẹp Nhất', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200' },
-  { name: 'Huế', tag: 'Cố Đô Triều Nguyễn', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=200' },
+const FALLBACK_POPULAR_DESTINATIONS = [
+  ...DEFAULT_DESTINATIONS,
+  {
+    id: 'halong',
+    name: { vi: 'Hạ Long', en: 'Ha Long Bay', zh: '下龙湾', ko: '하롱베이', ja: 'ハロン湾' },
+    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=400',
+    tag: { vi: 'Kỳ Quan Du Thuyền UNESCO', en: 'UNESCO World Natural Wonder', zh: '世界自然遗产游轮', ko: 'UNESCO 세계자연유산', ja: '世界遺産ハロン湾クルーズ' },
+    tourQuery: 'Hạ Long',
+    order: 7,
+    isActive: true,
+  },
+  {
+    id: 'caobang',
+    name: { vi: 'Cao Bằng', en: 'Cao Bang', zh: '高平', ko: '까오방', ja: 'カオバン' },
+    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=400',
+    tag: { vi: 'Thác Bản Giốc Hùng Vĩ', en: 'Majestic Ban Gioc Waterfall', zh: '雄伟板约瀑布', ko: '반족 폭포의 절경', ja: '雄大なバンゾック滝' },
+    tourQuery: 'Cao Bằng',
+    order: 8,
+    isActive: true,
+  },
+  {
+    id: 'hue',
+    name: { vi: 'Huế', en: 'Hue Imperial City', zh: '顺化古都', ko: '후에 황도', ja: 'フエ古都' },
+    image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400',
+    tag: { vi: 'Cố Đô Triều Nguyễn', en: 'Nguyen Dynasty Citadel', zh: '阮朝皇城古都', ko: '응우옌 왕조의 옛 수도', ja: '阮朝の歴史香る古都' },
+    tourQuery: 'Huế',
+    order: 9,
+    isActive: true,
+  },
 ];
 
 function QuickSearchComponent() {
@@ -31,6 +52,15 @@ function QuickSearchComponent() {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { data: remoteDestinations } = useFeaturedDestinations();
+
+  const destinationsList = useMemo(() => {
+    const list = Array.isArray(remoteDestinations) && remoteDestinations.length > 0
+      ? remoteDestinations
+      : FALLBACK_POPULAR_DESTINATIONS;
+    return list.filter((item: any) => item.isActive !== false);
+  }, [remoteDestinations]);
 
   const tabs = useMemo(
     () => [
@@ -52,28 +82,58 @@ function QuickSearchComponent() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showDropdown]);
 
-  const filteredSuggestions = useMemo(
-    () =>
-      POPULAR_DESTINATIONS.filter(
-        (item) =>
-          item.name.toLowerCase().includes(destination.toLowerCase()) ||
-          item.tag.toLowerCase().includes(destination.toLowerCase())
-      ),
-    [destination]
-  );
+  const filteredSuggestions = useMemo(() => {
+    const queryClean = removeVietnameseTones(destination);
+    if (!queryClean) return destinationsList;
+
+    return destinationsList.filter((item: any) => {
+      const nameCurrent = getI18nText(item.name, locale, '');
+      const nameVi = typeof item.name === 'object' ? item.name?.vi || '' : String(item.name || '');
+      const nameEn = typeof item.name === 'object' ? item.name?.en || '' : '';
+      const tagCurrent = getI18nText(item.tag, locale, '');
+      const tagVi = typeof item.tag === 'object' ? item.tag?.vi || '' : String(item.tag || '');
+      const tourQuery = item.tourQuery || '';
+      const idStr = item.id || '';
+
+      return (
+        removeVietnameseTones(nameCurrent).includes(queryClean) ||
+        removeVietnameseTones(nameVi).includes(queryClean) ||
+        removeVietnameseTones(nameEn).includes(queryClean) ||
+        removeVietnameseTones(tagCurrent).includes(queryClean) ||
+        removeVietnameseTones(tagVi).includes(queryClean) ||
+        removeVietnameseTones(tourQuery).includes(queryClean) ||
+        idStr.toLowerCase().includes(queryClean)
+      );
+    });
+  }, [destinationsList, destination, locale]);
 
   const handleSearch = useCallback(
     (e?: React.FormEvent) => {
       if (e) e.preventDefault();
+      const params = new URLSearchParams();
+      const trimmedDest = destination.trim();
+
       if (activeTab === 'hotels') {
-        router.push(`/${locale}/hotels?location=${encodeURIComponent(destination)}`);
+        if (trimmedDest) params.set('location', trimmedDest);
+        if (date) params.set('checkIn', date);
+        if (guests && guests !== '2') params.set('guests', guests);
+        const query = params.toString();
+        router.push(`/${locale}/hotels${query ? `?${query}` : ''}`);
       } else if (activeTab === 'flights') {
-        router.push(`/${locale}/flights?destination=${encodeURIComponent(destination)}`);
+        if (trimmedDest) params.set('destination', trimmedDest);
+        if (date) params.set('departDate', date);
+        if (guests && guests !== '1') params.set('passengers', guests);
+        const query = params.toString();
+        router.push(`/${locale}/flights${query ? `?${query}` : ''}`);
       } else {
-        router.push(`/${locale}/tours?destination=${encodeURIComponent(destination)}`);
+        if (trimmedDest) params.set('destination', trimmedDest);
+        if (date) params.set('date', date);
+        if (guests && guests !== '2') params.set('guests', guests);
+        const query = params.toString();
+        router.push(`/${locale}/tours${query ? `?${query}` : ''}`);
       }
     },
-    [activeTab, destination, locale, router]
+    [activeTab, destination, date, guests, locale, router]
   );
 
   const selectDestination = useCallback((name: string) => {
@@ -147,35 +207,43 @@ function QuickSearchComponent() {
                 </div>
                 <div className="grid grid-cols-1 gap-1">
                   {filteredSuggestions.length > 0 ? (
-                    filteredSuggestions.map((item) => (
-                      <button
-                        key={item.name}
-                        type="button"
-                        onClick={() => selectDestination(item.name)}
-                        className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-blue-50/80 text-slate-800 hover:text-blue-700 flex items-center justify-between transition-all group cursor-pointer border border-transparent hover:border-blue-100"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            width={40}
-                            height={40}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-xs group-hover:scale-105 transition-transform shrink-0"
-                          />
-                          <div>
-                            <span className="font-bold text-xs sm:text-sm block text-slate-900 group-hover:text-blue-600">
-                              {item.name}
-                            </span>
-                            <span className="text-[11px] text-slate-400 block font-medium">
-                              {item.tag}
-                            </span>
+                    filteredSuggestions.map((item: any) => {
+                      const displayName = getI18nText(item.name, locale, typeof item.name === 'string' ? item.name : item.name?.vi || '');
+                      const displayTag = getI18nText(item.tag, locale, typeof item.tag === 'string' ? item.tag : item.tag?.vi || '');
+                      const selectValue = item.tourQuery || displayName;
+
+                      return (
+                        <button
+                          key={item.id || displayName}
+                          type="button"
+                          onClick={() => selectDestination(selectValue)}
+                          className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-blue-50/80 text-slate-800 hover:text-blue-700 flex items-center justify-between transition-all group cursor-pointer border border-transparent hover:border-blue-100"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Image
+                              src={item.image}
+                              alt={displayName}
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-xs group-hover:scale-105 transition-transform shrink-0"
+                            />
+                            <div>
+                              <span className="font-bold text-xs sm:text-sm block text-slate-900 group-hover:text-blue-600">
+                                {displayName}
+                              </span>
+                              {displayTag && (
+                                <span className="text-[11px] text-slate-400 block font-medium">
+                                  {displayTag}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <span className="text-[11px] font-bold bg-slate-100 group-hover:bg-blue-600 group-hover:text-white text-slate-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1">
-                          {t('choose')} <ChevronRight className="w-3 h-3" />
-                        </span>
-                      </button>
-                    ))
+                          <span className="text-[11px] font-bold bg-slate-100 group-hover:bg-blue-600 group-hover:text-white text-slate-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1">
+                            {t('choose')} <ChevronRight className="w-3 h-3" />
+                          </span>
+                        </button>
+                      );
+                    })
                   ) : (
                     <p className="px-4 py-3 text-xs text-slate-400 text-center">{t('noMatch')}</p>
                   )}
@@ -251,23 +319,28 @@ function QuickSearchComponent() {
         <div className="h-4 w-px bg-slate-200 hidden sm:block shrink-0" />
 
         <div className="flex flex-wrap gap-2 flex-1 items-center">
-          {POPULAR_DESTINATIONS.slice(0, 6).map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              onClick={() => selectDestination(item.name)}
-              className="bg-slate-50 hover:bg-blue-600 text-slate-800 hover:text-white pl-1.5 pr-3.5 py-1 rounded-full font-bold text-xs shadow-xs border border-slate-200/90 hover:border-blue-600 transition-all cursor-pointer flex items-center gap-2 group hover:-translate-y-0.5"
-            >
-              <Image
-                src={item.image}
-                alt={item.name}
-                width={20}
-                height={20}
-                className="w-5 h-5 rounded-full object-cover ring-2 ring-white group-hover:ring-blue-400 shrink-0"
-              />
-              <span>{item.name}</span>
-            </button>
-          ))}
+          {destinationsList.slice(0, 7).map((item: any) => {
+            const displayName = getI18nText(item.name, locale, typeof item.name === 'string' ? item.name : item.name?.vi || '');
+            const selectValue = item.tourQuery || displayName;
+
+            return (
+              <button
+                key={item.id || displayName}
+                type="button"
+                onClick={() => selectDestination(selectValue)}
+                className="bg-slate-50 hover:bg-blue-600 text-slate-800 hover:text-white pl-1.5 pr-3.5 py-1 rounded-full font-bold text-xs shadow-xs border border-slate-200/90 hover:border-blue-600 transition-all cursor-pointer flex items-center gap-2 group hover:-translate-y-0.5"
+              >
+                <Image
+                  src={item.image}
+                  alt={displayName}
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 rounded-full object-cover ring-2 ring-white group-hover:ring-blue-400 shrink-0"
+                />
+                <span>{displayName}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </motion.div>

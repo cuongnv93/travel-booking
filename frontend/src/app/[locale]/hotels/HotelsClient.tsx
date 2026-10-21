@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { Star, MapPin, Search, Building2, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
-import { formatPrice, getI18nText } from '@/lib/utils';
+import { formatPrice, getI18nText, removeVietnameseTones } from '@/lib/utils';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -163,9 +163,11 @@ function HotelsClientComponent({
   const filteredHotels = useMemo(() => {
     return displayHotels.filter((h: any) => {
       if (!search.trim()) return true;
-      const name = getI18nText(h.name, locale).toLowerCase();
-      const loc = (h.location || '').toLowerCase();
-      return name.includes(search.toLowerCase()) || loc.includes(search.toLowerCase());
+      const qClean = removeVietnameseTones(search);
+      const name = removeVietnameseTones(getI18nText(h.name, locale));
+      const loc = removeVietnameseTones(h.location || '');
+      const addr = removeVietnameseTones(h.address || '');
+      return name.includes(qClean) || loc.includes(qClean) || addr.includes(qClean);
     });
   }, [displayHotels, search, locale]);
 
