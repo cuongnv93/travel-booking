@@ -19,6 +19,17 @@ import Link from 'next/link';
 
 type MultiLang = { vi: string; en: string; zh: string; ko: string; ja: string };
 
+const normalizeMultiLang = (val: any, defaultFallback?: Partial<MultiLang>): MultiLang => {
+  const viVal = typeof val === 'string' ? val : (val?.vi || '');
+  return {
+    vi: viVal || defaultFallback?.vi || '',
+    en: (val && typeof val === 'object' && val.en) ? val.en : (defaultFallback?.en || viVal),
+    zh: (val && typeof val === 'object' && val.zh) ? val.zh : (defaultFallback?.zh || viVal),
+    ko: (val && typeof val === 'object' && val.ko) ? val.ko : (defaultFallback?.ko || viVal),
+    ja: (val && typeof val === 'object' && val.ja) ? val.ja : (defaultFallback?.ja || viVal),
+  };
+};
+
 interface HeroSlide {
   image: string;
   title: MultiLang;
@@ -26,6 +37,14 @@ interface HeroSlide {
   ctaText: MultiLang;
   ctaLink: string;
 }
+
+const normalizeSlide = (slide: any): HeroSlide => ({
+  image: slide?.image || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
+  title: normalizeMultiLang(slide?.title),
+  subtitle: normalizeMultiLang(slide?.subtitle),
+  ctaText: normalizeMultiLang(slide?.ctaText),
+  ctaLink: slide?.ctaLink || '/tours',
+});
 
 const DEFAULT_SLIDES: HeroSlide[] = [
   {
@@ -146,7 +165,7 @@ export default function AdminAppearancePage() {
     if (settings.length > 0) {
       settings.forEach((s: any) => {
         if (s.key === 'hero_banners' && Array.isArray(s.value) && s.value.length > 0) {
-          setSlides(s.value);
+          setSlides(s.value.map(normalizeSlide));
         }
         if (s.key === 'page_banners' && s.value) {
           if (s.value.toursBanner) setToursBanner(s.value.toursBanner);
@@ -248,7 +267,7 @@ export default function AdminAppearancePage() {
 
   const handleSlideLangChange = (index: number, field: 'title' | 'subtitle' | 'ctaText', lang: 'vi' | 'en' | 'zh' | 'ko' | 'ja', val: string) => {
     const updated = [...slides];
-    const currentFieldObj = updated[index][field] || { vi: '', en: '', zh: '', ko: '', ja: '' };
+    const currentFieldObj = normalizeMultiLang(updated[index]?.[field]);
     updated[index] = {
       ...updated[index],
       [field]: { ...currentFieldObj, [lang]: val }

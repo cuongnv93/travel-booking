@@ -407,31 +407,6 @@ export default function AdminSettingsPage() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       await Promise.all([
-        api.put('/settings/hero_banners', {
-          group: 'homepage',
-          value: slides,
-        }),
-        api.put('/settings/page_banners', {
-          group: 'general',
-          value: {
-            toursBanner,
-            toursVideo,
-            hotelsBanner,
-            hotelsVideo,
-            flightsBanner,
-            flightsVideo,
-            visaBanner,
-            visaVideo,
-            newsBanner,
-            newsVideo,
-            specialtiesBanner,
-            specialtiesVideo,
-            contactBanner,
-            contactVideo,
-            lookupBanner,
-            lookupVideo,
-          },
-        }),
         api.put('/settings/site_info', {
           group: 'general',
           value: { siteName, hotline, email, address },
@@ -444,26 +419,9 @@ export default function AdminSettingsPage() {
           group: 'payment',
           value: { bankName, bankAccount, bankHolder, enableBooking },
         }),
-        api.put('/settings/testimonials', {
-          group: 'homepage',
-          value: reviews,
-        }),
-        api.put('/pages/visa', {
-          slug: 'visa',
-          title: { ...(pagesData?.rawVisa?.title || {}), vi: pagesData?.rawVisa?.title?.vi || 'Dịch vụ Visa' },
-          content: { ...(pagesData?.rawVisa?.content || {}), vi: visaContent },
-        }),
-        api.put('/pages/about', {
-          slug: 'about',
-          title: { ...(pagesData?.rawAbout?.title || {}), vi: pagesData?.rawAbout?.title?.vi || 'Về Chúng Tôi' },
-          content: { ...(pagesData?.rawAbout?.content || {}), vi: aboutContent },
-        }),
         // Batch atomic save for all Master Dynamic CMS modules
         api.put('/settings/batch/update', {
           settings: [
-            { key: 'home_featured_destinations', group: 'home', value: destinations },
-            { key: 'home_why_choose_us', group: 'home', value: whyChooseUs },
-            { key: 'home_stats_counters', group: 'home', value: statsCounters },
             { key: 'flight_airports', group: 'flights', value: airports },
             { key: 'flight_airlines', group: 'flights', value: airlines },
             { key: 'visa_countries_catalog', group: 'visa', value: visaCountries },
@@ -484,11 +442,6 @@ export default function AdminSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
       queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['setting'] });
-      queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
-      queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-pages'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-page'] });
-      queryClient.invalidateQueries({ queryKey: ['pages'] });
       setSuccessMsg('Đã lưu cấu hình cài đặt hệ thống & Toàn bộ dữ liệu Master thành công!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
