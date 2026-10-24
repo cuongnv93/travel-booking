@@ -389,7 +389,7 @@ export default function HotelDetailClient() {
                     {effectiveAmenities.map((item: string, i: number) => (
                       <div key={i} className="flex items-center gap-3">
                         <span className="text-2xl bg-blue-50/50 w-10 h-10 rounded-full flex items-center justify-center shrink-0">{AMENITY_ICONS[item] || '✓'}</span>
-                        <span className="text-sm font-medium text-slate-700">{item}</span>
+                        <span className="text-sm font-medium text-slate-700">{typeof item === 'object' ? getI18nText(item, locale) : String(item)}</span>
                       </div>
                     ))}
                   </div>

@@ -107,7 +107,10 @@ export default async function ToursPage({
     prefetchSettings(),
   ]);
 
-  const pageBanners = settings.find((s: any) => s.key === 'page_banners')?.value;
+  const safeTours = Array.isArray(initialTours) ? initialTours : [];
+  const safeSettings = Array.isArray(settings) ? settings : [];
+
+  const pageBanners = safeSettings.find((s: any) => s.key === 'page_banners')?.value;
   const toursBanner = pageBanners?.toursBanner || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600';
   const toursVideo = pageBanners?.toursVideo || 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/mountains.mp4';
 
@@ -116,8 +119,8 @@ export default async function ToursPage({
     '@type': 'ItemList',
     name: 'Danh Sách Tour Du Lịch Nổi Bật',
     url: `${baseUrl}/${locale}/tours`,
-    numberOfItems: initialTours.length,
-    itemListElement: initialTours.slice(0, 10).map((tour: any, index: number) => ({
+    numberOfItems: safeTours.length,
+    itemListElement: safeTours.slice(0, 10).map((tour: any, index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: typeof tour.title === 'string' ? tour.title : (tour.title?.[locale] || tour.title?.vi || 'Tour Du Lịch'),
@@ -139,7 +142,7 @@ export default async function ToursPage({
           </div>
         </div>
       }>
-        <ToursClient initialTours={initialTours} toursBanner={toursBanner} toursVideo={toursVideo} />
+        <ToursClient initialTours={safeTours} toursBanner={toursBanner} toursVideo={toursVideo} />
       </Suspense>
     </main>
   );

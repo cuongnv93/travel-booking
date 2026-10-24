@@ -8,6 +8,7 @@ import {
   Users, Star, Sparkles, Award, Clock, HeartHandshake
 } from 'lucide-react';
 import { useWhyChooseUs, useHomeStatsCounters } from '@/hooks/useSettings';
+import { getI18nText } from '@/lib/utils';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Shield,
@@ -93,13 +94,8 @@ function WhyChooseUsComponent() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12 sm:mb-16">
           {featuresList.map((feature: any, index: number) => {
-            const title = typeof feature.title === 'object'
-              ? (feature.title[locale] || feature.title.vi || feature.title.en || t(`items.${feature.id}`))
-              : (feature.title || t(`items.${feature.id}`));
-
-            const detail = typeof feature.detail === 'object'
-              ? (feature.detail[locale] || feature.detail.vi || feature.detail.en || t(`items.${feature.id}Detail`))
-              : (feature.detail || t(`items.${feature.id}Detail`));
+            const title = getI18nText(feature.title, locale, t(`items.${feature.id}`));
+            const detail = getI18nText(feature.detail, locale, t(`items.${feature.id}Detail`));
 
             return (
               <FeatureCard
@@ -120,8 +116,8 @@ function WhyChooseUsComponent() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white p-5 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs">
             {dynamicStats.map((st: any, i: number) => {
               const Icon = ICON_MAP[st.icon] || Award;
-              const label = typeof st.label === 'object' ? (st.label[locale] || st.label.vi || st.label.en) : st.label;
-              const sub = typeof st.sub === 'object' ? (st.sub[locale] || st.sub.vi || st.sub.en) : st.sub;
+              const label = getI18nText(st.label, locale, '');
+              const sub = st.sub ? getI18nText(st.sub, locale, '') : '';
 
               return (
                 <div key={i} className="flex items-center gap-3 sm:gap-4">

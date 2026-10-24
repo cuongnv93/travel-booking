@@ -21,6 +21,7 @@ export const getAll = async (req: Request, res: Response) => {
       query.$or = [
         { location: locRegex },
         { address: locRegex },
+        { name: locRegex },
         { 'name.vi': locRegex },
         { 'name.en': locRegex },
       ];

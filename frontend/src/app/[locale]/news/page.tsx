@@ -107,7 +107,10 @@ export default async function NewsPage({
     prefetchSettings(),
   ]);
 
-  const pageBanners = settings.find((s: any) => s.key === 'page_banners')?.value;
+  const safeNews = Array.isArray(initialNews) ? initialNews : [];
+  const safeSettings = Array.isArray(settings) ? settings : [];
+
+  const pageBanners = safeSettings.find((s: any) => s.key === 'page_banners')?.value;
   const newsBanner = pageBanners?.newsBanner || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600';
   const newsVideo = pageBanners?.newsVideo || 'https://res.cloudinary.com/demo/video/upload/so_0,eo_12,q_auto,w_1280,ac_none/forest_bike.mp4';
 
@@ -116,8 +119,8 @@ export default async function NewsPage({
     '@type': 'ItemList',
     name: 'Cẩm Nang & Tin Tức Du Lịch Mới Nhất',
     url: `${baseUrl}/${locale}/news`,
-    numberOfItems: initialNews.length,
-    itemListElement: initialNews.slice(0, 10).map((article: any, index: number) => ({
+    numberOfItems: safeNews.length,
+    itemListElement: safeNews.slice(0, 10).map((article: any, index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: typeof article.title === 'string' ? article.title : (article.title?.[locale] || article.title?.vi || 'Tin Tức Du Lịch'),
@@ -142,7 +145,7 @@ export default async function NewsPage({
           </div>
         </div>
       }>
-        <NewsClient initialNews={initialNews} newsBanner={newsBanner} newsVideo={newsVideo} />
+        <NewsClient initialNews={safeNews} newsBanner={newsBanner} newsVideo={newsVideo} />
       </Suspense>
     </main>
   );

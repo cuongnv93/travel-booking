@@ -108,7 +108,11 @@ export default async function HotelsPage({
     prefetchSettings(),
   ]);
 
-  const pageBanners = settings.find((s: any) => s.key === 'page_banners')?.value;
+  const safeHotels = Array.isArray(initialHotels) ? initialHotels : [];
+  const safeLocations = Array.isArray(initialLocations) ? initialLocations : [];
+  const safeSettings = Array.isArray(settings) ? settings : [];
+
+  const pageBanners = safeSettings.find((s: any) => s.key === 'page_banners')?.value;
   const hotelsBanner = pageBanners?.hotelsBanner || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600';
   const hotelsVideo = pageBanners?.hotelsVideo || 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/glide-over-coastal-beach.mp4';
 
@@ -117,8 +121,8 @@ export default async function HotelsPage({
     '@type': 'ItemList',
     name: 'Danh Sách Khách Sạn & Resort Nổi Bật',
     url: `${baseUrl}/${locale}/hotels`,
-    numberOfItems: initialHotels.length,
-    itemListElement: initialHotels.slice(0, 10).map((hotel: any, index: number) => ({
+    numberOfItems: safeHotels.length,
+    itemListElement: safeHotels.slice(0, 10).map((hotel: any, index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: typeof hotel.name === 'string' ? hotel.name : (hotel.name?.[locale] || hotel.name?.vi || 'Khách Sạn & Resort'),
@@ -140,7 +144,7 @@ export default async function HotelsPage({
           </div>
         </div>
       }>
-        <HotelsClient initialHotels={initialHotels} initialLocations={initialLocations} hotelsBanner={hotelsBanner} hotelsVideo={hotelsVideo} />
+        <HotelsClient initialHotels={safeHotels} initialLocations={safeLocations} hotelsBanner={hotelsBanner} hotelsVideo={hotelsVideo} />
       </Suspense>
     </main>
   );

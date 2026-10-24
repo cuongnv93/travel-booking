@@ -342,7 +342,7 @@ export default function TourDetailClient({
                   </h3>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 list-disc pl-5 text-slate-700">
                     {inclusionsList.map((item: string, i: number) => (
-                      <li key={i}>{item}</li>
+                      <li key={i}>{typeof item === 'object' ? getI18nText(item, locale) : String(item)}</li>
                     ))}
                   </ul>
                 </div>
@@ -355,7 +355,7 @@ export default function TourDetailClient({
                   </h3>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 list-disc pl-5 text-slate-700">
                     {exclusionsList.map((item: string, i: number) => (
-                      <li key={i}>{item}</li>
+                      <li key={i}>{typeof item === 'object' ? getI18nText(item, locale) : String(item)}</li>
                     ))}
                   </ul>
                 </div>
@@ -368,7 +368,7 @@ export default function TourDetailClient({
                   </h3>
                   <div className="text-slate-700 leading-relaxed text-xs sm:text-sm space-y-1">
                     {importantNotesList.map((note: string, i: number) => (
-                      <div key={i}>• {note}</div>
+                      <div key={i}>• {typeof note === 'object' ? getI18nText(note, locale) : String(note)}</div>
                     ))}
                   </div>
                 </div>

@@ -7,18 +7,19 @@ import SmartImage from '@/components/ui/SmartImage';
 import { MapPin, ArrowRight, Compass } from 'lucide-react';
 import { useMemo, memo } from 'react';
 import { useFeaturedDestinations } from '@/hooks/useSettings';
+import { getI18nText } from '@/lib/utils';
 
 const DESTINATION_PHOTOS: Record<string, string> = {
-  'Hà Nội': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
-  'Đà Nẵng': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
-  'Hội An': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
-  'Phú Quốc': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
+  'HÃ  Ná»™i': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
+  'ÄÃ  Náºµng': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
+  'Há»™i An': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
+  'PhÃº Quá»‘c': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
   'Sa Pa': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
   'Nha Trang': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
-  'Hạ Long': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
-  'TP. Hồ Chí Minh': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
-  'Cao Bằng': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
-  'Huế': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
+  'Háº¡ Long': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
+  'TP. Há»“ ChÃ­ Minh': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
+  'Cao Báº±ng': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
+  'Huáº¿': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
 };
 
 const FALLBACK_DEST_PHOTO = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
@@ -79,12 +80,12 @@ export default function DestinationsSection() {
       return dynamicDestinations.filter((d: any) => d.isActive !== false);
     }
     return [
-      { name: 'Hà Nội', image: DESTINATION_PHOTOS['Hà Nội'] },
-      { name: 'Đà Nẵng', image: DESTINATION_PHOTOS['Đà Nẵng'] },
-      { name: 'Hội An', image: DESTINATION_PHOTOS['Hội An'] },
-      { name: 'Phú Quốc', image: DESTINATION_PHOTOS['Phú Quốc'] },
+      { name: 'HÃ  Ná»™i', image: DESTINATION_PHOTOS['HÃ  Ná»™i'] },
+      { name: 'ÄÃ  Náºµng', image: DESTINATION_PHOTOS['ÄÃ  Náºµng'] },
+      { name: 'Há»™i An', image: DESTINATION_PHOTOS['Há»™i An'] },
+      { name: 'PhÃº Quá»‘c', image: DESTINATION_PHOTOS['PhÃº Quá»‘c'] },
       { name: 'Sa Pa', image: DESTINATION_PHOTOS['Sa Pa'] },
-      { name: 'Cao Bằng', image: DESTINATION_PHOTOS['Cao Bằng'] },
+      { name: 'Cao Báº±ng', image: DESTINATION_PHOTOS['Cao Báº±ng'] },
     ];
   }, [dynamicDestinations]);
 
@@ -112,9 +113,7 @@ export default function DestinationsSection() {
         {displayList.slice(0, 6).map((item: any, idx: number) => {
           const destName = typeof item === 'string'
             ? item
-            : typeof item.name === 'object'
-            ? (item.name[locale] || item.name.vi || item.name.en || '')
-            : item.name;
+            : getI18nText(item.name, locale, 'Việt Nam');
 
           const queryParam = (typeof item === 'object' && item.tourQuery) ? item.tourQuery : destName;
 
@@ -123,7 +122,7 @@ export default function DestinationsSection() {
             : (DESTINATION_PHOTOS[destName] || FALLBACK_DEST_PHOTO);
 
           const tag = typeof item === 'object' && item.tag
-            ? (typeof item.tag === 'object' ? (item.tag[locale] || item.tag.vi || item.tag.en) : item.tag)
+            ? getI18nText(item.tag, locale)
             : undefined;
 
           return (

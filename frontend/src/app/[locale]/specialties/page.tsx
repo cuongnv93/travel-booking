@@ -109,7 +109,11 @@ export default async function SpecialtiesPage({
     prefetchTours({ limit: '12' }),
   ]);
 
-  const pageBanners = settings.find((s: any) => s.key === 'page_banners')?.value;
+  const safeSpecialties = Array.isArray(initialSpecialties) ? initialSpecialties : [];
+  const safeSettings = Array.isArray(settings) ? settings : [];
+  const safeTours = Array.isArray(initialTours) ? initialTours : [];
+
+  const pageBanners = safeSettings.find((s: any) => s.key === 'page_banners')?.value;
   const specialtiesBanner = pageBanners?.specialtiesBanner || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600';
   const specialtiesVideo = pageBanners?.specialtiesVideo || 'https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/walking.mp4';
 
@@ -118,8 +122,8 @@ export default async function SpecialtiesPage({
     '@type': 'ItemList',
     name: 'Danh Sách Đặc Sản Ẩm Thực Vùng Miền Việt Nam',
     url: `${baseUrl}/${locale}/specialties`,
-    numberOfItems: initialSpecialties.length,
-    itemListElement: initialSpecialties.slice(0, 10).map((item: any, index: number) => ({
+    numberOfItems: safeSpecialties.length,
+    itemListElement: safeSpecialties.slice(0, 10).map((item: any, index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: typeof item.name === 'string' ? item.name : (item.name?.[locale] || item.name?.vi || 'Món Ăn Đặc Sản'),
@@ -142,11 +146,11 @@ export default async function SpecialtiesPage({
         </div>
       }>
         <SpecialtiesClient
-          initialSpecialties={initialSpecialties}
+          initialSpecialties={safeSpecialties}
           initialProvinces={VIETNAM_PROVINCES}
           specialtiesBanner={specialtiesBanner}
           specialtiesVideo={specialtiesVideo}
-          initialTours={initialTours}
+          initialTours={safeTours}
         />
       </Suspense>
     </main>

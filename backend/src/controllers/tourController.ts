@@ -90,6 +90,7 @@ export const getAll = async (req: Request, res: Response) => {
       const destRegex = buildDestinationRegex(destination as string);
       query.$or = [
         { destination: destRegex },
+        { title: destRegex },
         { 'title.vi': destRegex },
         { 'title.en': destRegex },
       ];
