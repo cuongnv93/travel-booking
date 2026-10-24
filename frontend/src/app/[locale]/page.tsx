@@ -110,9 +110,81 @@ export const generateMetadata = async ({ params }: { params: Promise<{ locale: s
   };
 };
 
-export default async function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params?: Promise<{ locale?: string }> | { locale?: string };
+}) {
+  const resolvedParams = params ? await Promise.resolve(params) : null;
+  const locale = resolvedParams?.locale || 'vi';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${baseUrl}/#website`,
+        url: baseUrl,
+        name: 'Travel Booking - Đặt Tour Du Lịch & Khách Sạn Việt Nam',
+        alternateName: ['Travel Booking VN', 'Du Lịch Việt Nam Travel Booking'],
+        description:
+          'Nền tảng đặt tour du lịch Việt Nam chất lượng cao, combo du lịch giá rẻ, vé máy bay và khách sạn resort 5 sao uy tín hàng đầu.',
+        inLanguage: locale,
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${baseUrl}/${locale}/tours?search={search_term_string}`,
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'TravelAgency',
+        '@id': `${baseUrl}/#organization`,
+        name: 'Travel Booking Vietnam',
+        url: baseUrl,
+        logo: `${baseUrl}/logo.png`,
+        image: `${baseUrl}/og-image.jpg`,
+        description:
+          'Đại lý du lịch hàng đầu cung cấp tour du lịch Việt Nam trọn gói: tour Hạ Long, tour Đà Nẵng, Phú Quốc, Sapa, Ninh Bình, Miền Tây sông nước, Quy Nhơn - Phú Yên giá tốt nhất.',
+        telephone: '+84 1900 6868',
+        email: 'support@travelbooking.vn',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: '72 Lê Thánh Tôn, Bến Nghé, Quận 1',
+          addressLocality: 'Hồ Chí Minh',
+          addressRegion: 'Thành phố Hồ Chí Minh',
+          postalCode: '70000',
+          addressCountry: 'VN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: '10.7781',
+          longitude: '106.7018',
+        },
+        priceRange: '$$ - $$$$',
+        openingHoursSpecification: [
+          {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            opens: '08:00',
+            closes: '22:00',
+          },
+        ],
+        sameAs: [
+          'https://facebook.com/travelbooking',
+          'https://instagram.com/travelbooking',
+          'https://youtube.com/travelbooking',
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <HeroBanner />
       
       {/* Search box seamlessly overlapping the Hero section */}

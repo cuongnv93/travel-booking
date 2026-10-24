@@ -78,20 +78,55 @@ export default async function TourDetailPage({
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
+  const tourTitle = getI18nText(tour.title, locale);
+  const tourDesc = getI18nText(tour.description, locale);
   const tourSchema = {
     '@context': 'https://schema.org',
-    '@type': 'TouristTrip',
-    name: getI18nText(tour.title, locale),
-    description: getI18nText(tour.description, locale),
-    image: tour.images || [],
-    touristType: tour.category || 'Traveler',
-    offers: {
-      '@type': 'Offer',
-      price: tour.price,
-      priceCurrency: 'VND',
-      availability: 'https://schema.org/InStock',
-      url: `${baseUrl}/${locale}/tours/${slug}`
-    }
+    '@graph': [
+      {
+        '@type': 'TouristTrip',
+        '@id': `${baseUrl}/${locale}/tours/${slug}#trip`,
+        name: tourTitle,
+        description: tourDesc,
+        image: tour.images || [],
+        touristType: tour.category || 'Traveler',
+        provider: {
+          '@type': 'TravelAgency',
+          name: 'Travel Booking',
+          url: baseUrl,
+        },
+        offers: {
+          '@type': 'Offer',
+          price: tour.price,
+          priceCurrency: 'VND',
+          availability: 'https://schema.org/InStock',
+          url: `${baseUrl}/${locale}/tours/${slug}`,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: locale === 'vi' ? 'Trang chủ' : 'Home',
+            item: `${baseUrl}/${locale}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: locale === 'vi' ? 'Tour du lịch' : 'Tours',
+            item: `${baseUrl}/${locale}/tours`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: tourTitle,
+            item: `${baseUrl}/${locale}/tours/${slug}`,
+          },
+        ],
+      },
+    ],
   };
 
   return (

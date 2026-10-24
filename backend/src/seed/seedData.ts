@@ -374,147 +374,250 @@ export const seedDataInternal = async () => {
       },
     ]);
 
-    // ========== NEWS (5 articles with full 5-language support) ==========
+    // ========== NEWS (9 comprehensive articles with full 5-language SEO support) ==========
     await News.create([
       {
-        slug: 'kinh-nghiem-du-lich-ha-noi-2026',
-        title: createI18n(
-          'Kinh nghiệm du lịch Hà Nội tự túc đầy đủ 2026',
-          'Complete Hanoi Self-Tour Guide 2026',
-          '2026年河内自由行全攻略与旅游指南',
-          '2026년 하노이 자유여행 완벽 가이드',
-          '2026年 ハノイ個人旅行 完全攻略ガイド'
-        ),
-        content: createI18n(
-          '<h2>Hà Nội – Thủ đô ngàn năm văn hiến</h2><p>Hà Nội không chỉ là trung tâm chính trị mà còn là nơi lưu giữ những giá trị văn hóa, lịch sử đặc sắc nhất của Việt Nam. Từ Hồ Gươm thơ mộng, Phố cổ 36 phường nhộn nhịp đến Lăng Bác trang nghiêm – mỗi góc phố đều kể câu chuyện riêng của mình.</p><h3>Di chuyển</h3><p>Từ sân bay Nội Bài vào trung tâm: Xe buýt 86 (35.000đ) hoặc taxi (250.000-350.000đ). Trong thành phố nên đi Grab hoặc xe máy thuê.</p><h3>Ăn gì?</h3><p>Phở Bát Đàn, Bún chả Hàng Mành, Bún Ốc Cầu Gỗ, Bánh mì Phố Huế, Kem Tràng Tiền, Cà phê trứng Giảng.</p><h3>Chỗ ở</h3><p>Phố cổ: 300.000-800.000đ/đêm. Quận Hai Bà Trưng: yên tĩnh hơn, giá 500.000-1.500.000đ/đêm.</p>',
-          '<h2>Hanoi – Thousand-year-old Capital</h2><p>Hanoi is not only the political center but also the keeper of Vietnam\'s most distinctive cultural and historical values. From the poetic Hoan Kiem Lake, the bustling 36 Ancient Streets to the solemn Ho Chi Minh Mausoleum – every corner tells its own story.</p><h3>Transportation</h3><p>From Noi Bai Airport to city center: Bus 86 ($1.5) or taxi ($10-$15). In the city, use Grab or rent a motorbike.</p><h3>Must-try Cuisine</h3><p>Bat Dan Pho, Hang Manh Bun Cha, Cau Go Snail Noodles, Pho Hue Banh Mi, Trang Tien Ice Cream, Giang Egg Coffee.</p><h3>Accommodation</h3><p>Old Quarter: $15-$40/night. Hai Ba Trung district: quieter, $25-$70/night.</p>',
-          '<h2>河内 – 千年文化之都</h2><p>河内不仅是政治文化中心，更是越南悠久历史文化的核心。从诗意的还剑湖、熙攘的三十六行街到庄严的胡志明陵——每个转角都诉说着动人故事。</p><h3>交通指南</h3><p>内排机场到市区：86路公交车（约10元人民币）或网约车出租车（约80-100元）。市内推荐Grab打车或租借摩托车。</p><h3>必尝美食</h3><p>钵坛街牛肉粉、行慢街烤肉米线、木桥螺肉米线、长钱冰淇淋、鸡蛋咖啡。</p>',
-          '<h2>하노이 – 천년의 역사를 품은 수도</h2><p>하노이는 베트남의 독보적인 문화와 역사가 살아 숨쉬는 곳입니다. 서정적인 호안끼엠 호수, 활기 넘치는 36거리 구시가지부터 호치민 묘소까지 매 순간이 감동입니다.</p><h3>교통편</h3><p>노이바이 공항에서 시내까지: 86번 공항버스 또는 그랩 택시. 시내에서는 그랩 호출을 권장합니다.</p><h3>추천 미식</h3><p>밧단 쌀국수, 항만 분짜, 짱띠엔 아이스크림, 카페 지앙 에그커피.</p>',
-          '<h2>ハノイ – 千年の歴史が息づく首都</h2><p>ハノイはベトナムの伝統と文化が凝縮された魅力的な都です。風情あふれるホアンキエム湖、賑やかなハノイ旧市街36通り、厳かなホー・チ・ミン廟など見どころ満載です。</p><h3>アクセス</h3><p>ノイバイ国際空港から市内へ：86番バスまたはタクシー/Grab。市内移動はGrabが便利です。</p><h3>おすすめグルメ</h3><p>バットダン・フォー、ブンチャー、バインミー、エッグコーヒー。</p>'
-        ),
-        excerpt: createI18n(
-          'Tổng hợp đầy đủ kinh nghiệm du lịch Hà Nội tự túc 2026: ăn gì, ở đâu, đi đâu, di chuyển như thế nào để tiết kiệm nhất.',
-          'Complete guide to self-touring Hanoi in 2026: what to eat, where to stay, where to go, and how to get around most economically.',
-          '2026年河内自由行综合指南：吃什么、住在哪里、必游景点以及最划算的交通方式。',
-          '2026년 하노이 자유여행 종합 팁: 맛집, 추천 숙소, 필수 명소 및 알뜰 교통 팁.',
-          '2026年ハノイ個人旅行ガイド：グルメ、宿泊エリア、観光名所、お得な移動方法を徹底解説。'
-        ),
-        thumbnail: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
-        category: 'experience',
-        author: 'Nguyễn Hương Giang',
+        slug: "kinh-nghiem-du-lich-ha-noi-2026",
+        title: {
+                  "vi": "Cẩm nang du lịch Hà Nội tự túc 2026: Lịch trình 3N2Đ, ăn gì, ở đâu và chi phí từ A-Z",
+                  "en": "Complete Hanoi Travel Guide 2026: 3D2N Itinerary, Food Map & Budget Tips",
+                  "zh": "2026年河内自由行终极攻略：3天2晚经典行程、必尝美食与住宿省钱秘籍",
+                  "ko": "2026 하노이 자유여행 완벽 가이드: 3박4일 추천 코스, 맛집 지도 & 알뜰 팁",
+                  "ja": "2026年ハノイ個人旅行完全ガイド：おすすめ2泊3日モデルコース・絶品グルメ・宿泊エリア徹底解説"
+        },
+        excerpt: {
+                  "vi": "Tổng hợp trọn bộ kinh nghiệm du lịch Hà Nội tự túc 2026 mới nhất: cách di chuyển, lịch trình khám phá 36 phố phường, thưởng thức phở Bát Đàn, cà phê trứng và dự toán chi phí chi tiết.",
+                  "en": "Comprehensive 2026 Hanoi travel handbook: transport guide, 36 old quarter walking routes, iconic egg coffee tasting, and transparent budget calculations.",
+                  "zh": "2026最新河内旅游手册：从三十六行街漫步、文庙访古，到品味百年传承生牛肉河粉与蛋咖啡，全方位解析自由行精髓。",
+                  "ko": "하노이 여행의 모든 것: 36거리 골목 탐방, 호안끼엠 호수 산책, 백년 전통 에그커피와 쌀국수 맛집, 실전 여행 경비 총정리.",
+                  "ja": "ハノイ旧市街の散策から世界遺産タンロン遺跡、絶品フォーやエッグコーヒーの名店まで、初めてのハノイ旅行に役立つ実践情報を完全網羅。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Giới thiệu tổng quan về du lịch Hà Nội – Trái tim ngàn năm văn hiến</h2>\n<p>Hà Nội, thủ đô nghìn năm tuổi của Việt Nam, luôn là điểm dừng chân không thể thiếu trong hành trình khám phá đất nước hình chữ S. Nơi đây quyến rũ du khách bởi sự giao thoa hài hòa giữa nét cổ kính rêu phong của 36 phố phường, kiến trúc Pháp cổ điển thanh lịch và nhịp sống đô thị hiện đại, sôi động bậc nhất.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1528127269322-539801943592?w=1200\" alt=\"Hồ Gươm Hà Nội và Tháp Rùa cổ kính sớm mai\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Hồ Hoàn Kiếm thơ mộng – Biểu tượng văn hóa trường tồn của thủ đô Hà Nội</figcaption>\n</figure>\n\n<h2>2. Thời điểm lý tưởng nhất để du lịch Hà Nội</h2>\n<p>Mỗi mùa Hà Nội lại khoác lên mình một tấm áo riêng, nhưng thời điểm đẹp và lãng mạn nhất chính là <strong>mùa thu (từ tháng 9 đến tháng 11)</strong>. Tiết trời lúc này mát mẻ, nắng hanh vàng dịu nhẹ, thoang thoảng hương hoa sữa nồng nàn và cốm non Làng Vòng xanh mướt. Ngoài ra, mùa xuân từ tháng 2 đến tháng 4 cũng là mùa của lễ hội và muôn hoa đua nở trên các nẻo đường phố cổ.</p>\n\n<h2>3. Hướng dẫn di chuyển đến và đi lại trong Hà Nội</h2>\n<div class=\"p-4 bg-blue-50 border-l-4 border-blue-600 rounded-r-xl my-4 text-slate-800 text-sm\">\n  <strong>Mẹo di chuyển tiết kiệm:</strong> Từ sân bay Quốc tế Nội Bài về trung tâm Phố Cổ, bạn có thể bắt xe buýt chất lượng cao tuyến số 86 với giá chỉ 35.000 VNĐ/lượt hoặc đặt xe công nghệ Grab khoảng 250.000 – 300.000 VNĐ.\n</div>\n<ul>\n  <li><strong>Thuê xe máy:</strong> Giá từ 100.000 – 150.000 VNĐ/ngày, thích hợp cho các bạn trẻ thích tự do luồn lách qua từng con ngõ nhỏ.</li>\n  <li><strong>Xe buýt City Sightseeing 2 tầng:</strong> Lựa chọn lý tưởng để ngắm toàn cảnh các danh thắng nổi tiếng như Nhà hát Lớn, Lăng Bác, Hoàng thành Thăng Long với góc nhìn từ trên cao.</li>\n  <li><strong>Xích lô phố cổ:</strong> Trải nghiệm thư thái, chậm rãi ngắm nhìn đời sống sinh hoạt thường nhật của người dân Tràng An.</li>\n</ul>\n\n<h2>4. Gợi ý lịch trình du lịch Hà Nội 3 ngày 2 đêm chuẩn nhất</h2>\n<h3>Ngày 1: Khám phá Phố Cổ – Hồ Gươm – Văn Miếu Quốc Tử Giám</h3>\n<p>Buổi sáng bắt đầu bằng một tô phở Bát Đàn nóng hổi, sau đó dạo bộ quanh Hồ Gươm, viếng đền Ngọc Sơn và chụp ảnh bên cầu Thê Húc đỏ son. Buổi chiều, ghé thăm Văn Miếu Quốc Tử Giám – trường đại học đầu tiên của Việt Nam và Nhà tù Hỏa Lò giàu giá trị lịch sử. Buổi tối, đừng quên thưởng thức một ly cà phê trứng Giảng béo ngậy và hòa mình vào không khí tấp nập tại ngã tư Tạ Hiện.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200\" alt=\"Cà phê trứng Hà Nội đặc sản thơm ngon béo ngậy\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Cà phê trứng – Tinh hoa ẩm thực sáng tạo độc đáo của người Hà Nội</figcaption>\n</figure>\n\n<h3>Ngày 2: Viếng Lăng Chủ tịch Hồ Chí Minh – Chùa Trấn Quốc – Hồ Tây lộng gió</h3>\n<p>Buổi sáng vào Lăng viếng Bác, thăm Nhà sàn, Ao cá Bác Hồ và Chùa Một Cột. Buổi chiều di chuyển ra Hồ Tây ngắm hoàng hôn đỏ rực tại bến Hàn Quốc hoặc đường Thanh Niên, ghé chùa Trấn Quốc cổ kính bậc nhất Việt Nam và thưởng thức bánh tôm Hồ Tây giòn rụm.</p>\n\n<h3>Ngày 3: Hoàng Thành Thăng Long – Mua sắm quà đặc sản</h3>\n<p>Dành buổi sáng tham quan Di sản Thế giới Hoàng thành Thăng Long, chiêm ngưỡng Cột cờ Hà Nội oai nghiêm. Buổi chiều ghé chợ Đồng Xuân hoặc phố Hàng Đường mua ô mai, bánh chè lam, trà sen Tây Hồ về làm quà cho người thân.</p>\n\n<h2>5. Bản đồ ẩm thực Hà Nội: Ăn gì ngon chuẩn vị?</h2>\n<ul>\n  <li><strong>Phở Hà Nội:</strong> Phở Bát Đàn (49 Bát Đàn), Phở Thìn (13 Lò Đúc), Phở Lý Quốc Sư.</li>\n  <li><strong>Bún chả:</strong> Bún chả Hương Liên (nơi Tổng thống Obama từng ghé thăm), Bún chả Đắc Kim Hàng Mành.</li>\n  <li><strong>Bún đậu mắm tôm:</strong> Bún đậu ngõ Tràng Tiền hoặc bún đậu Hàng Khay.</li>\n  <li><strong>Chả cá Lã Vọng:</strong> Chả cá Thăng Long (Đường Thành) với từng miếng cá lăng nướng vàng ươm ăn kèm thì là và mắm tôm đánh sủi bọt.</li>\n</ul>\n\n<h2>6. Tổng kết chi phí dự kiến cho chuyến đi</h2>\n<p>Chi phí trung bình cho chuyến du lịch Hà Nội 3N2Đ dao động từ <strong>2.500.000 – 4.000.000 VNĐ/người</strong> (đã bao gồm lưu trú khách sạn 3 sao phố cổ, ăn uống thả ga và vé tham quan). Chắc chắn thủ đô Hà Nội sẽ mang đến cho bạn những ký ức tuyệt vời và sâu đậm khó phai!</p>\n",
+                  "en": "\n<h2>1. Introduction to Hanoi – Vietnam's Cultural Soul</h2>\n<p>Hanoi, the charming thousand-year-old capital of Vietnam, is a must-visit destination combining French colonial architecture, ancient temples, bustling street life, and world-renowned street food culture.</p>\n<h2>2. Best Season to Visit</h2>\n<p>Autumn (September to November) offers pleasant breezes, golden sunlight, and blooming milk flowers. Spring (February to April) is also lively with festive springtime ceremonies.</p>\n<h2>3. 3-Day Recommended Itinerary</h2>\n<p><strong>Day 1:</strong> Hoan Kiem Lake, Ngoc Son Temple, Temple of Literature, and famous street food in Hanoi Old Quarter.</p>\n<p><strong>Day 2:</strong> Ho Chi Minh Mausoleum complex, One Pillar Pagoda, Tran Quoc Pagoda on West Lake, and sunset dinner.</p>\n<p><strong>Day 3:</strong> Imperial Citadel of Thang Long, Dong Xuan Market souvenir shopping, and train street cafe experience.</p>\n<h2>4. Iconic Dishes You Cannot Miss</h2>\n<p>Pho Bo (Beef noodle soup), Bun Cha (Grilled pork noodles), Egg Coffee, and Cha Ca (Turmeric fish with dill).</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200",
+        category: "experience",
+        author: "Nguyễn Hương Giang",
         isPublished: true,
+        publishedAt: new Date("2026-03-15T08:00:00.000Z"),
+        createdAt: new Date("2026-03-15T08:00:00.000Z"),
       },
       {
-        slug: 'top-mon-an-da-nang-phai-thu',
-        title: createI18n(
-          'Top 15 món ăn Đà Nẵng nhất định phải thử một lần',
-          'Top 15 Must-Try Foods in Da Nang You Cannot Miss',
-          '岘港不可错过的15大特色地道美食精选',
-          '다낭에서 꼭 맛봐야 할 대표 미식 TOP 15',
-          'ダナン旅行で絶対に食べたい絶品ご当地グルメ15選'
-        ),
-        content: createI18n(
-          '<h2>Ẩm thực Đà Nẵng – Hòa quyện 3 miền</h2><p>Nằm ở vị trí địa lý giao thoa giữa Bắc và Nam, ẩm thực Đà Nẵng mang trong mình nét đặc trưng riêng biệt, vừa đậm đà của miền Trung, vừa phong phú đa dạng.</p><p>1. Mì Quảng - món ăn đặc trưng nhất; 2. Bánh tráng thịt heo - không ở đâu có; 3. Bún chả cá; 4. Bánh xèo Đà Nẵng cỡ lớn; 5. Cơm gà Hải Nam...</p>',
-          '<h2>Da Nang Cuisine – Blend of Three Regions</h2><p>Located at the geographic intersection of North and South, Da Nang cuisine carries its own unique character, both rich in Central flavor and diverse variety.</p><p>1. Quang Noodles (Mi Quang); 2. Pork belly rolled in rice paper; 3. Fish cake noodle soup; 4. Crispy Da Nang pancake; 5. Hoi An chicken rice...</p>',
-          '<h2>岘港美食 – 荟萃三地风味</h2><p>岘港美食兼具越南中部的浓郁鲜辣与南北的调和特色，风味独特且丰富多样。</p><p>1. 广南米粉（Mi Quang）；2. 猪肉米纸卷；3. 鲜鱼饼米线；4. 岘港特色大脆煎饼；5. 招牌海南鸡饭...</p>',
-          '<h2>다낭 미식 – 베트남 3대 지역의 조화</h2><p>다낭 음식은 중부 지역 특유의 깊은 풍미와 신선한 식재료가 어우러져 한국인 여행객에게도 큰 사랑을 받고 있습니다.</p><p>1. 미꽝(대표 국수); 2. 돼지고기 라이스페이퍼 롤; 3. 어묵 쌀국수; 4. 바삭한 반세오; 5. 하이난 치킨라이스...</p>',
-          '<h2>ダナンの名物グルメ – 3つの地域の調和</h2><p>ダナン料理はベトナム中部の奥深い旨味と新鮮な海の幸が融合した、日本人の口にもよく合う絶品グルメの宝庫です。</p><p>1. 名物ミークアン（和え麺）；2. 豚肉のライスペーパー巻き；3. さつま揚げ入り米粉麺；4. パリパリのバインセオ；5. チキンライス...</p>'
-        ),
-        excerpt: createI18n(
-          'Khám phá nền ẩm thực phong phú và độc đáo của Đà Nẵng – từ Mì Quảng, bánh tráng thịt heo đến hải sản tươi ngon nhất miền Trung.',
-          'Discover Da Nang\'s rich culinary scene – from iconic Quang noodles, pork rolls to the freshest seafood in Central Vietnam.',
-          '探索岘港丰富独特的饮食文化——从广南米粉、水煮猪肉卷到中部最鲜美多汁的海鲜大餐。',
-          '다낭의 다채롭고 특별한 미식을 탐험하세요 – 미꽝, 돼지고기 라이스페이퍼 롤부터 신선한 중부 해산물까지.',
-          'ダナンの豊かな食文化を探求——名物ミークアン、豚肉のライスペーパー巻きから新鮮なシーフードまで。'
-        ),
-        thumbnail: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
-        category: 'food',
-        author: 'Trần Minh Tuấn',
+        slug: "top-mon-an-da-nang-phai-thu",
+        title: {
+                  "vi": "Top 15 món ngon đặc sản Đà Nẵng nhất định phải thử: Bản đồ ẩm thực chuẩn vị miền Trung",
+                  "en": "Top 15 Must-Try Da Nang Foods: The Ultimate Central Vietnam Gourmet Map",
+                  "zh": "岘港不可错过的15大特色地道美食精选：品味最纯正的越南中部风味",
+                  "ko": "다낭에서 꼭 맛봐야 할 대표 미식 TOP 15: 중부 베트남 먹방 지도",
+                  "ja": "ダナン旅行で絶対に食べたい絶品ご当地グルメ15選：ベトナム中部ローカル飯徹底ガイド"
+        },
+        excerpt: {
+                  "vi": "Khám phá thế giới ẩm thực phong phú của Đà Nẵng: từ Mì Quảng tôm thịt đậm đà, bánh tráng cuốn thịt heo hai đầu da đến hải sản tươi sống giá rẻ tại chợ hải sản ven biển.",
+                  "en": "Explore the culinary wonders of Da Nang: from signature Quang noodles, pork belly rice paper rolls, to ultra-fresh coastal seafood markets.",
+                  "zh": "深度探秘岘港美食天堂：广南米粉、双头肥瘦水煮猪肉米纸卷、鲜香鱼饼米线与物美价廉的生猛海鲜盛宴。",
+                  "ko": "다낭의 대표 미식 총정리: 진한 육수의 미꽝, 돼지고기 라이스페이퍼 롤, 바삭한 반세오와 미케비치 신선한 해산물 맛집 완벽 가이드.",
+                  "ja": "ダナンの食の魅力を満喫：名物和え麺ミークアン、豚肉のライスペーパー巻き、揚げたてバインセオから海沿いシーフードまで詳しく紹介。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Nét độc đáo của ẩm thực thành phố biển Đà Nẵng</h2>\n<p>Không chỉ nổi danh là \"thành phố đáng sống nhất Việt Nam\", Đà Nẵng còn là một thiên đường ẩm thực quyến rũ thực khách bốn phương. Ẩm thực nơi đây là sự dung hòa tinh tế giữa vị cay nồng, mặn mòi của biển cả miền Trung cùng phong cách chế biến dân dã, thơm thảo của người dân xứ Quảng.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200\" alt=\"Món ngon ẩm thực Đà Nẵng đặc sắc\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Ẩm thực Đà Nẵng – Sự kết hợp hài hòa giữa hương vị đồng nội và sản vật biển cả</figcaption>\n</figure>\n\n<h2>2. Danh sách 5 món ăn biểu tượng bạn nhất định phải thử</h2>\n<h3>1. Mì Quảng – Đậm đà phong vị xứ Quảng</h3>\n<p>Sợi mì Quảng dày, mềm mượt màu trắng gạo hoặc vàng nghệ, chan xâm xấp nước dùng nấu từ xương hầm, tôm nõn, thịt heo hoặc ức gà. Khi ăn kèm rau sống hoa chuối tươi non, bánh tráng mè nướng giòn rụm và đậu phộng rang bùi béo. <em>Địa chỉ gợi ý: Mì Quảng Bà Mua (19 Trần Bình Trọng), Mì Quảng Ếch Bếp Trang.</em></p>\n\n<h3>2. Bánh tráng cuốn thịt heo hai đầu da</h3>\n<p>Điểm làm nên sự đặc biệt của món ăn này chính là lát thịt heo luộc khéo léo để lộ hai đầu mỡ giòn trong veo. Cuốn cùng bánh tráng Đại Lộc dẻo dai, đủ loại rau thơm và chấm ngập trong chén mắm nêm đậm đà pha ớt tỏi cay xé lưỡi. <em>Địa chỉ gợi ý: Quán Trần (04 Lê Duẩn), Ẩm thực Mậu (35 Đỗ Thúc Tịnh).</em></p>\n\n<h3>3. Bún chả cá Đà Nẵng</h3>\n<p>Tô bún chả cá thơm nức với nước dùng ninh từ xương cá biển, cà chua, bí đỏ, bắp cải và thơm ngọt thanh. Chả cá gồm chả hấp và chả chiên dai giòn sần sật. <em>Địa chỉ gợi ý: Bún chả cá 109 Nguyễn Chí Thanh, Bún chả cá Bà Lữ.</em></p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200\" alt=\"Hải sản tươi sống bên bờ biển Đà Nẵng\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Hải sản Đà Nẵng tươi rói được đánh bắt trong ngày tại vùng biển Mỹ Khê</figcaption>\n</figure>\n\n<h3>4. Bánh xèo, Nem lụi giòn rụm</h3>\n<p>Bánh xèo Đà Nẵng có lớp vỏ dày vừa phải, vàng ruộm, nhân đầy ắp tôm tươi và giá đỗ. Nước chấm đi kèm là bí quyết gia truyền nấu từ gan heo, tương đậu phộng sánh mịn, béo ngậy khó cưỡng. <em>Địa chỉ gợi ý: Bánh xèo Bà Dưỡng (K280/23 Hoàng Diệu).</em></p>\n\n<h3>5. Hải sản tươi sống ven biển</h3>\n<p>Đến Đà Nẵng mà chưa ăn hải sản thì coi như chưa trọn vẹn chuyến đi. Bạn có thể tự tay chọn tôm tít, ghẹ xanh, mực cơm, chip chip hấp xả ngay tại các bể nuôi tươi rói. <em>Địa chỉ gợi ý: Hải sản Bé Mặn, Hải sản Năm Đảnh, Chợ đêm Sơn Trà.</em></p>\n",
+                  "en": "\n<h2>1. The Soul of Central Vietnamese Cuisine</h2>\n<p>Da Nang is renowned worldwide not only for its stunning bridges and beaches but also as a premier culinary paradise blending spicy, savory flavors from land and sea.</p>\n<h2>2. Top Signature Dishes</h2>\n<p><strong>Mi Quang:</strong> Turmeric rice noodles with savory broth, pork, shrimp, fresh herbs, and toasted rice crackers.</p>\n<p><strong>Pork belly rolls (Banh Trang Thit Heo):</strong> Delicate pork rolls wrapped with fresh greens and dipped in aromatic fermented anchovy sauce.</p>\n<p><strong>Fish Cake Noodle Soup (Bun Cha Ca):</strong> Sweet, naturally flavored broth with steamed and fried mackerel patties.</p>\n<p><strong>Fresh Coastal Seafood:</strong> Steamed clams with lemongrass, grilled scallops with scallion oil, and tamarind crabs.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200",
+        category: "food",
+        author: "Trần Minh Tuấn",
         isPublished: true,
+        publishedAt: new Date("2026-03-18T09:30:00.000Z"),
+        createdAt: new Date("2026-03-18T09:30:00.000Z"),
       },
       {
-        slug: 'phu-quoc-nen-di-mua-nao',
-        title: createI18n(
-          'Phú Quốc nên đi mùa nào? Bí kíp du lịch đảo ngọc 2026',
-          'Best Time to Visit Phu Quoc? 2026 Pearl Island Travel Guide',
-          '富国岛最佳旅游季节指南：2026珍珠岛出行秘籍',
-          '푸꾸옥 언제 가는 게 좋을까? 2026 진주섬 여행 꿀팁',
-          'フーコック島ベストシーズンはいつ？2026 観光完全ガイド'
-        ),
-        content: createI18n(
-          '<h2>Phú Quốc – 4 mùa đều đẹp</h2><p>Phú Quốc có 2 mùa chính: mùa khô (tháng 11 – tháng 4) và mùa mưa (tháng 5 – tháng 10). Mỗi mùa đều có vẻ đẹp và trải nghiệm riêng.</p><h3>Mùa cao điểm (tháng 11 – tháng 4)</h3><p>Thời tiết đẹp nhất, biển calme, lặn ngắm san hô tuyệt vời. Giá phòng cao hơn 30-50%, cần đặt trước.</p><h3>Mùa thấp điểm (tháng 5 – tháng 10)</h3><p>Giá rẻ hơn nhiều, ít đông. Một số ngày mưa nhưng vẫn có thể vui chơi indoor tại Vinpearl.</p>',
-          '<h2>Phu Quoc – Beautiful All Year Round</h2><p>Phu Quoc has 2 main seasons: dry season (November – April) and rainy season (May – October). Each season has its own beauty and experiences.</p><h3>Peak Season (Nov – Apr)</h3><p>Clear skies, calm crystal seas, ideal for snorkeling & diving. Room rates higher by 30-50%, advance booking recommended.</p><h3>Off-Peak Season (May – Oct)</h3><p>Much lower prices, fewer crowds, and lush green scenery with great indoor entertainment at VinWonders.</p>',
-          '<h2>富国岛 – 四季皆美的海岛度假胜地</h2><p>富国岛主要分为旱季（11月至次年4月）和雨季（5月至10月），各个季节均有独具特色的度假体验。</p><h3>旱季旺季（11月 - 4月）</h3><p>风和日丽，海水清澈见底，是浮潜与海滩度假的最佳时机。酒店房价较高，建议提前预订。</p><h3>淡季出行（5月 - 10月）</h3><p>性价比极高，游客较少，可尽情体验珍珠乐园与野生动物园等室内外娱乐设施。</p>',
-          '<h2>푸꾸옥 – 사계절 내내 아름다운 휴양지</h2><p>푸꾸옥은 건기(11월~4월)와 우기(5월~10월) 두 계절로 나뉘며 각 시즌마다 색다른 매력을 자랑합니다.</p><h3>성수기(11월 ~ 4월)</h3><p>파도가 잔잔하고 맑은 날씨가 이어져 스노클링 및 호핑 투어에 이상적입니다. 사전 숙소 예약 필수.</p><h3>비수기(5월 ~ 10월)</h3><p>가성비가 뛰어나고 여유로운 여행이 가능하며 빈원더스 등 실내외 테마파크를 알차게 즐길 수 있습니다.</p>',
-          '<h2>フーコック島 – 一年中楽しめる常夏の楽園</h2><p>フーコック島には乾季（11月〜4月）と雨季（5月〜10月）の2つの季節があり、それぞれ異なる楽しみ方ができます。</p><h3>ベストシーズン・乾季（11月〜4月）</h3><p>晴天が続き波も穏やかで、シュノーケリングやビーチでのんびり過ごすのに最適です。</p><h3>雨季・グリーンシーズン（5月〜10月）</h3><p>リゾートホテルが格安で宿泊でき、混雑を避けてリラックスした滞在が叶います。</p>'
-        ),
-        excerpt: createI18n(
-          'Tư vấn chi tiết thời điểm lý tưởng để du lịch Phú Quốc, các lưu ý quan trọng và bí kíp tiết kiệm chi phí khi đến đảo ngọc.',
-          'Detailed advice on the ideal time to visit Phu Quoc, essential tips and budget-friendly secrets for the pearl island.',
-          '详细分析富国岛四季气候特征、最佳旅游时节、出行注意事项以及珍珠岛省钱实用小贴士。',
-          '푸꾸옥을 방문하기 가장 좋은 시기, 중요 체크리스트 및 알뜰한 여행 경비 절약 팁 상세 안내.',
-          'フーコック島旅行のベストシーズン、乾季・雨季の過ごし方、旅費を賢く抑えるお得なコツを解説。'
-        ),
-        thumbnail: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800',
-        category: 'destination',
-        author: 'Lê Thu Hà',
+        slug: "phu-quoc-nen-di-mua-nao",
+        title: {
+                  "vi": "Du lịch Phú Quốc nên đi mùa nào đẹp nhất? Kinh nghiệm khám phá đảo ngọc 4 mùa trọn vẹn",
+                  "en": "Best Time to Visit Phu Quoc Island: Comprehensive 4-Season Vacation Guide",
+                  "zh": "富国岛最佳旅游时节全指南：玩转越南珍珠海岛四季风光与避雨秘籍",
+                  "ko": "푸꾸옥 언제 가는 게 가장 좋을까? 사계절 날씨 분석 및 완벽 여행 가이드",
+                  "ja": "フーコック島旅行のベストシーズン徹底比較：乾季と雨季の楽しみ方とおすすめスポット"
+        },
+        excerpt: {
+                  "vi": "Giải đáp chi tiết du lịch Phú Quốc mùa nào đẹp nhất, so sánh mùa khô và mùa mưa, top bãi biển lặn ngắm san hô đẹp nhất và kinh nghiệm đặt phòng resort giá tốt.",
+                  "en": "Detailed seasonal comparison for Phu Quoc: dry season vs green season, top snorkeling beaches in An Thoi archipelago, and insider resort booking tips.",
+                  "zh": "深度解析富国岛气候特点：旱季碧海晴天与雨季超高性价比对比，附安泰群岛浮潜与日落海滩打卡指南。",
+                  "ko": "푸꾸옥 건기와 우기 완벽 비교: 바다 상태, 안토이 군도 호핑투어, 인생 선셋 포인트 및 가성비 럭셔리 리조트 예약 꿀팁.",
+                  "ja": "ベストシーズンの乾季と穴場の雨季を徹底比較。透明度抜群のシュノーケリングスポットや絶景サンセット情報もお届け。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Tổng quan khí hậu Đảo Ngọc Phú Quốc</h2>\n<p>Nằm sâu trong vịnh Thái Lan, đảo ngọc Phú Quốc được thiên nhiên ưu ái ban tặng khí hậu nhiệt đới gió mùa mát mẻ quanh năm. Khí hậu Phú Quốc chia làm 2 mùa rõ rệt: <strong>mùa khô (từ tháng 11 đến tháng 4 năm sau)</strong> và <strong>mùa mưa (từ tháng 5 đến tháng 10)</strong>.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200\" alt=\"Bãi Sao Phú Quốc bờ cát trắng mịn biển trong vắt\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Bãi Sao Phú Quốc – Một trong những bãi biển hoang sơ đẹp nhất hành tinh</figcaption>\n</figure>\n\n<h2>2. Thời điểm vàng: Mùa khô (Tháng 11 – Tháng 4)</h2>\n<p>Đây là thời gian đẹp nhất để du lịch Phú Quốc. Lúc này, hòn đảo tràn ngập ánh nắng vàng ruộm, sóng biển êm ả, nước trong xanh thấu đáy như ngọc bích. Đây là điều kiện lý tưởng cho các hoạt động:\n<ul>\n  <li>Tham gia tour cano 4 đảo, lặn ngắm san hô tự nhiên tại Hòn Móng Tay, Hòn Gầm Ghì, Hòn Mây Rút.</li>\n  <li>Trải nghiệm tuyến cáp treo vượt biển 3 dây Hòn Thơm dài nhất thế giới.</li>\n  <li>Thưởng ngoạn cảnh hoàng hôn tím huyền ảo tại Sunset Sanato hoặc OCSEN Beach Bar.</li>\n</ul>\n</p>\n\n<h2>3. Du lịch Phú Quốc mùa mưa (Tháng 5 – Tháng 10): Có nên đi không?</h2>\n<div class=\"p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-xl my-4 text-slate-800 text-sm\">\n  <strong>Ưu điểm mùa mưa:</strong> Giá vé máy bay và giá phòng tại các khu nghỉ dưỡng 5 sao giảm sâu tới 40% - 60%. Lượng khách không quá đông, giúp bạn tận hưởng không gian nghỉ dưỡng biệt lập, thanh bình tuyệt đối.\n</div>\n<p>Nếu đi vào mùa này, bạn nên ưu tiên tắm biển tại <strong>Bãi Sao</strong> hoặc <strong>Bãi Khem</strong> ở bờ Đông Nam đảo, vì khu vực này biển kín gió, vẫn giữ được làn nước trong xanh và êm đềm suốt mùa hè.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200\" alt=\"Hoàng hôn Phú Quốc rực rỡ buông xuống mặt biển\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Khoảnh khắc hoàng hôn lãng mạn mê đắm lòng người tại bờ Tây đảo ngọc</figcaption>\n</figure>\n\n<h2>4. Top trải nghiệm không thể bỏ lỡ tại Phú Quốc</h2>\n<ul>\n  <li><strong>Grand World – Thành phố không ngủ:</strong> Trải nghiệm du thuyền Gondola trên dòng kênh Venice lãng mạn và thưởng thức show thực cảnh \"Tinh hoa Việt Nam\".</li>\n  <li><strong>Vinpearl Safari:</strong> Công viên chăm sóc và bảo tồn động vật bán hoang dã đầu tiên và lớn nhất tại Việt Nam.</li>\n  <li><strong>Thưởng thức ẩm thực địa phương:</strong> Gỏi cá trích cuốn bánh tráng rau rừng, nhum biển nướng mỡ hành, bún quậy Kiến Xây trứ danh.</li>\n</ul>\n",
+                  "en": "\n<h2>1. Climate Overview of Phu Quoc</h2>\n<p>Located in the Gulf of Thailand, Phu Quoc features a tropical monsoon climate with two distinct seasons: the Dry Season (Nov to Apr) and the Green/Rainy Season (May to Oct).</p>\n<h2>2. The Peak Dry Season (November – April)</h2>\n<p>Calm azure waters, low humidity, and endless sunshine make this period perfect for island hopping, coral reef snorkeling, and cable car rides to Hon Thom.</p>\n<h2>3. Why Visit During Green Season?</h2>\n<p>Enjoy luxury 5-star oceanfront resorts at 40-50% discounts with peaceful, crowd-free beaches at Bai Sao and Bai Khem.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200",
+        category: "destination",
+        author: "Lê Thu Hà",
         isPublished: true,
+        publishedAt: new Date("2026-03-20T10:15:00.000Z"),
+        createdAt: new Date("2026-03-20T10:15:00.000Z"),
       },
       {
-        slug: 'halong-bay-cruise-guide',
-        title: createI18n(
-          'Hướng dẫn đặt du thuyền Hạ Long: Phân loại, giá cả và lưu ý',
-          'Ha Long Bay Cruise Guide: Star Ratings, Prices & Insider Tips',
-          '下龙湾游轮预订全攻略：星级分类、价格对比与避坑指南',
-          '하롱베이 크루즈 예약 가이드: 등급별 분류, 가격 및 필수 팁',
-          'ハロン湾クルーズ予約ガイド：クラス別比較・料金相場・注意点'
-        ),
-        content: createI18n(
-          '<h2>Du thuyền Hạ Long – Trải nghiệm đỉnh cao</h2><p>Du thuyền là cách tốt nhất để khám phá vịnh Hạ Long. Hiện có 3 phân khúc: Economy (1-1.5 triệu/đêm), Superior (2-3 triệu/đêm), Luxury (4-8 triệu/đêm).</p><h3>Nên chọn tour mấy ngày?</h3><p>2 ngày 1 đêm: phù hợp người ít thời gian. 3 ngày 2 đêm: trải nghiệm đầy đủ nhất. 4 ngày 3 đêm: cho người muốn khám phá vịnh Lan Hạ.</p>',
-          '<h2>Ha Long Bay Cruise – Peak Experience</h2><p>Cruises are the premier way to explore UNESCO World Heritage Ha Long Bay. Currently 3 main tiers: Economy ($50-65/night), Superior ($85-130/night), Luxury ($175-350/night).</p><h3>How Many Days to Choose?</h3><p>2 Days 1 Night: perfect for short visits. 3 Days 2 Nights: the most complete experience exploring caves & kayaking. 4 Days: deep exploration into pristine Lan Ha Bay.</p>',
-          '<h2>下龙湾游轮 – 顶级海上度假体验</h2><p>搭乘游轮是领略世界自然遗产下龙湾千峰竞秀的最佳方式。目前主要分为三个档次：经济型、高档型与顶级奢华型。</p><h3>游玩天数建议</h3><p>2天1晚：适合行程紧凑的游客。3天2晚：深度体验溶洞探秘、海上皮划艇的最佳选择。</p>',
-          '<h2>하롱베이 크루즈 – 베트남 최고의 힐링 여행</h2><p>유네스코 세계자연유산 하롱베이를 온전히 감상하는 가장 완벽한 방법은 1박 이상의 오버나잇 크루즈입니다.</p><h3>추천 일정</h3><p>1박 2일: 일정 여유가 적은 여행자에게 적합. 2박 3일: 카약, 동굴 탐험, 쿠킹 클래스까지 모두 즐기는 최적의 일정.</p>',
-          '<h2>ハロン湾クルーズ – 世界遺産を満喫する極上の船旅</h2><p>世界自然遺産ハロン湾の奇岩群を堪能するなら、宿泊型クルーズが一番のおすすめです。</p><h3>おすすめのクルーズ日数</h3><p>1泊2日：手軽にハロン湾の主要スポットを満喫。2泊3日：鍾乳洞探検やカヤック体験までゆったり楽しめます。</p>'
-        ),
-        excerpt: createI18n(
-          'Hướng dẫn toàn diện về cách chọn du thuyền Hạ Long phù hợp: từ phân loại hạng sao, giá cả, thời gian đến những lưu ý quan trọng.',
-          'Comprehensive guide to choosing the right Ha Long Bay cruise: star categories, price ranges, itineraries and tips.',
-          '全面解析下龙湾游轮选择方法：从星级分级、行程天数、价格区间到登船重要注意事项。',
-          '하롱베이 크루즈 선택 완벽 가이드: 성급 분류, 가격대, 1박2일/2박3일 일정 및 필수 유의사항.',
-          'ハロン湾クルーズの選び方を徹底解説：星付きランク、料金相場、おすすめ泊数と予約時の注意点。'
-        ),
-        thumbnail: 'https://images.unsplash.com/photo-1559563458-527698bf5295?w=800',
-        category: 'experience',
-        author: 'Phạm Đức Hùng',
+        slug: "halong-bay-cruise-guide",
+        title: {
+                  "vi": "Review kinh nghiệm chọn du thuyền Vịnh Hạ Long 5 sao: Bảng giá, lịch trình và bí kíp sống ảo",
+                  "en": "Ha Long Bay 5-Star Luxury Cruise Review: Best Itineraries, Pricing & Photo Spots",
+                  "zh": "下龙湾五星级豪华邮轮全方位评测指南：星级航线选择、价格参考与登船秘籍",
+                  "ko": "하롱베이 5성급 럭셔리 크루즈 완벽 리뷰: 추천 코스, 가격 비교 및 인생샷 명소",
+                  "ja": "世界遺産ハロン湾5つ星ラグジュアリークルーズ宿泊レビュー：船の選び方・料金相場・過ごし方"
+        },
+        excerpt: {
+                  "vi": "Kinh nghiệm chọn du thuyền ngủ đêm Vịnh Hạ Long và Vịnh Lan Hạ 5 sao đẳng cấp: review chi tiết lịch trình 2N1Đ, ngắm hang Sửng Sốt, chèo thuyền kayak và săn bình minh.",
+                  "en": "Everything you need to know about booking an overnight luxury cruise in Ha Long and Lan Ha Bay: cave expeditions, kayaking, fine dining and sunrise Tai Chi.",
+                  "zh": "下龙湾与兰哈湾五星级过夜游轮深度测评：独家剖析惊喜洞探秘、海上独木舟皮划艇体验及顶层甲板太极晨练。",
+                  "ko": "하롱베이 & 란하베이 1박2일 럭셔리 크루즈 여행기: 성우솟 동굴 탐험, 카약 체험, 선셋 파티 및 일출 태극권 클래스 총정리.",
+                  "ja": "ハロン湾・ランハ湾の一泊二日クルーズ完全攻略。壮大な鍾乳洞探検、カヤック体験、船上フレンチディナーの魅力を凝縮。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Tại sao ngủ đêm trên du thuyền Hạ Long là trải nghiệm \"nhất định phải thử một lần trong đời\"?</h2>\n<p>Vịnh Hạ Long, 2 lần được UNESCO công nhận là Di sản Thiên nhiên Thế giới, sở hữu gần 2.000 hòn đảo đá vôi kỳ vĩ nhô lên giữa làn nước xanh lục bảo. Thay vì các tour tàu tiếng đi về trong ngày vội vã, một chuyến <strong>du thuyền ngủ đêm 5 sao</strong> sẽ đưa bạn đắm chìm trọn vẹn vào không gian thiên nhiên tĩnh lặng, chiêm ngưỡng hoàng hôn rực rỡ và thức giấc giữa biển trời mây nước bồng bềnh.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1559563458-527698bf5295?w=1200\" alt=\"Du thuyền 5 sao sang trọng giữa Vịnh Hạ Long hùng vĩ\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Du thuyền 5 sao đẳng cấp quốc tế neo đậu giữa lòng kỳ quan Vịnh Hạ Long</figcaption>\n</figure>\n\n<h2>2. Bật mí lịch trình du thuyền Hạ Long 2 ngày 1 đêm chuẩn 5 sao</h2>\n<h3>Ngày 1: Tuần Châu – Vịnh Hạ Long – Hang Sửng Sốt – Đảo Ti Tốp</h3>\n<ul>\n  <li><strong>11:30 – 12:00:</strong> Làm thủ tục check-in tại cảng tàu quốc tế Tuần Châu hoặc Cảng tàu khách quốc tế Hạ Long, thưởng thức nước uống chào mừng trên tàu.</li>\n  <li><strong>13:00:</strong> Dùng bữa trưa buffet hải sản thượng hạng trong lúc du thuyền nhẹ nhàng lướt qua các hòn đảo đá vôi biểu tượng như Hòn Trống Mái, Hòn Đỉnh Hương.</li>\n  <li><strong>15:00:</strong> Khám phá <strong>Hang Sửng Sốt</strong> – hang động lớn và lộng lẫy bậc nhất vịnh với hệ thống thạch nhũ hàng triệu năm tuổi biến ảo muôn hình vạn trạng.</li>\n  <li><strong>16:30:</strong> Tắm biển tại <strong>Đảo Ti Tốp</strong> và leo hơn 400 bậc đá lên đỉnh núi để ngắm nhìn toàn cảnh 360 độ vịnh Hạ Long từ trên cao.</li>\n  <li><strong>18:00 – 19:30:</strong> Tiệc Sunset Party trên Sundeck, lớp học nấu món nem rán truyền thống và thưởng thức bữa tối lãng mạn chuẩn phong cách fine dining.</li>\n  <li><strong>21:00:</strong> Trải nghiệm câu mực đêm, hát karaoke hoặc thư giãn tại quầy bar và spa.</li>\n</ul>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1528127269322-539801943592?w=1200\" alt=\"Chèo thuyền kayak giữa làn nước ngọc bích Vịnh Hạ Long\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Tự tay chèo thuyền kayak luồn lách qua các hang luồn kỳ bí</figcaption>\n</figure>\n\n<h3>Ngày 2: Chèo thuyền Kayak – Hang Luồn – Trở về đất liền</h3>\n<ul>\n  <li><strong>06:00:</strong> Tham gia lớp tập Taichi (Thái Cực Quyền) đón tia nắng bình minh đầu tiên trên boong tàu lộng gió.</li>\n  <li><strong>07:00:</strong> Ăn sáng nhẹ với trà, cà phê và bánh ngọt.</li>\n  <li><strong>07:45:</strong> Trải nghiệm chèo kayak hoặc thuyền nan thăm <strong>Hang Luồn</strong>, chiêm ngưỡng những đàn khỉ hoang dã chuyền cành trên vách đá.</li>\n  <li><strong>09:30:</strong> Trở về tàu thu dọn hành lý, dùng bữa trưa sớm (Brunch) và thanh toán dịch vụ.</li>\n  <li><strong>11:30:</strong> Tàu cập bến cảng, kết thúc chuyến hải trình đáng nhớ.</li>\n</ul>\n\n<h2>3. Bảng giá tham khảo các dòng du thuyền Hạ Long</h2>\n<div class=\"overflow-x-auto my-4\">\n  <table class=\"w-full text-left text-sm border border-slate-200 rounded-xl overflow-hidden\">\n    <thead class=\"bg-slate-100 text-slate-800 font-bold\">\n      <tr>\n        <th class=\"p-3 border-b\">Hạng Du Thuyền</th>\n        <th class=\"p-3 border-b\">Mức Giá (VNĐ/khách)</th>\n        <th class=\"p-3 border-b\">Tiện Ích Nổi Bật</th>\n      </tr>\n    </thead>\n    <tbody class=\"divide-y divide-slate-100 text-slate-700\">\n      <tr>\n        <td class=\"p-3 font-semibold\">Du thuyền 4 sao</td>\n        <td class=\"p-3 text-orange-600 font-bold\">2.200.000 – 2.800.000</td>\n        <td class=\"p-3\">Phòng ban công riêng, trọn gói 4 bữa ăn</td>\n      </tr>\n      <tr>\n        <td class=\"p-3 font-semibold\">Du thuyền 5 sao Tiêu Chuẩn</td>\n        <td class=\"p-3 text-orange-600 font-bold\">3.200.000 – 4.500.000</td>\n        <td class=\"p-3\">Bồn tắm sục Jacuzzi, bể bơi vô cực, buffet tôm hùm</td>\n      </tr>\n      <tr>\n        <td class=\"p-3 font-semibold\">Du thuyền 5 sao Siêu Sang (Luxury)</td>\n        <td class=\"p-3 text-orange-600 font-bold\">5.000.000 – 9.000.000</td>\n        <td class=\"p-3\">Phòng tổng thống, sân golf mini, hầm rượu vang cao cấp</td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n",
+                  "en": "\n<h2>1. Why Choose an Overnight Cruise?</h2>\n<p>An overnight cruise is the quintessential way to experience UNESCO World Heritage Ha Long Bay, taking you away from day-trip crowds to serene emerald waters and soaring limestone islands.</p>\n<h2>2. Highlights of a 2D1N Itinerary</h2>\n<p>Marvel at Sung Sot Cave, climb Ti Top Island for panoramic views, kayak through Luon Cave, savor seafood feasts, and wake up to Tai Chi at sunrise on the sundeck.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1559563458-527698bf5295?w=1200",
+        category: "experience",
+        author: "Phạm Đức Hùng",
         isPublished: true,
+        publishedAt: new Date("2026-03-22T14:00:00.000Z"),
+        createdAt: new Date("2026-03-22T14:00:00.000Z"),
       },
       {
-        slug: 'kinh-nghiem-du-lich-sapa',
-        title: createI18n(
-          'Sa Pa mùa lúa vàng – Thiên đường ảnh đẹp nhất Việt Nam',
-          'Sa Pa Golden Rice Season – Vietnam\'s Most Breathtaking Photo Paradise',
-          '沙坝金色梯田季 – 越南最壮丽的摄影天堂全解析',
-          '사파 황금빛 다랑이논 시즌 – 베트남 최고의 인생샷 명소',
-          'サパの黄金の棚田シーズン – ベトナム随一の絶景フォトスポット'
-        ),
-        content: createI18n(
-          '<h2>Sa Pa mùa vàng (tháng 9 – tháng 10)</h2><p>Đây là thời điểm đẹp nhất trong năm khi những thửa ruộng bậc thang chuyển sang màu vàng rực rỡ. Đặc biệt ấn tượng ở Mù Cang Chải, Tú Lệ và Y Tý.</p><h3>Cách đi Sa Pa</h3><p>Xe limousine từ Hà Nội: 200.000-350.000đ/người (4 tiếng). Tàu đêm từ ga Hà Nội: 200.000-600.000đ (8 tiếng). Fly đến Điện Biên rồi xe: nhanh hơn nhưng đắt hơn.</p>',
-          '<h2>Sa Pa Golden Season (September – October)</h2><p>This is the most breathtaking time of year when sweeping terraced rice fields transform into brilliant cascading gold. Particularly stunning in Mu Cang Chai, Tu Le, and Ta Van valley.</p><h3>Getting to Sa Pa</h3><p>Limousine bus from Hanoi: 4-5 hours via highway. Overnight sleeper train from Hanoi station: romantic and comfortable 8-hour journey.</p>',
-          '<h2>沙坝黄金梯田季（9月 - 10月）</h2><p>这是沙坝全年最壮丽的时节，层层叠叠的高山梯田换上金黄锦缎，宛如人间仙境，是摄影爱好者的朝圣之地。</p><h3>交通出行</h3><p>河内直达豪华商务车：约4-5小时高速路程。河内夜间卧铺火车：舒适惬意，清晨抵达老街站。</p>',
-          '<h2>사파 황금빛 다랑이논 시즌(9월 ~ 10월)</h2><p>푸른 계단식 논이 눈부신 황금빛으로 물드는 9~10월은 사파 여행의 백미이자 인생 사진을 남길 수 있는 최고의 계절입니다.</p><h3>사파 가는 법</h3><p>하노이에서 리무진 버스 이용 시 약 4~5시간 소요되며, 낭만적인 야간 침대 열차도 인기 있는 선택지입니다.</p>',
-          '<h2>サパの黄金色の棚田（9月〜10月）</h2><p>見渡す限りの棚田が黄金色に輝く秋のサパは、一年で最も美しい季節です。どこを切り取っても絵になる絶景が広がります。</p><h3>アクセス方法</h3><p>ハノイから高速リムジンバスで約4〜5時間、または風情ある寝台列車でのアクセスが一般的です。</p>'
-        ),
-        excerpt: createI18n(
-          'Trải nghiệm Sa Pa mùa lúa vàng tháng 9-10: hướng dẫn chi tiết về cách đi, ở đâu, chụp ảnh ruộng bậc thang đẹp nhất.',
-          'Experience Sa Pa golden rice season in Sep-Oct: comprehensive guide on transport, lodging, and best terrace photo spots.',
-          '9-10月沙坝金色梯田季深度体验：往返交通、景观住宿推荐与绝佳梯田机位指南。',
-          '9~10월 사파 황금빛 벼베기 시즌 여행: 교통편, 뷰 맛집 숙소, 최적의 다랑이논 포토존 가이드.',
-          '9〜10月限定のサパ黄金の棚田：行き方、絶景ロッジ、棚田を一番美しく撮影できるスポットを解説。'
-        ),
-        thumbnail: 'https://images.unsplash.com/photo-1512719994953-eabf50895df7?w=800',
-        category: 'destination',
-        author: 'Ngô Thị Bích',
+        slug: "kinh-nghiem-du-lich-sapa",
+        title: {
+                  "vi": "Kinh nghiệm du lịch Sa Pa mùa lúa chín & săn mây: Lịch trình 3N2Đ chinh phục Fansipan",
+                  "en": "Sa Pa Golden Terraces & Cloud Hunting Guide: 3D2N Mount Fansipan Adventure",
+                  "zh": "沙坝金色稻浪与云海秘境全攻略：3天2晚登顶印度支那屋脊番西邦峰",
+                  "ko": "사파 황금빛 다랑이논 & 운해 사냥 가이드: 2박3일 판시판 정복 일정",
+                  "ja": "サパ黄金の棚田と雲海を巡る旅：2泊3日インドシナ最高峰ファンシーパン登頂完全攻略"
+        },
+        excerpt: {
+                  "vi": "Bí kíp du lịch Sa Pa mùa lúa vàng và săn mây đèo Ô Quy Hồ: hướng dẫn di chuyển, trải nghiệm bản Cát Cát, thung lũng Mường Hoa và cáp treo Sun World Fansipan Legend.",
+                  "en": "Complete guide to Sa Pa golden rice season and O Quy Ho pass cloud chasing: Muong Hoa valley trekking, ethnic village homestays, and Fansipan cable car.",
+                  "zh": "深度领略沙坝金色梯田与云海翻腾的绝美风光：芒花山谷徒步漫游、黑苗族古村探访及番西邦缆车实用贴士。",
+                  "ko": "황금빛 계단식 논과 웅장한 운해를 감상하는 사파 힐링 여행: 깟깟마을, 므엉호아 밸리 트레킹 및 판시판 케이블카 꿀팁.",
+                  "ja": "秋のサパで息を呑む絶景の棚田と雲海に出会う。カットカット村の伝統文化体験からファンシーパン山頂へのアクセスまで詳解。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Sa Pa – Thành phố trong sương huyền ảo</h2>\n<p>Tọa lạc ở độ cao 1.600m so với mực nước biển thuộc tỉnh Lào Cai, Sa Pa là điểm đến nổi tiếng bậc nhất vùng Tây Bắc. Nơi đây hấp dẫn du khách bởi khí hậu mát lạnh ôn đới quanh năm, những dãy núi Hoàng Liên Sơn điệp trùng và bức tranh ruộng bậc thang uốn lượn kỳ vĩ từng được tạp chí Travel + Leisure vinh danh là một trong 7 ruộng bậc thang kỳ vĩ nhất thế giới.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1512719994953-eabf50895df7?w=1200\" alt=\"Ruộng bậc thang Sa Pa mùa lúa chín vàng óng ánh\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Bức tranh thêu dệt kỳ vĩ của những thửa ruộng bậc thang mùa lúa chín tháng 9 – 10</figcaption>\n</figure>\n\n<h2>2. Thời điểm vàng để đến Sa Pa</h2>\n<ul>\n  <li><strong>Tháng 9 – Tháng 10 (Mùa lúa chín):</strong> Toàn bộ thung lũng Mường Hoa, Tả Van chuyển sang sắc vàng rực rỡ, hương lúa mới thơm ngát ngập tràn không gian.</li>\n  <li><strong>Tháng 11 – Tháng 3 (Mùa săn mây & ngắm hoa):</strong> Thời điểm lý tưởng nhất để săn biển mây bồng bềnh tại đèo Ô Quy Hồ, đỉnh Fansipan và ngắm hoa mai anh đào, hoa mận nở trắng rừng.</li>\n</ul>\n\n<h2>3. Lịch trình 3 ngày 2 đêm khám phá Sa Pa trọn vẹn</h2>\n<h3>Ngày 1: Hà Nội – Sa Pa – Bản Cát Cát – Nhà thờ Đá</h3>\n<p>Đi xe Limousine từ Hà Nội lên Sa Pa qua cao tốc Hà Nội - Lào Cai chỉ mất khoảng 4.5 – 5 tiếng. Nhận phòng khách sạn, buổi chiều ghé thăm bản Cát Cát của người H'Mông, thuê trang phục dân tộc check-in thác Tiên Sa và cối xay nước khổng lồ. Buổi tối dạo phố đi bộ, chụp ảnh Nhà thờ Đá cổ và thưởng thức lẩu cá hồi, cá tầm nóng hổi.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200\" alt=\"Đỉnh Fansipan nóc nhà Đông Dương ngập tràn biển mây\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Chinh phục đỉnh Fansipan 3.143m – Cột mốc tự hào nóc nhà Đông Dương</figcaption>\n</figure>\n\n<h3>Ngày 2: Chinh phục đỉnh Fansipan – Thung lũng Mường Hoa – Đèo Ô Quy Hồ</h3>\n<p>Trải nghiệm tuyến tàu hỏa leo núi Mường Hoa hiện đại đến ga cáp treo Sun World Fansipan Legend. Tuyến cáp treo giữ hai kỷ lục Guinness thế giới đưa bạn lướt qua thung lũng mây để chạm tay vào cột mốc 3.143m huyền thoại. Buổi chiều, di chuyển lên Cổng trời đèo Ô Quy Hồ ngắm hoàng hôn rực rỡ và săn biển mây cuồn cuộn.</p>\n\n<h3>Ngày 3: Khám phá bản Tả Van – Mua sắm quà lưu niệm</h3>\n<p>Dạo bước giữa thung lũng Tả Van, nhâm nhi tách cà phê ngắm suối Mường Hoa róc rách. Mua sắm hạt dẻ nướng, mận sấy dẻo và thịt trâu gác bếp về làm quà trước khi lên xe về lại Hà Nội.</p>\n",
+                  "en": "\n<h2>1. Welcome to Misty Sa Pa</h2>\n<p>Nestled in the majestic Hoang Lien Son mountain range at 1,600m altitude, Sa Pa captivates travelers with terraced rice fields, vibrant hill-tribe culture, and cool mountain air.</p>\n<h2>2. Best Seasons to Explore</h2>\n<p>Visit in September-October for golden cascading rice terraces, or November-March for spectacular cloud seas and blooming cherry blossoms.</p>\n<h2>3. Key Highlights</h2>\n<p>Summit Mount Fansipan (3,143m) via world-record cable car, trek through Cat Cat and Ta Van ethnic villages, and watch breathtaking sunsets atop O Quy Ho mountain pass.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1512719994953-eabf50895df7?w=1200",
+        category: "destination",
+        author: "Ngô Thị Bích",
         isPublished: true,
+        publishedAt: new Date("2026-03-25T11:20:00.000Z"),
+        createdAt: new Date("2026-03-25T11:20:00.000Z"),
+      },
+      {
+        slug: "review-du-lich-ninh-binh-trang-an",
+        title: {
+                  "vi": "Review du lịch Ninh Bình 2026: Khám phá Tràng An, Tam Cốc và Hang Múa từ A-Z",
+                  "en": "Ninh Binh Travel Review 2026: Trang An, Tam Coc & Hang Mua Peak Itinerary",
+                  "zh": "2026宁平旅游全景测评：深度漫游陆上下龙湾长安、三谷碧洞与跳舞洞",
+                  "ko": "2026 닌빈 여행 완벽 리뷰: 짱안 보트투어, 땀꼭 & 항무아 인생샷 명소 총정리",
+                  "ja": "2026年ニンビン観光完全レビュー：世界遺産チャンアン・タムコック・ハンムア絶景巡り"
+        },
+        excerpt: {
+                  "vi": "Review chi tiết du lịch Ninh Bình 2 ngày 1 đêm: đi thuyền nan Tràng An, leo 500 bậc đá Hang Múa ngắm Tam Cốc, viếng chùa Bái Đính và thưởng thức đặc sản dê núi cơm cháy.",
+                  "en": "Complete 2D1N Ninh Binh guide: Trang An UNESCO boat tour, Hang Mua dragon peak hike, Bai Dinh pagoda and local crispy rice delicacies.",
+                  "zh": "宁平两日游超全指南：乘木船探寻长安喀斯特溶洞群、登顶跳舞洞巨龙俯瞰三谷绝景，品味地道烤羊肉与酥脆锅巴。",
+                  "ko": "닌빈 1박2일 핵심 투어: 유네스코 세계유산 짱안 나룻배 투어, 항무아 용 조각상 포토존, 바이딘 사원 및 현지 염소고기 맛집 리뷰.",
+                  "ja": "「陸のハロン湾」ニンビンの見どころ徹底紹介。手漕ぎボートで巡るチャンアン、絶景のハンムア、東南アジア屈指の大寺院バイディン寺院を巡る。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Ninh Bình – Vịnh Hạ Long trên cạn ngàn năm lịch sử</h2>\n<p>Chỉ cách Hà Nội khoảng 95km về phía Nam, Ninh Bình là vùng đất \"địa linh nhân kiệt\", nơi lưu giữ Quần thể danh thắng Tràng An – di sản văn hóa và thiên nhiên hỗn hợp duy nhất tại khu vực Đông Nam Á được UNESCO công nhận. Với hệ thống núi đá vôi kỳ vĩ soi bóng xuống dòng sông êm đềm, Ninh Bình là điểm đến nghỉ dưỡng và check-in lý tưởng hàng đầu miền Bắc.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200\" alt=\"Khám phá Tràng An Ninh Bình bằng thuyền nan\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Ngồi thuyền nan xuôi dòng nước trong vắt khám phá Quần thể danh thắng Tràng An</figcaption>\n</figure>\n\n<h2>2. Top 4 địa điểm check-in \"đỉnh cao\" nhất Ninh Bình</h2>\n<h3>1. Quần thể danh thắng Tràng An (Tuyến thuyền số 2 và số 3)</h3>\n<p>Hành trình kéo dài khoảng 2.5 – 3 tiếng đưa du khách luồn lách qua các hang động kỳ bí như Hang Lam, Hang Vạng, Hang Đại và dừng chân viếng Đền Suối Tiên linh thiêng. Nước sông trong đến mức có thể nhìn thấy rong rêu uốn lượn dưới đáy nước xanh ngắt.</p>\n\n<h3>2. Hang Múa – Vạn Lý Trường Thành thu nhỏ</h3>\n<p>Vượt qua gần 500 bậc đá uốn lượn men theo sườn núi dốc đứng, bạn sẽ đặt chân lên đỉnh Ngọa Long oai nghiêm. Từ đây, thu trọn vào tầm mắt toàn cảnh thung lũng Tam Cốc với dòng sông Ngô Đồng uốn lượn mềm mại giữa đôi bờ lúa chín vàng ươm.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200\" alt=\"Đỉnh Ngọa Long Hang Múa Ninh Bình ngắm trọn thung lũng Tam Cốc\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Góc ngắm toàn cảnh thung lũng Tam Cốc từ đỉnh Hang Múa</figcaption>\n</figure>\n\n<h3>3. Chùa Bái Đính – Ngôi chùa của những kỷ lục châu Á</h3>\n<p>Quần thể tâm linh đồ sộ giữ hàng loạt kỷ lục: tượng Phật bằng đồng dát vàng lớn nhất châu Á, hành lang 500 tượng La Hán bằng đá xanh dài nhất và chuông đồng lớn nhất Việt Nam.</p>\n\n<h3>4. Cố đô Hoa Lư – Hào khí non sông</h3>\n<p>Kinh đô đầu tiên của nhà nước phong kiến tập quyền Việt Nam dưới triều Đinh – Tiền Lê, nơi gìn giữ dấu ấn lịch sử hào hùng dựng nước và giữ nước của cha ông.</p>\n\n<h2>3. Đặc sản Ninh Bình nhất định phải thưởng thức</h2>\n<ul>\n  <li><strong>Thịt dê núi:</strong> Dê nuôi thả tự nhiên trên các triền núi đá vôi nên thịt săn chắc, thơm ngọt. Các món ngon gồm: dê tái chanh, dê nướng tảng, dê xào lăn, lẩu dê.</li>\n  <li><strong>Cơm cháy chà bông ruốc:</strong> Từng miếng cơm cháy giòn rụm chấm cùng nước sốt tim cật dê béo ngậy đậm đà.</li>\n  <li><strong>Ốc núi Ninh Bình:</strong> Loài ốc sống trong các hang đá chỉ xuất hiện vào mùa mưa, thịt giòn ngọt chấm nước mắm gừng ớt sả.</li>\n</ul>\n",
+                  "en": "\n<h2>1. Discover Ninh Binh – Halong Bay on Land</h2>\n<p>Located just 95km south of Hanoi, Ninh Binh is home to UNESCO World Heritage Trang An, characterized by majestic karst peaks, serene waterways, and centuries-old imperial history.</p>\n<h2>2. Must-Visit Attractions</h2>\n<p><strong>Trang An Eco-boat Tour:</strong> Float through mystical caves and ancient shrines on emerald-green rivers.</p>\n<p><strong>Hang Mua Viewpoint:</strong> Climb 500 steps to the stone dragon peak for sweeping panoramic views of Tam Coc valley.</p>\n<p><strong>Bai Dinh Pagoda:</strong> The largest Buddhist pagoda complex in Southeast Asia holding multiple cultural records.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200",
+        category: "destination",
+        author: "Đỗ Hoàng Nam",
+        isPublished: true,
+        publishedAt: new Date("2026-03-28T08:45:00.000Z"),
+        createdAt: new Date("2026-03-28T08:45:00.000Z"),
+      },
+      {
+        slug: "review-du-lich-da-nang-hoi-an",
+        title: {
+                  "vi": "Review du lịch Đà Nẵng – Hội An 4 ngày 3 đêm: Lịch trình chi tiết, ăn chơi thả ga và tối ưu chi phí",
+                  "en": "Da Nang & Hoi An 4D3N Comprehensive Review: Full Itinerary, Ba Na Hills & Lantern Night",
+                  "zh": "岘港与会安4天3晚深度游评测：巴拿山黄金桥、古镇放水灯与超高性价比攻略",
+                  "ko": "다낭 & 호이안 3박4일 완벽 여행기: 바나힐 골든브릿지, 야경 투어 & 알뜰 경비",
+                  "ja": "ダナン＆ホイアン3泊4日モデルコース徹底レビュー：バーナーヒルズ黄金の橋と灯篭流し"
+        },
+        excerpt: {
+                  "vi": "Hành trình kết hợp tuyệt vời giữa thành phố biển hiện đại Đà Nẵng và phố cổ di sản Hội An: check-in Cầu Vàng Bà Nà Hills, tắm biển Mỹ Khê, đi thuyền thúng rừng dừa và thả đèn hoa đăng sông Hoài.",
+                  "en": "The perfect combination of modern coastal Da Nang and UNESCO Hoi An Ancient Town: Golden Bridge, My Khe beach, Bay Mau coconut basket boat, and river lantern release.",
+                  "zh": "现代海滨名城岘港与千年古韵会安的完美邂逅：登临巴拿山巨手黄金桥、漫步美溪沙滩、体验水椰林簸箕船与秋盆河河灯祈福。",
+                  "ko": "휴양과 낭만을 동시에 즐기는 다낭-호이안 코스: 바나힐 골든브릿지, 미케비치 해수욕, 바구니배 체험 및 유네스코 호이안 올드타운 야경 투어.",
+                  "ja": "近代的なビーチリゾート・ダナンと風情あふれる世界遺産ホイアンを巡る3泊4日。バナヒルズ、ミーケビーチ、ランタンの灯る夜の街を満喫。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Tổng quan cặp đôi điểm đến Đà Nẵng – Hội An</h2>\n<p>Đà Nẵng và Hội An là bộ đôi du lịch hoàn hảo nhất miền Trung Việt Nam. Chỉ cách nhau 30km, một bên là Đà Nẵng năng động với những cây cầu biểu tượng và bãi biển Mỹ Khê quyến rũ hàng đầu châu Á, một bên là Hội An trầm mặc, cổ kính với những dãy nhà quét vôi vàng đặc trưng và ánh đèn lồng lung linh huyền ảo khi đêm về.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200\" alt=\"Phố cổ Hội An lung linh đèn lồng bên dòng sông Hoài\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Vẻ đẹp cổ kính, trầm mặc của Di sản Văn hóa Thế giới Phố cổ Hội An</figcaption>\n</figure>\n\n<h2>2. Lịch trình chi tiết 4 ngày 3 đêm tối ưu nhất</h2>\n<h3>Ngày 1: Đà Nẵng – Bán đảo Sơn Trà – Biển Mỹ Khê – Cầu Rồng phun lửa</h3>\n<p>Buổi sáng đáp chuyến bay đến Đà Nẵng, xe đưa về khách sạn nhận phòng nghỉ ngơi. Buổi chiều viếng Chùa Linh Ứng trên bán đảo Sơn Trà chiêm bái tượng Phật Bà Quan Âm cao 67m hướng ra biển Đông. Chiều muộn tắm biển Mỹ Khê cát trắng mịn màng. Tối thứ Bảy hoặc Chủ Nhật, ra cầu Rồng ngắm rồng thép phun lửa và phun nước rực sáng bầu trời.</p>\n\n<h3>Ngày 2: Trọn ngày khám phá Sun World Ba Na Hills</h3>\n<p>Dành nguyên ngày trải nghiệm \"chốn bồng lai tiên cảnh\" Bà Nà Hills. Check-in siêu phẩm <strong>Cầu Vàng (Golden Bridge)</strong> được nâng đỡ bởi hai bàn tay khổng lồ phủ rêu phong, dạo bước Làng Pháp cổ kính, vui chơi không giới hạn tại Fantasy Park và hầm rượu cổ Debay.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200\" alt=\"Cầu Vàng Bà Nà Hills kiệt tác kiến trúc nổi danh thế giới\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Cầu Vàng Bà Nà Hills – Biểu tượng kiến trúc du lịch nổi danh toàn cầu</figcaption>\n</figure>\n\n<h3>Ngày 3: Rừng dừa Bảy Mẫu – Khám phá Phố cổ Hội An</h3>\n<p>Buổi sáng trải nghiệm đi thuyền thúng tròn len lỏi giữa rừng dừa Bảy Mẫu Cẩm Thanh, xem các nghệ nhân lắc thúng xoay tròn điệu nghệ. Buổi chiều di chuyển vào trung tâm Phố Cổ Hội An, dạo bước qua Chùa Cầu Nhật Bản, nhà cổ Tấn Ký, hội quán Phúc Kiến. Buổi tối đi thuyền thả đèn hoa đăng trên sông Hoài và ăn cao lầu, cơm gà bà Buội.</p>\n\n<h3>Ngày 4: Mua sắm đặc sản Chợ Hàn – Tạm biệt miền Trung</h3>\n<p>Sáng ghé chợ Hàn mua chả bò Đà Nẵng, tré, mực rim me, bánh khô mè Cẩm Lệ về làm quà. Ra sân bay Đà Nẵng kết thúc chuyến đi tuyệt vời.</p>\n",
+                  "en": "\n<h2>1. The Ultimate Central Vietnam Duo</h2>\n<p>Just 30km apart, dynamic coastal Da Nang and romantic UNESCO Hoi An Ancient Town create an unbeatable 4-day travel experience for all types of travelers.</p>\n<h2>2. Unforgettable Highlights</h2>\n<p>Walk across the world-famous Golden Bridge at Ba Na Hills, cruise the green waterways of Bay Mau coconut forest in round bamboo basket boats, and float paper lanterns along Hoi An's lantern-lit river.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200",
+        category: "experience",
+        author: "Vũ Thanh Hằng",
+        isPublished: true,
+        publishedAt: new Date("2026-03-30T16:20:00.000Z"),
+        createdAt: new Date("2026-03-30T16:20:00.000Z"),
+      },
+      {
+        slug: "review-du-lich-mien-tay-song-nuoc",
+        title: {
+                  "vi": "Review du lịch Miền Tây sông nước: Trải nghiệm chợ nổi Cái Răng, miệt vườn và rừng tràm Trà Sư",
+                  "en": "Mekong Delta Travel Review: Cai Rang Floating Market, Fruit Orchards & Tra Su Forest",
+                  "zh": "越南湄公河水乡全景体验指南：探秘丐冷水上市场、热带果园采摘与茶师白千层林",
+                  "ko": "베트남 메콩델타 투어 리뷰: 까이랑 수상시장, 열대 과일 과수원 및 짜수 맹그로브 숲",
+                  "ja": "メコンデルタ水上マーケット＆マングローブ林の旅：カントー・チャウドック完全ガイド"
+        },
+        excerpt: {
+                  "vi": "Hành trình về miền Tây Nam Bộ mộc mạc: trải nghiệm họp chợ trên sông Cái Răng từ sáng sớm, xuồng ba lá lướt thảm bèo xanh rừng tràm Trà Sư và thưởng thức cá lóc nướng trui.",
+                  "en": "Immerse in authentic Southern Vietnam: morning Cai Rang floating market, paddling through emerald duckweed carpets in Tra Su cajuput forest, and savoring rustic Mekong dishes.",
+                  "zh": "走进原汁原味的湄公河水上人家：清晨乘船感受热闹非凡的水上交易市场、小木舟穿梭于绿毯般的白千层森林，品尝稻草烤黑鱼与椰子煎饼。",
+                  "ko": "메콩강 유역의 정겨운 정취를 만끽하는 코스: 활기 넘치는 까이랑 수상시장, 초록빛 부평초 가득한 짜수 숲 나룻배 투어 및 전통 메콩 미식 탐방.",
+                  "ja": "南ベトナム・メコンデルタの豊かな自然と水上生活を体験。活気ある水上マーケット、緑の絨毯のようなマングローブ林の絶景クルーズ。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Miền Tây Nam Bộ – Vùng đất hào sảng và trù phú</h2>\n<p>Miền Tây sông nước (Đồng bằng sông Cửu Long) mang vẻ đẹp dung dị, êm đềm với những con kênh rạch chằng chịt, những rặng dừa nước nghiêng mình soi bóng và tấm lòng hiếu khách, hào sảng nồng ấm của người dân Nam Bộ. Đây là điểm đến lý tưởng để tạm gác lại những ồn ào phố thị, hòa mình vào không gian miệt vườn thanh bình.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1528127269322-539801943592?w=1200\" alt=\"Chợ nổi Cái Răng Cần Thơ tấp nập buổi bình minh\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Chợ nổi Cái Răng Cần Thơ – Bức tranh văn hóa sông nước độc nhất vô nhị</figcaption>\n</figure>\n\n<h2>2. Những trải nghiệm độc bản không thể bỏ qua</h2>\n<h3>1. Chợ nổi Cái Răng (Cần Thơ) – Văn hóa thương hồ trên sông</h3>\n<p>Thức dậy thật sớm từ 05:00 sáng để xuống ghe máy ra chợ nổi. Lúc này, hàng trăm chiếc ghe chở đầy ắp dưa hấu, khóm, vú sữa, sầu riêng tấp nập neo đậu trao đổi hàng hóa. Đặc biệt, người bán treo sản vật của mình lên cây sào gọi là \"cây bẹo\" để khách từ xa dễ dàng nhận biết. Thưởng thức một tô hủ tiếu nóng hổi và ly cà phê sữa đá chòng chành trên sông là trải nghiệm nhớ đời.</p>\n\n<h3>2. Rừng tràm Trà Sư (An Giang) – Thiên đường sinh thái xanh biếc</h3>\n<p>Ngồi trên chiếc xuồng ba lá mộc mạc do các cô gái miền Tây mặc áo bà ba chèo lái, nhẹ nhàng lướt qua thảm bèo cám xanh mướt trải dài như vô tận. Lắng nghe tiếng chim ríu rít gọi bầy và ngắm nhìn những đàn cò trắng chao liệng giữa tán rừng tràm cổ thụ.</p>\n\n<h2>3. Ẩm thực miệt vườn đậm đà tình quê</h2>\n<ul>\n  <li><strong>Cá lóc nướng trui:</strong> Cá lóc tươi sống vùi vào rơm rạ khô đốt cháy, khi chín gạt lớp vảy cháy đen lộ ra thớ thịt cá trắng ngần, thơm nức cuốn bánh tráng rau rừng chấm mắm me.</li>\n  <li><strong>Lẩu mắm miền Tây:</strong> Nấu từ mắm cá linh hoặc mắm cá sặc thơm nồng, ăn kèm hơn 20 loại rau đồng nội như bông điên điển, bông súng, rau nhút, so đũa.</li>\n  <li><strong>Bánh xèo củ hủ dừa:</strong> Chiếc bánh xèo vàng giòn to bằng chiếc mâm, nhân thịt ba chỉ, tôm sông và củ hủ dừa giòn ngọt tự nhiên.</li>\n</ul>\n",
+                  "en": "\n<h2>1. Discover the Mekong Delta</h2>\n<p>The Mekong Delta charms visitors with its labyrinth of canals, verdant fruit orchards, floating markets, and legendary Southern Vietnamese hospitality.</p>\n<h2>2. Signature Experiences</h2>\n<p>Awake early for the vibrant Cai Rang floating market in Can Tho, glide through carpeted green duckweed waters in Tra Su cajuput forest, and savor fresh grilled snakehead fish with tamarind sauce.</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200",
+        category: "destination",
+        author: "Lâm Văn Phát",
+        isPublished: true,
+        publishedAt: new Date("2026-04-02T13:30:00.000Z"),
+        createdAt: new Date("2026-04-02T13:30:00.000Z"),
+      },
+      {
+        slug: "review-du-lich-quy-nhon-phu-yen",
+        title: {
+                  "vi": "Review du lịch Quy Nhơn – Phú Yên: Hành trình biển xanh xứ sở hoa vàng trên cỏ xanh",
+                  "en": "Quy Nhon & Phu Yen Travel Review: Emerald Coast & Yellow Flowers Itinerary",
+                  "zh": "归仁与富安海滨深度测评：探秘蔚蓝海岸与“绿草黄花”电影取景圣地",
+                  "ko": "퀴논 & 푸옌 자유여행 리뷰: 에메랄드빛 해안과 낭만적인 노란 꽃밭 투어",
+                  "ja": "クイニョン＆フーイエン絶景海岸巡り：巨岩の岬エオゾーと映画の舞台バイセップ"
+        },
+        excerpt: {
+                  "vi": "Kinh nghiệm du lịch Quy Nhơn Phú Yên 4 ngày 3 đêm tự túc: ngắm hoàng hôn Kỳ Co Eo Gió, check-in tuyệt tác Gành Đá Đĩa và bãi Xép xứ sở hoa vàng cỏ xanh.",
+                  "en": "Complete 4D3N coastal adventure covering Ky Co beach, Eo Gio cliffside walk, the geological marvel Ganh Da Dia, and fresh seafood by O Loan lagoon.",
+                  "zh": "打卡越南中南部最美秘境海岸：探访“小马尔代夫”祈戈海滩、风口悬崖栈道、大自然的蜂巢奇迹巨石海角与生蚝海鲜大餐。",
+                  "ko": "숨겨진 보석 같은 휴양지 퀴논 & 푸옌: 끼꼬 비치 스노클링, 에오지오 해안 산책로, 주상절리 간다디아 및 오로안 석호 해산물 맛집 투어.",
+                  "ja": "手つかずの自然が残るクイニョンとフーイエン。断崖絶壁のエオゾー、神秘的な柱状節理ガンダーディア、新鮮なシーフードを満喫。"
+        },
+        content: {
+                  "vi": "\n<h2>1. Vẻ đẹp hoang sơ của dải đất duyên hải Nam Trung Bộ</h2>\n<p>Nếu bạn đang tìm kiếm một vùng biển hoang sơ, làn nước trong vắt đến độ có thể nhìn rõ từng đàn cá tung tăng bơi lội mà không quá đông đúc xô bồ, thì hành trình liên tuyến <strong>Quy Nhơn (Bình Định) – Phú Yên</strong> chính là sự lựa chọn số 1. Nơi đây sở hữu những kiệt tác địa chất tự nhiên độc nhất vô nhị cùng những bãi tắm cát vàng mịn thoai thoải trải dài hút tầm mắt.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200\" alt=\"Eo Gió Quy Nhơn cung đường đi bộ ven biển ngoạn mục\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Eo Gió Quy Nhơn – Cung đường đi bộ ven biển ngắm sóng vỗ tuyệt mỹ</figcaption>\n</figure>\n\n<h2>2. Những điểm đến biểu tượng trong hành trình</h2>\n<h3>1. Kỳ Co – Eo Gió (Quy Nhơn): Maldives thu nhỏ của Việt Nam</h3>\n<p>Kỳ Co sở hữu dải cát trắng ôm trọn lấy làn nước biển 2 màu xanh ngọc bích kỳ ảo, được bao bọc bởi những rặng núi đá sừng sững. Sau khi tắm biển Kỳ Co, du khách di chuyển sang <strong>Eo Gió</strong> – eo biển hút gió quanh năm với con đường đi bộ uốn lượn có lan can đỏ trắng men theo vách núi sát mép sóng biển.</p>\n\n<h3>2. Gành Đá Đĩa (Phú Yên): Tuyệt tác địa chất tự nhiên triệu năm</h3>\n<p>Được công nhận là Di tích Quốc gia đặc biệt, Gành Đá Đĩa là hiện tượng địa chất hiếm có trên thế giới với hàng chục nghìn cột đá bazan hình lục lăng xếp khít vào nhau như một tổ ong khổng lồ vươn mình ra biển cả mênh mông.</p>\n\n<figure class=\"my-6\">\n  <img src=\"https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200\" alt=\"Gành Đá Đĩa Phú Yên kỳ quan địa chất tự nhiên độc nhất vô nhị\" class=\"rounded-2xl w-full object-cover shadow-md\" />\n  <figcaption class=\"text-center text-xs text-slate-500 mt-2 italic font-medium\">Gành Đá Đĩa Phú Yên – Tuyệt tác đá núi lửa xếp hình tổ ong vươn ra biển Đông</figcaption>\n</figure>\n\n<h3>3. Bãi Xép & Gành Ông: Xứ sở hoa vàng trên cỏ xanh</h3>\n<p>Khung cảnh xuất hiện trong bộ phim nổi tiếng của đạo diễn Victor Vũ với bãi cỏ xanh mướt trải dài trên vách đá ngắm sóng vỗ, điểm xuyết những rặng xương rồng hoang dại và bãi biển Bãi Xép thoai thoải cát vàng.</p>\n\n<h3>4. Hải sản Đầm Ô Loan trứ danh</h3>\n<p>Đừng quên dừng chân thưởng thức đặc sản sò huyết đầm Ô Loan rang me hoặc nướng mọi béo ngậy ngọt lịm, cua huỳnh đế hấp và bánh xèo tôm nhảy giòn rụm.</p>\n",
+                  "en": "\n<h2>1. Pristine South-Central Coast</h2>\n<p>Quy Nhon and Phu Yen form an extraordinary coastal duo featuring turquoise bays, towering ocean cliffs, and unique volcanic stone formations.</p>\n<h2>2. Top Highlights</h2>\n<p><strong>Ky Co & Eo Gio:</strong> The \"Maldives of Vietnam\" with crystal waters and a scenic cliffside walking path.</p>\n<p><strong>Ganh Da Dia:</strong> A rare geological wonder of basalt hexagonal columns stacked like giant beehives by the sea.</p>\n<p><strong>Bai Xep:</strong> The dreamy filming location of \"Yellow Flowers on Green Grass\".</p>\n"
+        },
+        thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200",
+        category: "destination",
+        author: "Nguyễn Đăng Khoa",
+        isPublished: true,
+        publishedAt: new Date("2026-04-05T15:10:00.000Z"),
+        createdAt: new Date("2026-04-05T15:10:00.000Z"),
       },
     ]);
 

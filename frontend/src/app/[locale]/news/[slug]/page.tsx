@@ -48,7 +48,15 @@ export async function generateMetadata({
   return {
     title: `${title} | Travel News`,
     description: excerpt.substring(0, 160),
-    keywords: [article.category, 'tin tuc du lich', 'cam nang du lich', title],
+    keywords: [
+      article.category,
+      'du lịch việt nam',
+      'cẩm nang du lịch',
+      'kinh nghiệm du lịch việt nam',
+      'review du lịch',
+      'tour du lịch',
+      title
+    ],
     alternates: {
       canonical: `${baseUrl}/${locale}/news/${slug}`,
       languages: {
@@ -117,16 +125,64 @@ export default async function NewsDetailPage({
     { day: '2-digit', month: '2-digit', year: 'numeric' }
   );
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
   const articleSchema = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: title,
-    image: [thumbnail],
-    datePublished: article.createdAt || new Date().toISOString(),
-    author: {
-      '@type': 'Person',
-      name: article.author || 'Travel'
-    }
+    '@graph': [
+      {
+        '@type': 'NewsArticle',
+        '@id': `${baseUrl}/${locale}/news/${slug}#article`,
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': `${baseUrl}/#website`,
+          name: 'Travel Booking',
+          url: baseUrl,
+        },
+        headline: title,
+        description: excerpt.substring(0, 200),
+        inLanguage: locale,
+        mainEntityOfPage: `${baseUrl}/${locale}/news/${slug}`,
+        image: [thumbnail],
+        datePublished: article.publishedAt || article.createdAt || new Date().toISOString(),
+        dateModified: article.updatedAt || article.publishedAt || article.createdAt || new Date().toISOString(),
+        author: {
+          '@type': 'Person',
+          name: article.author || 'Chuyên gia du lịch Travel Booking',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Travel Booking',
+          url: baseUrl,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${baseUrl}/logo.png`,
+          },
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: t('home'),
+            item: `${baseUrl}/${locale}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: t('news'),
+            item: `${baseUrl}/${locale}/news`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: title,
+            item: `${baseUrl}/${locale}/news/${slug}`,
+          },
+        ],
+      },
+    ],
   };
 
   const CATEGORY_NAMES: Record<string, Record<string, string>> = {
@@ -226,7 +282,7 @@ export default async function NewsDetailPage({
 
             {/* Main Content Render */}
             <div 
-              className="prose prose-slate max-w-none text-slate-800 leading-relaxed text-base md:text-lg prose-headings:font-extrabold prose-headings:text-slate-900 prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-md"
+              className="prose prose-slate max-w-none text-slate-800 leading-relaxed text-base md:text-lg prose-headings:font-extrabold prose-headings:text-slate-900 prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-md [&_figure]:my-8 [&_figure]:rounded-2xl [&_figure]:overflow-hidden [&_figure]:shadow-md [&_figcaption]:text-center [&_figcaption]:text-xs sm:[&_figcaption]:text-sm [&_figcaption]:text-slate-500 [&_figcaption]:italic [&_figcaption]:mt-2.5 [&_figcaption]:font-medium [&_h2]:text-2xl sm:[&_h2]:text-3xl [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:font-extrabold [&_h2]:text-slate-900 [&_h3]:text-xl sm:[&_h3]:text-2xl [&_h3]:mt-7 [&_h3]:mb-3 [&_h3]:font-bold [&_h3]:text-slate-900 [&_p]:my-4 [&_p]:leading-relaxed [&_ul]:my-4 [&_ul]:space-y-2.5 [&_ol]:my-4 [&_ol]:space-y-2.5 [&_li]:leading-relaxed [&_table]:w-full [&_table]:my-6 [&_th]:bg-slate-100 [&_th]:p-3 [&_th]:text-left [&_th]:font-bold [&_td]:p-3 [&_td]:border-b [&_td]:border-slate-100"
               dangerouslySetInnerHTML={{ 
                 __html: content || `<p className="leading-relaxed">${excerpt}</p>` 
               }} 

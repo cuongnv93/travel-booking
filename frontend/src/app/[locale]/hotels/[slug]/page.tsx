@@ -68,24 +68,54 @@ export default async function HotelDetailPage({
   const hotel = await prefetchHotelBySlug(slug);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
+  const hotelName = hotel ? getI18nText(hotel.name, locale) : '';
+  const hotelDesc = hotel ? getI18nText(hotel.description, locale) : '';
   const hotelSchema = hotel ? {
     '@context': 'https://schema.org',
-    '@type': 'Hotel',
-    name: getI18nText(hotel.name, locale),
-    description: getI18nText(hotel.description, locale),
-    image: hotel.images || [],
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: hotel.city || hotel.location || 'Việt Nam',
-      streetAddress: hotel.address || hotel.location || '',
-      addressCountry: 'VN',
-    },
-    starRating: {
-      '@type': 'Rating',
-      ratingValue: hotel.stars || 5,
-    },
-    priceRange: hotel.pricePerNight ? `${hotel.pricePerNight} VND` : undefined,
-    url: `${baseUrl}/${locale}/hotels/${slug}`,
+    '@graph': [
+      {
+        '@type': 'Hotel',
+        '@id': `${baseUrl}/${locale}/hotels/${slug}#hotel`,
+        name: hotelName,
+        description: hotelDesc,
+        image: hotel.images || [],
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: hotel.city || hotel.location || 'Việt Nam',
+          streetAddress: hotel.address || hotel.location || '',
+          addressCountry: 'VN',
+        },
+        starRating: {
+          '@type': 'Rating',
+          ratingValue: hotel.stars || 5,
+        },
+        priceRange: hotel.pricePerNight ? `${hotel.pricePerNight} VND` : undefined,
+        url: `${baseUrl}/${locale}/hotels/${slug}`,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: locale === 'vi' ? 'Trang chủ' : 'Home',
+            item: `${baseUrl}/${locale}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: locale === 'vi' ? 'Khách sạn' : 'Hotels',
+            item: `${baseUrl}/${locale}/hotels`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: hotelName,
+            item: `${baseUrl}/${locale}/hotels/${slug}`,
+          },
+        ],
+      },
+    ],
   } : null;
 
   return (
