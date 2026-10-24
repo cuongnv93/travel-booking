@@ -250,7 +250,8 @@
     "cancelled": "Đã Huỷ",
     "bookingCode": "Mã Đặt Chỗ",
     "backHome": "Về Trang Chủ",
-    "viewBookings": "Xem Đơn Hàng Của Tôi"
+    "viewBookings": "Xem Đơn Hàng Của Tôi",
+    "completed": "Đã Hoàn Thành"
   },
   "bookingLookup": {
     "title": "Tra Cứu Đơn Đặt Tour & Dịch Vụ",
@@ -392,7 +393,8 @@
     "notFoundError": "Không tìm thấy đơn hàng với mã đặt chỗ này. Vui lòng kiểm tra lại!",
     "adults": "người lớn",
     "children": "trẻ em",
-    "defaultTourTitle": "Dịch vụ du lịch"
+    "defaultTourTitle": "Dịch vụ du lịch",
+    "completed": "Đã hoàn thành"
   },
   "success": {
     "heroTitle": "Đặt Chỗ Thành Công!",
@@ -781,6 +783,7 @@
     "defaultHotel": "Khách Sạn & Resort",
     "defaultFlight": "Vé máy bay",
     "defaultTour": "Tour Du Lịch",
-    "flightNumber": "Chuyến bay {code}"
+    "flightNumber": "Chuyến bay {code}",
+    "tabCompleted": "Đã Hoàn Thành"
   }
 }

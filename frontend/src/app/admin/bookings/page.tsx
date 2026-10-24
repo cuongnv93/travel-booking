@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import {
   CheckCircle2,
   XCircle,
@@ -217,6 +217,17 @@ export default function BookingsAdminPage() {
   // Row selection
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
+
+  // Close booking details modal on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedBooking) {
+        setSelectedBooking(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedBooking]);
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['admin-bookings'],
@@ -805,7 +816,12 @@ export default function BookingsAdminPage() {
 
       {/* Booking Inspector Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedBooking(null);
+          }}
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+        >
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-2xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>

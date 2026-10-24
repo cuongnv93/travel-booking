@@ -250,7 +250,8 @@
     "cancelled": "キャンセル済み",
     "bookingCode": "予約番号",
     "backHome": "ホームに戻る",
-    "viewBookings": "予約履歴を見る"
+    "viewBookings": "予約履歴を見る",
+    "completed": "完了"
   },
   "bookingLookup": {
     "title": "ご予約内容の照会",
@@ -392,7 +393,8 @@
     "notFoundError": "この予約コードの注文が見つかりません。もう一度ご確認ください！",
     "adults": "大人",
     "children": "子供",
-    "defaultTourTitle": "旅行サービス"
+    "defaultTourTitle": "旅行サービス",
+    "completed": "完了"
   },
   "success": {
     "heroTitle": "予約完了！",
@@ -781,6 +783,7 @@
     "defaultHotel": "ホテル・リゾート",
     "defaultFlight": "航空券",
     "defaultTour": "パッケージツアー",
-    "flightNumber": "便名 {code}"
+    "flightNumber": "便名 {code}",
+    "tabCompleted": "完了"
   }
 }

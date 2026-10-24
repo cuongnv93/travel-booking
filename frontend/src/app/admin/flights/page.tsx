@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -38,6 +38,16 @@ export default function AdminFlightsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
+
   const [formData, setFormData] = useState({
     airline: 'Vietnam Airlines',
     logo: 'VN',
@@ -62,6 +72,7 @@ export default function AdminFlightsPage() {
     mutationFn: (data: any) => api.post('/flights', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-flights'] });
+      queryClient.invalidateQueries({ queryKey: ['public-flights'] });
       setIsModalOpen(false);
       resetForm();
       toast.success('Thêm chuyến bay mới thành công!');
@@ -73,6 +84,7 @@ export default function AdminFlightsPage() {
     mutationFn: ({ id, data }: { id: string; data: any }) => api.put(`/flights/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-flights'] });
+      queryClient.invalidateQueries({ queryKey: ['public-flights'] });
       setIsModalOpen(false);
       resetForm();
       toast.success('Cập nhật chuyến bay thành công!');
@@ -84,6 +96,7 @@ export default function AdminFlightsPage() {
     mutationFn: (id: string) => api.delete(`/flights/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-flights'] });
+      queryClient.invalidateQueries({ queryKey: ['public-flights'] });
       toast.success('Đã xóa chuyến bay thành công!');
     },
     onError: (err: any) => toast.error('Lỗi xóa chuyến bay: ' + (err.response?.data?.message || err.message)),
@@ -332,7 +345,12 @@ export default function AdminFlightsPage() {
 
       {/* Create / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4"
+        >
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">

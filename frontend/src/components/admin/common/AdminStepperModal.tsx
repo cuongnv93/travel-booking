@@ -114,7 +114,10 @@ export function AdminStepperModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div
+      onClick={handleSafeClose}
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+    >
       <div
         className={`bg-white border border-slate-200/90 w-full ${maxWidth} rounded-2xl flex flex-col shadow-2xl max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150 relative`}
         onClick={(e) => e.stopPropagation()}
@@ -260,7 +263,7 @@ export function AdminStepperModal({
 
         {/* Unsaved Changes Confirmation Dialog */}
         {showConfirmDiscard && (
-          <div className="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-100">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600">

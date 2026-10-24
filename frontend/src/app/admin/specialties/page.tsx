@@ -269,13 +269,16 @@ export default function AdminSpecialtiesPage() {
                     <img
                       src={item.image || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400'}
                       alt={itemName}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <span className="absolute top-2 left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
                       {item.region}
                     </span>
                     {item.location && (
-                      <span className="absolute top-2 right-2 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                      <span className="absolute top-2 right-2 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
                         📍 {item.location}
                       </span>
                     )}

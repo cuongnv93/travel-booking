@@ -11,7 +11,7 @@ export const getAll = async (req: Request, res: Response) => {
 
     // Only filter isActive: true when not explicitly requesting all or specific isActive flag
     if (all !== 'true' && isActive === undefined) {
-      query.isActive = true;
+      query.isActive = { $ne: false };
     } else if (isActive !== undefined) {
       query.isActive = isActive === 'true';
     }
@@ -61,7 +61,7 @@ export const getLocations = async (_req: Request, res: Response) => {
     const cached = cacheService.get('hotel_locations');
     if (cached) return res.json(cached);
 
-    const locations = await Hotel.distinct('location', { isActive: true });
+    const locations = await Hotel.distinct('location', { isActive: { $ne: false } });
     const result = locations.filter(Boolean).sort();
     cacheService.set('hotel_locations', result);
     res.json(result);

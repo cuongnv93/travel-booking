@@ -250,7 +250,8 @@
     "cancelled": "Cancelled",
     "bookingCode": "Booking Reference",
     "backHome": "Back to Home",
-    "viewBookings": "View My Bookings"
+    "viewBookings": "View My Bookings",
+    "completed": "Completed"
   },
   "bookingLookup": {
     "title": "Lookup Booking Status",
@@ -392,7 +393,8 @@
     "notFoundError": "No booking found with this code. Please check again!",
     "adults": "adults",
     "children": "children",
-    "defaultTourTitle": "Travel service"
+    "defaultTourTitle": "Travel service",
+    "completed": "Completed"
   },
   "success": {
     "heroTitle": "Booking Successful!",
@@ -781,6 +783,7 @@
     "defaultHotel": "Hotel & Resort",
     "defaultFlight": "Flight Ticket",
     "defaultTour": "Package Tour",
-    "flightNumber": "Flight {code}"
+    "flightNumber": "Flight {code}",
+    "tabCompleted": "Completed"
   }
 }

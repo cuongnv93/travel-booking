@@ -43,6 +43,16 @@ export default function ProfileBookingsClient() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedBooking) {
+        setSelectedBooking(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedBooking]);
+
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['user-bookings'],
     queryFn: fetchUserBookings,
@@ -96,6 +106,7 @@ export default function ProfileBookingsClient() {
           { key: 'all', label: t('tabAll'), count: bookings.length },
           { key: 'pending', label: t('tabPending'), count: bookings.filter((b: any) => b.status === 'pending').length },
           { key: 'confirmed', label: t('tabConfirmed'), count: bookings.filter((b: any) => b.status === 'confirmed').length },
+          { key: 'completed', label: t('tabCompleted'), count: bookings.filter((b: any) => b.status === 'completed').length },
           { key: 'cancelled', label: t('tabCancelled'), count: bookings.filter((b: any) => b.status === 'cancelled').length },
         ].map((tab) => (
           <button
@@ -162,7 +173,7 @@ export default function ProfileBookingsClient() {
                 <div className="flex gap-4 items-center min-w-0 flex-1">
                   <div className="w-20 h-20 rounded-2xl bg-slate-900 shrink-0 overflow-hidden relative">
                     <img src={thumb} alt="" className="w-full h-full object-cover" />
-                    <span className="absolute top-1 left-1 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
+                    <span className="absolute top-1 left-1 bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
                       {isHotel ? 'Hotel' : isFlight ? 'Flight' : 'Tour'}
                     </span>
                   </div>
@@ -194,6 +205,11 @@ export default function ProfileBookingsClient() {
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                         {tBooking('confirmed')}
                       </span>
+                    ) : b.status === 'completed' ? (
+                      <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 border border-blue-200">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                        {tBooking('completed')}
+                      </span>
                     ) : b.status === 'cancelled' ? (
                       <span className="bg-red-50 text-red-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 border border-red-200">
                         <XCircle className="w-3.5 h-3.5 text-red-600" />
@@ -222,7 +238,7 @@ export default function ProfileBookingsClient() {
 
       {/* User Booking Detail Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div onClick={(e) => { if (e.target === e.currentTarget) setSelectedBooking(null); }} className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-3xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>

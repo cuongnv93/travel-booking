@@ -368,6 +368,8 @@ export default function AdminHotelsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
       queryClient.invalidateQueries({ queryKey: ['hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       toast.success('Đã cập nhật trạng thái mở bán khách sạn!');
     },
     onError: (err: any) => {

@@ -18,6 +18,7 @@ export const globalSearch = async (req: Request, res: Response) => {
       Tour.find({
         isActive: { $ne: false },
         $or: [
+          { title: safeRegex },
           { 'title.vi': safeRegex },
           { 'title.en': safeRegex },
           { 'title.zh': safeRegex },
@@ -33,6 +34,7 @@ export const globalSearch = async (req: Request, res: Response) => {
       Hotel.find({
         isActive: { $ne: false },
         $or: [
+          { name: safeRegex },
           { 'name.vi': safeRegex },
           { 'name.en': safeRegex },
           { 'name.zh': safeRegex },
@@ -48,6 +50,7 @@ export const globalSearch = async (req: Request, res: Response) => {
       News.find({
         isPublished: true,
         $or: [
+          { title: safeRegex },
           { 'title.vi': safeRegex },
           { 'title.en': safeRegex },
           { 'title.zh': safeRegex },

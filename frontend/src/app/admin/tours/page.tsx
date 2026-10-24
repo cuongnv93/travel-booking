@@ -379,6 +379,10 @@ export default function ToursAdminPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+      queryClient.invalidateQueries({ queryKey: ['specialties-featured-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       toast.success('Đã cập nhật trạng thái hiển thị tour!');
     },
     onError: (err: any) => {

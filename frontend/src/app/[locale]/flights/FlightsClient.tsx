@@ -149,6 +149,17 @@ function FlightsContent() {
   // Booking Modal State
   const currentUser = useAuthStore((state) => state.user);
   const [selectedFlight, setSelectedFlight] = useState<any>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedFlight) {
+        setSelectedFlight(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedFlight]);
+
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -452,7 +463,7 @@ function FlightsContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedFlight(null)}
-              className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs"
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 16 }}

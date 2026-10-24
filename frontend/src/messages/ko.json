@@ -250,7 +250,8 @@
     "cancelled": "예약 취소됨",
     "bookingCode": "예약 번호",
     "backHome": "홈으로 이동",
-    "viewBookings": "내 예약 보기"
+    "viewBookings": "내 예약 보기",
+    "completed": "완료"
   },
   "bookingLookup": {
     "title": "예약 조회",
@@ -392,7 +393,8 @@
     "notFoundError": "해당 예약 코드로 주문을 찾을 수 없습니다. 다시 확인해 주세요!",
     "adults": "성인",
     "children": "아동",
-    "defaultTourTitle": "여행 서비스"
+    "defaultTourTitle": "여행 서비스",
+    "completed": "완료"
   },
   "success": {
     "heroTitle": "예약 성공!",
@@ -781,6 +783,7 @@
     "defaultHotel": "호텔 & 리조트",
     "defaultFlight": "항공권",
     "defaultTour": "패키지 투어",
-    "flightNumber": "항공편 {code}"
+    "flightNumber": "항공편 {code}",
+    "tabCompleted": "완료"
   }
 }

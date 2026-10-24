@@ -145,6 +145,11 @@ export default function BookingLookupClient() {
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       {t('confirmed')}
                     </span>
+                  ) : booking.status === 'completed' ? (
+                    <span className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                      {t('completed')}
+                    </span>
                   ) : booking.status === 'cancelled' ? (
                     <span className="bg-red-500/15 text-red-400 border border-red-500/30 text-sm font-bold px-4 py-2 rounded-full flex items-center gap-2">
                       <XCircle className="w-4 h-4 text-red-400" />

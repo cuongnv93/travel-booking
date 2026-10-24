@@ -250,7 +250,8 @@
     "cancelled": "已取消",
     "bookingCode": "预订编号",
     "backHome": "返回首页",
-    "viewBookings": "查看我的订单"
+    "viewBookings": "查看我的订单",
+    "completed": "已完成"
   },
   "bookingLookup": {
     "title": "查询订单状态",
@@ -392,7 +393,8 @@
     "notFoundError": "未找到该预订代码的订单，请重新检查！",
     "adults": "成人",
     "children": "儿童",
-    "defaultTourTitle": "旅游服务"
+    "defaultTourTitle": "旅游服务",
+    "completed": "已完成"
   },
   "success": {
     "heroTitle": "预订成功！",
@@ -781,6 +783,7 @@
     "defaultHotel": "酒店与度假村",
     "defaultFlight": "机票订单",
     "defaultTour": "精彩跟团游",
-    "flightNumber": "航班 {code}"
+    "flightNumber": "航班 {code}",
+    "tabCompleted": "已完成"
   }
 }
