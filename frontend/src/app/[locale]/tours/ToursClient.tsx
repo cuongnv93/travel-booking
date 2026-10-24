@@ -39,7 +39,7 @@ export default function ToursClient({ initialTours, toursBanner, toursVideo = 'h
 
   const { data: tourDestinations = [] } = useTourDestinations();
 
-  const initialDest = searchParams.get('destination') || '';
+  const initialDest = searchParams.get('destination') || searchParams.get('search') || searchParams.get('q') || '';
   const initialCat = searchParams.get('category') || '';
   const isFeaturedParam = searchParams.get('isFeatured') === 'true';
 
@@ -49,7 +49,7 @@ export default function ToursClient({ initialTours, toursBanner, toursVideo = 'h
   const [sort, setSort] = useState('');
 
   useEffect(() => {
-    setDestination(searchParams.get('destination') || '');
+    setDestination(searchParams.get('destination') || searchParams.get('search') || searchParams.get('q') || '');
     setCategory(searchParams.get('category') || '');
   }, [searchParams]);
 

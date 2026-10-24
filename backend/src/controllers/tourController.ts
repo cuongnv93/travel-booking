@@ -77,8 +77,9 @@ export const getAll = async (req: Request, res: Response) => {
       query.isActive = isActive === 'true';
     }
 
-    if (destination) {
-      const destRegex = buildDestinationRegex(destination as string);
+    const destParam = destination || req.query.search || req.query.q;
+    if (destParam) {
+      const destRegex = buildDestinationRegex(destParam as string);
       query.$or = [
         { destination: destRegex },
         { title: destRegex },

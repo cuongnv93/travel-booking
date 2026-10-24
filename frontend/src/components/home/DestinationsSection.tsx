@@ -6,21 +6,8 @@ import Link from 'next/link';
 import SmartImage from '@/components/ui/SmartImage';
 import { MapPin, ArrowRight, Compass } from 'lucide-react';
 import { useMemo, memo } from 'react';
-import { useFeaturedDestinations } from '@/hooks/useSettings';
+import { useFeaturedDestinations, DEFAULT_DESTINATIONS } from '@/hooks/useSettings';
 import { getI18nText } from '@/lib/utils';
-
-const DESTINATION_PHOTOS: Record<string, string> = {
-  'HÃ  Ná»™i': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
-  'ÄÃ  Náºµng': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
-  'Há»™i An': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
-  'PhÃº Quá»‘c': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
-  'Sa Pa': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800',
-  'Nha Trang': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
-  'Háº¡ Long': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
-  'TP. Há»“ ChÃ­ Minh': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
-  'Cao Báº±ng': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
-  'Huáº¿': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
-};
 
 const FALLBACK_DEST_PHOTO = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
 
@@ -79,14 +66,8 @@ export default function DestinationsSection() {
     if (Array.isArray(dynamicDestinations) && dynamicDestinations.length > 0) {
       return dynamicDestinations.filter((d: any) => d.isActive !== false);
     }
-    return [
-      { name: 'HÃ  Ná»™i', image: DESTINATION_PHOTOS['HÃ  Ná»™i'] },
-      { name: 'ÄÃ  Náºµng', image: DESTINATION_PHOTOS['ÄÃ  Náºµng'] },
-      { name: 'Há»™i An', image: DESTINATION_PHOTOS['Há»™i An'] },
-      { name: 'PhÃº Quá»‘c', image: DESTINATION_PHOTOS['PhÃº Quá»‘c'] },
-      { name: 'Sa Pa', image: DESTINATION_PHOTOS['Sa Pa'] },
-      { name: 'Cao Báº±ng', image: DESTINATION_PHOTOS['Cao Báº±ng'] },
-    ];
+    return DEFAULT_DESTINATIONS;
+
   }, [dynamicDestinations]);
 
   return (
@@ -119,7 +100,7 @@ export default function DestinationsSection() {
 
           const photo = (typeof item === 'object' && item.image) 
             ? item.image 
-            : (DESTINATION_PHOTOS[destName] || FALLBACK_DEST_PHOTO);
+            : FALLBACK_DEST_PHOTO;
 
           const tag = typeof item === 'object' && item.tag
             ? getI18nText(item.tag, locale)

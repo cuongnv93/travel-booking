@@ -11,8 +11,15 @@ import api from '@/lib/api';
 import { formatPrice, getI18nText } from '@/lib/utils';
 
 const fetchHotels = async () => {
-  const res: any = await api.get('/hotels');
-  const list = Array.isArray(res) ? res : (res?.data || []);
+  try {
+    const res: any = await api.get('/hotels?isFeatured=true&limit=3');
+    const featured = Array.isArray(res) ? res : (res?.data || []);
+    if (featured.length > 0) return featured.slice(0, 3);
+  } catch {
+    // fallback to general active hotels
+  }
+  const fallbackRes: any = await api.get('/hotels?limit=3');
+  const list = Array.isArray(fallbackRes) ? fallbackRes : (fallbackRes?.data || []);
   return list.slice(0, 3);
 };
 
@@ -92,8 +99,8 @@ const FeaturedHotelCard = memo(function FeaturedHotelCard({
           <div>
             <p className="text-xs text-slate-400">{fromText}</p>
             <p className="text-xl font-extrabold text-orange-500">
-              {formatPrice(hotel.pricePerNight)}
-              <span className="text-xs text-slate-500 font-normal">{perNightText}</span>
+              {formatPrice(hotel.pricePerNight || hotel.price || (hotel.rooms?.[0]?.price) || 0)}
+              <span className="text-xs text-slate-500 font-normal"> {perNightText}</span>
             </p>
           </div>
           <Link

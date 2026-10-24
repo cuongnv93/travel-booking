@@ -96,7 +96,7 @@ export default async function HotelDetailPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(hotelSchema) }}
         />
       )}
-      <HotelDetailClient />
+      <HotelDetailClient initialHotel={hotel} />
     </>
   );
 }

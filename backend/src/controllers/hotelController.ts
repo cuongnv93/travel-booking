@@ -6,7 +6,7 @@ import { cacheService } from '../services/cacheService';
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const { location, stars, priceMin, priceMax, all, isActive } = req.query;
+    const { location, stars, priceMin, priceMax, all, isActive, isFeatured, limit } = req.query;
     const query: any = {};
 
     // Only filter isActive: true when not explicitly requesting all or specific isActive flag
@@ -16,8 +16,13 @@ export const getAll = async (req: Request, res: Response) => {
       query.isActive = isActive === 'true';
     }
 
-    if (location) {
-      const locRegex = buildDestinationRegex(location as string);
+    if (isFeatured !== undefined) {
+      query.isFeatured = isFeatured === 'true';
+    }
+
+    const locParam = location || req.query.destination || req.query.search || req.query.q;
+    if (locParam) {
+      const locRegex = buildDestinationRegex(locParam as string);
       query.$or = [
         { location: locRegex },
         { address: locRegex },
@@ -33,9 +38,11 @@ export const getAll = async (req: Request, res: Response) => {
       if (priceMax) query.pricePerNight.$lte = Number(priceMax);
     }
 
-    const hotels = await Hotel.find(query)
-      .sort({ stars: -1, createdAt: -1 })
-      .lean();
+    let hotelQuery = Hotel.find(query).sort({ stars: -1, createdAt: -1 });
+    if (limit) {
+      hotelQuery = hotelQuery.limit(Number(limit));
+    }
+    const hotels = await hotelQuery.lean();
     res.json(hotels);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

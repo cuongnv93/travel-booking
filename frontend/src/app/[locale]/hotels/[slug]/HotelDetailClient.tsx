@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import { formatPrice, getI18nText } from '@/lib/utils';
@@ -115,11 +115,12 @@ const HotelRoomCard = memo(function HotelRoomCard({
   );
 });
 
-export default function HotelDetailClient() {
+export default function HotelDetailClient({ initialHotel }: { initialHotel?: any }) {
   const t = useTranslations('hotelDetail');
   const locale = useLocale();
   const { slug } = useParams() as { slug: string };
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [activeImg, setActiveImg] = useState(0);
   
   // Booking State
@@ -147,14 +148,17 @@ export default function HotelDetailClient() {
     }
   }, [currentUser]);
 
-  const { data: hotel, isLoading, isError } = useQuery({
+  const { data: hotel = initialHotel, isLoading: isQueryLoading, isError } = useQuery({
     queryKey: ['hotel', slug],
     queryFn: async () => {
       const res: any = await api.get(`/hotels/${slug}`);
       return res;
     },
+    initialData: initialHotel || undefined,
     enabled: !!slug,
   });
+
+  const isLoading = isQueryLoading && !hotel;
 
   const { data: defaultAmenities = [] } = useHotelAmenitiesMaster();
 
@@ -197,6 +201,8 @@ export default function HotelDetailClient() {
       });
     },
     onSuccess: (res: any) => { 
+      queryClient.invalidateQueries({ queryKey: ['user-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
       const code = res?.bookingCode || res?.data?.bookingCode || '';
       setBookedCode(code);
       setSuccess(true); 
@@ -338,13 +344,13 @@ export default function HotelDetailClient() {
 
             {bookedCode && (
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 my-6 max-w-sm mx-auto">
-                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Mã đặt phòng</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">{t('bookingCode')}</p>
                 <p className="text-2xl font-mono font-extrabold text-blue-600 tracking-wider">{bookedCode}</p>
                 <Link
                   href={`/${locale}/booking-lookup?code=${bookedCode}`}
                   className="inline-block mt-2 text-xs font-bold text-blue-600 hover:underline"
                 >
-                  Tra cứu đơn đặt phòng ngay &rarr;
+                  {t('lookupBooking')} &rarr;
                 </Link>
               </div>
             )}
@@ -368,7 +374,7 @@ export default function HotelDetailClient() {
                       <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded-md">{hotel.stars} Sao</span>
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded-md">{hotel.stars} {t('starsLabel')}</span>
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">{name}</h1>
                 <p className="text-slate-600 flex items-start gap-2 text-sm mb-6">
@@ -441,14 +447,14 @@ export default function HotelDetailClient() {
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-blue-600 shrink-0" />
                       <div>
-                        <span className="text-slate-400 block text-[10px]">Nhận phòng từ</span>
+                        <span className="text-slate-400 block text-[10px]">{t('checkInFrom')}</span>
                         <span>{hotel.checkInTime || '14:00'}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-orange-600 shrink-0" />
                       <div>
-                        <span className="text-slate-400 block text-[10px]">Trả phòng trước</span>
+                        <span className="text-slate-400 block text-[10px]">{t('checkOutBefore')}</span>
                         <span>{hotel.checkOutTime || '12:00'}</span>
                       </div>
                     </div>
@@ -617,7 +623,7 @@ export default function HotelDetailClient() {
                   {selectedRoom && nights > 0 ? (
                     <div className="bg-slate-50 rounded-2xl p-4 space-y-2 mt-2">
                       <div className="flex justify-between text-sm text-slate-600">
-                        <span>{formatPrice(selectedRoom.price)} × {nights} đêm × {formData.roomsCount} phòng</span>
+                        <span>{t('priceBreakdown', { price: formatPrice(selectedRoom.price), nights, rooms: formData.roomsCount })}</span>
                       </div>
                       <div className="flex justify-between items-end border-t border-slate-200 pt-2">
                         <span className="font-bold text-slate-900">{t('total')}</span>

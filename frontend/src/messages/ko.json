@@ -693,7 +693,13 @@
     "errSelectDates": "체크인 및 체크아웃 날짜를 선택해 주세요.",
     "errInvalidDates": "체크아웃 날짜는 체크인 날짜 이후여야 합니다.",
     "selectedLabel": "선택됨: ",
-    "error": "예약 중 오류가 발생했습니다. 다시 시도해 주세요."
+    "error": "예약 중 오류가 발생했습니다. 다시 시도해 주세요.",
+    "bookingCode": "예약 코드",
+    "lookupBooking": "예약 조회하기",
+    "checkInFrom": "체크인",
+    "checkOutBefore": "체크아웃",
+    "starsLabel": "성급",
+    "priceBreakdown": "{price} × {nights} 박 × {rooms} 개 객실"
   },
   "specialtiesPage": {
     "badge": "🍜 베트남 3대 지역 향토 음식",

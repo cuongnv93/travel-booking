@@ -693,7 +693,13 @@
     "errSelectDates": "Vui lòng chọn ngày nhận phòng và trả phòng.",
     "errInvalidDates": "Ngày trả phòng phải sau ngày nhận phòng.",
     "selectedLabel": "Đã chọn: ",
-    "error": "Đã có lỗi xảy ra khi đặt phòng, vui lòng thử lại."
+    "error": "Đã có lỗi xảy ra khi đặt phòng, vui lòng thử lại.",
+    "bookingCode": "Mã đặt phòng",
+    "lookupBooking": "Tra cứu đơn đặt phòng ngay",
+    "checkInFrom": "Nhận phòng từ",
+    "checkOutBefore": "Trả phòng trước",
+    "starsLabel": "Sao",
+    "priceBreakdown": "{price} × {nights} đêm × {rooms} phòng"
   },
   "specialtiesPage": {
     "badge": "🍜 Ẩm Thực & Món Ngon 3 Miền",

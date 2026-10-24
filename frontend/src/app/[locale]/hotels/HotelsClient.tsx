@@ -123,7 +123,7 @@ function HotelsClientComponent({
 
   const { data: locations = initialLocations } = useHotelLocations(initialLocations);
 
-  const initialLocation = searchParams.get('location') || '';
+  const initialLocation = searchParams.get('location') || searchParams.get('destination') || searchParams.get('search') || searchParams.get('q') || '';
   const [search, setSearch] = useState('');
   const [starFilter, setStarFilter] = useState<number>(0);
   const [locationFilter, setLocationFilter] = useState(initialLocation);
@@ -131,8 +131,8 @@ function HotelsClientComponent({
   const [showFilters, setShowFilters] = useState(Boolean(initialLocation));
 
   useEffect(() => {
-    const loc = searchParams.get('location');
-    if (loc !== null) {
+    const loc = searchParams.get('location') || searchParams.get('destination') || searchParams.get('search') || searchParams.get('q');
+    if (loc !== null && loc !== undefined) {
       setLocationFilter(loc);
       if (loc) setShowFilters(true);
     }

@@ -693,7 +693,13 @@
     "errSelectDates": "Please select check-in and check-out dates.",
     "errInvalidDates": "Check-out date must be after check-in date.",
     "selectedLabel": "Selected: ",
-    "error": "An error occurred while booking. Please try again."
+    "error": "An error occurred while booking. Please try again.",
+    "bookingCode": "Booking Code",
+    "lookupBooking": "Look up booking now",
+    "checkInFrom": "Check-in from",
+    "checkOutBefore": "Check-out before",
+    "starsLabel": "Stars",
+    "priceBreakdown": "{price} × {nights} nights × {rooms} rooms"
   },
   "specialtiesPage": {
     "badge": "🍜 3-Region Culinary Specialties",

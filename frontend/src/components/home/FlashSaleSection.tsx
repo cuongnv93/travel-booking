@@ -228,8 +228,8 @@ export default function FlashSaleSection() {
     return null;
   }
 
-  const itemTimerLabel = t('itemTimerLabel', { fallback: 'Hết hạn:' });
-  const buyBtnLabel = t('buyBtn', { fallback: 'Săn Deal' });
+  const itemTimerLabel = t('itemTimerLabel');
+  const buyBtnLabel = t('buyBtn');
   const hotTourLabel = tCommon('hotTour');
   const hotelTypeLabel = tCommon('hotelType');
 
@@ -247,14 +247,14 @@ export default function FlashSaleSection() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight uppercase">
-                  {t('title', { fallback: '🔥 FLASH SALE GIỜ VÀNG' })}
+                  {t('title')}
                 </h2>
                 <span className="bg-gradient-to-r from-rose-500 to-amber-500 text-white font-extrabold text-[11px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm animate-bounce">
-                  {t('hotBadge', { fallback: 'GIẢM ĐẾN 50%' })}
+                  {t('hotBadge')}
                 </span>
               </div>
               <p className="text-rose-200/80 text-xs md:text-sm mt-1 font-medium">
-                {t('subtitle', { fallback: 'Cơ hội săn vé & phòng ưu đãi cực sốc. Số lượng giới hạn!' })}
+                {t('subtitle')}
               </p>
             </div>
           </div>

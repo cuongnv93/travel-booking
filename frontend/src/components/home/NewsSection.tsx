@@ -144,7 +144,7 @@ export default function NewsSection() {
         <div>
           <div className="text-xs font-extrabold text-blue-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
             <Newspaper className="w-4 h-4 text-blue-600" />
-            <span>{t('badge', { fallback: 'Góc Cẩm Nang' })}</span>
+            <span>{t('badge')}</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{t('title')}</h2>
           <p className="text-slate-500 text-sm mt-1 max-w-xl">{t('subtitle')}</p>

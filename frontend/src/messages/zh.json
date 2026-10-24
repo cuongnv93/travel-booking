@@ -693,7 +693,13 @@
     "errSelectDates": "请选择入住和退房日期。",
     "errInvalidDates": "退房日期必须在入住日期之后。",
     "selectedLabel": "已选择: ",
-    "error": "预订时发生错误，请重试。"
+    "error": "预订时发生错误，请重试。",
+    "bookingCode": "预订编号",
+    "lookupBooking": "立即查询预订",
+    "checkInFrom": "入住时间",
+    "checkOutBefore": "退房时间",
+    "starsLabel": "星级",
+    "priceBreakdown": "{price} × {nights} 晚 × {rooms} 间房"
   },
   "specialtiesPage": {
     "badge": "🍜 越南三大地区特色美食",

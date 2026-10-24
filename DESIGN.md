@@ -17,6 +17,7 @@
 ## Decisions
 - 2026-10-10 — init: Next.js 14 + Tailwind CSS detected. `next-tailwind` preset applied.
 - 2026-10-10 — responsive & layout synchronization: Landing page responsive layout audit and anti-CLS optimization.
+- 2026-10-24 — landing & detail views audit: Fixed mojibake in DestinationsSection, enabled server initialData hydration in HotelDetailClient, added isFeatured/limit backend query filtering for hotels, cleaned next-intl fallback warnings, and standardized search param handling across listings.
 
 ## Components
 - HeroBanner (`src/components/home/HeroBanner.tsx`)
@@ -28,6 +29,9 @@
 - WhyChooseUs (`src/components/home/WhyChooseUs.tsx`)
 - Testimonials (`src/components/home/Testimonials.tsx`)
 - NewsSection (`src/components/home/NewsSection.tsx`)
+- TourDetailClient (`src/components/tours/TourDetailClient.tsx`)
+- TourBookingForm (`src/components/tours/TourBookingForm.tsx`)
+- HotelDetailClient (`src/app/[locale]/hotels/[slug]/HotelDetailClient.tsx`)
 - Header (`src/components/layout/Header.tsx`)
 - Footer (`src/components/layout/Footer.tsx`)
 
