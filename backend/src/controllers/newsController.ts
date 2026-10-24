@@ -151,3 +151,55 @@ export const duplicateNews = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const seedSeoDefaults = async (req: Request, res: Response) => {
+  try {
+    const jsonPath = require('path').join(__dirname, '../seed/seoDefaultNews.json');
+    const fs = require('fs');
+    if (!fs.existsSync(jsonPath)) {
+      return res.status(404).json({ message: 'Default news file not found' });
+    }
+    const rawData = fs.readFileSync(jsonPath, 'utf8');
+    const articles = JSON.parse(rawData);
+
+    let insertedCount = 0;
+    let updatedCount = 0;
+
+    for (const item of articles) {
+      const existing = await News.findOne({ slug: item.slug });
+      if (!existing) {
+        await News.create({
+          slug: item.slug,
+          title: item.title,
+          excerpt: item.excerpt,
+          content: item.content,
+          thumbnail: item.thumbnail,
+          category: item.category,
+          author: item.author,
+          isPublished: true,
+          publishedAt: new Date(item.publishedAt || Date.now()),
+          createdAt: new Date(item.createdAt || Date.now()),
+        });
+        insertedCount++;
+      } else {
+        existing.title = item.title;
+        existing.excerpt = item.excerpt;
+        existing.content = item.content;
+        existing.thumbnail = item.thumbnail;
+        existing.category = item.category;
+        existing.author = item.author;
+        existing.isPublished = true;
+        await existing.save();
+        updatedCount++;
+      }
+    }
+
+    cacheService.flush();
+    res.json({
+      success: true,
+      message: `Đồng bộ thành công 9 bài viết SEO (Thêm mới: ${insertedCount}, Cập nhật: ${updatedCount})`,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

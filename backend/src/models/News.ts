@@ -13,6 +13,9 @@ export interface INews extends Document {
   title: any;
   content: any;
   excerpt: any;
+  seoTitle?: any;
+  seoDescription?: any;
+  focusKeyword?: string;
   thumbnail: string;
   category: string;
   author: string;
@@ -26,6 +29,9 @@ const newsSchema = new Schema<INews>({
   title: i18nSchema,
   content: i18nSchema,
   excerpt: i18nSchema,
+  seoTitle: { type: i18nSchema, default: () => ({ vi: '', en: '', zh: '', ko: '', ja: '' }) },
+  seoDescription: { type: i18nSchema, default: () => ({ vi: '', en: '', zh: '', ko: '', ja: '' }) },
+  focusKeyword: { type: String, default: '' },
   thumbnail: { type: String, required: true },
   category: { type: String, required: true },
   author: { type: String, required: true },

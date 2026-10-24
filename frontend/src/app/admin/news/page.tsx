@@ -1,7 +1,24 @@
 'use client';
 
 import { useState, useMemo, useCallback, useEffect, memo } from 'react';
-import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText, FileSpreadsheet, ExternalLink, Copy, Image as ImageIcon } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  Eye,
+  EyeOff,
+  X,
+  Search,
+  Upload,
+  Loader2,
+  FileText,
+  FileSpreadsheet,
+  ExternalLink,
+  Copy,
+  Image as ImageIcon,
+  Sparkles,
+  PenTool,
+  TrendingUp,
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -9,6 +26,8 @@ import { getI18nText, toSlug } from '@/lib/utils';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
+import { AdminNewsFormatToolbar } from '@/components/admin/news/AdminNewsFormatToolbar';
+import { AdminNewsSeoAssistant } from '@/components/admin/news/AdminNewsSeoAssistant';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -130,12 +149,17 @@ export default function AdminNewsPage() {
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [modalTab, setModalTab] = useState<'content' | 'seo' | 'preview'>('content');
 
   // Form State
   const [activeLang, setActiveLang] = useState<string>('vi');
   const [title, setTitle] = useState<Record<string, string>>(createEmptyI18nRecord());
   const [excerpt, setExcerpt] = useState<Record<string, string>>(createEmptyI18nRecord());
   const [content, setContent] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [seoTitle, setSeoTitle] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [seoDescription, setSeoDescription] = useState<Record<string, string>>(createEmptyI18nRecord());
+  const [focusKeyword, setFocusKeyword] = useState('');
+  const [customSlug, setCustomSlug] = useState('');
   const [category, setCategory] = useState('experience');
   const [thumbnail, setThumbnail] = useState('');
   const [author, setAuthor] = useState('Ban Biên Tập');
@@ -218,23 +242,65 @@ export default function AdminNewsPage() {
     }
   });
 
+  const syncDefaultsMutation = useMutation({
+    mutationFn: async () => {
+      const res: any = await api.post('/news/admin/seed-seo-defaults');
+      return res;
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success(data?.message || 'Đồng bộ 9 bài viết mẫu chuẩn SEO thành công!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi đồng bộ: ' + (err.response?.data?.message || err.message));
+    },
+  });
+
   const handleDuplicate = useCallback((id: string) => {
     duplicateMutation.mutate(id);
   }, [duplicateMutation]);
+
+  const handleSyncDefaults = useCallback(() => {
+    if (confirm('Bạn có muốn đồng bộ 9 bài viết mẫu cẩm nang du lịch và review chuẩn SEO vào CMS? (Các bài đã có sẽ được cập nhật nội dung mới nhất)')) {
+      syncDefaultsMutation.mutate();
+    }
+  }, [syncDefaultsMutation]);
 
   const handleCopyFromVi = useCallback(() => {
     if (activeLang === 'vi') return;
     setTitle((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
     setExcerpt((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
     setContent((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    setSeoTitle((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    setSeoDescription((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
   }, [activeLang]);
+
+  const handleInsertFormat = useCallback(
+    (template: string) => {
+      setContent((prev) => {
+        const current = prev[activeLang] || '';
+        return {
+          ...prev,
+          [activeLang]: current ? current + '\n\n' + template : template,
+        };
+      });
+      toast.info('Đã chèn mẫu định dạng SEO vào nội dung bài viết!');
+    },
+    [activeLang]
+  );
 
   const resetForm = () => {
     setEditingArticle(null);
+    setModalTab('content');
     setActiveLang('vi');
     setTitle(createEmptyI18nRecord());
     setExcerpt(createEmptyI18nRecord());
     setContent(createEmptyI18nRecord());
+    setSeoTitle(createEmptyI18nRecord());
+    setSeoDescription(createEmptyI18nRecord());
+    setFocusKeyword('');
+    setCustomSlug('');
     setCategory('experience');
     setThumbnail('');
     setAuthor('Ban Biên Tập');
@@ -246,21 +312,17 @@ export default function AdminNewsPage() {
     setIsModalOpen(true);
   };
 
-  useEffect(() => {
-    if (!isModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsModalOpen(false);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen]);
-
   const openEditModal = (article: any) => {
     setEditingArticle(article);
+    setModalTab('content');
     setActiveLang('vi');
     setTitle(toI18nRecord(article.title));
     setExcerpt(toI18nRecord(article.excerpt));
     setContent(toI18nRecord(article.content));
+    setSeoTitle(toI18nRecord(article.seoTitle));
+    setSeoDescription(toI18nRecord(article.seoDescription));
+    setFocusKeyword(article.focusKeyword || '');
+    setCustomSlug(article.slug || '');
     setCategory(article.category || 'experience');
     setThumbnail(article.thumbnail || '');
     setAuthor(article.author || 'Ban Biên Tập');
@@ -279,12 +341,15 @@ export default function AdminNewsPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = editingArticle?.slug || toSlug(title.vi || 'bai-viet-' + Date.now());
+    const effectiveSlug = customSlug.trim() || editingArticle?.slug || toSlug(title.vi || 'bai-viet-' + Date.now());
     saveMutation.mutate({
-      slug,
+      slug: effectiveSlug,
       title: sanitizeI18nRecord(title),
       excerpt: sanitizeI18nRecord(excerpt),
       content: sanitizeI18nRecord(content),
+      seoTitle: sanitizeI18nRecord(seoTitle),
+      seoDescription: sanitizeI18nRecord(seoDescription),
+      focusKeyword,
       category,
       thumbnail: thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
       author,
@@ -366,9 +431,19 @@ export default function AdminNewsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Quản Lý Tin Tức & Bài Viết</h1>
-          <p className="text-xs text-slate-500 mt-1">Tạo và chỉnh sửa nội dung cẩm nang du lịch và kinh nghiệm</p>
+          <p className="text-xs text-slate-500 mt-1">Tạo và chỉnh sửa nội dung cẩm nang du lịch và review địa điểm chuẩn SEO</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSyncDefaults}
+            disabled={syncDefaultsMutation.isPending}
+            className="bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-800 text-xs font-bold px-3.5 py-2.5 rounded-lg flex items-center gap-2 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+            title="Nạp và đồng bộ 9 bài viết mẫu cẩm nang và review du lịch Việt Nam chuẩn SEO"
+          >
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            {syncDefaultsMutation.isPending ? 'Đang đồng bộ...' : 'Đồng Bộ 9 Bài Viết SEO Mẫu'}
+          </button>
           <button
             type="button"
             onClick={handleExportCsv}
@@ -507,199 +582,340 @@ export default function AdminNewsPage() {
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
         >
-          <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <h2 className="text-base font-bold text-slate-900">
-                {editingArticle ? 'Chỉnh Sửa Bài Viết' : 'Tạo Bài Viết Mới'}
-              </h2>
+          <div className="bg-white border border-slate-200 w-full max-w-4xl rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                  {editingArticle ? 'Chỉnh Sửa Bài Viết' : 'Tạo Bài Viết Mới Chuẩn SEO'}
+                </h2>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Quản lý nội dung đa ngôn ngữ, tối ưu thẻ Headings, hình ảnh và kiểm tra điểm SEO trực quan
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer p-1 rounded-lg hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Modal Navigation Tabs: [Soạn thảo] | [Trợ lý SEO] | [Xem trước] */}
+            <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2">
+              <button
+                type="button"
+                onClick={() => setModalTab('content')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  modalTab === 'content'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <PenTool className="w-3.5 h-3.5" />
+                <span>Soạn Thảo Nội Dung</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalTab('seo')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  modalTab === 'seo'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>Trợ Lý Tối Ưu SEO & Thẻ Meta</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalTab('preview')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  modalTab === 'preview'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Xem Trước Giao Diện (Preview)</span>
+              </button>
+            </div>
+
             <form onSubmit={handleSave} className="space-y-4 text-xs">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="font-bold text-slate-800">Thông tin bài viết & Đa ngôn ngữ</h3>
-                </div>
-
-                <AdminI18nTabs
-                  activeLang={activeLang}
-                  onChange={setActiveLang}
-                  onCopyFromVi={handleCopyFromVi}
-                  hasContent={{
-                    vi: !!title.vi,
-                    en: !!title.en,
-                    zh: !!title.zh,
-                    ko: !!title.ko,
-                    ja: !!title.ja,
-                  }}
-                  label="Chọn ngôn ngữ nhập liệu cho Tiêu đề, Tóm tắt & Nội dung:"
-                />
-
-                <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                  {activeLang === 'vi'
-                    ? '📌 Tiếng Việt là ngôn ngữ bắt buộc. Các ngôn ngữ EN, ZH, KO, JA nếu để trống sẽ tự động fallback sang Tiếng Việt (hoặc Tiếng Anh) trên website.'
-                    : `💡 Đang chỉnh sửa Tiếng ${activeLang.toUpperCase()}. Bạn có thể bấm "Sao chép từ Tiếng Việt" phía trên để điền nhanh nội dung nháp.`}
-                </p>
-
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
-                    Tiêu đề ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
-                  </label>
-                  <input
-                    required={activeLang === 'vi'}
-                    value={title[activeLang] || ''}
-                    onChange={(e) => setTitle((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                    placeholder={activeLang === 'vi' ? 'VD: Top 10 điểm đến đẹp nhất Việt Nam' : `Tiêu đề bằng tiếng ${activeLang.toUpperCase()}...`}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold"
+              {/* TAB 1: CONTENT EDITOR */}
+              {modalTab === 'content' && (
+                <div className="space-y-4">
+                  <AdminI18nTabs
+                    activeLang={activeLang}
+                    onChange={setActiveLang}
+                    onCopyFromVi={handleCopyFromVi}
+                    hasContent={{
+                      vi: !!title.vi,
+                      en: !!title.en,
+                      zh: !!title.zh,
+                      ko: !!title.ko,
+                      ja: !!title.ja,
+                    }}
+                    label="Chọn ngôn ngữ nhập liệu cho Tiêu đề, Tóm tắt & Nội dung:"
                   />
-                </div>
 
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
-                    Tóm tắt Excerpt ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
-                  </label>
-                  <textarea
-                    rows={2}
-                    required={activeLang === 'vi'}
-                    value={excerpt[activeLang] || ''}
-                    onChange={(e) => setExcerpt((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                    placeholder="Tóm tắt ngắn gọn nội dung bài viết (hiển thị ở trang listing)..."
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
+                  <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    {activeLang === 'vi'
+                      ? '📌 Tiếng Việt là ngôn ngữ bắt buộc. Các ngôn ngữ EN, ZH, KO, JA nếu để trống sẽ tự động fallback sang Tiếng Việt trên website.'
+                      : `💡 Đang chỉnh sửa Tiếng ${activeLang.toUpperCase()}. Bạn có thể bấm "Sao chép từ Tiếng Việt" phía trên để điền nhanh nội dung nháp.`}
+                  </p>
 
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1 text-xs">
-                    Nội dung bài viết ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
-                  </label>
-                  <textarea
-                    rows={8}
-                    required={activeLang === 'vi'}
-                    value={content[activeLang] || ''}
-                    onChange={(e) => setContent((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                    placeholder="Nội dung đầy đủ bài viết. Hỗ trợ HTML tags (<h2>, <p>, <ul>, <li>, <strong>)..."
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-[11px]"
-                  />
-                </div>
-              </div>
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                      Tiêu đề ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                    </label>
+                    <input
+                      required={activeLang === 'vi'}
+                      value={title[activeLang] || ''}
+                      onChange={(e) => setTitle((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                      placeholder={activeLang === 'vi' ? 'VD: Cẩm nang du lịch Hà Nội tự túc 2026: Lịch trình 3N2Đ & Chi phí từ A-Z' : `Tiêu đề bằng tiếng ${activeLang.toUpperCase()}...`}
+                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Danh mục *</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white cursor-pointer"
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Tác giả</label>
-                  <input
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="Nguyễn Văn A"
-                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Thumbnail Upload */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-semibold text-slate-700 block text-xs">Ảnh Thumbnail *</label>
-                  <button
-                    type="button"
-                    onClick={() => setIsMediaModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5" /> Chọn từ Thư Viện Media
-                  </button>
-                </div>
-                <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-3 transition-colors bg-slate-50/50">
-                  {thumbnail ? (
-                    <div className="relative w-full h-36 rounded-lg overflow-hidden border border-slate-200 group">
-                      <img src={thumbnail} alt="" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <label className="cursor-pointer bg-white text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-slate-100">
-                          Thay ảnh <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => setThumbnail('')}
-                          className="bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-red-700 cursor-pointer"
-                        >
-                          Xóa
-                        </button>
-                      </div>
+                  {/* Slug field */}
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                      Đường dẫn URL Slug (chuẩn SEO)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 font-mono text-[11px]">/news/</span>
+                      <input
+                        value={customSlug || (title.vi ? toSlug(title.vi) : '')}
+                        onChange={(e) => setCustomSlug(e.target.value)}
+                        placeholder="duong-dan-url-chuan-seo"
+                        className="flex-1 border border-slate-200 rounded-lg p-2 text-slate-800 font-mono text-[11px] focus:outline-none focus:border-blue-500 bg-slate-50/50"
+                      />
                     </div>
-                  ) : (
-                    <label className="cursor-pointer flex flex-col items-center py-3">
-                      {isUploading ? (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                          <span className="text-xs">Đang tải lên...</span>
+                  </div>
+
+                  <div>
+                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                      Tóm tắt Excerpt ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                    </label>
+                    <textarea
+                      rows={2}
+                      required={activeLang === 'vi'}
+                      value={excerpt[activeLang] || ''}
+                      onChange={(e) => setExcerpt((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                      placeholder="Tóm tắt ngắn gọn 120-160 ký tự, có chứa từ khóa mục tiêu (hiển thị trên listing và kết quả tìm kiếm Google)..."
+                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Content Editor with Quick SEO Toolbar */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="font-semibold text-slate-700 block text-xs">
+                        Nội dung bài viết ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
+                      </label>
+                      <span className="text-[10px] text-slate-400">Hỗ trợ đầy đủ định dạng HTML</span>
+                    </div>
+
+                    {/* Quick SEO Formatting Toolbar */}
+                    <AdminNewsFormatToolbar onInsert={handleInsertFormat} activeLang={activeLang} />
+
+                    <textarea
+                      rows={12}
+                      required={activeLang === 'vi'}
+                      value={content[activeLang] || ''}
+                      onChange={(e) => setContent((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+                      placeholder="Nội dung chi tiết bài viết. Bấm các nút mẫu phía trên để chèn nhanh tiêu đề H2, H3, ảnh có chú thích figure, bảng giá hoặc khung mẹo tip..."
+                      className="w-full border border-slate-200 rounded-b-lg p-3 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-[11px] leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Danh mục *</label>
+                      <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white cursor-pointer"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c.value} value={c.value}>
+                            {c.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-semibold text-slate-700 block mb-1">Tác giả</label>
+                      <input
+                        value={author}
+                        onChange={(e) => setAuthor(e.target.value)}
+                        placeholder="Ban Biên Tập Travel Booking"
+                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Thumbnail Upload */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="font-semibold text-slate-700 block text-xs">Ảnh Thumbnail Bài Viết *</label>
+                      <button
+                        type="button"
+                        onClick={() => setIsMediaModalOpen(true)}
+                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5" /> Chọn từ Thư Viện Media
+                      </button>
+                    </div>
+                    <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-3 transition-colors bg-slate-50/50">
+                      {thumbnail ? (
+                        <div className="relative w-full h-36 rounded-lg overflow-hidden border border-slate-200 group">
+                          <img src={thumbnail} alt="" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <label className="cursor-pointer bg-white text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-slate-100">
+                              Thay ảnh <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setThumbnail('')}
+                              className="bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-red-700 cursor-pointer"
+                            >
+                              Xóa
+                            </button>
+                          </div>
                         </div>
                       ) : (
-                        <>
-                          <Upload className="w-6 h-6 text-blue-500 mb-1" />
-                          <span className="text-xs font-semibold text-slate-700">Tải ảnh từ máy tính</span>
-                          <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                        </>
+                        <label className="cursor-pointer flex flex-col items-center py-3">
+                          {isUploading ? (
+                            <div className="flex items-center gap-2 text-blue-600">
+                              <Loader2 className="w-6 h-6 animate-spin" />
+                              <span className="text-xs">Đang tải lên...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-6 h-6 text-blue-500 mb-1" />
+                              <span className="text-xs font-semibold text-slate-700">Tải ảnh từ máy tính</span>
+                              <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                            </>
+                          )}
+                        </label>
                       )}
+                    </div>
+                    <input
+                      type="text"
+                      value={thumbnail}
+                      onChange={(e) => setThumbnail(e.target.value)}
+                      placeholder="Hoặc dán URL ảnh thumbnail..."
+                      className="mt-2 w-full border border-slate-200 rounded-lg p-2 text-[11px] text-slate-600 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="isPublished"
+                      checked={isPublished}
+                      onChange={(e) => setIsPublished(e.target.checked)}
+                      className="w-4 h-4 rounded text-blue-600 border-slate-300 cursor-pointer"
+                    />
+                    <label htmlFor="isPublished" className="text-xs font-medium text-slate-700 cursor-pointer">
+                      Xuất bản ngay lên website (Published)
                     </label>
-                  )}
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  value={thumbnail}
-                  onChange={(e) => setThumbnail(e.target.value)}
-                  placeholder="Hoặc dán URL ảnh thumbnail..."
-                  className="mt-2 w-full border border-slate-200 rounded-lg p-2 text-[11px] text-slate-600 focus:outline-none focus:border-blue-500"
-                />
-              </div>
+              )}
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="isPublished"
-                  checked={isPublished}
-                  onChange={(e) => setIsPublished(e.target.checked)}
-                  className="w-4 h-4 rounded text-blue-600 border-slate-300"
-                />
-                <label htmlFor="isPublished" className="text-xs font-medium text-slate-700">
-                  Xuất bản ngay (Published)
-                </label>
-              </div>
+              {/* TAB 2: SEO ASSISTANT */}
+              {modalTab === 'seo' && (
+                <div className="space-y-4">
+                  <AdminNewsSeoAssistant
+                    title={title[activeLang] || ''}
+                    excerpt={excerpt[activeLang] || ''}
+                    content={content[activeLang] || ''}
+                    slug={customSlug || (title.vi ? toSlug(title.vi) : '')}
+                    focusKeyword={focusKeyword}
+                    onFocusKeywordChange={setFocusKeyword}
+                    seoTitle={seoTitle[activeLang] || ''}
+                    onSeoTitleChange={(val) => setSeoTitle((prev) => ({ ...prev, [activeLang]: val }))}
+                    seoDescription={seoDescription[activeLang] || ''}
+                    onSeoDescriptionChange={(val) => setSeoDescription((prev) => ({ ...prev, [activeLang]: val }))}
+                    activeLang={activeLang}
+                  />
+                </div>
+              )}
 
-              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 text-xs cursor-pointer"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={saveMutation.isPending || isUploading}
-                  className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm disabled:opacity-50 text-xs cursor-pointer"
-                >
-                  {saveMutation.isPending ? 'Đang lưu...' : 'Lưu Bài Viết'}
-                </button>
+              {/* TAB 3: LIVE PREVIEW */}
+              {modalTab === 'preview' && (
+                <div className="space-y-5 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
+                  <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                    {/* Header */}
+                    <div>
+                      <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
+                        {CATEGORIES.find((c) => c.value === category)?.label || category}
+                      </span>
+                      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3 leading-tight">
+                        {title[activeLang] || 'Chưa nhập tiêu đề bài viết'}
+                      </h1>
+                      <p className="text-xs text-slate-500 mt-2 font-medium">
+                        Tác giả: {author || 'Ban Biên Tập'} &bull; Cập nhật: {new Date().toLocaleDateString('vi-VN')}
+                      </p>
+                    </div>
+
+                    {/* Thumbnail */}
+                    {thumbnail && (
+                      <div className="h-64 sm:h-80 rounded-2xl overflow-hidden border border-slate-100 shadow-xs">
+                        <img src={thumbnail} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    {/* Excerpt Lead */}
+                    {excerpt[activeLang] && (
+                      <div className="p-4 bg-blue-50/70 border-l-4 border-blue-600 rounded-r-xl italic text-slate-800 text-sm font-medium">
+                        &ldquo;{excerpt[activeLang]}&rdquo;
+                      </div>
+                    )}
+
+                    {/* Main Content Preview with exact frontend Tailwind classes */}
+                    <div
+                      className="prose prose-slate max-w-none text-slate-800 leading-relaxed text-sm sm:text-base prose-headings:font-extrabold prose-headings:text-slate-900 prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-md [&_figure]:my-6 [&_figure]:rounded-2xl [&_figure]:overflow-hidden [&_figure]:shadow-md [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-slate-500 [&_figcaption]:italic [&_figcaption]:mt-2 [&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:font-extrabold [&_h2]:text-slate-900 [&_h3]:text-lg [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:font-bold [&_h3]:text-slate-900 [&_p]:my-3 [&_p]:leading-relaxed [&_ul]:my-3 [&_ul]:space-y-1.5 [&_li]:leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: content[activeLang] || '<p class="text-slate-400 italic">Chưa có nội dung bài viết...</p>',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Form Action Buttons */}
+              <div className="flex justify-between items-center gap-2 pt-4 border-t border-slate-100">
+                <span className="text-[11px] text-slate-500">
+                  {modalTab === 'content'
+                    ? 'Bạn có thể chuyển sang tab "Trợ Lý SEO" để kiểm tra điểm số trước khi lưu.'
+                    : 'Nội dung và điểm SEO được tự động đồng bộ.'}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 text-xs cursor-pointer"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saveMutation.isPending || isUploading}
+                    className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm disabled:opacity-50 text-xs cursor-pointer"
+                  >
+                    {saveMutation.isPending ? 'Đang lưu...' : 'Lưu Bài Viết'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
