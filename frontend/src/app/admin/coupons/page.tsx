@@ -8,6 +8,7 @@ import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/utils';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
+import { toast } from '@/stores/toastStore';
 
 const fetchCoupons = async () => {
   const res: any = await api.get('/coupons');
@@ -40,19 +41,21 @@ export default function CouponsAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       setShowModal(false);
       setFormData({ code: '', discountAmount: 0, validUntil: '', usageLimit: 0, isActive: true });
+      toast.success('Tạo mã giảm giá mới thành công!');
     },
     onError: (err: any) => {
-      alert('Lỗi: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi tạo mã: ' + (err.response?.data?.message || err.message));
     }
   });
 
   const toggleStatusMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string, isActive: boolean }) => api.put(`/coupons/${id}`, { isActive }),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
+      toast.success(vars.isActive ? 'Đã kích hoạt mã giảm giá!' : 'Đã vô hiệu hóa mã giảm giá!');
     },
     onError: (err: any) => {
-      alert('Lỗi: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -60,9 +63,10 @@ export default function CouponsAdminPage() {
     mutationFn: (id: string) => api.delete(`/coupons/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
+      toast.success('Đã xóa mã giảm giá thành công!');
     },
     onError: (err: any) => {
-      alert('Lỗi: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi xóa: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -95,7 +99,7 @@ export default function CouponsAdminPage() {
 
   const handleExportCsv = () => {
     if (filteredCoupons.length === 0) {
-      alert('Không có dữ liệu mã giảm giá để xuất!');
+      toast.warning('Không có dữ liệu mã giảm giá để xuất!');
       return;
     }
     exportToCsv('danh_sach_ma_giam_gia', filteredCoupons, [

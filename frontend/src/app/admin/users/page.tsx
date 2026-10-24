@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
+import { toast } from '@/stores/toastStore';
 
 const fetchAdminUsers = async () => {
   const res: any = await api.get('/auth/users');
@@ -28,11 +29,12 @@ export default function UsersAdminPage() {
 
   const roleMutation = useMutation({
     mutationFn: ({ id, role }: { id: string, role: string }) => api.patch(`/auth/users/${id}/role`, { role }),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success(vars.role === 'admin' ? 'Đã nâng cấp quyền Quản Trị Viên!' : 'Đã hạ quyền xuống Người Dùng!');
     },
     onError: (err: any) => {
-      alert('Lỗi cập nhật quyền: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi cập nhật quyền: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -40,9 +42,10 @@ export default function UsersAdminPage() {
     mutationFn: (id: string) => api.delete(`/auth/users/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Đã xóa người dùng thành công!');
     },
     onError: (err: any) => {
-      alert('Lỗi xóa người dùng: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi xóa người dùng: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -82,7 +85,7 @@ export default function UsersAdminPage() {
 
   const handleExportCsv = () => {
     if (filteredUsers.length === 0) {
-      alert('Không có dữ liệu người dùng để xuất!');
+      toast.warning('Không có dữ liệu người dùng để xuất!');
       return;
     }
     exportToCsv('danh_sach_nguoi_dung', filteredUsers, [

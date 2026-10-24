@@ -31,6 +31,7 @@ import {
   Palette,
 } from 'lucide-react';
 import { Providers } from '../[locale]/providers';
+import { AdminToastContainer } from '@/components/admin/common/AdminToastContainer';
 
 const NAV_GROUPS = [
   {
@@ -245,6 +246,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </main>
           </div>
+          <AdminToastContainer />
         </div>
       </Providers>
     </NextIntlClientProvider>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { Plus, X, Search, Upload, Loader2, Utensils, FileSpreadsheet } from 'lucide-react';
+import { Plus, X, Search, Upload, Loader2, Utensils, FileSpreadsheet, ExternalLink } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -11,6 +11,7 @@ import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
 import { VIETNAM_PROVINCES } from '@/lib/provinces';
 import { useVietnamProvinces } from '@/hooks/useVietnamProvinces';
+import { toast } from '@/stores/toastStore';
 
 const fetchSpecialties = async () => {
   const res: any = await api.get('/specialties');
@@ -60,7 +61,7 @@ export default function AdminSpecialtiesPage() {
       const res: any = await api.post('/upload', formData);
       if (res?.url) setImage(res.url);
     } catch (err: any) {
-      alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -76,8 +77,9 @@ export default function AdminSpecialtiesPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-specialties'] });
       queryClient.invalidateQueries({ queryKey: ['specialties'] });
       setIsModalOpen(false);
+      toast.success(editingItem ? 'Cập nhật đặc sản thành công!' : 'Thêm đặc sản mới thành công!');
     },
-    onError: (err: any) => alert('Lỗi lưu: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi lưu: ' + (err.response?.data?.message || err.message)),
   });
 
   const deleteMutation = useMutation({
@@ -85,8 +87,9 @@ export default function AdminSpecialtiesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-specialties'] });
       queryClient.invalidateQueries({ queryKey: ['specialties'] });
+      toast.success('Đã xóa đặc sản thành công!');
     },
-    onError: (err: any) => alert('Lỗi xóa đặc sản: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi xóa đặc sản: ' + (err.response?.data?.message || err.message)),
   });
 
   const handleCopyFromVi = useCallback(() => {
@@ -153,7 +156,7 @@ export default function AdminSpecialtiesPage() {
 
   const handleExportCsv = () => {
     if (filtered.length === 0) {
-      alert('Không có dữ liệu để xuất!');
+      toast.warning('Không có dữ liệu để xuất!');
       return;
     }
     exportToCsv('danh_sach_dac_san', filtered, [
@@ -280,7 +283,16 @@ export default function AdminSpecialtiesPage() {
 
                 <div className="p-4 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
                   <span className="text-sm font-bold text-orange-600 font-mono">{formatPrice(item.price)}</span>
-                  <div className="flex gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <a
+                      href="/vi/specialties"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-flex items-center cursor-pointer"
+                      title="Xem trang đặc sản trên website"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
                     <button
                       onClick={() => openEditModal(item)}
                       className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md text-xs transition-colors cursor-pointer"

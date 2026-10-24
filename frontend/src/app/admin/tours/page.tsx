@@ -20,8 +20,10 @@ import {
   Tag,
   CheckCircle2,
   FileSpreadsheet,
-  Download
+  Download,
+  ExternalLink
 } from 'lucide-react';
+import { toast } from '@/stores/toastStore';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
@@ -107,6 +109,15 @@ const TourTableRow = memo(function TourTableRow({
         )}
       </td>
       <td className="px-5 py-3.5 text-right space-x-1.5 shrink-0">
+        <a
+          href={`/vi/tours/${tour.slug}`}
+          target="_blank"
+          rel="noreferrer"
+          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-flex items-center cursor-pointer"
+          title="Xem trực tiếp trên website"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
         <button
           onClick={() => onEdit(tour)}
           className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
@@ -206,7 +217,7 @@ export default function ToursAdminPage() {
         }
       }
     } catch (err: any) {
-      alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -299,9 +310,10 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       setIsDirty(false);
       setIsModalOpen(false);
+      toast.success(editingTour ? 'Cập nhật tour du lịch thành công!' : 'Tạo tour du lịch mới thành công!');
     },
     onError: (err: any) => {
-      alert('Lỗi lưu tour: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi lưu tour: ' + (err.response?.data?.message || err.message));
     }
   });
 
@@ -314,9 +326,10 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
       queryClient.invalidateQueries({ queryKey: ['specialties-featured-tours'] });
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
+      toast.success('Đã xóa tour thành công!');
     },
     onError: (err: any) => {
-      alert('Lỗi xóa tour: ' + err.message);
+      toast.error('Lỗi xóa tour: ' + err.message);
     }
   });
 
@@ -418,25 +431,25 @@ export default function ToursAdminPage() {
     // Validation
     if (!title.vi || !title.vi.trim()) {
       setActiveStep('basic');
-      alert('Vui lòng nhập Tên Tour (Tiếng Việt) tại bước Thông Tin Chung!');
+      toast.warning('Vui lòng nhập Tên Tour (Tiếng Việt) tại bước Thông Tin Chung!');
       return;
     }
 
     if (!destination || !destination.trim()) {
       setActiveStep('basic');
-      alert('Vui lòng nhập Điểm đến tại bước Thông Tin Chung!');
+      toast.warning('Vui lòng nhập Điểm đến tại bước Thông Tin Chung!');
       return;
     }
 
     if (price <= 0) {
       setActiveStep('pricing');
-      alert('Giá bán tour phải lớn hơn 0 VNĐ!');
+      toast.warning('Giá bán tour phải lớn hơn 0 VNĐ!');
       return;
     }
 
     if (isFlashSale && (!flashSalePrice || flashSalePrice >= price)) {
       setActiveStep('pricing');
-      alert('Giá Flash Sale phải nhỏ hơn giá bán thông thường!');
+      toast.warning('Giá Flash Sale phải nhỏ hơn giá bán thông thường!');
       return;
     }
 
@@ -532,9 +545,9 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       setSelectedIds([]);
-      alert(`Đã xóa ${selectedIds.length} tour thành công!`);
+      toast.success(`Đã xóa ${selectedIds.length} tour thành công!`);
     } catch (err: any) {
-      alert('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -551,9 +564,9 @@ export default function ToursAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
       setSelectedIds([]);
-      alert(`Đã cập nhật trạng thái nổi bật cho ${selectedIds.length} tour!`);
+      toast.success(`Đã cập nhật trạng thái nổi bật cho ${selectedIds.length} tour!`);
     } catch (err: any) {
-      alert('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -612,7 +625,7 @@ export default function ToursAdminPage() {
       : filteredTours;
 
     if (targetData.length === 0) {
-      alert('Không có dữ liệu tour để xuất!');
+      toast.warning('Không có dữ liệu tour để xuất!');
       return;
     }
 

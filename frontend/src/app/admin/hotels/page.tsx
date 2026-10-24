@@ -18,8 +18,10 @@ import {
   Check,
   Navigation,
   FileSpreadsheet,
-  Download
+  Download,
+  ExternalLink
 } from 'lucide-react';
+import { toast } from '@/stores/toastStore';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -125,6 +127,15 @@ const HotelTableRow = memo(function HotelTableRow({
         <span className="text-[11px] font-normal text-slate-400">/đêm</span>
       </td>
       <td className="px-5 py-3.5 text-right space-x-1.5 shrink-0">
+        <a
+          href={`/vi/hotels/${hotel.slug}`}
+          target="_blank"
+          rel="noreferrer"
+          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-flex items-center cursor-pointer"
+          title="Xem trực tiếp trên website"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
         <button
           onClick={() => onEdit(hotel)}
           className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
@@ -222,7 +233,7 @@ export default function AdminHotelsPage() {
         }
       }
     } catch (err: any) {
-      alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -294,8 +305,9 @@ export default function AdminHotelsPage() {
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       setIsDirty(false);
       setIsModalOpen(false);
+      toast.success(editingHotel ? 'Cập nhật khách sạn thành công!' : 'Thêm khách sạn mới thành công!');
     },
-    onError: (err: any) => alert('Lỗi lưu khách sạn: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi lưu khách sạn: ' + (err.response?.data?.message || err.message)),
   });
 
   const deleteMutation = useMutation({
@@ -305,8 +317,9 @@ export default function AdminHotelsPage() {
       queryClient.invalidateQueries({ queryKey: ['hotels'] });
       queryClient.invalidateQueries({ queryKey: ['featured-hotels'] });
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
+      toast.success('Đã xóa khách sạn thành công!');
     },
-    onError: (err: any) => alert('Lỗi xóa khách sạn: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi xóa khách sạn: ' + (err.response?.data?.message || err.message)),
   });
 
   const handleCopyFromVi = useCallback(() => {
@@ -376,25 +389,25 @@ export default function AdminHotelsPage() {
     // Validation
     if (!name.vi || !name.vi.trim()) {
       setActiveStep('basic');
-      alert('Vui lòng nhập Tên Khách Sạn (Tiếng Việt) ở bước Thông Tin Chung!');
+      toast.warning('Vui lòng nhập Tên Khách Sạn (Tiếng Việt) ở bước Thông Tin Chung!');
       return;
     }
 
     if (!location || !location.trim()) {
       setActiveStep('basic');
-      alert('Vui lòng nhập Địa điểm / Thành phố ở bước Thông Tin Chung!');
+      toast.warning('Vui lòng nhập Địa điểm / Thành phố ở bước Thông Tin Chung!');
       return;
     }
 
     if (pricePerNight <= 0) {
       setActiveStep('pricing');
-      alert('Giá phòng cơ bản phải lớn hơn 0 VNĐ!');
+      toast.warning('Giá phòng cơ bản phải lớn hơn 0 VNĐ!');
       return;
     }
 
     if (isFlashSale && (!flashSalePrice || flashSalePrice >= pricePerNight)) {
       setActiveStep('pricing');
-      alert('Giá Flash Sale phải nhỏ hơn giá cơ bản / đêm!');
+      toast.warning('Giá Flash Sale phải nhỏ hơn giá cơ bản / đêm!');
       return;
     }
 
@@ -445,9 +458,9 @@ export default function AdminHotelsPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
       queryClient.invalidateQueries({ queryKey: ['hotels'] });
       setSelectedIds([]);
-      alert(`Đã xóa ${selectedIds.length} khách sạn thành công!`);
+      toast.success(`Đã xóa ${selectedIds.length} khách sạn thành công!`);
     } catch (err: any) {
-      alert('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -509,7 +522,7 @@ export default function AdminHotelsPage() {
       : filteredHotels;
 
     if (targetData.length === 0) {
-      alert('Không có dữ liệu khách sạn để xuất!');
+      toast.warning('Không có dữ liệu khách sạn để xuất!');
       return;
     }
 

@@ -4,6 +4,7 @@ import { memo, useState } from 'react';
 import { Plus, Trash2, Upload, MapPin, Shield, Star } from 'lucide-react';
 import api from '@/lib/api';
 import { AdminI18nTabs } from '@/components/admin/common/AdminI18nTabs';
+import { toast } from '@/stores/toastStore';
 
 export interface DestinationItem {
   id: string;
@@ -92,7 +93,7 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
       const finalUrl = url.startsWith('http') ? url : `${backendOrigin}${url}`;
       handleUpdateDest(idx, 'image', finalUrl);
     } catch (err: any) {
-      alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
     }
   };
 

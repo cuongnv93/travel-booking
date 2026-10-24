@@ -16,6 +16,7 @@ import {
 } from '@/components/admin/settings/HomeBlocksSettingsTab';
 import { MediaBannerUploadCard } from '@/components/admin/settings/MediaBannerUploadCard';
 import Link from 'next/link';
+import { toast } from '@/stores/toastStore';
 
 type MultiLang = { vi: string; en: string; zh: string; ko: string; ja: string };
 
@@ -249,9 +250,10 @@ export default function AdminAppearancePage() {
       queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
       queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
       setSuccessMsg('Đã lưu cấu hình Giao diện & Bố cục Trang chủ thành công!');
+      toast.success('Đã lưu cấu hình Giao diện & Bố cục Trang chủ!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
-    onError: (err: any) => alert('Lỗi lưu giao diện: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi lưu giao diện: ' + (err.response?.data?.message || err.message)),
   });
 
   const handleSave = (e: React.FormEvent) => {
@@ -290,7 +292,7 @@ export default function AdminAppearancePage() {
 
   const handleRemoveSlide = (idx: number) => {
     if (slides.length <= 1) {
-      alert('Phải giữ lại ít nhất 1 slide.');
+      toast.warning('Phải giữ lại ít nhất 1 slide.');
       return;
     }
     setSlides(slides.filter((_, i) => i !== idx));
@@ -475,7 +477,7 @@ export default function AdminAppearancePage() {
                                 const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
                                 handleSlideChange(idx, 'image', url.startsWith('http') ? url : `${backendOrigin}${url}`);
                               } catch (err: any) {
-                                alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
+                                toast.error('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
                               } finally {
                                 setUploadingIndex(null);
                               }

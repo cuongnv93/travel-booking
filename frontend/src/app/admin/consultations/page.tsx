@@ -18,6 +18,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
+import { toast } from '@/stores/toastStore';
 
 interface ConsultationItem {
   _id: string;
@@ -183,6 +184,10 @@ export default function AdminConsultationsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-consultations'] });
       queryClient.invalidateQueries({ queryKey: ['admin-consultations-stats'] });
+      toast.success('Đã cập nhật trạng thái tư vấn!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi cập nhật: ' + (err.response?.data?.message || err.message));
     },
   });
 
@@ -193,6 +198,10 @@ export default function AdminConsultationsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-consultations'] });
       queryClient.invalidateQueries({ queryKey: ['admin-consultations-stats'] });
+      toast.success('Đã xóa yêu cầu tư vấn thành công!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi xóa yêu cầu: ' + (err.response?.data?.message || err.message));
     },
   });
 
@@ -220,7 +229,7 @@ export default function AdminConsultationsPage() {
   // Export to CSV
   const handleExportCsv = () => {
     if (items.length === 0) {
-      alert('Không có dữ liệu yêu cầu tư vấn để xuất!');
+      toast.warning('Không có dữ liệu yêu cầu tư vấn để xuất!');
       return;
     }
 

@@ -29,6 +29,7 @@ import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
+import { toast } from '@/stores/toastStore';
 
 const fetchAdminBookings = async () => {
   const res: any = await api.get('/bookings');
@@ -236,9 +237,10 @@ export default function BookingsAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['admin-booking-stats'] });
       queryClient.invalidateQueries({ queryKey: ['user-bookings'] });
+      toast.success('Đã cập nhật trạng thái đơn hàng!');
     },
     onError: (err: any) => {
-      alert('Lỗi cập nhật trạng thái: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi cập nhật trạng thái: ' + (err.response?.data?.message || err.message));
     },
   });
 
@@ -261,9 +263,9 @@ export default function BookingsAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['admin-booking-stats'] });
       setSelectedIds([]);
-      alert(`Đã cập nhật ${selectedIds.length} đơn hàng thành công!`);
+      toast.success(`Đã cập nhật ${selectedIds.length} đơn hàng thành công!`);
     } catch (err: any) {
-      alert('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -363,7 +365,7 @@ export default function BookingsAdminPage() {
       : filteredBookings;
 
     if (targetData.length === 0) {
-      alert('Không có dữ liệu đơn hàng để xuất!');
+      toast.warning('Không có dữ liệu đơn hàng để xuất!');
       return;
     }
 

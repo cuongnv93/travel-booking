@@ -4,10 +4,11 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { Plane, Plus, Search, Edit3, Trash2, X, Loader2, FileSpreadsheet } from 'lucide-react';
+import { Plane, Plus, Search, Edit3, Trash2, X, Loader2, FileSpreadsheet, ExternalLink } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
+import { toast } from '@/stores/toastStore';
 
 interface Flight {
   _id: string;
@@ -63,8 +64,9 @@ export default function AdminFlightsPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-flights'] });
       setIsModalOpen(false);
       resetForm();
+      toast.success('Thêm chuyến bay mới thành công!');
     },
-    onError: (err: any) => alert('Lỗi: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi thêm chuyến bay: ' + (err.response?.data?.message || err.message)),
   });
 
   const updateMutation = useMutation({
@@ -73,14 +75,18 @@ export default function AdminFlightsPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-flights'] });
       setIsModalOpen(false);
       resetForm();
+      toast.success('Cập nhật chuyến bay thành công!');
     },
-    onError: (err: any) => alert('Lỗi: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi cập nhật chuyến bay: ' + (err.response?.data?.message || err.message)),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/flights/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-flights'] }),
-    onError: (err: any) => alert('Lỗi: ' + (err.response?.data?.message || err.message)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-flights'] });
+      toast.success('Đã xóa chuyến bay thành công!');
+    },
+    onError: (err: any) => toast.error('Lỗi xóa chuyến bay: ' + (err.response?.data?.message || err.message)),
   });
 
   const resetForm = () => {
@@ -152,7 +158,7 @@ export default function AdminFlightsPage() {
 
   const handleExportCsv = () => {
     if (filteredFlights.length === 0) {
-      alert('Không có dữ liệu chuyến bay để xuất!');
+      toast.warning('Không có dữ liệu chuyến bay để xuất!');
       return;
     }
     exportToCsv('danh_sach_ve_may_bay', filteredFlights, [
@@ -281,6 +287,15 @@ export default function AdminFlightsPage() {
                       )}
                     </td>
                     <td className="px-6 py-3.5 text-right space-x-1.5 shrink-0">
+                      <a
+                        href="/vi/flights"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-flex items-center cursor-pointer"
+                        title="Xem trang chuyến bay trên website"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
                       <button
                         onClick={() => handleOpenEdit(f)}
                         className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"

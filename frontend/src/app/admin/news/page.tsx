@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText, FileSpreadsheet } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText, FileSpreadsheet, ExternalLink } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -9,6 +9,7 @@ import { getI18nText } from '@/lib/utils';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { exportToCsv } from '@/lib/exportCsv';
+import { toast } from '@/stores/toastStore';
 
 const fetchAdminNews = async () => {
   const res: any = await api.get('/news/admin/all');
@@ -87,6 +88,15 @@ const NewsTableRow = memo(function NewsTableRow({
         </button>
       </td>
       <td className="px-6 py-3.5 text-right space-x-1.5 shrink-0">
+        <a
+          href={`/vi/news/${article.slug}`}
+          target="_blank"
+          rel="noreferrer"
+          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-flex items-center cursor-pointer"
+          title="Xem bài viết trên website"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
         <button
           onClick={() => onEdit(article)}
           className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
@@ -149,7 +159,7 @@ export default function AdminNewsPage() {
         setThumbnail(res.url);
       }
     } catch (err: any) {
-      alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -167,8 +177,9 @@ export default function AdminNewsPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
       queryClient.invalidateQueries({ queryKey: ['news'] });
       setIsModalOpen(false);
+      toast.success(editingArticle ? 'Cập nhật bài viết thành công!' : 'Tạo bài viết mới thành công!');
     },
-    onError: (err: any) => alert('Lỗi lưu bài viết: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi lưu bài viết: ' + (err.response?.data?.message || err.message)),
   });
 
   const deleteMutation = useMutation({
@@ -176,18 +187,20 @@ export default function AdminNewsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
       queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success('Đã xóa bài viết thành công!');
     },
-    onError: (err: any) => alert('Lỗi xóa bài viết: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi xóa bài viết: ' + (err.response?.data?.message || err.message)),
   });
 
   const togglePublishMutation = useMutation({
     mutationFn: ({ id, isPublished }: { id: string; isPublished: boolean }) =>
       api.put(`/news/${id}`, { isPublished }),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
       queryClient.invalidateQueries({ queryKey: ['news'] });
+      toast.success(vars.isPublished ? 'Đã hiển thị bài viết lên website!' : 'Đã ẩn bài viết khỏi website!');
     },
-    onError: (err: any) => alert('Lỗi cập nhật: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi cập nhật: ' + (err.response?.data?.message || err.message)),
   });
 
   const handleCopyFromVi = useCallback(() => {
@@ -279,7 +292,7 @@ export default function AdminNewsPage() {
   // Export to CSV
   const handleExportCsv = () => {
     if (filtered.length === 0) {
-      alert('Không có dữ liệu bài viết để xuất!');
+      toast.warning('Không có dữ liệu bài viết để xuất!');
       return;
     }
 

@@ -15,6 +15,7 @@ import { FlightsSettingsTab, AirportItem, AirlineItem } from '@/components/admin
 import { VisaSettingsTab, VisaCountryItem, VisaProcessStepItem, VisaStatBadgeItem } from '@/components/admin/settings/VisaSettingsTab';
 import { BranchesSettingsTab, BranchItem, WorkingHoursConfig, CoreValueItem } from '@/components/admin/settings/BranchesSettingsTab';
 import { PoliciesSettingsTab, TourDefaultPolicies, BusinessLicenseConfig } from '@/components/admin/settings/PoliciesSettingsTab';
+import { toast } from '@/stores/toastStore';
 
 type MultiLang = { vi: string; en: string; zh: string; ko: string; ja: string };
 
@@ -169,7 +170,7 @@ function MediaBannerUploadCard({
                   const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
                   onImageChange(url.startsWith('http') ? url : `${backendOrigin}${url}`);
                 } catch (err: any) {
-                  alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
+                  toast.error('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
                 }
               }}
             />
@@ -445,7 +446,7 @@ export default function AdminSettingsPage() {
       setSuccessMsg('Đã lưu cấu hình cài đặt hệ thống & Toàn bộ dữ liệu Master thành công!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
-    onError: (err: any) => alert('Lỗi lưu cài đặt: ' + (err.response?.data?.message || err.message)),
+    onError: (err: any) => toast.error('Lỗi lưu cài đặt: ' + (err.response?.data?.message || err.message)),
   });
 
   const reseedMutation = useMutation({
@@ -468,7 +469,7 @@ export default function AdminSettingsPage() {
     },
     onError: (err: any) => {
       setShowReseedConfirm(false);
-      alert('Lỗi nạp dữ liệu mẫu: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi nạp dữ liệu mẫu: ' + (err.response?.data?.message || err.message));
     },
   });
 
@@ -510,7 +511,7 @@ export default function AdminSettingsPage() {
 
   const handleRemoveSlide = (index: number) => {
     if (slides.length <= 1) {
-      alert('Cần giữ lại ít nhất 1 slide cho Hero Banner');
+      toast.warning('Cần giữ lại ít nhất 1 slide cho Hero Banner');
       return;
     }
     setSlides(slides.filter((_, i) => i !== index));

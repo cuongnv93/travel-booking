@@ -2,6 +2,7 @@
 
 import { Image as ImageIcon, Video, Upload } from 'lucide-react';
 import api from '@/lib/api';
+import { toast } from '@/stores/toastStore';
 
 export interface MediaBannerUploadCardProps {
   label: string;
@@ -68,7 +69,7 @@ export function MediaBannerUploadCard({
                   const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
                   onImageChange(url.startsWith('http') ? url : `${backendOrigin}${url}`);
                 } catch (err: any) {
-                  alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
+                  toast.error('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
                 }
               }}
             />
