@@ -2,11 +2,22 @@
 
 import { useState, useMemo, useCallback, memo } from 'react';
 import {
-  PhoneCall, Search, Filter,
-  Trash2, Mail, Phone, Calendar, Globe, RefreshCw, MessageSquare
+  PhoneCall,
+  Search,
+  Filter,
+  Trash2,
+  Mail,
+  Phone,
+  Calendar,
+  Globe,
+  RefreshCw,
+  MessageSquare,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { exportToCsv } from '@/lib/exportCsv';
 
 interface ConsultationItem {
   _id: string;
@@ -101,38 +112,33 @@ const ConsultationRow = memo(function ConsultationRow({
             {item.notes}
           </div>
         ) : (
-          <span className="text-slate-400 italic">Không có ghi chú thêm</span>
+          <span className="text-slate-400 italic">Không có ghi chú</span>
         )}
       </td>
 
-      <td className="px-6 py-4">
-        <span className={`px-3 py-1 rounded-full font-bold border text-[11px] inline-block ${statusBadge.bg}`}>
-          {statusBadge.label}
-        </span>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <select
+          value={item.status}
+          disabled={isUpdating}
+          onChange={(e) => onUpdateStatus(item._id, e.target.value)}
+          className={`px-3 py-1.5 rounded-xl font-bold border text-xs focus:outline-none cursor-pointer ${statusBadge.bg}`}
+        >
+          <option value="pending">Chờ xử lý</option>
+          <option value="contacted">Đã liên hệ</option>
+          <option value="completed">Hoàn thành</option>
+          <option value="cancelled">Đã hủy</option>
+        </select>
       </td>
 
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-1.5">
-          <select
-            value={item.status}
-            disabled={isUpdating}
-            onChange={(e) => onUpdateStatus(item._id, e.target.value)}
-            className="border border-slate-200 rounded-lg px-2 py-1 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-blue-600"
-          >
-            <option value="pending">Chờ xử lý</option>
-            <option value="contacted">Đã liên hệ</option>
-            <option value="completed">Hoàn thành</option>
-            <option value="cancelled">Hủy bỏ</option>
-          </select>
-          <button
-            type="button"
-            onClick={() => onDelete(item._id)}
-            title="Xóa yêu cầu"
-            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
+      <td className="px-6 py-4 text-right">
+        <button
+          onClick={() => onDelete(item._id)}
+          disabled={isUpdating}
+          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+          title="Xóa yêu cầu"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </td>
     </tr>
   );
@@ -143,6 +149,10 @@ export default function AdminConsultationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['admin-consultations', filterType, filterStatus, searchTerm],
@@ -200,6 +210,53 @@ export default function AdminConsultationsPage() {
     return data?.items || [];
   }, [data]);
 
+  // Pagination slice
+  const totalPages = Math.ceil(items.length / pageSize) || 1;
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return items.slice(start, start + pageSize);
+  }, [items, currentPage, pageSize]);
+
+  // Export to CSV
+  const handleExportCsv = () => {
+    if (items.length === 0) {
+      alert('Không có dữ liệu yêu cầu tư vấn để xuất!');
+      return;
+    }
+
+    exportToCsv('danh_sach_tu_van_khach_hang', items, [
+      { key: 'name', label: 'Tên Khách Hàng' },
+      { key: 'phone', label: 'Số Điện Thoại' },
+      { key: 'email', label: 'Email' },
+      {
+        key: 'type',
+        label: 'Loại Dịch Vụ',
+        formatter: (item) =>
+          item.type === 'visa' ? 'Visa' : item.type === 'tour' ? 'Tour' : item.type === 'hotel' ? 'Khách sạn' : 'Chung'
+      },
+      { key: 'country', label: 'Quốc Gia / Điểm Đến' },
+      { key: 'travelDate', label: 'Ngày Đi Dự Kiến' },
+      { key: 'notes', label: 'Ghi Chú Yêu Cầu' },
+      {
+        key: 'status',
+        label: 'Trạng Thái',
+        formatter: (item) =>
+          item.status === 'pending'
+            ? 'Chờ xử lý'
+            : item.status === 'contacted'
+            ? 'Đã liên hệ'
+            : item.status === 'completed'
+            ? 'Hoàn thành'
+            : 'Đã hủy'
+      },
+      {
+        key: 'createdAt',
+        label: 'Thời Gian Gửi',
+        formatter: (item) => item.createdAt ? new Date(item.createdAt).toLocaleString('vi-VN') : ''
+      },
+    ]);
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -214,13 +271,23 @@ export default function AdminConsultationsPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => refetch()}
-          className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-lg text-xs font-medium shadow-2xs transition-colors w-fit cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-          <span>Làm Mới</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            Xuất CSV
+          </button>
+          <button
+            onClick={() => refetch()}
+            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-medium shadow-2xs transition-colors w-fit cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+            <span>Làm Mới</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats Counters */}
@@ -252,16 +319,46 @@ export default function AdminConsultationsPage() {
         </div>
       </div>
 
+      {/* Quick Status Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-slate-200/80 pb-2">
+        {[
+          { id: 'all', label: 'Tất Cả' },
+          { id: 'pending', label: 'Chờ Xử Lý' },
+          { id: 'contacted', label: 'Đã Liên Hệ' },
+          { id: 'completed', label: 'Hoàn Thành' },
+          { id: 'cancelled', label: 'Đã Hủy' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => {
+              setFilterStatus(tab.id);
+              setCurrentPage(1);
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              filterStatus === tab.id
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {/* Search & Filters */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="relative w-full md:w-96">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
           <input
             type="text"
             placeholder="Tìm theo tên, SĐT, quốc gia..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50"
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-blue-600 bg-slate-50/50"
           />
         </div>
 
@@ -270,8 +367,11 @@ export default function AdminConsultationsPage() {
             <Filter className="w-3.5 h-3.5 text-slate-400" />
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              onChange={(e) => {
+                setFilterType(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium bg-white focus:outline-none focus:border-blue-600 cursor-pointer"
             >
               <option value="all">Tất cả dịch vụ</option>
               <option value="visa">Visa Du Lịch</option>
@@ -279,31 +379,17 @@ export default function AdminConsultationsPage() {
               <option value="tour">Tour Du Lịch</option>
             </select>
           </div>
-
-          <div className="flex items-center gap-2 text-xs">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="pending">Chờ xử lý</option>
-              <option value="contacted">Đã liên hệ</option>
-              <option value="completed">Hoàn thành</option>
-              <option value="cancelled">Đã hủy</option>
-            </select>
-          </div>
         </div>
       </div>
 
       {/* Table Content */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-slate-400 text-xs">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" />
             Đang tải danh sách tư vấn...
           </div>
-        ) : items.length === 0 ? (
+        ) : paginatedItems.length === 0 ? (
           <div className="p-12 text-center text-slate-400 text-xs">
             <MessageSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
             Không tìm thấy yêu cầu tư vấn nào phù hợp.
@@ -318,11 +404,11 @@ export default function AdminConsultationsPage() {
                   <th className="px-6 py-3.5">Dịch Vụ & Mục Tiêu</th>
                   <th className="px-6 py-3.5">Nội Dung / Ghi Chú</th>
                   <th className="px-6 py-3.5">Trạng Thái</th>
-                  <th className="px-6 py-3.5">Hành Động</th>
+                  <th className="px-6 py-3.5 text-right">Hành Động</th>
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {paginatedItems.map((item) => (
                   <ConsultationRow
                     key={item._id}
                     item={item}
@@ -335,6 +421,17 @@ export default function AdminConsultationsPage() {
             </table>
           </div>
         )}
+
+        {/* Pagination */}
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50, 100]}
+        />
       </div>
     </div>
   );

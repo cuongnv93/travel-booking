@@ -4,8 +4,10 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { Plane, Plus, Search, Edit3, Trash2, X, Loader2 } from 'lucide-react';
+import { Plane, Plus, Search, Edit3, Trash2, X, Loader2, FileSpreadsheet } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
+import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { exportToCsv } from '@/lib/exportCsv';
 
 interface Flight {
   _id: string;
@@ -30,6 +32,8 @@ const fetchFlights = async () => {
 export default function AdminFlightsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
 
@@ -140,6 +144,31 @@ export default function AdminFlightsPage() {
     );
   }, [flights, search]);
 
+  const totalPages = Math.ceil(filteredFlights.length / pageSize) || 1;
+  const paginatedFlights = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredFlights.slice(start, start + pageSize);
+  }, [filteredFlights, currentPage, pageSize]);
+
+  const handleExportCsv = () => {
+    if (filteredFlights.length === 0) {
+      alert('Không có dữ liệu chuyến bay để xuất!');
+      return;
+    }
+    exportToCsv('danh_sach_ve_may_bay', filteredFlights, [
+      { key: 'flightNumber', label: 'Số Hiệu' },
+      { key: 'airline', label: 'Hãng Bay' },
+      { key: 'from', label: 'Điểm Đi' },
+      { key: 'to', label: 'Điểm Đến' },
+      { key: 'departureTime', label: 'Giờ Cất Cánh' },
+      { key: 'arrivalTime', label: 'Giờ Hạ Cánh' },
+      { key: 'duration', label: 'Thời Gian Bay' },
+      { key: 'price', label: 'Giá Vé (VNĐ)' },
+      { key: 'availableSeats', label: 'Ghế Còn Trống' },
+      { key: 'isAvailable', label: 'Khả Dụng', formatter: (f) => f.isAvailable ? 'Có' : 'Không' },
+    ]);
+  };
+
   if (isLoading) return <AdminTableSkeleton cols={8} rows={7} />;
 
   return (
@@ -150,26 +179,39 @@ export default function AdminFlightsPage() {
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Quản Lý Vé Máy Bay</h1>
           <p className="text-xs text-slate-500 mt-1">Danh sách các chuyến bay nội địa và quốc tế có sẵn trên hệ thống</p>
         </div>
-        <button
-          onClick={handleOpenCreate}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Thêm Chuyến Bay Mới
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-lg flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            Xuất CSV
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Thêm Chuyến Bay Mới
+          </button>
+        </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder="Tìm theo số hiệu, hãng, điểm đi/đến..."
             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500"
           />
         </div>
-        <span className="text-xs text-slate-500 font-medium">Tổng số: {filteredFlights.length} chuyến bay</span>
+        <span className="text-xs text-slate-500 font-medium">Tìm thấy {filteredFlights.length} chuyến bay</span>
       </div>
 
       {/* Flights Table */}
@@ -178,62 +220,77 @@ export default function AdminFlightsPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
               <tr>
-                <th className="px-5 py-3.5">Hãng Bay</th>
-                <th className="px-5 py-3.5">Số Hiệu</th>
-                <th className="px-5 py-3.5">Tuyến Bay</th>
-                <th className="px-5 py-3.5">Giờ Khởi Hành - Hạ Cánh</th>
-                <th className="px-5 py-3.5">Giá Vé</th>
-                <th className="px-5 py-3.5">Số Ghế</th>
-                <th className="px-5 py-3.5">Trạng Thái</th>
-                <th className="px-5 py-3.5 text-right">Thao Tác</th>
+                <th className="px-6 py-3.5">Hãng & Số Hiệu</th>
+                <th className="px-6 py-3.5">Hành Trình</th>
+                <th className="px-6 py-3.5">Giờ Bay</th>
+                <th className="px-6 py-3.5">Thời Gian</th>
+                <th className="px-6 py-3.5">Giá Vé</th>
+                <th className="px-6 py-3.5">Chỗ Trống</th>
+                <th className="px-6 py-3.5">Trạng Thái</th>
+                <th className="px-6 py-3.5 text-right">Thao Tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredFlights.length === 0 ? (
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {paginatedFlights.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-8 text-center text-slate-400">Chưa có chuyến bay nào.</td>
+                  <td colSpan={8} className="px-6 py-8 text-center text-slate-400">
+                    <Plane className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    Không tìm thấy chuyến bay nào.
+                  </td>
                 </tr>
               ) : (
-                filteredFlights.map((f: Flight) => (
+                paginatedFlights.map((f: Flight) => (
                   <tr key={f._id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-5 py-3.5 font-bold text-slate-900 flex items-center gap-2">
-                      <span className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 font-extrabold flex items-center justify-center text-[10px]">
-                        {f.logo || 'VN'}
+                    <td className="px-6 py-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-md bg-blue-50 text-blue-700 font-extrabold flex items-center justify-center text-[10px] border border-blue-100 shrink-0">
+                          {f.logo || 'VN'}
+                        </span>
+                        <div>
+                          <p className="font-bold text-slate-900">{f.flightNumber}</p>
+                          <p className="text-[10px] text-slate-400">{f.airline}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <span className="font-bold text-slate-800">{f.from}</span>
+                      <span className="text-slate-400 mx-1.5">→</span>
+                      <span className="font-bold text-slate-800">{f.to}</span>
+                    </td>
+                    <td className="px-6 py-3.5 font-mono text-slate-600">
+                      {f.departureTime} - {f.arrivalTime}
+                    </td>
+                    <td className="px-6 py-3.5 text-slate-500">{f.duration}</td>
+                    <td className="px-6 py-3.5 font-extrabold text-blue-600 font-mono">
+                      {formatPrice(f.price)}
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">
+                        {f.availableSeats} chỗ
                       </span>
-                      {f.airline}
                     </td>
-                    <td className="px-5 py-3.5 font-mono font-bold text-blue-600">{f.flightNumber}</td>
-                    <td className="px-5 py-3.5 font-semibold text-slate-800">
-                      <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-mono">{f.from}</span>
-                      <span className="mx-1.5 text-slate-400">➔</span>
-                      <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-mono">{f.to}</span>
+                    <td className="px-6 py-3.5">
+                      {f.isAvailable ? (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Khả dụng
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-50 text-red-600 border border-red-200">
+                          Hết vé
+                        </span>
+                      )}
                     </td>
-                    <td className="px-5 py-3.5 text-slate-600">
-                      <span className="font-semibold text-slate-900">{f.departureTime} - {f.arrivalTime}</span>
-                      <span className="text-[11px] text-slate-400 block">{f.duration}</span>
-                    </td>
-                    <td className="px-5 py-3.5 font-extrabold text-orange-600">{formatPrice(f.price)}</td>
-                    <td className="px-5 py-3.5 font-medium text-slate-700">{f.availableSeats} chỗ</td>
-                    <td className="px-5 py-3.5">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          f.isAvailable ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'
-                        }`}
-                      >
-                        {f.isAvailable ? 'Hoạt động' : 'Tạm dừng'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-right space-x-1">
+                    <td className="px-6 py-3.5 text-right space-x-1.5 shrink-0">
                       <button
                         onClick={() => handleOpenEdit(f)}
-                        className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                         title="Chỉnh sửa"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => confirm('Xóa chuyến bay này?') && deleteMutation.mutate(f._id)}
-                        className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Xóa"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -245,18 +302,29 @@ export default function AdminFlightsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredFlights.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50]}
+        />
       </div>
 
       {/* Create / Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100 space-y-5 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                 <Plane className="w-4 h-4 text-blue-600" />
                 {editingFlight ? 'Cập Nhật Chuyến Bay' : 'Thêm Chuyến Bay Mới'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -275,7 +343,7 @@ export default function AdminFlightsPage() {
                       if (val.includes('Vietravel')) logo = 'VU';
                       setFormData({ ...formData, airline: val, logo });
                     }}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-semibold"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
                   >
                     <option value="Vietnam Airlines">Vietnam Airlines</option>
                     <option value="Vietjet Air">Vietjet Air</option>
@@ -289,71 +357,63 @@ export default function AdminFlightsPage() {
                     required
                     value={formData.flightNumber}
                     onChange={(e) => setFormData({ ...formData, flightNumber: e.target.value.toUpperCase() })}
-                    placeholder="VD: VN-234, VJ-112"
-                    className="w-full border border-slate-200 rounded-lg p-2 font-mono font-bold text-slate-900"
+                    placeholder="VD: VN 212"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 uppercase font-mono font-bold focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Điểm Đi (From Code) *</label>
-                  <select
+                  <label className="font-semibold text-slate-700 block mb-1">Điểm Đi (IATA) *</label>
+                  <input
+                    required
                     value={formData.from}
-                    onChange={(e) => setFormData({ ...formData, from: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2 font-mono font-bold text-slate-900"
-                  >
-                    <option value="SGN">SGN - TP. Hồ Chí Minh</option>
-                    <option value="HAN">HAN - Hà Nội</option>
-                    <option value="DAD">DAD - Đà Nẵng</option>
-                    <option value="CXR">CXR - Nha Trang</option>
-                    <option value="PQC">PQC - Phú Quốc</option>
-                  </select>
+                    onChange={(e) => setFormData({ ...formData, from: e.target.value.toUpperCase() })}
+                    placeholder="VD: SGN, HAN, DAD..."
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 uppercase font-mono font-bold focus:outline-none focus:border-blue-500"
+                  />
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Điểm Đến (To Code) *</label>
-                  <select
+                  <label className="font-semibold text-slate-700 block mb-1">Điểm Đến (IATA) *</label>
+                  <input
+                    required
                     value={formData.to}
-                    onChange={(e) => setFormData({ ...formData, to: e.target.value })}
-                    className="w-full border border-slate-200 rounded-lg p-2 font-mono font-bold text-slate-900"
-                  >
-                    <option value="HAN">HAN - Hà Nội</option>
-                    <option value="SGN">SGN - TP. Hồ Chí Minh</option>
-                    <option value="DAD">DAD - Đà Nẵng</option>
-                    <option value="CXR">CXR - Nha Trang</option>
-                    <option value="PQC">PQC - Phú Quốc</option>
-                  </select>
+                    onChange={(e) => setFormData({ ...formData, to: e.target.value.toUpperCase() })}
+                    placeholder="VD: HAN, PQC, CXR..."
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 uppercase font-mono font-bold focus:outline-none focus:border-blue-500"
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Giờ Đi *</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Giờ Khởi Hành *</label>
                   <input
+                    type="time"
                     required
                     value={formData.departureTime}
                     onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                    placeholder="08:00"
-                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-semibold"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-mono focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Giờ Đến *</label>
                   <input
+                    type="time"
                     required
                     value={formData.arrivalTime}
                     onChange={(e) => setFormData({ ...formData, arrivalTime: e.target.value })}
-                    placeholder="10:15"
-                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-semibold"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-mono focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Thời Lượng</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Thời Gian Bay</label>
                   <input
                     value={formData.duration}
                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                    placeholder="2h 15m"
-                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900"
+                    placeholder="VD: 2h 15m"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -364,50 +424,55 @@ export default function AdminFlightsPage() {
                   <input
                     type="number"
                     required
+                    min={0}
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full border border-slate-200 rounded-lg p-2 font-bold text-slate-900"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-bold focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Số Ghế Trống</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Số Ghế Còn Lại *</label>
                   <input
                     type="number"
+                    required
+                    min={0}
                     value={formData.availableSeats}
                     onChange={(e) => setFormData({ ...formData, availableSeats: Number(e.target.value) })}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900"
+                    className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex items-center gap-2 pt-1">
                 <input
                   type="checkbox"
                   id="isAvailable"
                   checked={formData.isAvailable}
                   onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
-                  className="w-4 h-4 rounded text-blue-600"
+                  className="w-4 h-4 rounded text-blue-600 border-slate-300"
                 />
-                <label htmlFor="isAvailable" className="font-semibold text-slate-700">
-                  Mở bán vé cho chuyến bay này
+                <label htmlFor="isAvailable" className="text-xs font-semibold text-slate-700">
+                  Chuyến bay đang mở bán vé
                 </label>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-semibold"
+                  className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold rounded-lg transition-colors cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Lưu Chuyến Bay
+                  {(createMutation.isPending || updateMutation.isPending) && (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  )}
+                  {editingFlight ? 'Cập Nhật' : 'Lưu Chuyến Bay'}
                 </button>
               </div>
             </form>

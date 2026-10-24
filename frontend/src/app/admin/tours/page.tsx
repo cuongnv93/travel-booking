@@ -18,7 +18,9 @@ import {
   Clock,
   MapPin,
   Tag,
-  CheckCircle2
+  CheckCircle2,
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -26,6 +28,8 @@ import { formatPrice } from '@/lib/utils';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
+import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { exportToCsv } from '@/lib/exportCsv';
 
 const fetchAdminTours = async () => {
   const res: any = await api.get('/tours?all=true&limit=100');
@@ -34,18 +38,34 @@ const fetchAdminTours = async () => {
 
 interface TourTableRowProps {
   tour: any;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
   onEdit: (tour: any) => void;
   onDelete: (id: string) => void;
 }
 
-const TourTableRow = memo(function TourTableRow({ tour, onEdit, onDelete }: TourTableRowProps) {
+const TourTableRow = memo(function TourTableRow({
+  tour,
+  isSelected,
+  onToggleSelect,
+  onEdit,
+  onDelete,
+}: TourTableRowProps) {
   const [imgSrc, setImgSrc] = useState(tour.images?.[0] || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800');
   const title = typeof tour.title === 'string' ? tour.title : (tour.title?.vi || 'N/A');
   const id = tour._id || tour.id;
 
   return (
-    <tr className="hover:bg-slate-50/80 transition-colors">
-      <td className="px-6 py-3.5 flex items-center gap-3">
+    <tr className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-blue-50/40' : ''}`}>
+      <td className="px-4 py-3.5 text-center">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggleSelect(id)}
+          className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+        />
+      </td>
+      <td className="px-5 py-3.5 flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
           {imgSrc ? (
             <img
@@ -65,19 +85,19 @@ const TourTableRow = memo(function TourTableRow({ tour, onEdit, onDelete }: Tour
           <p className="text-[11px] text-slate-400 font-mono">{tour.slug}</p>
         </div>
       </td>
-      <td className="px-6 py-3.5">
+      <td className="px-5 py-3.5">
         <span className="bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
           {tour.destination}
         </span>
       </td>
-      <td className="px-6 py-3.5 font-medium">{tour.duration} ngày</td>
-      <td className="px-6 py-3.5">
+      <td className="px-5 py-3.5 font-medium">{tour.duration} ngày</td>
+      <td className="px-5 py-3.5">
         <p className="font-bold text-slate-900">{formatPrice(tour.price)}</p>
         {tour.originalPrice && (
           <p className="text-[11px] text-slate-400 line-through">{formatPrice(tour.originalPrice)}</p>
         )}
       </td>
-      <td className="px-6 py-3.5">
+      <td className="px-5 py-3.5">
         {tour.isFeatured ? (
           <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
             <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> Nổi bật
@@ -86,7 +106,7 @@ const TourTableRow = memo(function TourTableRow({ tour, onEdit, onDelete }: Tour
           <span className="text-slate-400 text-[11px]">Thường</span>
         )}
       </td>
-      <td className="px-6 py-3.5 text-right space-x-1.5">
+      <td className="px-5 py-3.5 text-right space-x-1.5 shrink-0">
         <button
           onClick={() => onEdit(tour)}
           className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
@@ -114,7 +134,18 @@ const TOUR_STEPS: AdminStepItem[] = [
 
 export default function ToursAdminPage() {
   const queryClient = useQueryClient();
+
+  // Filters & Search
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'price_asc' | 'price_desc' | 'duration'>('newest');
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Row selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -485,13 +516,123 @@ export default function ToursAdminPage() {
     deleteMutation.mutate(id);
   }, [deleteMutation]);
 
+  // Bulk actions
+  const handleToggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }, []);
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Xác nhận xóa ${selectedIds.length} tour đã chọn khỏi hệ thống?`)) return;
+
+    try {
+      await Promise.all(selectedIds.map((id) => api.delete(`/tours/${id}`)));
+      queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      setSelectedIds([]);
+      alert(`Đã xóa ${selectedIds.length} tour thành công!`);
+    } catch (err: any) {
+      alert('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleBulkToggleFeatured = async (featured: boolean) => {
+    if (selectedIds.length === 0) return;
+    try {
+      await Promise.all(
+        selectedIds.map((id) => {
+          const t = tours.find((tour: any) => (tour._id || tour.id) === id);
+          if (!t) return Promise.resolve();
+          return api.put(`/tours/${id}`, { ...t, isFeatured: featured });
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
+      setSelectedIds([]);
+      alert(`Đã cập nhật trạng thái nổi bật cho ${selectedIds.length} tour!`);
+    } catch (err: any) {
+      alert('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // Filtered & Sorted Tours
   const filteredTours = useMemo(() => {
     const s = search.toLowerCase().trim();
-    return tours.filter((t: any) => {
-      const titleText = typeof t.title === 'string' ? t.title : (t.title?.vi || '');
-      return !s || titleText.toLowerCase().includes(s) || (t.destination || '').toLowerCase().includes(s);
-    });
-  }, [tours, search]);
+    return tours
+      .filter((t: any) => {
+        const titleText = typeof t.title === 'string' ? t.title : (t.title?.vi || '');
+        const searchMatch = !s || titleText.toLowerCase().includes(s) || (t.destination || '').toLowerCase().includes(s);
+
+        let categoryMatch = true;
+        if (categoryFilter === 'featured') {
+          categoryMatch = !!t.isFeatured;
+        } else if (categoryFilter) {
+          categoryMatch = t.category === categoryFilter;
+        }
+
+        return searchMatch && categoryMatch;
+      })
+      .sort((a: any, b: any) => {
+        if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
+        if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
+        if (sortBy === 'duration') return (b.duration || 0) - (a.duration || 0);
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      });
+  }, [tours, search, categoryFilter, sortBy]);
+
+  // Pagination slice
+  const totalPages = Math.ceil(filteredTours.length / pageSize) || 1;
+  const paginatedTours = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredTours.slice(start, start + pageSize);
+  }, [filteredTours, currentPage, pageSize]);
+
+  // Select all on page
+  const isAllCurrentSelected = useMemo(() => {
+    if (paginatedTours.length === 0) return false;
+    return paginatedTours.every((t: any) => selectedIds.includes(t._id || t.id));
+  }, [paginatedTours, selectedIds]);
+
+  const handleToggleSelectAll = () => {
+    if (isAllCurrentSelected) {
+      const pageIds = new Set(paginatedTours.map((t: any) => t._id || t.id));
+      setSelectedIds((prev) => prev.filter((id) => !pageIds.has(id)));
+    } else {
+      const newIds = new Set([...selectedIds, ...paginatedTours.map((t: any) => t._id || t.id)]);
+      setSelectedIds(Array.from(newIds));
+    }
+  };
+
+  // Export to CSV
+  const handleExportCsv = (onlySelected = false) => {
+    const targetData = onlySelected
+      ? tours.filter((t: any) => selectedIds.includes(t._id || t.id))
+      : filteredTours;
+
+    if (targetData.length === 0) {
+      alert('Không có dữ liệu tour để xuất!');
+      return;
+    }
+
+    exportToCsv('danh_sach_tour', targetData, [
+      {
+        key: 'title',
+        label: 'Tên Tour',
+        formatter: (t) => typeof t.title === 'string' ? t.title : (t.title?.vi || 'N/A')
+      },
+      { key: 'slug', label: 'Slug' },
+      { key: 'destination', label: 'Điểm Đến' },
+      { key: 'category', label: 'Danh Mục' },
+      { key: 'duration', label: 'Thời Lượng (Ngày)' },
+      { key: 'price', label: 'Giá Bán (VNĐ)' },
+      { key: 'originalPrice', label: 'Giá Gốc Niêm Yết' },
+      { key: 'isFeatured', label: 'Tour Nổi Bật', formatter: (t) => t.isFeatured ? 'Có' : 'Không' },
+      { key: 'isFlashSale', label: 'Flash Sale', formatter: (t) => t.isFlashSale ? 'Có' : 'Không' },
+      { key: 'flashSalePrice', label: 'Giá Flash Sale' },
+    ]);
+  };
 
   const stepsWithCounts = useMemo(() => {
     return TOUR_STEPS.map((step) => {
@@ -510,30 +651,134 @@ export default function ToursAdminPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Quản Lý Tours Du Lịch</h1>
-          <p className="text-xs text-slate-500 mt-1">Danh sách tour, điểm nhấn, lịch trình chi tiết và lịch khởi hành</p>
+          <p className="text-xs text-slate-500 mt-1">Danh sách tour, bộ lọc nhanh, thao tác hàng loạt và lịch trình chi tiết</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Tạo Tour Mới
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => handleExportCsv(false)}
+            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-lg flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            Xuất CSV
+          </button>
+          <button
+            onClick={openCreateModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Tạo Tour Mới
+          </button>
+        </div>
       </div>
 
-      {/* Search Input */}
-      <div className="bg-white border border-slate-200/80 p-3 rounded-xl shadow-sm">
-        <div className="relative">
+      {/* Quick Category Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-slate-200/80 pb-2">
+        {[
+          { id: '', label: 'Tất Cả' },
+          { id: 'featured', label: '⭐ Nổi Bật' },
+          { id: 'city-tour', label: 'City Tour' },
+          { id: 'beach', label: 'Du lịch Biển' },
+          { id: 'nature', label: 'Thiên nhiên' },
+          { id: 'culture', label: 'Văn hóa' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => {
+              setCategoryFilter(tab.id);
+              setCurrentPage(1);
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              categoryFilter === tab.id
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Search & Sort Controls */}
+      <div className="bg-white border border-slate-200/80 p-3 rounded-xl shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-center">
+        <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên tour hoặc điểm đến..."
+            placeholder="Tìm kiếm theo tên tour hoặc điểm đến (Đà Nẵng, Hà Nội, Phú Quốc...)..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
           />
         </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <select
+            value={sortBy}
+            onChange={(e: any) => setSortBy(e.target.value)}
+            className="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg p-2 focus:outline-none focus:border-blue-500 font-medium cursor-pointer w-full sm:w-auto"
+          >
+            <option value="newest">Mới nhất</option>
+            <option value="price_asc">Giá tăng dần</option>
+            <option value="price_desc">Giá giảm dần</option>
+            <option value="duration">Thời lượng dài nhất</option>
+          </select>
+        </div>
       </div>
+
+      {/* Floating Bulk Action Bar */}
+      {selectedIds.length > 0 && (
+        <div className="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+              {selectedIds.length}
+            </span>
+            <span className="text-xs font-semibold">tour đang được chọn</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleBulkToggleFeatured(true)}
+              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <Star className="w-3.5 h-3.5 fill-slate-900" /> Đặt nổi bật ({selectedIds.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => handleBulkToggleFeatured(false)}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+            >
+              Bỏ nổi bật
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExportCsv(true)}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <Download className="w-3.5 h-3.5" /> Xuất ({selectedIds.length})
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Xóa ({selectedIds.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="px-2.5 py-1.5 text-slate-400 hover:text-white text-xs font-medium cursor-pointer"
+            >
+              Bỏ chọn
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Tours Table */}
       <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
@@ -541,35 +786,60 @@ export default function ToursAdminPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-100">
               <tr>
-                <th className="px-6 py-3.5">Tour</th>
-                <th className="px-6 py-3.5">Điểm đến</th>
-                <th className="px-6 py-3.5">Thời gian</th>
-                <th className="px-6 py-3.5">Giá bán</th>
-                <th className="px-6 py-3.5">Trạng thái</th>
-                <th className="px-6 py-3.5 text-right">Thao tác</th>
+                <th className="px-4 py-3.5 text-center w-10">
+                  <input
+                    type="checkbox"
+                    checked={isAllCurrentSelected}
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                    title="Chọn tất cả trên trang này"
+                  />
+                </th>
+                <th className="px-5 py-3.5">Tour</th>
+                <th className="px-5 py-3.5">Điểm đến</th>
+                <th className="px-5 py-3.5">Thời gian</th>
+                <th className="px-5 py-3.5">Giá bán</th>
+                <th className="px-5 py-3.5">Trạng thái</th>
+                <th className="px-5 py-3.5 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {filteredTours.length === 0 ? (
+              {paginatedTours.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
                     <Compass className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                    Chưa có tour nào được tìm thấy.
+                    Không tìm thấy tour nào phù hợp với bộ lọc.
                   </td>
                 </tr>
               ) : (
-                filteredTours.map((tour: any) => (
-                  <TourTableRow
-                    key={tour._id || tour.id}
-                    tour={tour}
-                    onEdit={openEditModal}
-                    onDelete={handleDelete}
-                  />
-                ))
+                paginatedTours.map((tour: any) => {
+                  const id = tour._id || tour.id;
+                  return (
+                    <TourTableRow
+                      key={id}
+                      tour={tour}
+                      isSelected={selectedIds.includes(id)}
+                      onToggleSelect={handleToggleSelect}
+                      onEdit={openEditModal}
+                      onDelete={handleDelete}
+                    />
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredTours.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50, 100]}
+        />
       </div>
 
       {/* Modern Stepper Modal for Create / Edit Tour */}

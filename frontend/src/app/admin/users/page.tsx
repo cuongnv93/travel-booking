@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Shield, Search, Trash2, UserCog, Loader2 } from 'lucide-react';
+import { Shield, Search, Trash2, UserCog, Loader2, FileSpreadsheet } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
+import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { exportToCsv } from '@/lib/exportCsv';
 
 const fetchAdminUsers = async () => {
   const res: any = await api.get('/auth/users');
@@ -14,6 +16,9 @@ const fetchAdminUsers = async () => {
 export default function UsersAdminPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -55,21 +60,82 @@ export default function UsersAdminPage() {
   const filteredUsers = useMemo(() => {
     const s = search.toLowerCase().trim();
     return users.filter((u: any) => {
-      return (
-        !s ||
+      const searchMatch = !s ||
         (u.name || '').toLowerCase().includes(s) ||
-        (u.email || '').toLowerCase().includes(s)
-      );
+        (u.email || '').toLowerCase().includes(s) ||
+        (u.phone || '').toLowerCase().includes(s);
+
+      let roleMatch = true;
+      if (roleFilter !== 'all') {
+        roleMatch = u.role === roleFilter;
+      }
+
+      return searchMatch && roleMatch;
     });
-  }, [users, search]);
+  }, [users, search, roleFilter]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, currentPage, pageSize]);
+
+  const handleExportCsv = () => {
+    if (filteredUsers.length === 0) {
+      alert('Không có dữ liệu người dùng để xuất!');
+      return;
+    }
+    exportToCsv('danh_sach_nguoi_dung', filteredUsers, [
+      { key: 'name', label: 'Tên Người Dùng' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Số Điện Thoại' },
+      { key: 'role', label: 'Vai Trò', formatter: (u) => u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng' },
+      { key: 'createdAt', label: 'Ngày Tạo', formatter: (u) => u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : '' },
+    ]);
+  };
 
   if (isLoading) return <AdminTableSkeleton cols={6} rows={7} />;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Quản Lý Người Dùng (Users)</h1>
-        <p className="text-xs text-slate-500 mt-1">Danh sách tài khoản khách hàng và quản trị viên hệ thống</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Quản Lý Người Dùng (Users)</h1>
+          <p className="text-xs text-slate-500 mt-1">Danh sách tài khoản khách hàng và quản trị viên hệ thống</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-lg flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+        >
+          <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+          Xuất Danh Sách CSV
+        </button>
+      </div>
+
+      {/* Role Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-slate-200/80 pb-2">
+        {[
+          { id: 'all', label: 'Tất Cả Người Dùng' },
+          { id: 'admin', label: '🛡️ Quản Trị Viên (Admin)' },
+          { id: 'user', label: 'Khách Hàng (User)' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => {
+              setRoleFilter(tab.id as any);
+              setCurrentPage(1);
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              roleFilter === tab.id
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="bg-white border border-slate-200/80 p-3 rounded-xl shadow-sm">
@@ -77,9 +143,12 @@ export default function UsersAdminPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Tìm theo tên hoặc email người dùng..."
+            placeholder="Tìm theo tên, email hoặc số điện thoại người dùng..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
           />
         </div>
@@ -99,12 +168,12 @@ export default function UsersAdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {filteredUsers.length === 0 ? (
+              {paginatedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-6 text-center text-slate-400">Chưa có người dùng nào.</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-slate-400">Chưa có người dùng nào phù hợp.</td>
                 </tr>
               ) : (
-                filteredUsers.map((u: any) => (
+                paginatedUsers.map((u: any) => (
                   <tr key={u._id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-3.5 flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center border border-slate-200">
@@ -128,11 +197,11 @@ export default function UsersAdminPage() {
                     <td className="px-6 py-3.5 text-[11px] text-slate-400">
                       {new Date(u.createdAt || Date.now()).toLocaleDateString('vi-VN')}
                     </td>
-                    <td className="px-6 py-3.5 text-right space-x-1.5">
+                    <td className="px-6 py-3.5 text-right space-x-1.5 shrink-0">
                       <button
                         onClick={() => toggleRole(u)}
                         disabled={roleMutation.isPending && roleMutation.variables?.id === u._id}
-                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs"
+                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
                         title="Đổi quyền Admin/User"
                       >
                         {roleMutation.isPending && roleMutation.variables?.id === u._id ? (
@@ -144,7 +213,7 @@ export default function UsersAdminPage() {
                       <button
                         onClick={() => deleteUser(u)}
                         disabled={deleteMutation.isPending && deleteMutation.variables === u._id}
-                        className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs"
+                        className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs cursor-pointer"
                         title="Xóa tài khoản"
                       >
                          {deleteMutation.isPending && deleteMutation.variables === u._id ? (
@@ -160,6 +229,17 @@ export default function UsersAdminPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredUsers.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50]}
+        />
       </div>
     </div>
   );
