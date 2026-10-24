@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText, FileSpreadsheet, ExternalLink, Copy, Image as ImageIcon } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { getI18nText } from '@/lib/utils';
+import { getI18nText, toSlug } from '@/lib/utils';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
@@ -23,16 +23,6 @@ const CATEGORIES = [
   { value: 'destination', label: 'Điểm đến nổi bật' },
   { value: 'international', label: 'Du lịch Quốc tế' },
 ];
-
-const toSlug = (text: string) =>
-  text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
 
 interface NewsTableRowProps {
   article: any;
@@ -256,6 +246,15 @@ export default function AdminNewsPage() {
     setIsModalOpen(true);
   };
 
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsModalOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
+
   const openEditModal = (article: any) => {
     setEditingArticle(article);
     setActiveLang('vi');
@@ -268,6 +267,15 @@ export default function AdminNewsPage() {
     setIsPublished(article.isPublished ?? true);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsModalOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -495,7 +503,12 @@ export default function AdminNewsPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+        >
           <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <h2 className="text-base font-bold text-slate-900">

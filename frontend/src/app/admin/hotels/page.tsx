@@ -27,7 +27,7 @@ import { toast } from '@/stores/toastStore';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { formatPrice, getI18nText } from '@/lib/utils';
+import { formatPrice, getI18nText, toSlug } from '@/lib/utils';
 import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
@@ -57,16 +57,6 @@ const AMENITY_OPTIONS = [
   'Lễ tân 24h',
   'Chỗ đậu xe miễn phí'
 ];
-
-const toSlug = (text: string) =>
-  text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
 
 interface HotelTableRowProps {
   hotel: any;

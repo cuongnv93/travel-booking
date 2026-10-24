@@ -12,7 +12,7 @@ import { useTourDestinations } from '@/hooks/useTourDestinations';
 import { VideoBackground } from '@/components/ui/VideoBackground';
 
 const fetchFilteredTours = async ({ destination, category, priceRange, sort, isFeatured }: any) => {
-  let queryStr = '/tours?';
+  let queryStr = '/tours?limit=100&';
   if (destination) queryStr += `destination=${encodeURIComponent(destination)}&`;
   if (category) queryStr += `category=${encodeURIComponent(category)}&`;
   if (sort) queryStr += `sort=${encodeURIComponent(sort)}&`;

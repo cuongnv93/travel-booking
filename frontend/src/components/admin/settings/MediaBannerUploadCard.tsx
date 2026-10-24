@@ -48,6 +48,9 @@ export function MediaBannerUploadCard({
           <img
             src={imageValue || imagePlaceholder}
             alt={label}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
+            }}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         )}

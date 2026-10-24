@@ -27,7 +27,7 @@ import {
 import { toast } from '@/stores/toastStore';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, toSlug } from '@/lib/utils';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
@@ -546,12 +546,7 @@ export default function ToursAdminPage() {
       return;
     }
 
-    const slug = (title.vi || 'tour-' + Date.now())
-      .toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[đĐ]/g, 'd')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-');
+    const slug = toSlug(title.vi || 'tour-' + Date.now());
 
     const finalImages = images.length > 0 
       ? images 

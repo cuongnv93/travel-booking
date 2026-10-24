@@ -1,19 +1,10 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Tour from '../models/Tour';
-import { paginate, escapeRegex, buildDestinationRegex } from '../utils/helpers';
+import { paginate, escapeRegex, buildDestinationRegex, slugify } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
 
-const generateSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[Ä‘Ä]/g, 'd')
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
-};
+const generateSlug = (title: string) => slugify(title, true);
 
 const TOUR_LANDMARK_MAP: Record<string, string[]> = {
   'ha-long-bay': [
@@ -59,9 +50,9 @@ export const fixLandmarkImages = async (_req: Request, res: Response) => {
         tour.images = TOUR_LANDMARK_MAP[tour.slug];
       } else if (tour.destination === 'Nha Trang') {
         tour.images = TOUR_LANDMARK_MAP['nha-trang-diving'];
-      } else if (tour.destination === 'Háº¡ Long') {
+      } else if (tour.destination && /Hạ Long|Ha Long/i.test(tour.destination)) {
         tour.images = TOUR_LANDMARK_MAP['ha-long-bay'];
-      } else if (tour.destination === 'HÃ  Ná»™i') {
+      } else if (tour.destination && /Hà Nội|Ha Noi/i.test(tour.destination)) {
         tour.images = TOUR_LANDMARK_MAP['ho-guom-hanoi'];
       } else if (tour.destination === 'ÄÃ  Náºµng') {
         tour.images = TOUR_LANDMARK_MAP['da-nang-ba-na-hills'];

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import News from '../models/News';
-import { paginate } from '../utils/helpers';
+import { paginate, slugify } from '../utils/helpers';
 
 import { cacheService } from '../services/cacheService';
 
@@ -61,16 +61,7 @@ export const getBySlug = async (req: Request, res: Response) => {
   }
 };
 
-const generateSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[Ä‘Ä]/g, 'd')
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
-};
+const generateSlug = (title: string) => slugify(title, true);
 
 export const create = async (req: Request, res: Response) => {
   try {

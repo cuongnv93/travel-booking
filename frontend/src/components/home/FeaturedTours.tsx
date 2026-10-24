@@ -9,8 +9,17 @@ import { CardSkeleton } from '@/components/ui/Skeleton';
 import TourCard from '@/components/tours/TourCard';
 
 const fetchFeaturedTours = async () => {
-  const res: any = await api.get('/tours?limit=6');
-  return res?.data || [];
+  try {
+    const res: any = await api.get('/tours?isFeatured=true&limit=6');
+    const featured = res?.data || [];
+    if (Array.isArray(featured) && featured.length > 0) {
+      return featured;
+    }
+  } catch {
+    // fallback to general active tours
+  }
+  const fallbackRes: any = await api.get('/tours?limit=6');
+  return fallbackRes?.data || [];
 };
 
 export default function FeaturedTours() {

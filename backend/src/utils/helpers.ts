@@ -3,13 +3,17 @@ export const generateBookingCode = (): string => {
   return `VTP-${randomStr}`;
 };
 
-export const slugify = (text: string): string => {
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\-]+/g, '')
-    .replace(/\-\-+/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '');
+export const slugify = (text: string, withSuffix = false): string => {
+  const base = text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return withSuffix ? `${base}-${Date.now().toString().slice(-6)}` : base;
 };
 
 export const paginate = (data: any[], total: number, page: number, limit: number) => {
