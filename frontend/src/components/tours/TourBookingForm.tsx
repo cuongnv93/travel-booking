@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
@@ -39,20 +39,17 @@ function TourBookingFormComponent({ tour, selectedDateFromParent }: TourBookingF
   const addItem = useCartStore((state) => state.addItem);
 
   const [date, setDate] = useState(selectedDateFromParent || '');
-  const [prevSelectedParent, setPrevSelectedParent] = useState(selectedDateFromParent);
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
-
   const [formError, setFormError] = useState('');
 
-  // Sync when parent updates selected date cleanly
-  if (selectedDateFromParent !== prevSelectedParent) {
-    setPrevSelectedParent(selectedDateFromParent);
+  // Sync external date picker selection via useEffect (not render-time mutation)
+  useEffect(() => {
     if (selectedDateFromParent) {
       setDate(selectedDateFromParent);
       setFormError('');
     }
-  }
+  }, [selectedDateFromParent]);
 
   const validDepartureDates = useMemo(() => {
     return Array.isArray(tour?.departureDates)
@@ -69,7 +66,7 @@ function TourBookingFormComponent({ tour, selectedDateFromParent }: TourBookingF
   }, [selectedDeparture?.price, tour?.price]);
 
   const totalPrice = useMemo(() => {
-    return basePrice * adults + (basePrice * 0.7) * children;
+    return basePrice * adults + Math.round(basePrice * 0.75) * children;
   }, [basePrice, adults, children]);
 
   const handleDateChange = useCallback((newDate: string) => {

@@ -218,6 +218,10 @@ export default function HotelDetailClient() {
       setError(t('errFillInfo'));
       return;
     }
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      setError(locale === 'vi' ? 'Định dạng email không hợp lệ.' : 'Invalid email format.');
+      return;
+    }
     if (!formData.checkIn || !formData.checkOut) {
       setError(t('errSelectDates'));
       return;
@@ -228,7 +232,7 @@ export default function HotelDetailClient() {
     }
     setError('');
     bookingMutation.mutate();
-  }, [selectedRoom, formData, nights, bookingMutation, t]);
+  }, [selectedRoom, formData, nights, bookingMutation, t, locale]);
 
   const handleSelectRoom = useCallback((room: any) => {
     setSelectedRoom(room);

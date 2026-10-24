@@ -8,7 +8,7 @@ import {
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getI18nText } from '@/lib/utils';
 
 const fetchAdminBookings = async () => {
   const res: any = await api.get('/bookings');
@@ -40,10 +40,10 @@ const BookingTableRow = memo(function BookingTableRow({
   const isHotel = b.type === 'hotel';
   const isFlight = b.type === 'flight';
   const serviceTitle = isHotel
-    ? `${b.hotelId?.name?.vi || b.hotelId?.name || 'Khách sạn'}${b.roomName ? ` (${b.roomName})` : ''}`
+    ? `${getI18nText(b.hotelId?.name, 'vi', 'Khách sạn')}${b.roomName ? ` (${b.roomName})` : ''}`
     : isFlight
     ? (`Chuyến bay ${b.flightId?.flightNumber || ''} (${b.flightId?.from || ''} - ${b.flightId?.to || ''})`.trim() || 'Vé máy bay')
-    : (b.tourId?.title?.vi || b.tourId?.title || 'Tour du lịch');
+    : getI18nText(b.tourId?.title, 'vi', 'Tour du lịch');
 
   const travelDate = b.travelDate || b.checkIn;
   const formattedDate = travelDate ? new Date(travelDate).toLocaleDateString('vi-VN') : 'N/A';
@@ -409,10 +409,10 @@ export default function BookingsAdminPage() {
                 <p className="font-bold text-slate-800 border-b border-slate-100 pb-1.5">Thông Tin Dịch Vụ</p>
                 <p className="font-bold text-sm text-slate-900">
                   {selectedBooking.type === 'hotel'
-                    ? `${selectedBooking.hotelId?.name?.vi || selectedBooking.hotelId?.name || 'Khách sạn'}${selectedBooking.roomName ? ` - ${selectedBooking.roomName}` : ''}`
+                    ? `${getI18nText(selectedBooking.hotelId?.name, 'vi', 'Khách sạn')}${selectedBooking.roomName ? ` - ${selectedBooking.roomName}` : ''}`
                     : selectedBooking.type === 'flight'
                     ? (`Chuyến bay ${selectedBooking.flightId?.flightNumber || ''} (${selectedBooking.flightId?.from || ''} - ${selectedBooking.flightId?.to || ''})`.trim() || 'Vé máy bay')
-                    : (selectedBooking.tourId?.title?.vi || selectedBooking.tourId?.title || 'Tour du lịch')}
+                    : getI18nText(selectedBooking.tourId?.title, 'vi', 'Tour du lịch')}
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 pt-1 text-slate-700">

@@ -59,10 +59,22 @@ api.interceptors.response.use(
     if ((status === 401 || status === 403) && typeof window !== 'undefined') {
       const currentPath = window.location.pathname;
       if (currentPath.includes('/admin') && !currentPath.includes('/admin/login')) {
+        // Admin session expired → redirect to admin login
         try {
           localStorage.removeItem('auth-storage');
         } catch {}
         window.location.href = '/admin/login?expired=true';
+      } else if (!currentPath.includes('/login') && !currentPath.includes('/admin')) {
+        // Customer session expired → redirect to customer login preserving return URL
+        try {
+          localStorage.removeItem('auth-storage');
+        } catch {}
+        const returnUrl = encodeURIComponent(currentPath + window.location.search);
+        // Detect locale from path (first segment)
+        const segments = currentPath.split('/').filter(Boolean);
+        const supportedLocales = ['vi', 'en', 'zh', 'ko', 'ja'];
+        const locale = supportedLocales.includes(segments[0]) ? segments[0] : 'vi';
+        window.location.href = `/${locale}/login?expired=true&returnUrl=${returnUrl}`;
       }
     }
     return Promise.reject(error);

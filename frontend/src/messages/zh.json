@@ -135,7 +135,8 @@
     "heroDesc": "体验从下龙湾、沙坝云雾、岘港碧海到富国岛的无限美景，享受五星级高品质服务。",
     "badgeProvinces": "越南 63 省市精选",
     "badgeQuality": "5★ 高品质越南行程",
-    "sessionExpired": "登录已过期或 Token 无效，请重新登录。"
+    "sessionExpired": "登录已过期或 Token 无效，请重新登录。",
+    "passwordTooShort": "密码必须至少6个字符。"
   },
   "cart": {
     "title": "您的购物车",

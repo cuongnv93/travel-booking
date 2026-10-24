@@ -166,6 +166,7 @@ export default function CartClient() {
   const clearCart = useCartStore((state) => state.clearCart);
 
   const currentUser = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '', notes: '' });
   const [paymentMethod, setPaymentMethod] = useState<'vietqr' | 'office'>('office');
@@ -246,6 +247,13 @@ export default function CartClient() {
       return;
     }
 
+    // Require authentication before placing any booking
+    if (!isAuthenticated) {
+      const returnUrl = encodeURIComponent('/' + locale + '/cart');
+      router.push('/' + locale + '/login?returnUrl=' + returnUrl);
+      return;
+    }
+
     if (items.length === 0) return;
 
     setError('');
@@ -294,7 +302,7 @@ export default function CartClient() {
     } finally {
       setLoading(false);
     }
-  }, [formData, items, discount, couponApplied, couponCode, paymentMethod, clearCart, locale, router, t]);
+  }, [formData, items, discount, couponApplied, couponCode, paymentMethod, clearCart, locale, router, t, isAuthenticated]);
 
   if (items.length === 0) {
     return (

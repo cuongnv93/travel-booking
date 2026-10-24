@@ -50,6 +50,8 @@ export default function ContactClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.phone) return;
+    // Validate email format if provided
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) return;
     setSubmitting(true);
 
     const payload = {

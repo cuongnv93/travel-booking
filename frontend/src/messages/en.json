@@ -135,7 +135,8 @@
     "heroDesc": "Experience majestic landscapes from Ha Long Bay, misty Sa Pa, turquoise Da Nang to Phu Quoc Island with 5-star premium service.",
     "badgeProvinces": "63 Vietnam Destinations",
     "badgeQuality": "5★ Quality Vietnam Tours",
-    "sessionExpired": "Session expired or invalid token. Please log in again."
+    "sessionExpired": "Session expired or invalid token. Please log in again.",
+    "passwordTooShort": "Password must be at least 6 characters."
   },
   "cart": {
     "title": "Your Shopping Cart",

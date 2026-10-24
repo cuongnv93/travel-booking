@@ -135,7 +135,8 @@
     "heroDesc": "Cùng Travel trải nghiệm trọn vẹn vẻ đẹp tuyệt mỹ từ Vịnh Hạ Long cổ kính, sương mờ Sa Pa, biển xanh Đà Nẵng đến Đảo Ngọc Phú Quốc với dịch vụ chất lượng 5 sao.",
     "badgeProvinces": "63 Tỉnh Thành Việt Nam",
     "badgeQuality": "Tour Việt Nam Chất Lượng 5★",
-    "sessionExpired": "Phiên đăng nhập đã hết hạn (1 tiếng) hoặc token không hợp lệ. Vui lòng đăng nhập lại."
+    "sessionExpired": "Phiên đăng nhập đã hết hạn (1 tiếng) hoặc token không hợp lệ. Vui lòng đăng nhập lại.",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự."
   },
   "cart": {
     "title": "Giỏ Hàng Của Bạn",

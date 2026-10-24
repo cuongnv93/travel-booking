@@ -32,17 +32,28 @@ function UserLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Client-side password length validation for registration
+    if (!isLogin && password.length < 6) {
+      setError(t('passwordTooShort'));
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (isLogin) {
         const res: any = await api.post('/auth/login', { email, password });
         login(res.user, res.accessToken);
-        // Customer login on landing page always directs to the customer portal/home
-        router.push(`/${locale}`);
       } else {
         const res: any = await api.post('/auth/register', { name, email, password, phone });
         login(res.user, res.accessToken);
+      }
+      // Redirect to returnUrl if present, otherwise default to home
+      const returnUrl = searchParams.get('returnUrl');
+      if (returnUrl) {
+        router.push(decodeURIComponent(returnUrl));
+      } else {
         router.push(`/${locale}`);
       }
     } catch (err: any) {
