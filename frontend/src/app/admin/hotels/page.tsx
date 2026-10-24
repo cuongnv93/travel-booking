@@ -19,7 +19,9 @@ import {
   Navigation,
   FileSpreadsheet,
   Download,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Image as ImageIcon
 } from 'lucide-react';
 import { toast } from '@/stores/toastStore';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
@@ -29,6 +31,7 @@ import { formatPrice, getI18nText } from '@/lib/utils';
 import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
 import { exportToCsv } from '@/lib/exportCsv';
 
 const fetchAdminHotels = async () => {
@@ -71,6 +74,9 @@ interface HotelTableRowProps {
   onToggleSelect: (id: string) => void;
   onEdit: (hotel: any) => void;
   onDelete: (id: string) => void;
+  onToggleActive: (id: string, current: boolean) => void;
+  onToggleFlashSale: (id: string, current: boolean) => void;
+  onDuplicate: (id: string) => void;
 }
 
 const HotelTableRow = memo(function HotelTableRow({
@@ -79,8 +85,12 @@ const HotelTableRow = memo(function HotelTableRow({
   onToggleSelect,
   onEdit,
   onDelete,
+  onToggleActive,
+  onToggleFlashSale,
+  onDuplicate,
 }: HotelTableRowProps) {
   const [imgSrc, setImgSrc] = useState(hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800');
+  const isActive = hotel.isActive !== false;
 
   return (
     <tr className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-blue-50/40' : ''}`}>
@@ -126,6 +136,36 @@ const HotelTableRow = memo(function HotelTableRow({
         {formatPrice(hotel.pricePerNight)}
         <span className="text-[11px] font-normal text-slate-400">/đêm</span>
       </td>
+      <td className="px-5 py-3.5">
+        <button
+          type="button"
+          onClick={() => onToggleActive(hotel._id, isActive)}
+          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+            isActive
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+          }`}
+          title="Bấm để bật/tắt mở bán chỗ nghỉ"
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+          {isActive ? 'Đang bán' : 'Tạm ẩn'}
+        </button>
+      </td>
+      <td className="px-5 py-3.5">
+        <button
+          type="button"
+          onClick={() => onToggleFlashSale(hotel._id, !hotel.isFlashSale)}
+          className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
+            hotel.isFlashSale
+              ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+              : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+          }`}
+          title="Bấm để bật/tắt Flash Sale"
+        >
+          <span>⚡</span>
+          {hotel.isFlashSale ? 'Sale' : 'Thường'}
+        </button>
+      </td>
       <td className="px-5 py-3.5 text-right space-x-1.5 shrink-0">
         <a
           href={`/vi/hotels/${hotel.slug}`}
@@ -136,6 +176,14 @@ const HotelTableRow = memo(function HotelTableRow({
         >
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
+        <button
+          type="button"
+          onClick={() => onDuplicate(hotel._id)}
+          className="p-1.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-md transition-colors text-xs cursor-pointer inline-flex items-center"
+          title="Nhân bản khách sạn (Tạo bản sao nháp)"
+        >
+          <Copy className="w-3.5 h-3.5" />
+        </button>
         <button
           onClick={() => onEdit(hotel)}
           className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
@@ -179,6 +227,7 @@ export default function AdminHotelsPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<any>(null);
   const [activeStep, setActiveStep] = useState<string>('basic');
   const [isDirty, setIsDirty] = useState(false);
@@ -321,6 +370,60 @@ export default function AdminHotelsPage() {
     },
     onError: (err: any) => toast.error('Lỗi xóa khách sạn: ' + (err.response?.data?.message || err.message)),
   });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      return api.patch(`/hotels/${id}/active`, { isActive });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['hotels'] });
+      toast.success('Đã cập nhật trạng thái mở bán khách sạn!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi cập nhật trạng thái: ' + (err.response?.data?.message || err.message));
+    }
+  });
+
+  const toggleFlashSaleMutation = useMutation({
+    mutationFn: async ({ id, isFlashSale }: { id: string; isFlashSale: boolean }) => {
+      return api.patch(`/hotels/${id}/flash-sale`, { isFlashSale });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['hotels'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
+      toast.success('Đã cập nhật trạng thái Flash Sale khách sạn!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi cập nhật Flash Sale: ' + (err.response?.data?.message || err.message));
+    }
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return api.post(`/hotels/${id}/duplicate`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
+      toast.success('Đã nhân bản khách sạn thành công (bản sao ở trạng thái Tạm ẩn)!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi nhân bản khách sạn: ' + (err.response?.data?.message || err.message));
+    }
+  });
+
+  const handleToggleActive = useCallback((id: string, currentActive: boolean) => {
+    toggleActiveMutation.mutate({ id, isActive: !currentActive });
+  }, [toggleActiveMutation]);
+
+  const handleToggleFlashSale = useCallback((id: string, nextFlashSale: boolean) => {
+    toggleFlashSaleMutation.mutate({ id, isFlashSale: nextFlashSale });
+  }, [toggleFlashSaleMutation]);
+
+  const handleDuplicate = useCallback((id: string) => {
+    duplicateMutation.mutate(id);
+  }, [duplicateMutation]);
 
   const handleCopyFromVi = useCallback(() => {
     if (activeLang === 'vi') return;
@@ -720,13 +823,15 @@ export default function AdminHotelsPage() {
                 <th className="px-5 py-3.5">Địa điểm</th>
                 <th className="px-5 py-3.5">Hạng sao</th>
                 <th className="px-5 py-3.5">Giá/đêm</th>
+                <th className="px-5 py-3.5">Trạng thái</th>
+                <th className="px-5 py-3.5">Flash Sale</th>
                 <th className="px-5 py-3.5 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {paginatedHotels.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
                     <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                     Không tìm thấy khách sạn nào phù hợp.
                   </td>
@@ -740,6 +845,9 @@ export default function AdminHotelsPage() {
                     onToggleSelect={handleToggleSelect}
                     onEdit={openEditModal}
                     onDelete={handleDelete}
+                    onToggleActive={handleToggleActive}
+                    onToggleFlashSale={handleToggleFlashSale}
+                    onDuplicate={handleDuplicate}
                   />
                 ))
               )}
@@ -1004,24 +1112,37 @@ export default function AdminHotelsPage() {
                   <span className="text-[11px] text-slate-400">Ảnh đầu tiên làm ảnh đại diện</span>
                 </div>
 
-                <div className="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-xl p-4 transition-colors bg-slate-50/50 flex flex-col items-center justify-center text-center">
-                  <label className="cursor-pointer w-full flex flex-col items-center py-2">
-                    {isUploading ? (
-                      <div className="flex flex-col items-center gap-2 text-blue-600">
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                        <span className="text-xs font-medium">Đang tải ảnh lên máy chủ...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-1.5">
-                          <Upload className="w-4 h-4" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-xl p-3.5 transition-colors bg-slate-50/50 flex flex-col items-center justify-center text-center">
+                    <label className="cursor-pointer w-full flex flex-col items-center py-1">
+                      {isUploading ? (
+                        <div className="flex flex-col items-center gap-2 text-blue-600">
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                          <span className="text-xs font-medium">Đang tải ảnh lên...</span>
                         </div>
-                        <p className="text-xs font-semibold text-slate-800">Tải ảnh từ máy tính (Có thể chọn nhiều tệp cùng lúc)</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">Hỗ trợ JPG, PNG, WEBP</p>
-                        <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
-                      </>
-                    )}
-                  </label>
+                      ) : (
+                        <>
+                          <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-1">
+                            <Upload className="w-4 h-4" />
+                          </div>
+                          <p className="text-xs font-semibold text-slate-800">Tải ảnh từ máy tính</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG, WEBP (nhiều tệp)</p>
+                          <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
+                        </>
+                      )}
+                    </label>
+                  </div>
+
+                  <div
+                    onClick={() => setIsMediaModalOpen(true)}
+                    className="border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-xl p-3.5 transition-colors bg-indigo-50/40 flex flex-col items-center justify-center text-center cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-1 group-hover:scale-105 transition-transform">
+                      <ImageIcon className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs font-semibold text-indigo-900">Chọn từ Thư Viện Media</p>
+                    <p className="text-[10px] text-indigo-500 mt-0.5">Ảnh đã tải lên & Preset resort, phòng khách sạn</p>
+                  </div>
                 </div>
 
                 <div className="flex gap-2">
@@ -1361,6 +1482,17 @@ export default function AdminHotelsPage() {
           )}
         </div>
       </AdminStepperModal>
+
+      {/* Central Media Library Picker Modal */}
+      <AdminMediaPickerModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelect={(url) => {
+          setImages((prev) => [...prev, url]);
+          markDirty();
+        }}
+        title="Thư Viện Ảnh Cho Khách Sạn"
+      />
     </div>
   );
 }

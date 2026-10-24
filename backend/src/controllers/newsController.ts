@@ -66,7 +66,7 @@ const generateSlug = (title: string) => {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
+    .replace(/[Ä‘Ä]/g, 'd')
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
@@ -125,6 +125,37 @@ export const deleteNews = async (req: Request, res: Response) => {
     if (!news) return res.status(404).json({ message: 'News not found' });
     cacheService.flush();
     res.json({ message: 'News removed' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const duplicateNews = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'News not found' });
+    }
+    const original = await News.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ message: 'News not found' });
+
+    const { _id, createdAt, publishedAt, ...rest } = original as any;
+    const viTitle = typeof rest.title === 'string' ? `${rest.title} (Bản sao)` : `${rest.title?.vi || 'Tin tức'} (Bản sao)`;
+    const newTitle = typeof rest.title === 'object' && rest.title
+      ? { ...rest.title, vi: viTitle, en: rest.title.en ? `${rest.title.en} (Copy)` : '' }
+      : { vi: viTitle, en: '' };
+
+    const newSlug = generateSlug(viTitle);
+
+    const duplicated = await News.create({
+      ...rest,
+      title: newTitle,
+      slug: newSlug,
+      isPublished: false, // Draft
+      createdAt: new Date(),
+    });
+
+    cacheService.flush();
+    res.status(201).json(duplicated);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

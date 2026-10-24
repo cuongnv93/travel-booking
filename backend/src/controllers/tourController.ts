@@ -9,7 +9,7 @@ const generateSlug = (title: string) => {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
+    .replace(/[Ä‘Ä]/g, 'd')
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
@@ -59,11 +59,11 @@ export const fixLandmarkImages = async (_req: Request, res: Response) => {
         tour.images = TOUR_LANDMARK_MAP[tour.slug];
       } else if (tour.destination === 'Nha Trang') {
         tour.images = TOUR_LANDMARK_MAP['nha-trang-diving'];
-      } else if (tour.destination === 'Hạ Long') {
+      } else if (tour.destination === 'Háº¡ Long') {
         tour.images = TOUR_LANDMARK_MAP['ha-long-bay'];
-      } else if (tour.destination === 'Hà Nội') {
+      } else if (tour.destination === 'HÃ  Ná»™i') {
         tour.images = TOUR_LANDMARK_MAP['ho-guom-hanoi'];
-      } else if (tour.destination === 'Đà Nẵng') {
+      } else if (tour.destination === 'ÄÃ  Náºµng') {
         tour.images = TOUR_LANDMARK_MAP['da-nang-ba-na-hills'];
       }
       await tour.save();
@@ -228,6 +228,54 @@ export const toggleFeatured = async (req: Request, res: Response) => {
     await tour.save();
     cacheService.flush();
     res.json(tour);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const toggleActive = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Tour not found' });
+    }
+    const tour = await Tour.findById(req.params.id);
+    if (!tour) return res.status(404).json({ message: 'Tour not found' });
+    tour.isActive = !tour.isActive;
+    await tour.save();
+    cacheService.flush();
+    res.json(tour);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const duplicateTour = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Tour not found' });
+    }
+    const original = await Tour.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ message: 'Tour not found' });
+
+    const { _id, createdAt, ...rest } = original as any;
+    const viTitle = typeof rest.title === 'string' ? `${rest.title} (Bản sao)` : `${rest.title?.vi || 'Tour'} (Bản sao)`;
+    const newTitle = typeof rest.title === 'object' && rest.title
+      ? { ...rest.title, vi: viTitle, en: rest.title.en ? `${rest.title.en} (Copy)` : '' }
+      : { vi: viTitle, en: '' };
+
+    const newSlug = generateSlug(viTitle);
+
+    const duplicated = await Tour.create({
+      ...rest,
+      title: newTitle,
+      slug: newSlug,
+      isActive: false, // Default to draft so admin can review
+      isFeatured: false,
+      createdAt: new Date(),
+    });
+
+    cacheService.flush();
+    res.status(201).json(duplicated);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

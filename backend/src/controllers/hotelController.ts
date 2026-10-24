@@ -75,7 +75,7 @@ const generateSlug = (title: string) => {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd')
+    .replace(/[Ä‘Ä]/g, 'd')
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-6);
@@ -127,6 +127,74 @@ export const deleteHotel = async (req: Request, res: Response) => {
     const hotel = await Hotel.findByIdAndDelete(req.params.id);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
     res.json({ message: 'Hotel removed' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const toggleActive = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
+    const hotel = await Hotel.findById(req.params.id);
+    if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
+    hotel.isActive = !hotel.isActive;
+    await hotel.save();
+    cacheService.del('hotel_locations');
+    cacheService.del('flash_sale_items');
+    res.json(hotel);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const toggleFlashSale = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
+    const hotel = await Hotel.findById(req.params.id);
+    if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
+    hotel.isFlashSale = !hotel.isFlashSale;
+    if (hotel.isFlashSale && !hotel.flashSalePrice) {
+      hotel.flashSalePrice = Math.round(hotel.pricePerNight * 0.8);
+    }
+    await hotel.save();
+    cacheService.del('flash_sale_items');
+    res.json(hotel);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const duplicateHotel = async (req: Request, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
+    const original = await Hotel.findById(req.params.id).lean();
+    if (!original) return res.status(404).json({ message: 'Hotel not found' });
+
+    const { _id, createdAt, ...rest } = original as any;
+    const viName = typeof rest.name === 'string' ? `${rest.name} (Bản sao)` : `${rest.name?.vi || 'Khách sạn'} (Bản sao)`;
+    const newName = typeof rest.name === 'object' && rest.name
+      ? { ...rest.name, vi: viName, en: rest.name.en ? `${rest.name.en} (Copy)` : '' }
+      : { vi: viName, en: '' };
+
+    const newSlug = generateSlug(viName);
+
+    const duplicated = await Hotel.create({
+      ...rest,
+      name: newName,
+      slug: newSlug,
+      isActive: false, // Draft
+      createdAt: new Date(),
+    });
+
+    cacheService.del('hotel_locations');
+    cacheService.del('flash_sale_items');
+    res.status(201).json(duplicated);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

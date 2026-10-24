@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText, FileSpreadsheet, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, X, Search, Upload, Loader2, FileText, FileSpreadsheet, ExternalLink, Copy, Image as ImageIcon } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { getI18nText } from '@/lib/utils';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -38,6 +39,7 @@ interface NewsTableRowProps {
   onEdit: (article: any) => void;
   onDelete: (id: string) => void;
   onTogglePublish: (id: string, val: boolean) => void;
+  onDuplicate: (id: string) => void;
 }
 
 const NewsTableRow = memo(function NewsTableRow({
@@ -45,6 +47,7 @@ const NewsTableRow = memo(function NewsTableRow({
   onEdit,
   onDelete,
   onTogglePublish,
+  onDuplicate,
 }: NewsTableRowProps) {
   const [imgSrc, setImgSrc] = useState(article.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800');
 
@@ -98,6 +101,14 @@ const NewsTableRow = memo(function NewsTableRow({
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
         <button
+          type="button"
+          onClick={() => onDuplicate(article._id)}
+          className="p-1.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-md transition-colors text-xs cursor-pointer inline-flex items-center"
+          title="Nhân bản bài viết (Tạo bản sao nháp)"
+        >
+          <Copy className="w-3.5 h-3.5" />
+        </button>
+        <button
           onClick={() => onEdit(article)}
           className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
         >
@@ -126,6 +137,7 @@ export default function AdminNewsPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -202,6 +214,23 @@ export default function AdminNewsPage() {
     },
     onError: (err: any) => toast.error('Lỗi cập nhật: ' + (err.response?.data?.message || err.message)),
   });
+
+  const duplicateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return api.post(`/news/${id}/duplicate`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-news'] });
+      toast.success('Đã nhân bản bài viết thành công (bản sao ở trạng thái Bản nháp)!');
+    },
+    onError: (err: any) => {
+      toast.error('Lỗi nhân bản bài viết: ' + (err.response?.data?.message || err.message));
+    }
+  });
+
+  const handleDuplicate = useCallback((id: string) => {
+    duplicateMutation.mutate(id);
+  }, [duplicateMutation]);
 
   const handleCopyFromVi = useCallback(() => {
     if (activeLang === 'vi') return;
@@ -445,6 +474,7 @@ export default function AdminNewsPage() {
                     onEdit={openEditModal}
                     onDelete={handleDelete}
                     onTogglePublish={handleTogglePublish}
+                    onDuplicate={handleDuplicate}
                   />
                 ))
               )}
@@ -576,7 +606,16 @@ export default function AdminNewsPage() {
 
               {/* Thumbnail Upload */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-1.5">Ảnh Thumbnail *</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-semibold text-slate-700 block text-xs">Ảnh Thumbnail *</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" /> Chọn từ Thư Viện Media
+                  </button>
+                </div>
                 <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-3 transition-colors bg-slate-50/50">
                   {thumbnail ? (
                     <div className="relative w-full h-36 rounded-lg overflow-hidden border border-slate-200 group">
@@ -653,6 +692,14 @@ export default function AdminNewsPage() {
           </div>
         </div>
       )}
+
+      {/* Central Media Library Picker Modal */}
+      <AdminMediaPickerModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelect={(url) => setThumbnail(url)}
+        title="Chọn Ảnh Thumbnail Bài Viết"
+      />
     </div>
   );
 }

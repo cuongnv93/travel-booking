@@ -52,4 +52,42 @@ router.post('/', upload.single('image'), (req: Request, res: Response) => {
   });
 });
 
+// List uploaded media for Media Library: GET /api/upload
+router.get('/', (_req: Request, res: Response) => {
+  try {
+    if (!fs.existsSync(uploadDir)) {
+      return res.json([]);
+    }
+    const files = fs.readdirSync(uploadDir);
+    const host = _req.get('host') || 'localhost:5000';
+    const protocol = _req.get('x-forwarded-proto') || _req.protocol || 'http';
+    const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+    const images = files
+      .filter((file) => /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file))
+      .map((file) => {
+        try {
+          const stats = fs.statSync(path.join(uploadDir, file));
+          return {
+            filename: file,
+            url: `${baseUrl}/uploads/${file}`,
+            createdAt: stats.mtime,
+            size: stats.size,
+          };
+        } catch {
+          return {
+            filename: file,
+            url: `${baseUrl}/uploads/${file}`,
+            createdAt: new Date(),
+            size: 0,
+          };
+        }
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    res.json(images);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
