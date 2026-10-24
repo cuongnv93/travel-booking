@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import Link from 'next/link';
 import {
   Globe, Phone, Mail, MapPin, Share2, CreditCard,
   Save, CheckCircle2, Loader2, Image as ImageIcon, Plus, Trash2,
   Upload, LayoutTemplate, FileText, Quote,
-  Plane, Award, Building2, ShieldAlert, RefreshCw, AlertTriangle, Layers, Video
+  Plane, Award, Building2, ShieldAlert, RefreshCw, AlertTriangle, Layers, Video, ExternalLink
 } from 'lucide-react';
 import { HomeBlocksSettingsTab, DestinationItem, WhyChooseUsItem, StatCounterItem } from '@/components/admin/settings/HomeBlocksSettingsTab';
 import { FlightsSettingsTab, AirportItem, AirlineItem } from '@/components/admin/settings/FlightsSettingsTab';
@@ -206,9 +207,8 @@ function MediaBannerUploadCard({
 export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<
-    'hero' | 'banners' | 'general' | 'social' | 'payment' | 'pages' | 'testimonials' |
-    'home_blocks' | 'flights' | 'visa' | 'branches' | 'policies'
-  >('hero');
+    'general' | 'branches' | 'payment' | 'policies' | 'flights' | 'visa' | 'social'
+  >('general');
   const [successMsg, setSuccessMsg] = useState('');
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [langTab, setLangTab] = useState<'vi' | 'en' | 'zh' | 'ko' | 'ja'>('vi');
@@ -625,326 +625,96 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      {/* Segmented Tabs Bar */}
+      {/* Quick Navigation Banner to Appearance */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <LayoutTemplate className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-slate-900">Cấu hình Giao Diện & Bố Cục Trang Chủ</h3>
+            <p className="text-[11px] text-slate-500">
+              Slider Hero, Video nền và các khối nội dung trang chủ được quản lý tập trung tại module riêng biệt
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/admin/appearance"
+          className="bg-white hover:bg-blue-600 hover:text-white text-blue-600 text-xs font-bold px-4 py-2 rounded-xl border border-blue-200 shadow-2xs transition-all shrink-0 inline-flex items-center gap-1.5"
+        >
+          <span>Mở Giao Diện & Trang Chủ</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* Streamlined Tabs Bar */}
       <div className="bg-slate-100/90 border border-slate-200/80 rounded-xl p-1 flex gap-1 overflow-x-auto scrollbar-none">
         <button
-          onClick={() => setActiveTab('hero')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'hero' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <LayoutTemplate className="w-3.5 h-3.5" /> Slide Hero ({slides.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('home_blocks')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'home_blocks' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5" /> Khối Trang Chủ ({destinations.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('flights')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'flights' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <Plane className="w-3.5 h-3.5" /> Sân Bay & Hãng Bay ({airports.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('visa')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'visa' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <Award className="w-3.5 h-3.5" /> Visa & Thủ Tục ({visaCountries.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('branches')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'branches' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <Building2 className="w-3.5 h-3.5" /> Chi Nhánh & Giờ Làm ({branches.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('policies')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'policies' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <ShieldAlert className="w-3.5 h-3.5" /> Điều Khoản & Tiện Ích
-        </button>
-        <button
-          onClick={() => setActiveTab('banners')}
-          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'banners' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
-          }`}
-        >
-          <ImageIcon className="w-3.5 h-3.5" /> Banner Trang Con (7)
-        </button>
-        <button
+          type="button"
           onClick={() => setActiveTab('general')}
           className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
             activeTab === 'general' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <Globe className="w-3.5 h-3.5" /> Thông Tin Chung
+          <Globe className="w-3.5 h-3.5" /> 1. Thông Tin Doanh Nghiệp
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('social')}
           className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
             activeTab === 'social' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <Share2 className="w-3.5 h-3.5" /> Mạng Xã Hội
+          <Share2 className="w-3.5 h-3.5" /> 2. Mạng Xã Hội
         </button>
         <button
+          type="button"
+          onClick={() => setActiveTab('branches')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'branches' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5" /> 3. Chi Nhánh & Giờ Làm ({branches.length})
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab('payment')}
           className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
             activeTab === 'payment' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <CreditCard className="w-3.5 h-3.5" /> Thanh Toán & Ngân Hàng
+          <CreditCard className="w-3.5 h-3.5" /> 4. Cổng Thanh Toán & VietQR
         </button>
         <button
-          onClick={() => setActiveTab('pages')}
+          type="button"
+          onClick={() => setActiveTab('policies')}
           className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'pages' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+            activeTab === 'policies' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <FileText className="w-3.5 h-3.5" /> Trang Tĩnh (Pages)
+          <ShieldAlert className="w-3.5 h-3.5" /> 5. Chính Sách & Giấy Phép
         </button>
         <button
-          onClick={() => setActiveTab('testimonials')}
+          type="button"
+          onClick={() => setActiveTab('flights')}
           className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
-            activeTab === 'testimonials' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+            activeTab === 'flights' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
           }`}
         >
-          <Quote className="w-3.5 h-3.5" /> Đánh Giá Khách Hàng ({reviews.length})
+          <Plane className="w-3.5 h-3.5" /> 6. Hàng Không ({airports.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('visa')}
+          className={`py-2 px-3.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'visa' ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/70 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium'
+          }`}
+        >
+          <Award className="w-3.5 h-3.5" /> 7. Visa & Thủ Tục ({visaCountries.length})
         </button>
       </div>
 
       <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
-        {/* Tab: Hero Slides */}
-        {activeTab === 'hero' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">Danh Sách Slide Hero Trang Chủ</h2>
-                <p className="text-slate-500 text-[11px]">Hình ảnh và khẩu hiệu hiển thị ở đầu trang chủ</p>
-              </div>
-              <button
-                type="button"
-                onClick={handleAddSlide}
-                className="bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
-              >
-                <Plus className="w-4 h-4" /> Thêm Slide
-              </button>
-            </div>
-
-            {renderLangSelector()}
-
-            <div className="space-y-4">
-              {slides.map((slide, idx) => (
-                <div key={idx} className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 space-y-4">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <span className="font-bold text-slate-700 text-xs flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">
-                        {idx + 1}
-                      </span>
-                      Slide #{idx + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSlide(idx)}
-                      className="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Xóa Slide
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start text-xs">
-                    <div className="md:col-span-4 space-y-2">
-                      <label className="font-semibold text-slate-700 block">Hình Ảnh Slide *</label>
-                      <div className="h-36 bg-slate-800 rounded-xl overflow-hidden relative group">
-                        <img src={slide.image} alt={slide.title?.vi || 'Slide'} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <label className="bg-white/95 text-slate-800 text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer flex items-center gap-1.5 shadow-md hover:bg-white transition-colors">
-                            {uploadingIndex === idx ? (
-                              <><Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" /> Đang tải...</>
-                            ) : (
-                              <><Upload className="w-3.5 h-3.5 text-blue-600" /> Tải Ảnh Lên</>
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              disabled={uploadingIndex !== null}
-                              className="hidden"
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                try {
-                                  setUploadingIndex(idx);
-                                  const formData = new FormData();
-                                  formData.append('image', file);
-                                  const res: any = await api.post('/upload', formData);
-                                  const url = res.url || res.path || res.imageUrl;
-                                  const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
-                                  handleSlideChange(idx, 'image', url.startsWith('http') ? url : `${backendOrigin}${url}`);
-                                } catch (err: any) {
-                                  alert('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
-                                } finally {
-                                  setUploadingIndex(null);
-                                }
-                              }}
-                            />
-                          </label>
-                        </div>
-                      </div>
-                      <input
-                        value={slide.image}
-                        onChange={e => handleSlideChange(idx, 'image', e.target.value)}
-                        placeholder="URL hình ảnh slide..."
-                        className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-[11px]"
-                      />
-                    </div>
-
-                    <div className="md:col-span-8 space-y-3">
-                      <div>
-                        <label className="font-semibold text-slate-700 block mb-1">Tiêu Đề Lớn *</label>
-                        <input
-                          value={slide.title[langTab]}
-                          onChange={e => handleSlideLangChange(idx, 'title', langTab, e.target.value)}
-                          placeholder="Tiêu đề hiển thị lớn trên banner..."
-                          className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-bold focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="font-semibold text-slate-700 block mb-1">Mô Tả Phụ *</label>
-                        <textarea
-                          rows={2}
-                          value={slide.subtitle[langTab]}
-                          onChange={e => handleSlideLangChange(idx, 'subtitle', langTab, e.target.value)}
-                          placeholder="Mô tả ngắn gọn thu hút du khách..."
-                          className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="font-semibold text-slate-700 block mb-1">Tên Nút Bấm (CTA)</label>
-                          <input
-                            value={slide.ctaText[langTab]}
-                            onChange={e => handleSlideLangChange(idx, 'ctaText', langTab, e.target.value)}
-                            placeholder="VD: Khám Phá Tours"
-                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="font-semibold text-slate-700 block mb-1">Đường Dẫn (CTA Link)</label>
-                          <input
-                            value={slide.ctaLink}
-                            onChange={e => handleSlideChange(idx, 'ctaLink', e.target.value)}
-                            placeholder="VD: /tours hoặc /hotels"
-                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tab: Subpage Banners */}
-        {activeTab === 'banners' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">Quản Lý Banner & Video Nền Tất Cả Trang Con</h2>
-              <p className="text-slate-500 text-[11px]">Tùy chỉnh ảnh bìa dự phòng (Poster) và video nền điện ảnh (MP4/WebM) phát tự động cho các trang</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <MediaBannerUploadCard
-                label="1. Trang Tours (/tours)"
-                imageValue={toursBanner}
-                onImageChange={setToursBanner}
-                videoValue={toursVideo}
-                onVideoChange={setToursVideo}
-                imagePlaceholder="URL Poster trang Tours..."
-                videoPlaceholder="URL Video MP4/WebM (VD: mountains.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="2. Trang Khách Sạn (/hotels)"
-                imageValue={hotelsBanner}
-                onImageChange={setHotelsBanner}
-                videoValue={hotelsVideo}
-                onVideoChange={setHotelsVideo}
-                imagePlaceholder="URL Poster trang Khách Sạn..."
-                videoPlaceholder="URL Video MP4/WebM (VD: coastal-beach.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="3. Trang Vé Máy Bay (/flights)"
-                imageValue={flightsBanner}
-                onImageChange={setFlightsBanner}
-                videoValue={flightsVideo}
-                onVideoChange={setFlightsVideo}
-                imagePlaceholder="URL Poster trang Vé Máy Bay..."
-                videoPlaceholder="URL Video MP4/WebM (VD: airplane.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="4. Trang Thủ Tục Visa (/visa)"
-                imageValue={visaBanner}
-                onImageChange={setVisaBanner}
-                videoValue={visaVideo}
-                onVideoChange={setVisaVideo}
-                imagePlaceholder="URL Poster trang Visa..."
-                videoPlaceholder="URL Video MP4/WebM (VD: travel.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="5. Trang Tin Tức & Cẩm Nang (/news)"
-                imageValue={newsBanner}
-                onImageChange={setNewsBanner}
-                videoValue={newsVideo}
-                onVideoChange={setNewsVideo}
-                imagePlaceholder="URL Poster trang Tin Tức..."
-                videoPlaceholder="URL Video MP4/WebM (VD: forest_bike.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="6. Trang Đặc Sản Địa Phương (/specialties)"
-                imageValue={specialtiesBanner}
-                onImageChange={setSpecialtiesBanner}
-                videoValue={specialtiesVideo}
-                onVideoChange={setSpecialtiesVideo}
-                imagePlaceholder="URL Poster trang Đặc Sản..."
-                videoPlaceholder="URL Video MP4/WebM (VD: walking.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="7. Trang Liên Hệ (/contact)"
-                imageValue={contactBanner}
-                onImageChange={setContactBanner}
-                videoValue={contactVideo}
-                onVideoChange={setContactVideo}
-                imagePlaceholder="URL Poster trang Liên Hệ..."
-                videoPlaceholder="URL Video MP4/WebM (VD: travel.mp4)..."
-              />
-              <MediaBannerUploadCard
-                label="8. Trang Tra Cứu Booking (/booking-lookup)"
-                imageValue={lookupBanner}
-                onImageChange={setLookupBanner}
-                videoValue={lookupVideo}
-                onVideoChange={setLookupVideo}
-                imagePlaceholder="URL Poster tra cứu booking..."
-                videoPlaceholder="URL Video MP4/WebM (VD: airplane.mp4)..."
-              />
-            </div>
-          </div>
-        )}
-
         {/* Tab: General */}
         {activeTab === 'general' && (
           <div className="space-y-4 animate-in fade-in duration-200">
@@ -1086,141 +856,6 @@ export default function AdminSettingsPage() {
                 />
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Tab: Static Pages */}
-        {activeTab === 'pages' && (
-          <div className="space-y-6 animate-in fade-in duration-200 text-xs">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">Quản Lý Nội Dung Trang Tĩnh (Visa & About)</h2>
-              <p className="text-slate-500 text-[11px]">Nội dung mô tả dịch vụ Visa và bài giới thiệu công ty</p>
-            </div>
-
-            <div>
-              <label className="font-bold text-slate-800 block mb-1">Nội Dung Trang Dịch Vụ Visa (/visa)</label>
-              <textarea
-                rows={6}
-                value={visaContent}
-                onChange={e => setVisaContent(e.target.value)}
-                placeholder="Nhập nội dung HTML/Văn bản giới thiệu thủ tục Visa..."
-                className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-xs leading-relaxed"
-              />
-            </div>
-
-            <div>
-              <label className="font-bold text-slate-800 block mb-1">Nội Dung Trang Về Chúng Tôi (/about)</label>
-              <textarea
-                rows={6}
-                value={aboutContent}
-                onChange={e => setAboutContent(e.target.value)}
-                placeholder="Nhập nội dung giới thiệu công ty..."
-                className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-xs leading-relaxed"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Tab: Testimonials */}
-        {activeTab === 'testimonials' && (
-          <div className="space-y-4 animate-in fade-in duration-200 text-xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h2 className="text-sm font-bold text-slate-900">Quản Lý Đánh Giá & Phản Hồi Từ Khách Hàng</h2>
-              <button
-                type="button"
-                onClick={() => setReviews([...reviews, { id: Date.now(), name: 'Khách Hàng', role: 'Du khách', content: 'Dịch vụ tuyệt vời!', rating: 5 }])}
-                className="bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1"
-              >
-                <Plus className="w-3.5 h-3.5" /> Thêm Đánh Giá
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              {reviews.map((rev, idx) => (
-                <div key={rev.id || idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700">Đánh Giá #{idx + 1}</span>
-                    <button
-                      type="button"
-                      onClick={() => setReviews(reviews.filter((_, i) => i !== idx))}
-                      className="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" /> Xóa
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Tên khách hàng</label>
-                      <input
-                        value={rev.name}
-                        onChange={e => {
-                          const u = [...reviews];
-                          u[idx].name = e.target.value;
-                          setReviews(u);
-                        }}
-                        className="w-full border border-slate-200 rounded-lg p-2 font-bold text-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Danh hiệu / Vai trò</label>
-                      <input
-                        value={rev.role}
-                        onChange={e => {
-                          const u = [...reviews];
-                          u[idx].role = e.target.value;
-                          setReviews(u);
-                        }}
-                        className="w-full border border-slate-200 rounded-lg p-2 text-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Số sao (1-5)</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={rev.rating}
-                        onChange={e => {
-                          const u = [...reviews];
-                          u[idx].rating = parseInt(e.target.value) || 5;
-                          setReviews(u);
-                        }}
-                        className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Nội dung nhận xét</label>
-                    <textarea
-                      rows={2}
-                      value={rev.content}
-                      onChange={e => {
-                        const u = [...reviews];
-                        u[idx].content = e.target.value;
-                        setReviews(u);
-                      }}
-                      className="w-full border border-slate-200 rounded-lg p-2 text-slate-900"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tab: Home Blocks Master Settings */}
-        {activeTab === 'home_blocks' && (
-          <div className="animate-in fade-in duration-200">
-            <HomeBlocksSettingsTab
-              destinations={destinations}
-              setDestinations={setDestinations}
-              whyChooseUs={whyChooseUs}
-              setWhyChooseUs={setWhyChooseUs}
-              statsCounters={statsCounters}
-              setStatsCounters={setStatsCounters}
-            />
           </div>
         )}
 

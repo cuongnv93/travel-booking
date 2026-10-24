@@ -27,35 +27,43 @@ import {
   Tag,
   PhoneCall,
   Loader2,
+  LayoutTemplate,
+  Palette,
 } from 'lucide-react';
 import { Providers } from '../[locale]/providers';
 
 const NAV_GROUPS = [
   {
-    label: 'Quản lý hệ thống',
+    label: 'Kinh doanh & Đặt chỗ',
     items: [
       { label: 'Tổng quan', href: '/admin', icon: LayoutDashboard },
-      { label: 'Quản lý Tours', href: '/admin/tours', icon: Compass },
-      { label: 'Quản lý Bookings', href: '/admin/bookings', icon: CalendarCheck },
+      { label: 'Đơn Đặt Dịch Vụ', href: '/admin/bookings', icon: CalendarCheck },
       { label: 'Đăng Ký Tư Vấn', href: '/admin/consultations', icon: PhoneCall },
       { label: 'Mã Giảm Giá', href: '/admin/coupons', icon: Tag },
     ]
   },
   {
-    label: 'Nội dung',
+    label: 'Sản phẩm & Dịch vụ',
     items: [
-      { label: 'Trang Tĩnh (Pages)', href: '/admin/pages', icon: FileText },
-      { label: 'Tin Tức & Bài Viết', href: '/admin/news', icon: Newspaper },
-      { label: 'Khách Sạn', href: '/admin/hotels', icon: Building2 },
+      { label: 'Quản lý Tours', href: '/admin/tours', icon: Compass },
+      { label: 'Khách Sạn & Resort', href: '/admin/hotels', icon: Building2 },
       { label: 'Vé Máy Bay', href: '/admin/flights', icon: Plane },
-      { label: 'Đặc Sản', href: '/admin/specialties', icon: Utensils },
+      { label: 'Đặc Sản Địa Phương', href: '/admin/specialties', icon: Utensils },
     ]
   },
   {
-    label: 'Hệ thống',
+    label: 'Giao diện & Nội dung',
     items: [
-      { label: 'Tài khoản Users', href: '/admin/users', icon: Users },
-      { label: 'Cài Đặt', href: '/admin/settings', icon: Settings },
+      { label: 'Giao Diện & Trang Chủ', href: '/admin/appearance', icon: LayoutTemplate },
+      { label: 'Trang Tĩnh (Pages)', href: '/admin/pages', icon: FileText },
+      { label: 'Tin Tức & Bài Viết', href: '/admin/news', icon: Newspaper },
+    ]
+  },
+  {
+    label: 'Cấu hình hệ thống',
+    items: [
+      { label: 'Cài Đặt Hệ Thống', href: '/admin/settings', icon: Settings },
+      { label: 'Tài Khoản Users', href: '/admin/users', icon: Users },
     ]
   }
 ];
