@@ -1,23 +1,63 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
-import { Plus, X, Search, Upload, Loader2, Building2, Star, MapPin, Trash2 } from 'lucide-react';
+import {
+  Plus,
+  X,
+  Search,
+  Upload,
+  Loader2,
+  Building2,
+  Star,
+  MapPin,
+  Trash2,
+  DollarSign,
+  Sparkles,
+  BedDouble,
+  ShieldCheck,
+  Check,
+  Navigation
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
+import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
 
 const fetchAdminHotels = async () => {
   const res: any = await api.get('/hotels?all=true');
   return Array.isArray(res) ? res : (res?.data || []);
 };
 
-const AMENITY_OPTIONS = ['WiFi miễn phí', 'Hồ bơi', 'Buffet sáng', 'Spa & Massage', 'Phòng gym', 'Bar', 'Nhà hàng', 'Bãi biển riêng', 'Đưa đón sân bay', 'Kids club', 'Yoga', 'Tắm ngâm thảo mộc', 'Lò sưởi', 'Hồ bơi trong nhà', 'Lễ tân 24h'];
+const AMENITY_OPTIONS = [
+  'WiFi miễn phí',
+  'Hồ bơi ngoài trời',
+  'Hồ bơi trong nhà',
+  'Buffet sáng',
+  'Spa & Massage',
+  'Phòng gym',
+  'Bar / Lounge',
+  'Nhà hàng',
+  'Bãi biển riêng',
+  'Đưa đón sân bay',
+  'Kids club',
+  'Yoga & Thiền',
+  'Tắm ngâm thảo mộc',
+  'Lò sưởi',
+  'Lễ tân 24h',
+  'Chỗ đậu xe miễn phí'
+];
 
 const toSlug = (text: string) =>
-  text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[đĐ]/g, 'd').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 
 interface HotelTableRowProps {
   hotel: any;
@@ -50,25 +90,30 @@ const HotelTableRow = memo(function HotelTableRow({ hotel, onEdit, onDelete }: H
       </td>
       <td className="px-6 py-3.5">
         <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md">
-          <MapPin className="w-3 h-3" />{hotel.location}
+          <MapPin className="w-3 h-3 text-slate-500" />
+          {hotel.location}
         </span>
       </td>
       <td className="px-6 py-3.5">
-        <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold text-xs">
-          <Star className="w-3.5 h-3.5 fill-amber-400" />{hotel.stars} Sao
+        <span className="inline-flex items-center gap-0.5 text-amber-500 font-bold text-xs bg-amber-50 border border-amber-200/70 px-2 py-0.5 rounded-md">
+          <Star className="w-3.5 h-3.5 fill-amber-400" />
+          {hotel.stars} Sao
         </span>
       </td>
-      <td className="px-6 py-3.5 font-bold text-slate-900">{formatPrice(hotel.pricePerNight)}<span className="text-[11px] font-normal text-slate-400">/đêm</span></td>
+      <td className="px-6 py-3.5 font-bold text-slate-900">
+        {formatPrice(hotel.pricePerNight)}
+        <span className="text-[11px] font-normal text-slate-400">/đêm</span>
+      </td>
       <td className="px-6 py-3.5 text-right space-x-1.5">
         <button
           onClick={() => onEdit(hotel)}
-          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs"
+          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
         >
           Sửa
         </button>
         <button
           onClick={() => onDelete(hotel._id)}
-          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs"
+          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs cursor-pointer"
         >
           Xóa
         </button>
@@ -77,13 +122,24 @@ const HotelTableRow = memo(function HotelTableRow({ hotel, onEdit, onDelete }: H
   );
 });
 
+const HOTEL_STEPS: AdminStepItem[] = [
+  { id: 'basic', label: 'Thông Tin Chung & Đa Ngữ', icon: Building2 },
+  { id: 'pricing', label: 'Giá & Flash Sale', icon: DollarSign },
+  { id: 'media_amenities', label: 'Hình Ảnh & Tiện Ích', icon: Sparkles },
+  { id: 'location_policies', label: 'Vị Trí & Chính Sách', icon: MapPin },
+  { id: 'rooms', label: 'Cấu Hình Hạng Phòng', icon: BedDouble },
+];
+
 export default function AdminHotelsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<any>(null);
+  const [activeStep, setActiveStep] = useState<string>('basic');
+  const [isDirty, setIsDirty] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Form State
   const [activeLang, setActiveLang] = useState<string>('vi');
   const [name, setName] = useState<Record<string, string>>(createEmptyI18nRecord());
   const [description, setDescription] = useState<Record<string, string>>(createEmptyI18nRecord());
@@ -94,14 +150,15 @@ export default function AdminHotelsPage() {
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [amenities, setAmenities] = useState<string[]>([]);
-  
-  // New State fields
+
+  // Location & Policies
   const [policiesStr, setPoliciesStr] = useState('');
   const [lat, setLat] = useState<number | ''>('');
   const [lng, setLng] = useState<number | ''>('');
-  const [nearbyPlaces, setNearbyPlaces] = useState<{name: string, distance: string}[]>([]);
+  const [nearbyPlaces, setNearbyPlaces] = useState<{ name: string; distance: string }[]>([]);
   const [rooms, setRooms] = useState<any[]>([]);
 
+  // Flash Sale
   const [isFlashSale, setIsFlashSale] = useState(false);
   const [flashSalePrice, setFlashSalePrice] = useState(700000);
   const [flashSaleEnd, setFlashSaleEnd] = useState('');
@@ -112,6 +169,10 @@ export default function AdminHotelsPage() {
     placeholderData: keepPreviousData,
   });
 
+  const markDirty = useCallback(() => {
+    setIsDirty(true);
+  }, []);
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -121,7 +182,10 @@ export default function AdminHotelsPage() {
         const formData = new FormData();
         formData.append('image', files[i]);
         const res: any = await api.post('/upload', formData);
-        if (res?.url) setImages(prev => [...prev, res.url]);
+        if (res?.url) {
+          setImages((prev) => [...prev, res.url]);
+          markDirty();
+        }
       }
     } catch (err: any) {
       alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
@@ -131,25 +195,45 @@ export default function AdminHotelsPage() {
     }
   };
 
+  const handleAddUrlImage = () => {
+    if (!urlInput.trim()) return;
+    setImages((prev) => [...prev, urlInput.trim()]);
+    setUrlInput('');
+    markDirty();
+  };
+
+  const handleRemoveImage = (idx: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== idx));
+    markDirty();
+  };
+
   const toggleAmenity = (item: string) => {
-    setAmenities(prev => prev.includes(item) ? prev.filter(a => a !== item) : [...prev, item]);
+    setAmenities((prev) =>
+      prev.includes(item) ? prev.filter((a) => a !== item) : [...prev, item]
+    );
+    markDirty();
   };
 
   const addRoom = () => {
-    setRooms([...rooms, {
-      name: 'Phòng mới',
-      description: '',
-      price: 1000000,
-      size: 30,
-      bedType: '1 Giường đôi',
-      capacity: { adults: 2, children: 1 },
-      amenities: [],
-      images: []
-    }]);
+    setRooms([
+      ...rooms,
+      {
+        name: 'Phòng mới',
+        description: '',
+        price: 1000000,
+        size: 30,
+        bedType: '1 Giường đôi',
+        capacity: { adults: 2, children: 1 },
+        amenities: [],
+        images: []
+      }
+    ]);
+    markDirty();
   };
 
   const removeRoom = (idx: number) => {
     setRooms(rooms.filter((_, i) => i !== idx));
+    markDirty();
   };
 
   const updateRoom = (idx: number, field: string, value: any) => {
@@ -161,6 +245,7 @@ export default function AdminHotelsPage() {
       newRooms[idx][field] = value;
     }
     setRooms(newRooms);
+    markDirty();
   };
 
   const saveMutation = useMutation({
@@ -173,6 +258,7 @@ export default function AdminHotelsPage() {
       queryClient.invalidateQueries({ queryKey: ['hotels'] });
       queryClient.invalidateQueries({ queryKey: ['featured-hotels'] });
       queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
+      setIsDirty(false);
       setIsModalOpen(false);
     },
     onError: (err: any) => alert('Lỗi lưu khách sạn: ' + (err.response?.data?.message || err.message)),
@@ -193,24 +279,41 @@ export default function AdminHotelsPage() {
     if (activeLang === 'vi') return;
     setName((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
     setDescription((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
-  }, [activeLang]);
+    markDirty();
+  }, [activeLang, markDirty]);
 
   const resetForm = () => {
     setEditingHotel(null);
+    setActiveStep('basic');
     setActiveLang('vi');
     setName(createEmptyI18nRecord());
     setDescription(createEmptyI18nRecord());
-    setImages([]); setUrlInput('');
-    setPricePerNight(1000000); setStars(4); setLocation(''); setAddress(''); setAmenities([]);
-    setPoliciesStr(''); setLat(''); setLng(''); setNearbyPlaces([]); setRooms([]);
-    setIsFlashSale(false); setFlashSalePrice(700000);
+    setImages([]);
+    setUrlInput('');
+    setPricePerNight(1000000);
+    setStars(4);
+    setLocation('');
+    setAddress('');
+    setAmenities([]);
+    setPoliciesStr('');
+    setLat('');
+    setLng('');
+    setNearbyPlaces([]);
+    setRooms([]);
+    setIsFlashSale(false);
+    setFlashSalePrice(700000);
     setFlashSaleEnd(new Date(Date.now() + 86400000).toISOString().slice(0, 16));
+    setIsDirty(false);
   };
 
-  const openCreateModal = () => { resetForm(); setIsModalOpen(true); };
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
 
   const openEditModal = (hotel: any) => {
     setEditingHotel(hotel);
+    setActiveStep('basic');
     setActiveLang('vi');
     setName(toI18nRecord(hotel.name));
     setDescription(toI18nRecord(hotel.description));
@@ -229,12 +332,40 @@ export default function AdminHotelsPage() {
     setIsFlashSale(hotel.isFlashSale || false);
     setFlashSalePrice(hotel.flashSalePrice || Math.round((hotel.pricePerNight || 1000000) * 0.7));
     setFlashSaleEnd(hotel.flashSaleEnd ? new Date(hotel.flashSaleEnd).toISOString().slice(0, 16) : '');
+    setIsDirty(false);
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    // Validation
+    if (!name.vi || !name.vi.trim()) {
+      setActiveStep('basic');
+      alert('Vui lòng nhập Tên Khách Sạn (Tiếng Việt) ở bước Thông Tin Chung!');
+      return;
+    }
+
+    if (!location || !location.trim()) {
+      setActiveStep('basic');
+      alert('Vui lòng nhập Địa điểm / Thành phố ở bước Thông Tin Chung!');
+      return;
+    }
+
+    if (pricePerNight <= 0) {
+      setActiveStep('pricing');
+      alert('Giá phòng cơ bản phải lớn hơn 0 VNĐ!');
+      return;
+    }
+
+    if (isFlashSale && (!flashSalePrice || flashSalePrice >= pricePerNight)) {
+      setActiveStep('pricing');
+      alert('Giá Flash Sale phải nhỏ hơn giá cơ bản / đêm!');
+      return;
+    }
+
     const slug = editingHotel?.slug || toSlug(name.vi || 'khach-san-' + Date.now());
+
     saveMutation.mutate({
       slug,
       name: sanitizeI18nRecord(name),
@@ -242,10 +373,10 @@ export default function AdminHotelsPage() {
       images: images.length > 0 ? images : ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800'],
       pricePerNight: Number(pricePerNight),
       stars: Number(stars),
-      location,
-      address,
+      location: location.trim(),
+      address: address.trim(),
       amenities,
-      policies: policiesStr.split('\n').map(p => p.trim()).filter(p => p !== ''),
+      policies: policiesStr.split('\n').map((p) => p.trim()).filter((p) => p !== ''),
       locationDetails: {
         lat: lat ? Number(lat) : undefined,
         lng: lng ? Number(lng) : undefined,
@@ -259,7 +390,7 @@ export default function AdminHotelsPage() {
   };
 
   const handleDelete = useCallback((id: string) => {
-    if (confirm('Xóa khách sạn này?')) {
+    if (confirm('Xóa khách sạn này khỏi hệ thống?')) {
       deleteMutation.mutate(id);
     }
   }, [deleteMutation]);
@@ -267,33 +398,53 @@ export default function AdminHotelsPage() {
   const filtered = useMemo(() => {
     const s = search.toLowerCase().trim();
     return hotels.filter((h: any) => {
-      const name = getI18nText(h.name, 'vi') || (typeof h.name === 'string' ? h.name : '');
-      return !s || name.toLowerCase().includes(s) || (h.location || '').toLowerCase().includes(s);
+      const hotelName = getI18nText(h.name, 'vi') || (typeof h.name === 'string' ? h.name : '');
+      return !s || hotelName.toLowerCase().includes(s) || (h.location || '').toLowerCase().includes(s);
     });
   }, [hotels, search]);
+
+  const stepsWithCounts = useMemo(() => {
+    return HOTEL_STEPS.map((step) => {
+      if (step.id === 'media_amenities') return { ...step, badgeCount: images.length };
+      if (step.id === 'location_policies') return { ...step, badgeCount: nearbyPlaces.length };
+      if (step.id === 'rooms') return { ...step, badgeCount: rooms.length };
+      return step;
+    });
+  }, [images.length, nearbyPlaces.length, rooms.length]);
 
   if (isLoading) return <AdminTableSkeleton cols={5} rows={7} />;
 
   return (
     <div className="space-y-6">
+      {/* Header Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Quản Lý Khách Sạn & Resort</h1>
-          <p className="text-xs text-slate-500 mt-1">Danh sách chỗ nghỉ trên hệ thống</p>
+          <p className="text-xs text-slate-500 mt-1">Danh sách chỗ nghỉ, tiện ích, vị trí và cấu hình các loại phòng</p>
         </div>
-        <button onClick={openCreateModal} className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors">
-          <Plus className="w-4 h-4" /> Thêm Khách Sạn
+        <button
+          onClick={openCreateModal}
+          className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
+        >
+          <Plus className="w-4 h-4" /> Thêm Khách Sạn Mới
         </button>
       </div>
 
+      {/* Search Input */}
       <div className="bg-white border border-slate-200/80 p-3 rounded-xl shadow-sm">
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input type="text" placeholder="Tìm khách sạn theo tên hoặc địa điểm..." value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all" />
+          <input
+            type="text"
+            placeholder="Tìm khách sạn theo tên hoặc địa điểm..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+          />
         </div>
       </div>
 
+      {/* Hotels Table */}
       <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -308,9 +459,12 @@ export default function AdminHotelsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                  <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />Chưa có khách sạn nào.
-                </td></tr>
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
+                    <Building2 className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    Chưa có khách sạn nào được tìm thấy.
+                  </td>
+                </tr>
               ) : (
                 filtered.map((hotel: any) => (
                   <HotelTableRow
@@ -326,325 +480,608 @@ export default function AdminHotelsPage() {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 w-full max-w-4xl rounded-2xl flex flex-col shadow-2xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-100 p-6 shrink-0 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2"><Building2 className="w-5 h-5" /> {editingHotel ? 'Chỉnh Sửa Khách Sạn' : 'Thêm Khách Sạn Mới'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X className="w-6 h-6" /></button>
-            </div>
+      {/* Modern Stepper Modal for Hotel */}
+      <AdminStepperModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingHotel ? 'Chỉnh Sửa Khách Sạn' : 'Thêm Khách Sạn Mới'}
+        subtitle={editingHotel ? `Đang chỉnh sửa: ${editingHotel.slug}` : 'Nhập thông tin chỗ nghỉ qua 5 bước bên dưới'}
+        badge={{
+          text: editingHotel ? 'Chỉnh sửa' : 'Thêm mới',
+          variant: editingHotel ? 'amber' : 'blue',
+        }}
+        steps={stepsWithCounts}
+        activeStep={activeStep}
+        onStepChange={setActiveStep}
+        isDirty={isDirty}
+        isSubmitting={saveMutation.isPending || isUploading}
+        submitLabel={editingHotel ? 'Cập Nhật Khách Sạn' : 'Lưu & Xuất Bản Khách Sạn'}
+        onSave={handleSave}
+        maxWidth="max-w-4xl"
+      >
+        <div className="space-y-6 text-xs">
+          {/* STEP 1: Basic Info & Multilingual */}
+          {activeStep === 'basic' && (
+            <div className="space-y-5 animate-in fade-in duration-150">
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-blue-600" /> 1. Thông Tin Cơ Bản & Đa Ngôn Ngữ
+                </h3>
+                <p className="text-slate-500 text-xs mt-0.5">Tên cơ sở lưu trú, hạng sao, thành phố và địa chỉ chi tiết</p>
+              </div>
 
-            <div className="overflow-y-auto p-6 flex-1 bg-white">
-              <form id="hotel-form" onSubmit={handleSave} className="space-y-8 text-sm">
-                
-                {/* Thông tin cơ bản & Đa ngôn ngữ */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <h3 className="font-bold text-slate-800">Thông tin cơ bản & Đa ngôn ngữ</h3>
-                  </div>
+              <AdminI18nTabs
+                activeLang={activeLang}
+                onChange={setActiveLang}
+                onCopyFromVi={handleCopyFromVi}
+                hasContent={{
+                  vi: !!name.vi,
+                  en: !!name.en,
+                  zh: !!name.zh,
+                  ko: !!name.ko,
+                  ja: !!name.ja,
+                }}
+                label="Chọn ngôn ngữ nhập liệu cho Tên & Mô tả Khách sạn:"
+              />
 
-                  <AdminI18nTabs
-                    activeLang={activeLang}
-                    onChange={setActiveLang}
-                    onCopyFromVi={handleCopyFromVi}
-                    hasContent={{
-                      vi: !!name.vi,
-                      en: !!name.en,
-                      zh: !!name.zh,
-                      ko: !!name.ko,
-                      ja: !!name.ja,
+              {activeLang !== 'vi' && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-xs flex items-center justify-between">
+                  <span>
+                    Đang chỉnh sửa bản dịch <strong>{ADMIN_SUPPORTED_LANGUAGES.find((l) => l.code === activeLang)?.label}</strong>. Nếu để trống, hệ thống sẽ tự động hiển thị bản dịch Tiếng Anh hoặc Tiếng Việt.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyFromVi}
+                    className="ml-3 shrink-0 px-2.5 py-1 bg-white border border-blue-300 rounded-lg text-blue-700 font-bold hover:bg-blue-100 transition-colors cursor-pointer"
+                  >
+                    Sao chép từ TV
+                  </button>
+                </div>
+              )}
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                  Tên Khách Sạn ({activeLang.toUpperCase()}) {activeLang === 'vi' && <span className="text-red-500">*</span>}
+                </label>
+                <input
+                  type="text"
+                  value={name[activeLang] || ''}
+                  onChange={(e) => {
+                    setName((prev) => ({ ...prev, [activeLang]: e.target.value }));
+                    markDirty();
+                  }}
+                  placeholder={activeLang === 'vi' ? 'VD: Sheraton Grand Đà Nẵng Resort...' : `Tên khách sạn bằng tiếng ${activeLang.toUpperCase()}...`}
+                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1 text-xs">
+                  Mô tả Khách Sạn ({activeLang.toUpperCase()})
+                </label>
+                <textarea
+                  rows={4}
+                  value={description[activeLang] || ''}
+                  onChange={(e) => {
+                    setDescription((prev) => ({ ...prev, [activeLang]: e.target.value }));
+                    markDirty();
+                  }}
+                  placeholder="Mô tả phong cách, không gian nghỉ dưỡng và dịch vụ nổi bật..."
+                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Hạng sao *</label>
+                  <select
+                    value={stars}
+                    onChange={(e) => {
+                      setStars(Number(e.target.value));
+                      markDirty();
                     }}
-                    label="Chọn ngôn ngữ nhập liệu cho Tên & Mô tả Khách sạn:"
-                  />
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white cursor-pointer font-bold"
+                  >
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <option key={s} value={s}>
+                        {s} Sao {s >= 4 ? '★★★★' : '★★★'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                  {activeLang !== 'vi' && (
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-xs flex items-center justify-between">
-                      <span>
-                        Đang chỉnh sửa bản dịch <strong>{ADMIN_SUPPORTED_LANGUAGES.find(l => l.code === activeLang)?.label}</strong>. Nếu để trống, hệ thống sẽ tự động hiển thị bản dịch Tiếng Anh hoặc Tiếng Việt.
-                      </span>
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Địa điểm / Thành phố *</label>
+                  <div className="relative">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      value={location}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        markDirty();
+                      }}
+                      placeholder="VD: Đà Nẵng, Phú Quốc, Nha Trang..."
+                      className="w-full border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 text-slate-900 font-semibold focus:outline-none focus:border-blue-500 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Địa chỉ cụ thể</label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      markDirty();
+                    }}
+                    placeholder="VD: 35 Trường Sa, Ngũ Hành Sơn..."
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: Pricing & Flash Sale */}
+          {activeStep === 'pricing' && (
+            <div className="space-y-5 animate-in fade-in duration-150">
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-emerald-600" /> 2. Giá Phòng & Flash Sale
+                </h3>
+                <p className="text-slate-500 text-xs mt-0.5">Thiết lập giá khởi điểm mỗi đêm và chương trình ưu đãi giờ vàng</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
+                <label className="font-bold text-slate-800 block text-xs">Giá/đêm cơ bản (VNĐ) *</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={pricePerNight}
+                  onChange={(e) => {
+                    setPricePerNight(Number(e.target.value));
+                    markDirty();
+                  }}
+                  className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 font-extrabold text-sm focus:outline-none focus:border-blue-500 bg-white"
+                />
+                <p className="text-[11px] text-slate-500">Giá hiển thị: {formatPrice(pricePerNight)} / đêm</p>
+              </div>
+
+              {/* Flash Sale Controls */}
+              <div className="bg-rose-50/80 border border-rose-200 rounded-xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-rose-900 text-sm flex items-center gap-1.5">
+                      🔥 Cấu Hình Flash Sale Khách Sạn Giờ Vàng
+                    </span>
+                    <p className="text-[11px] text-rose-700">Hiển thị giá sốc có đồng hồ đếm ngược trên trang chủ và trang khách sạn</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isFlashSale}
+                      onChange={(e) => {
+                        setIsFlashSale(e.target.checked);
+                        markDirty();
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
+                  </label>
+                </div>
+
+                {isFlashSale && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-rose-200/60">
+                    <div>
+                      <label className="font-bold text-slate-800 block mb-1 text-xs">Giá Flash Sale (VNĐ) *</label>
+                      <input
+                        type="number"
+                        value={flashSalePrice}
+                        onChange={(e) => {
+                          setFlashSalePrice(Number(e.target.value));
+                          markDirty();
+                        }}
+                        className="w-full border border-rose-300 rounded-lg p-2.5 text-rose-600 font-extrabold text-sm focus:outline-none focus:border-rose-500 bg-white"
+                      />
+                      <p className="text-[11px] text-rose-600 mt-1 font-medium">
+                        Giảm: {formatPrice(pricePerNight - flashSalePrice)} ({Math.round(((pricePerNight - flashSalePrice) / pricePerNight) * 100)}%)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-800 block mb-1 text-xs">Thời Gian Kết Thúc Sale *</label>
+                      <input
+                        type="datetime-local"
+                        value={flashSaleEnd}
+                        onChange={(e) => {
+                          setFlashSaleEnd(e.target.value);
+                          markDirty();
+                        }}
+                        className="w-full border border-rose-300 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-rose-500 bg-white font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Images & Amenities */}
+          {activeStep === 'media_amenities' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" /> 3. Bộ Sưu Tập Ảnh & Tiện Ích
+                </h3>
+                <p className="text-slate-500 text-xs mt-0.5">Hình ảnh khuôn viên khách sạn và checklist tiện ích phục vụ khách</p>
+              </div>
+
+              {/* Photos Management */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-800">Hình ảnh Khách sạn ({images.length} ảnh đã tải)</label>
+                  <span className="text-[11px] text-slate-400">Ảnh đầu tiên làm ảnh đại diện</span>
+                </div>
+
+                <div className="border-2 border-dashed border-slate-200 hover:border-blue-500 rounded-xl p-4 transition-colors bg-slate-50/50 flex flex-col items-center justify-center text-center">
+                  <label className="cursor-pointer w-full flex flex-col items-center py-2">
+                    {isUploading ? (
+                      <div className="flex flex-col items-center gap-2 text-blue-600">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        <span className="text-xs font-medium">Đang tải ảnh lên máy chủ...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-1.5">
+                          <Upload className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs font-semibold text-slate-800">Tải ảnh từ máy tính (Có thể chọn nhiều tệp cùng lúc)</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Hỗ trợ JPG, PNG, WEBP</p>
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
+                      </>
+                    )}
+                  </label>
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddUrlImage();
+                      }
+                    }}
+                    placeholder="Dán URL hình ảnh trực tiếp (https://...)"
+                    className="flex-1 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddUrlImage}
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-semibold text-xs transition-colors shrink-0 cursor-pointer"
+                  >
+                    Thêm URL
+                  </button>
+                </div>
+
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 pt-2">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative group w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs">
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        {idx === 0 && (
+                          <span className="absolute top-1 left-1 bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-xs">
+                            Ảnh bìa
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
+                          title="Xóa ảnh"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Amenities Checklist */}
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-800">Tiện nghi nổi bật ({amenities.length} tiện ích đã chọn)</label>
+                  <span className="text-[11px] text-slate-400">Click để bật / tắt tiện nghi</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {AMENITY_OPTIONS.map((item) => {
+                    const isSelected = amenities.includes(item);
+                    return (
                       <button
                         type="button"
-                        onClick={handleCopyFromVi}
-                        className="ml-3 shrink-0 px-2.5 py-1 bg-white border border-blue-300 rounded-lg text-blue-700 font-bold hover:bg-blue-100 transition-colors cursor-pointer"
+                        key={item}
+                        onClick={() => toggleAmenity(item)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400'
+                        }`}
                       >
-                        Sao chép từ TV
+                        {isSelected && <Check className="w-3.5 h-3.5" />}
+                        {item}
                       </button>
-                    </div>
-                  )}
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
-                      Tên Khách Sạn ({activeLang.toUpperCase()}) {activeLang === 'vi' && '*'}
-                    </label>
-                    <input
-                      required={activeLang === 'vi'}
-                      value={name[activeLang] || ''}
-                      onChange={(e) => setName((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                      placeholder={activeLang === 'vi' ? 'VD: Resort Đà Nẵng 5 Sao' : `Tên khách sạn bằng tiếng ${activeLang.toUpperCase()}...`}
-                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 font-semibold"
-                    />
+          {/* STEP 4: Location Details & Policies */}
+          {activeStep === 'location_policies' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-rose-500" /> 4. Tọa Độ Bản Đồ & Chính Sách
+                </h3>
+                <p className="text-slate-500 text-xs mt-0.5">Tọa độ định vị GPS, các địa điểm nổi tiếng lân cận và quy định lưu trú</p>
+              </div>
+
+              {/* Lat & Lng */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 border border-slate-200/80 rounded-xl">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Vĩ độ GPS (Latitude)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={lat}
+                    onChange={(e) => {
+                      setLat(e.target.value ? Number(e.target.value) : '');
+                      markDirty();
+                    }}
+                    placeholder="VD: 16.0544"
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Kinh độ GPS (Longitude)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={lng}
+                    onChange={(e) => {
+                      setLng(e.target.value ? Number(e.target.value) : '');
+                      markDirty();
+                    }}
+                    placeholder="VD: 108.2022"
+                    className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Nearby Places */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <Navigation className="w-4 h-4 text-blue-600" /> Địa điểm lân cận nổi tiếng ({nearbyPlaces.length})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNearbyPlaces([...nearbyPlaces, { name: '', distance: '' }]);
+                      markDirty();
+                    }}
+                    className="text-blue-600 hover:text-blue-700 text-xs font-semibold flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" /> Thêm địa điểm
+                  </button>
+                </div>
+
+                {nearbyPlaces.length === 0 ? (
+                  <div className="p-4 border border-dashed rounded-xl bg-slate-50 text-center text-slate-400">
+                    Chưa có địa điểm lân cận nào. Nhấn &ldquo;+ Thêm địa điểm&rdquo; để gợi ý các điểm tham quan gần khách sạn.
                   </div>
-
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1 text-xs">
-                      Mô tả Khách Sạn ({activeLang.toUpperCase()})
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={description[activeLang] || ''}
-                      onChange={(e) => setDescription((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                      placeholder="Mô tả khách sạn..."
-                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Giá/đêm cơ bản (VNĐ) *</label>
-                      <input type="number" required min={0} value={pricePerNight} onChange={e => setPricePerNight(Number(e.target.value))}
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Hạng sao *</label>
-                      <select value={stars} onChange={e => setStars(Number(e.target.value))}
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 bg-white">
-                        {[1,2,3,4,5].map(s => <option key={s} value={s}>{s} Sao</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="font-semibold text-slate-700 block mb-1">Địa điểm / Thành phố *</label>
-                      <input required value={location} onChange={e => setLocation(e.target.value)} placeholder="VD: Đà Nẵng"
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
-                  </div>
-
-                  {/* Flash Sale Controls */}
-                  <div className="bg-rose-50/80 border border-rose-200 rounded-xl p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-rose-900 text-xs flex items-center gap-1.5">
-                        🔥 Cấu Hình Flash Sale Khách Sạn Giờ Vàng
-                      </span>
-                      <label className="relative inline-flex items-center cursor-pointer">
+                ) : (
+                  <div className="space-y-2">
+                    {nearbyPlaces.map((place, idx) => (
+                      <div key={idx} className="flex items-center gap-2.5 p-2 bg-slate-50 border border-slate-200/80 rounded-xl">
                         <input
-                          type="checkbox"
-                          checked={isFlashSale}
-                          onChange={(e) => setIsFlashSale(e.target.checked)}
-                          className="sr-only peer"
+                          value={place.name}
+                          onChange={(e) => {
+                            const newPlaces = [...nearbyPlaces];
+                            newPlaces[idx].name = e.target.value;
+                            setNearbyPlaces(newPlaces);
+                            markDirty();
+                          }}
+                          placeholder="Tên địa điểm (VD: Bãi biển Mỹ Khê, Cầu Rồng...)"
+                          className="flex-1 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 bg-white focus:outline-none focus:border-blue-500"
                         />
-                        <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600"></div>
-                      </label>
-                    </div>
+                        <input
+                          value={place.distance}
+                          onChange={(e) => {
+                            const newPlaces = [...nearbyPlaces];
+                            newPlaces[idx].distance = e.target.value;
+                            setNearbyPlaces(newPlaces);
+                            markDirty();
+                          }}
+                          placeholder="Khoảng cách (VD: 500m, 2.5 km)"
+                          className="w-36 border border-slate-200 rounded-lg p-2 text-xs text-slate-900 bg-white focus:outline-none focus:border-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNearbyPlaces(nearbyPlaces.filter((_, i) => i !== idx));
+                            markDirty();
+                          }}
+                          className="text-slate-400 hover:text-red-600 p-1.5 transition-colors cursor-pointer"
+                          title="Xóa địa điểm"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-                    {isFlashSale && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                        <div>
-                          <label className="font-semibold text-slate-700 block mb-1 text-xs">Giá Flash Sale (VNĐ) *</label>
+              {/* Policies */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" /> Quy định & Chính sách lưu trú
+                </label>
+                <p className="text-[11px] text-slate-500">Mỗi dòng là một quy định (VD: Giờ nhận phòng, Giờ trả phòng, Phí trẻ em, Đặt cọc...)</p>
+                <textarea
+                  rows={4}
+                  value={policiesStr}
+                  onChange={(e) => {
+                    setPoliciesStr(e.target.value);
+                    markDirty();
+                  }}
+                  placeholder={'Nhận phòng: Từ 14:00\nTrả phòng: Trước 12:00\nKhông hút thuốc trong phòng\nCho phép mang thú cưng (có phụ phí)'}
+                  className="w-full border border-slate-200 rounded-lg p-3 text-slate-900 focus:outline-none focus:border-blue-500 bg-white font-mono text-xs"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* STEP 5: Room Types Configuration */}
+          {activeStep === 'rooms' && (
+            <div className="space-y-5 animate-in fade-in duration-150">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <BedDouble className="w-4 h-4 text-blue-600" /> 5. Cấu Hình Hạng Phòng ({rooms.length} phòng)
+                  </h3>
+                  <p className="text-slate-500 text-xs mt-0.5">Các loại phòng có sẵn (Standard, Deluxe, Suite...), diện tích và sức chứa</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addRoom}
+                  className="text-blue-700 bg-blue-50 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-colors self-start sm:self-auto cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Thêm Hạng Phòng Mới
+                </button>
+              </div>
+
+              {rooms.length === 0 ? (
+                <div className="p-8 border border-dashed rounded-xl bg-slate-50 text-center space-y-2">
+                  <BedDouble className="w-8 h-8 mx-auto text-slate-300" />
+                  <p className="text-slate-500 font-medium">Chưa có hạng phòng nào được cấu hình.</p>
+                  <button
+                    type="button"
+                    onClick={addRoom}
+                    className="text-blue-600 font-bold hover:underline"
+                  >
+                    Bấm vào đây để tạo hạng phòng đầu tiên
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {rooms.map((room, idx) => (
+                    <div key={idx} className="border border-slate-200/90 rounded-2xl p-4 bg-slate-50/70 relative space-y-3 shadow-2xs">
+                      <div className="flex justify-between items-center border-b border-slate-200/60 pb-2">
+                        <span className="font-bold text-slate-800 text-xs flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px]">
+                            {idx + 1}
+                          </span>
+                          {room.name || 'Phòng chưa đặt tên'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeRoom(idx)}
+                          className="text-slate-400 hover:text-red-600 text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Xóa phòng
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                        <div className="sm:col-span-4">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Tên phòng *</label>
+                          <input
+                            type="text"
+                            value={room.name}
+                            onChange={(e) => updateRoom(idx, 'name', e.target.value)}
+                            placeholder="VD: Deluxe Hướng Biển"
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 font-bold text-xs"
+                          />
+                        </div>
+                        <div className="sm:col-span-3">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Giá/đêm (VNĐ) *</label>
                           <input
                             type="number"
-                            value={flashSalePrice}
-                            onChange={(e) => setFlashSalePrice(Number(e.target.value))}
-                            className="w-full border border-rose-300 rounded-lg p-2 text-rose-600 font-extrabold focus:outline-none focus:border-rose-500 bg-white text-xs"
+                            value={room.price}
+                            onChange={(e) => updateRoom(idx, 'price', Number(e.target.value))}
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 font-bold text-xs"
                           />
                         </div>
-                        <div>
-                          <label className="font-semibold text-slate-700 block mb-1 text-xs">Thời Gian Kết Thúc Sale *</label>
+                        <div className="sm:col-span-2">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Diện tích (m²) *</label>
                           <input
-                            type="datetime-local"
-                            value={flashSaleEnd}
-                            onChange={(e) => setFlashSaleEnd(e.target.value)}
-                            className="w-full border border-rose-300 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-rose-500 bg-white text-xs font-mono"
+                            type="number"
+                            value={room.size}
+                            onChange={(e) => updateRoom(idx, 'size', Number(e.target.value))}
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 text-xs"
+                          />
+                        </div>
+                        <div className="sm:col-span-3">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Loại giường *</label>
+                          <input
+                            type="text"
+                            value={room.bedType}
+                            onChange={(e) => updateRoom(idx, 'bedType', e.target.value)}
+                            placeholder="1 Giường King hoặc 2 Đơn"
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 text-xs"
                           />
                         </div>
                       </div>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-8">
-                      <label className="font-semibold text-slate-700 block mb-1">Địa chỉ đầy đủ</label>
-                      <input value={address} onChange={e => setAddress(e.target.value)} placeholder="VD: 168 Võ Nguyên Giáp, Mỹ Khê, Đà Nẵng"
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="font-semibold text-slate-700 block mb-1">Vĩ độ (Lat)</label>
-                      <input type="number" step="any" value={lat} onChange={e => setLat(e.target.value ? Number(e.target.value) : '')} placeholder="VD: 21.0362"
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="font-semibold text-slate-700 block mb-1">Kinh độ (Lng)</label>
-                      <input type="number" step="any" value={lng} onChange={e => setLng(e.target.value ? Number(e.target.value) : '')} placeholder="VD: 105.8156"
-                        className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                    </div>
-                  </div>
-
-                  {/* Nearby Places */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="font-semibold text-slate-700 block">Các địa điểm lân cận nổi tiếng</label>
-                      <button type="button" onClick={() => setNearbyPlaces([...nearbyPlaces, { name: '', distance: '' }])}
-                        className="text-blue-600 hover:text-blue-700 text-xs font-semibold flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-md">
-                        <Plus className="w-3 h-3" /> Thêm địa điểm
-                      </button>
-                    </div>
-                    {nearbyPlaces.length === 0 ? (
-                      <div className="text-xs text-slate-400 italic">Chưa có địa điểm lân cận.</div>
-                    ) : (
-                      <div className="space-y-2">
-                        {nearbyPlaces.map((place, idx) => (
-                          <div key={idx} className="flex items-center gap-3">
-                            <input value={place.name} onChange={e => { const newPlaces = [...nearbyPlaces]; newPlaces[idx].name = e.target.value; setNearbyPlaces(newPlaces); }}
-                              placeholder="Tên địa điểm (VD: Hồ Gươm)" className="flex-1 border border-slate-200 rounded-md p-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500" />
-                            <input value={place.distance} onChange={e => { const newPlaces = [...nearbyPlaces]; newPlaces[idx].distance = e.target.value; setNearbyPlaces(newPlaces); }}
-                              placeholder="Khoảng cách (VD: 1.5 km)" className="w-32 border border-slate-200 rounded-md p-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500" />
-                            <button type="button" onClick={() => setNearbyPlaces(nearbyPlaces.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-600">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
+                      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                        <div className="sm:col-span-8">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Mô tả phòng</label>
+                          <input
+                            type="text"
+                            value={room.description}
+                            onChange={(e) => updateRoom(idx, 'description', e.target.value)}
+                            placeholder="Ban công nhìn ra biển, bồn tắm nằm..."
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 text-xs"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Người lớn</label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={room.capacity?.adults ?? 2}
+                            onChange={(e) => updateRoom(idx, 'capacity.adults', Number(e.target.value))}
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 text-xs"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="font-semibold text-slate-700 block mb-1 text-[11px]">Trẻ em</label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={room.capacity?.children ?? 1}
+                            onChange={(e) => updateRoom(idx, 'capacity.children', Number(e.target.value))}
+                            className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 bg-white focus:outline-none focus:border-blue-500 text-xs"
+                          />
+                        </div>
                       </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1.5">Tiện nghi khách sạn</label>
-                    <div className="flex flex-wrap gap-2">
-                      {AMENITY_OPTIONS.map(item => (
-                        <button type="button" key={item} onClick={() => toggleAmenity(item)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                            amenities.includes(item) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400'
-                          }`}>
-                          {item}
-                        </button>
-                      ))}
                     </div>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Hình ảnh */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 border-b pb-2">Hình ảnh ({images.length} ảnh)</h3>
-                  <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 transition-colors bg-slate-50/50">
-                    <label className="cursor-pointer flex flex-col items-center py-4">
-                      {isUploading ? (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                          <span className="font-medium">Đang tải lên...</span>
-                        </div>
-                      ) : (
-                        <><Upload className="w-8 h-8 text-blue-400 mb-2" /><span className="font-medium text-slate-600">Tải nhiều ảnh từ máy tính</span></>
-                      )}
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
-                    </label>
-                  </div>
-                  <div className="mt-3 flex gap-2">
-                    <input type="text" value={urlInput} onChange={e => setUrlInput(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); if (urlInput.trim()) { setImages(prev => [...prev, urlInput.trim()]); setUrlInput(''); }}}}
-                      placeholder="Dán URL ảnh..." className="flex-1 border border-slate-200 rounded-lg p-2.5 text-slate-800 focus:outline-none focus:border-blue-500" />
-                    <button type="button" onClick={() => { if (urlInput.trim()) { setImages(prev => [...prev, urlInput.trim()]); setUrlInput(''); }}}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-semibold shrink-0">Thêm URL</button>
-                  </div>
-                  {images.length > 0 && (
-                    <div className="mt-4 grid grid-cols-6 gap-3">
-                      {images.map((img, idx) => (
-                        <div key={idx} className="relative group h-24 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
-                          <img src={img} alt="" className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => setImages(prev => prev.filter((_, i) => i !== idx))}
-                            className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Chính sách */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-slate-800 border-b pb-2">Quy định & Chính sách</h3>
-                  <div>
-                    <label className="font-semibold text-slate-700 block mb-1">Mỗi dòng một chính sách</label>
-                    <textarea rows={4} value={policiesStr} onChange={e => setPoliciesStr(e.target.value)} placeholder="Nhận phòng: Từ 14:00&#10;Trả phòng: Trước 12:00&#10;Không hút thuốc..."
-                      className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-900 focus:outline-none focus:border-blue-500" />
-                  </div>
-                </div>
-
-                {/* Danh sách phòng */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center border-b pb-2">
-                    <h3 className="font-bold text-slate-800">Cấu hình các loại phòng ({rooms.length})</h3>
-                    <button type="button" onClick={addRoom} className="text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg">
-                      <Plus className="w-4 h-4" /> Thêm phòng
-                    </button>
-                  </div>
-                  
-                  {rooms.length === 0 ? (
-                    <div className="text-center py-6 text-slate-500 border border-dashed rounded-xl bg-slate-50">Chưa có phòng nào được cấu hình.</div>
-                  ) : (
-                    <div className="space-y-4">
-                      {rooms.map((room, idx) => (
-                        <div key={idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50 relative group">
-                          <button type="button" onClick={() => removeRoom(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 bg-white rounded-md p-1 shadow-sm border border-slate-100">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          <div className="grid grid-cols-12 gap-4 mb-3 pr-10">
-                            <div className="col-span-4">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Tên phòng *</label>
-                              <input required value={room.name} onChange={e => updateRoom(idx, 'name', e.target.value)}
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                            <div className="col-span-3">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Giá/đêm (VNĐ) *</label>
-                              <input type="number" required value={room.price} onChange={e => updateRoom(idx, 'price', Number(e.target.value))}
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                            <div className="col-span-2">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Diện tích (m²) *</label>
-                              <input type="number" required value={room.size} onChange={e => updateRoom(idx, 'size', Number(e.target.value))}
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                            <div className="col-span-3">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Loại giường *</label>
-                              <input required value={room.bedType} onChange={e => updateRoom(idx, 'bedType', e.target.value)} placeholder="1 Giường đôi"
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-8">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Mô tả phòng</label>
-                              <input value={room.description} onChange={e => updateRoom(idx, 'description', e.target.value)}
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                            <div className="col-span-2">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Người lớn tối đa</label>
-                              <input type="number" required value={room.capacity?.adults} onChange={e => updateRoom(idx, 'capacity.adults', Number(e.target.value))}
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                            <div className="col-span-2">
-                              <label className="font-semibold text-slate-700 block mb-1 text-xs">Trẻ em tối đa</label>
-                              <input type="number" required value={room.capacity?.children} onChange={e => updateRoom(idx, 'capacity.children', Number(e.target.value))}
-                                className="w-full border border-slate-200 rounded-md p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-sm" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-              </form>
+              )}
             </div>
-
-            <div className="flex justify-end gap-3 p-6 border-t border-slate-100 shrink-0 bg-slate-50">
-              <button type="button" onClick={() => setIsModalOpen(false)}
-                className="px-6 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-100 transition-colors">Hủy</button>
-              <button type="submit" form="hotel-form" disabled={saveMutation.isPending || isUploading}
-                className="px-8 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md disabled:opacity-50 transition-colors">
-                {saveMutation.isPending ? 'Đang lưu...' : 'Lưu Khách Sạn'}
-              </button>
-            </div>
-          </div>
+          )}
         </div>
-      )}
+      </AdminStepperModal>
     </div>
   );
 }
