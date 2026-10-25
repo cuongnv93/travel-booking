@@ -197,7 +197,7 @@ export const seedSeoDefaults = async (req: Request, res: Response) => {
     cacheService.flush();
     res.json({
       success: true,
-      message: `Đồng bộ thành công 9 bài viết SEO (Thêm mới: ${insertedCount}, Cập nhật: ${updatedCount})`,
+      message: `Đồng bộ thành công 14 bài viết SEO (Thêm mới: ${insertedCount}, Cập nhật: ${updatedCount})`,
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

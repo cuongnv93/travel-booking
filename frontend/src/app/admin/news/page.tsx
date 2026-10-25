@@ -250,7 +250,7 @@ export default function AdminNewsPage() {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['admin-news'] });
       queryClient.invalidateQueries({ queryKey: ['news'] });
-      toast.success(data?.message || 'Đồng bộ 9 bài viết mẫu chuẩn SEO thành công!');
+      toast.success(data?.message || 'Đồng bộ 14 bài viết mẫu chuẩn SEO thành công!');
     },
     onError: (err: any) => {
       toast.error('Lỗi đồng bộ: ' + (err.response?.data?.message || err.message));
@@ -262,7 +262,7 @@ export default function AdminNewsPage() {
   }, [duplicateMutation]);
 
   const handleSyncDefaults = useCallback(() => {
-    if (confirm('Bạn có muốn đồng bộ 9 bài viết mẫu cẩm nang du lịch và review chuẩn SEO vào CMS? (Các bài đã có sẽ được cập nhật nội dung mới nhất)')) {
+    if (confirm('Bạn có muốn đồng bộ 14 bài viết mẫu cẩm nang du lịch và review chuẩn SEO vào CMS? (Các bài đã có sẽ được cập nhật nội dung mới nhất)')) {
       syncDefaultsMutation.mutate();
     }
   }, [syncDefaultsMutation]);
@@ -439,10 +439,10 @@ export default function AdminNewsPage() {
             onClick={handleSyncDefaults}
             disabled={syncDefaultsMutation.isPending}
             className="bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-800 text-xs font-bold px-3.5 py-2.5 rounded-lg flex items-center gap-2 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
-            title="Nạp và đồng bộ 9 bài viết mẫu cẩm nang và review du lịch Việt Nam chuẩn SEO"
+            title="Nạp và đồng bộ 14 bài viết mẫu cẩm nang và review du lịch Việt Nam chuẩn SEO"
           >
             <Sparkles className="w-4 h-4 text-amber-600" />
-            {syncDefaultsMutation.isPending ? 'Đang đồng bộ...' : 'Đồng Bộ 9 Bài Viết SEO Mẫu'}
+            {syncDefaultsMutation.isPending ? 'Đang đồng bộ...' : 'Đồng Bộ 14 Bài Viết SEO Mẫu'}
           </button>
           <button
             type="button"

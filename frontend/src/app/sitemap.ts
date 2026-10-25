@@ -1,3 +1,4 @@
+import { DEFAULT_NEWS } from '@/lib/defaultNews';
 import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -84,24 +85,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
 
-    // News
+    // News with automatic fallback to DEFAULT_NEWS
+    let news: any[] = [];
     const newsRes = await fetch(`${apiBase}/news?limit=50`, {
       next: { revalidate: 3600 },
       signal: AbortSignal.timeout(3000),
     }).catch(() => null);
+
     if (newsRes?.ok) {
       const data = await newsRes.json();
-      const news = Array.isArray(data) ? data : (data?.data || []);
-      for (const n of news) {
-        if (n?.slug) {
-          for (const loc of locales) {
-            dynamicRoutes.push({
-              url: `${baseUrl}/${loc}/news/${n.slug}`,
-              lastModified: n.updatedAt || new Date().toISOString(),
-              changeFrequency: 'weekly',
-              priority: 0.7,
-            });
-          }
+      news = Array.isArray(data) ? data : (data?.data || []);
+    }
+
+    if (!news || news.length === 0) {
+      news = DEFAULT_NEWS;
+    }
+
+    for (const n of news) {
+      if (n?.slug) {
+        for (const loc of locales) {
+          dynamicRoutes.push({
+            url: `${baseUrl}/${loc}/news/${n.slug}`,
+            lastModified: n.updatedAt || n.publishedAt || n.createdAt || new Date().toISOString(),
+            changeFrequency: 'weekly',
+            priority: 0.75,
+          });
         }
       }
     }
