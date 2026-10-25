@@ -82,9 +82,9 @@ function WhyChooseUsComponent() {
   }, [dynamicWhyUs]);
 
   return (
-    <section className="bg-slate-50 py-16 sm:py-20 border-y border-slate-100">
+    <section className="bg-slate-50 py-12 sm:py-16 border-y border-slate-100">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12 sm:mb-16">
+        <div className="text-center mb-10 sm:mb-12">
           <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-1.5">
             {t('badge')}
           </span>
@@ -92,7 +92,7 @@ function WhyChooseUsComponent() {
           <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-10">
           {featuresList.map((feature: any, index: number) => {
             const title = getI18nText(feature.title, locale, t(`items.${feature.id}`));
             const detail = getI18nText(feature.detail, locale, t(`items.${feature.id}Detail`));

@@ -72,11 +72,11 @@ const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; l
   const contentText = getI18nText(review.content, locale) || '';
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden h-full min-h-[300px] flex flex-col group">
-      <Quote className="absolute top-5 right-5 w-12 h-12 text-blue-100/70 group-hover:text-blue-200/90 transition-colors rotate-180 pointer-events-none" />
+    <div className="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200/80 rounded-3xl p-6 sm:p-7 shadow-xs hover:shadow-xl transition-all duration-300 relative overflow-hidden h-full min-h-[290px] flex flex-col group">
+      <Quote className="absolute top-5 right-5 w-12 h-12 text-blue-100/60 group-hover:text-blue-200/90 transition-colors rotate-180 pointer-events-none" />
 
       {/* Rating Stars */}
-      <div className="flex gap-1 mb-4">
+      <div className="flex gap-1 mb-3.5">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
@@ -86,13 +86,13 @@ const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; l
       </div>
 
       {/* Review Content */}
-      <p className="text-slate-600 text-sm leading-relaxed italic mb-6 flex-1 line-clamp-4">
+      <p className="text-slate-600 text-sm leading-relaxed italic mb-5 flex-1 line-clamp-4">
         &ldquo;{contentText}&rdquo;
       </p>
 
       {/* Author Profile */}
-      <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100">
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-extrabold text-base flex items-center justify-center shadow-md shadow-blue-600/20 shrink-0">
+      <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-200/60">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-extrabold text-sm flex items-center justify-center shadow-md shadow-blue-600/20 shrink-0">
           {nameText ? nameText.charAt(0).toUpperCase() : 'U'}
         </div>
         <div>
@@ -112,32 +112,32 @@ function TestimonialsComponent() {
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
   return (
-    <section className="py-16 bg-slate-50/60 relative overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6 text-center mb-12">
+    <section className="container mx-auto px-4 md:px-6 relative">
+      <div className="text-center mb-8 sm:mb-10">
         <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-1.5">
           {t('tag', { fallback: 'Ý KIẾN KHÁCH HÀNG' })}
         </span>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-2 sm:mb-3">
           {t('title', { fallback: 'Đánh Giá Từ Khách Hàng' })}
         </h2>
         <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-12 relative">
+      <div className="relative px-0 sm:px-10 md:px-12">
         <Swiper
           modules={[Autoplay, Pagination]}
           onSwiper={setSwiperInstance}
-          spaceBetween={24}
+          spaceBetween={20}
           slidesPerView={1}
           autoHeight={false}
           loop={true}
           autoplay={{ delay: 3500, disableOnInteraction: false }}
           pagination={{ clickable: true, el: '.custom-pagination' }}
           breakpoints={{
-            640: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
+            640: { slidesPerView: 2, spaceBetween: 20 },
+            1024: { slidesPerView: 3, spaceBetween: 24 },
           }}
-          className="!pb-12 [&_.swiper-wrapper]:!items-stretch"
+          className="!pb-6 [&_.swiper-wrapper]:!items-stretch"
         >
           {baseReviews.map((review, idx) => (
             <SwiperSlide key={review.id || idx} className="!h-auto flex">
@@ -151,7 +151,7 @@ function TestimonialsComponent() {
           type="button"
           onClick={() => swiperInstance?.slidePrev()}
           aria-label="Previous review"
-          className="hidden sm:flex absolute -left-2 md:-left-4 top-[45%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 shadow-md hover:shadow-xl hover:scale-110 active:scale-95 transition-all items-center justify-center cursor-pointer group"
+          className="hidden sm:flex absolute left-0 top-[42%] -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all items-center justify-center cursor-pointer group"
         >
           <ChevronLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" />
         </button>
@@ -159,12 +159,12 @@ function TestimonialsComponent() {
           type="button"
           onClick={() => swiperInstance?.slideNext()}
           aria-label="Next review"
-          className="hidden sm:flex absolute -right-2 md:-right-4 top-[45%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 shadow-md hover:shadow-xl hover:scale-110 active:scale-95 transition-all items-center justify-center cursor-pointer group"
+          className="hidden sm:flex absolute right-0 top-[42%] -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 shadow-md hover:shadow-xl hover:scale-105 active:scale-95 transition-all items-center justify-center cursor-pointer group"
         >
           <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
         </button>
         
-        <div className="custom-pagination flex justify-center items-center gap-2 mt-4"></div>
+        <div className="custom-pagination flex justify-center items-center gap-2 mt-2"></div>
       </div>
     </section>
   );

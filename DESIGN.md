@@ -23,6 +23,7 @@
 - 2026-10-25 — News search refinement: Removed default emojis/icons in search & category tabs, replaced destination pills with circular avatar photos matching QuickSearch home component design.
 - 2026-10-25 — Tour card aspect ratio standardization: Standardized tour, flash sale, destination, and hotel card images to a unified `aspect-[16/10]` ratio, eliminating distorted square vs wide rectangular inconsistencies across variable grid columns.
 - 2026-10-26 — 6-item home grid layout: Upgraded FeaturedTours and FeaturedHotels to display 6 balanced items (2 rows of 3 columns), added 4 new 5-star hotels (Ha Long, Da Lat, Hoi An, Nha Trang) and automatic backfill fallback logic.
+- 2026-10-26 — Testimonials spacing optimization: Harmonized excessive top/bottom spacing around "Đánh Giá Từ Khách Hàng". Removed redundant nested `py-16` and full-width background clash, converted Testimonials to `container mx-auto px-4 md:px-6 relative` matching the unified section rhythm, tightened Swiper bottom padding from `!pb-12` to `!pb-6`, and optimized `WhyChooseUs` vertical padding from `py-20` to `py-12 sm:py-16`.
 
 ## Components
 - HeroBanner (`src/components/home/HeroBanner.tsx`)
