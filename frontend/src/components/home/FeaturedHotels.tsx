@@ -12,15 +12,20 @@ import { formatPrice, getI18nText } from '@/lib/utils';
 
 const fetchHotels = async () => {
   try {
-    const res: any = await api.get('/hotels?isFeatured=true&limit=3');
+    const res: any = await api.get('/hotels?isFeatured=true&limit=6');
     const featured = Array.isArray(res) ? res : (res?.data || []);
-    if (featured.length > 0) return featured.slice(0, 3);
+    if (featured.length >= 6) return featured.slice(0, 6);
+
+    const fallbackRes: any = await api.get('/hotels?limit=12');
+    const allHotels = Array.isArray(fallbackRes) ? fallbackRes : (fallbackRes?.data || []);
+    const existingIds = new Set(featured.map((h: any) => h._id || h.id || h.slug));
+    const combined = [...featured, ...allHotels.filter((h: any) => !existingIds.has(h._id || h.id || h.slug))];
+    return combined.slice(0, 6);
   } catch {
-    // fallback to general active hotels
+    const fallbackRes: any = await api.get('/hotels?limit=6');
+    const list = Array.isArray(fallbackRes) ? fallbackRes : (fallbackRes?.data || []);
+    return list.slice(0, 6);
   }
-  const fallbackRes: any = await api.get('/hotels?limit=3');
-  const list = Array.isArray(fallbackRes) ? fallbackRes : (fallbackRes?.data || []);
-  return list.slice(0, 3);
 };
 
 const DEFAULT_HOTEL_IMG = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800';
@@ -157,7 +162,7 @@ export default function FeaturedHotels() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4, 5, 6].map((n) => (
             <div key={n} className="h-[420px] rounded-3xl bg-slate-100 animate-pulse" />
           ))}
         </div>

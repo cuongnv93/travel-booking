@@ -12,14 +12,18 @@ const fetchFeaturedTours = async () => {
   try {
     const res: any = await api.get('/tours?isFeatured=true&limit=6');
     const featured = res?.data || [];
-    if (Array.isArray(featured) && featured.length > 0) {
-      return featured;
+    if (Array.isArray(featured) && featured.length >= 6) {
+      return featured.slice(0, 6);
     }
+    const fallbackRes: any = await api.get('/tours?limit=12');
+    const allTours = fallbackRes?.data || [];
+    const existingIds = new Set((featured || []).map((t: any) => t._id || t.id || t.slug));
+    const combined = [...(featured || []), ...allTours.filter((t: any) => !existingIds.has(t._id || t.id || t.slug))];
+    return combined.slice(0, 6);
   } catch {
-    // fallback to general active tours
+    const fallbackRes: any = await api.get('/tours?limit=6');
+    return (fallbackRes?.data || []).slice(0, 6);
   }
-  const fallbackRes: any = await api.get('/tours?limit=6');
-  return fallbackRes?.data || [];
 };
 
 export default function FeaturedTours() {

@@ -225,7 +225,7 @@ export const seedDataInternal = async () => {
         ],
         maxGuests: 16,
         category: 'nature',
-        isFeatured: false,
+        isFeatured: true,
         rating: 4.6,
         reviewCount: 178,
         departureDates: [
@@ -331,7 +331,7 @@ export const seedDataInternal = async () => {
         ],
         maxGuests: 20,
         category: 'beach',
-        isFeatured: false,
+        isFeatured: true,
         rating: 4.8,
         reviewCount: 267,
         departureDates: [
@@ -413,6 +413,8 @@ export const seedDataInternal = async () => {
           'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
           'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1600&auto=format&fit=crop'
         ],
+        isActive: true,
+        isFeatured: true,
         pricePerNight: 1000000,
         stars: 4,
         location: 'Hà Nội',
@@ -478,6 +480,8 @@ export const seedDataInternal = async () => {
           'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop',
         ],
+        isActive: true,
+        isFeatured: true,
         pricePerNight: 3500000,
         stars: 5,
         location: 'Đà Nẵng',
@@ -518,6 +522,8 @@ export const seedDataInternal = async () => {
           'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=800',
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
         ],
+        isActive: true,
+        isFeatured: true,
         pricePerNight: 2800000,
         stars: 5,
         location: 'Phú Quốc',
@@ -567,6 +573,8 @@ export const seedDataInternal = async () => {
           'https://images.unsplash.com/photo-1512719994953-eabf50895df7?w=800',
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
         ],
+        isActive: true,
+        isFeatured: true,
         pricePerNight: 850000,
         stars: 3,
         location: 'Sa Pa',
@@ -592,6 +600,181 @@ export const seedDataInternal = async () => {
             bedType: '1 Giường đôi',
             amenities: ['Lò sưởi', 'Ban công', 'Trà thảo mộc'],
             images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800']
+          }
+        ]
+      }
+,
+      {
+        slug: 'halong-bay-heritage-hotel',
+        name: createI18n('Vinpearl Resort & Spa Hạ Long 5 Sao', 'Vinpearl Resort & Spa Ha Long 5-Star'),
+        description: createI18n(
+          'Tọa lạc trọn vẹn trên đảo Rều độc tôn với tầm nhìn 360 độ ngắm toàn cảnh Vịnh Hạ Long kỳ quan thế giới. Sở hữu 3 bãi biển riêng và hồ bơi ngoài trời rộng 1.200m2.',
+          'Exclusively situated on Reu Island with a 360-degree panoramic view of UNESCO World Wonder Ha Long Bay. Features 3 private beaches and a 1,200m2 outdoor pool.'
+        ),
+        images: [
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
+        ],
+        pricePerNight: 2600000,
+        stars: 5,
+        location: 'Hạ Long',
+        address: 'Đảo Rều, Bãi Cháy, Thành phố Hạ Long, Quảng Ninh',
+        amenities: ['WiFi miễn phí', '3 Bãi biển riêng', 'Hồ bơi 1.200m2', 'Vincharm Spa', '3 Nhà hàng cao cấp', 'Tàu cano đưa đón miễn phí'],
+        policies: [
+          'Nhận phòng: Từ 14:00',
+          'Trả phòng: Trước 12:00',
+          'Tàu cano cao tốc miễn phí 24/7 từ đất liền ra đảo'
+        ],
+        locationDetails: {
+          lat: 20.9412,
+          lng: 107.0378,
+          nearbyPlaces: [{ name: 'Cảng tàu khách quốc tế Hạ Long', distance: '1 km' }, { name: 'Sun World Ha Long Park', distance: '2.5 km' }]
+        },
+        isActive: true,
+        isFeatured: true,
+        rooms: [
+          {
+            name: 'Deluxe Ocean View King',
+            description: 'Phòng Deluxe sang trọng với ban công riêng hướng thẳng vịnh Hạ Long kỳ vĩ.',
+            price: 2600000,
+            capacity: { adults: 2, children: 1 },
+            size: 38,
+            bedType: '1 Giường King siêu lớn',
+            amenities: ['Ban công riêng', 'Bồn tắm hướng biển', 'Trà & Cà phê', 'Minibar'],
+            images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800&auto=format&fit=crop']
+          },
+          {
+            name: 'Executive Suite Bay View',
+            description: 'Suite cao cấp phong cách hoàng gia với phòng khách riêng biệt và ban công góc ngắm hoàng hôn.',
+            price: 5200000,
+            capacity: { adults: 2, children: 2 },
+            size: 76,
+            bedType: '1 Giường King lớn',
+            amenities: ['Phòng khách riêng', 'Ban công góc', 'Bồn sục Jacuzzi', 'Đặc quyền Executive Lounge'],
+            images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop']
+          }
+        ]
+      },
+      {
+        slug: 'dalat-palace-heritage-hotel',
+        name: createI18n('Dalat Palace Heritage Hotel 5 Sao', 'Dalat Palace Heritage Hotel 5-Star'),
+        description: createI18n(
+          'Kiệt tác kiến trúc Pháp cổ điển từ năm 1922 tọa lạc giữa đồi thông thơ mộng ngắm trọn Hồ Xuân Hương. Đẳng cấp quý tộc hoàng gia với sân golf lâu đời nhất Việt Nam.',
+          "Classic French architectural masterpiece from 1922 nestled among romantic pine hills overlooking Xuan Huong Lake. Royal luxury living with Vietnam's oldest golf course."
+        ),
+        images: [
+          'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop',
+        ],
+        pricePerNight: 3200000,
+        stars: 5,
+        location: 'Đà Lạt',
+        address: '02 Trần Phú, Phường 3, Thành phố Đà Lạt, Lâm Đồng',
+        amenities: ['WiFi miễn phí', 'Sân Golf 18 lỗ', 'Lò sưởi củi cổ điển', 'Le Rabelais Fine Dining', 'Vườn hoa phong cách Pháp', 'Spa thư giãn'],
+        policies: [
+          'Nhận phòng: Từ 14:00',
+          'Trả phòng: Trước 12:00',
+          'Miễn phí trà chiều phong cách quý tộc'
+        ],
+        locationDetails: {
+          lat: 11.9372,
+          lng: 108.4418,
+          nearbyPlaces: [{ name: 'Hồ Xuân Hương', distance: '0.2 km' }, { name: 'Chợ Đêm Đà Lạt', distance: '0.8 km' }]
+        },
+        isActive: true,
+        isFeatured: true,
+        rooms: [
+          {
+            name: 'Luxury Lake View Room',
+            description: 'Phòng phong cách cổ điển Pháp với sàn gỗ tự nhiên và view Hồ Xuân Hương mộng mơ.',
+            price: 3200000,
+            capacity: { adults: 2, children: 1 },
+            size: 42,
+            bedType: '1 Giường đôi hoàng gia',
+            amenities: ['Lò sưởi', 'View hồ Xuân Hương', 'Bồn tắm cổ điển', 'Máy pha cà phê'],
+            images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=800&auto=format&fit=crop']
+          }
+        ]
+      },
+      {
+        slug: 'hoian-memories-resort-spa',
+        name: createI18n('Hội An Memories Resort & Spa 5 Sao', 'Hoi An Memories Resort & Spa 5-Star'),
+        description: createI18n(
+          'Khu nghỉ dưỡng di sản độc đáo nằm trên Cồn Hến giữa dòng sông Thu Bồn thơ mộng. Kiến trúc giao thoa cổ kính và hiện đại, kề cận show diễn Ký Ức Hội An danh tiếng.',
+          'Unique heritage resort situated on Hen Islet in the middle of Thu Bon River. Harmonious blend of ancient architecture and modern luxury beside the famous Memories Show.'
+        ),
+        images: [
+          'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1600&auto=format&fit=crop',
+        ],
+        pricePerNight: 2100000,
+        stars: 5,
+        location: 'Hội An',
+        address: 'Cồn Hến, 200 Nguyễn Tri Phương, Cẩm Châu, Hội An, Quảng Nam',
+        amenities: ['WiFi miễn phí', 'Hồ bơi vô cực view sông', 'Zense Spa', 'Bến thuyền riêng', 'Ưu đãi vé Ký Ức Hội An', 'Ẩm thực phố Hội'],
+        policies: [
+          'Nhận phòng: Từ 14:00',
+          'Trả phòng: Trước 12:00',
+          'Miễn phí thuyền đưa đón sang phố cổ'
+        ],
+        locationDetails: {
+          lat: 15.8763,
+          lng: 108.3374,
+          nearbyPlaces: [{ name: 'Công viên Ấn Tượng Hội An', distance: '0.1 km' }, { name: 'Chùa Cầu Phố Cổ', distance: '1.5 km' }]
+        },
+        isActive: true,
+        isFeatured: true,
+        rooms: [
+          {
+            name: 'River View Deluxe',
+            description: 'Phòng Deluxe lãng mạn hướng sông Thu Bồn đón bình minh thanh bình.',
+            price: 2100000,
+            capacity: { adults: 2, children: 1 },
+            size: 38,
+            bedType: '1 Giường King hoặc 2 Giường đơn',
+            amenities: ['Ban công view sông', 'Bồn tắm', 'Trà & Cà phê thượng hạng'],
+            images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800&auto=format&fit=crop']
+          }
+        ]
+      },
+      {
+        slug: 'nha-trang-marriott-resort',
+        name: createI18n('Nha Trang Marriott Resort & Spa 5 Sao', 'Nha Trang Marriott Resort & Spa 5-Star'),
+        description: createI18n(
+          'Resort thiên đường nghỉ dưỡng tọa lạc trên đảo Hòn Tre với bãi biển cát trắng riêng biệt, hồ bơi lớn nhất vịnh Nha Trang và hệ thống nhà hàng ẩm thực quốc tế đỉnh cao.',
+          "Paradise island resort located on Hon Tre Island with private white sand beaches, Nha Trang Bay's largest swimming pool, and world-class international dining."
+        ),
+        images: [
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1600&auto=format&fit=crop',
+        ],
+        pricePerNight: 2900000,
+        stars: 5,
+        location: 'Nha Trang',
+        address: 'Đảo Hòn Tre, Vĩnh Nguyên, Thành phố Nha Trang, Khánh Hòa',
+        amenities: ['WiFi miễn phí', 'Bãi biển riêng', 'Hồ bơi khổng lồ', 'Quan Spa', 'Cáp treo & Cano đưa đón', 'Sân Golf 18 lỗ quốc tế'],
+        policies: [
+          'Nhận phòng: Từ 15:00',
+          'Trả phòng: Trước 12:00',
+          'Miễn phí đưa đón bằng tàu cao tốc từ cảng cáp treo'
+        ],
+        locationDetails: {
+          lat: 12.2185,
+          lng: 109.2452,
+          nearbyPlaces: [{ name: 'VinWonders Nha Trang', distance: '0.8 km' }, { name: 'Tháp Trầm Hương', distance: '5 km' }]
+        },
+        isActive: true,
+        isFeatured: true,
+        rooms: [
+          {
+            name: 'Ocean View Premier',
+            description: 'Phòng Premier sang trọng với cửa kính tràn hướng trọn biển xanh ngọc bích.',
+            price: 2900000,
+            capacity: { adults: 2, children: 1 },
+            size: 45,
+            bedType: '1 Giường King lớn',
+            amenities: ['Ban công ngắm biển', 'Bồn tắm nằm', 'Áo choàng lụa', 'Minibar'],
+            images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop']
           }
         ]
       }

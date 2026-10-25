@@ -40,6 +40,7 @@ export interface IHotel extends Document {
     nearbyPlaces?: { name: string; distance: string }[];
   };
   isActive: boolean;
+  isFeatured?: boolean;
   isFlashSale?: boolean;
   flashSalePrice?: number;
   flashSaleEnd?: Date;
@@ -83,6 +84,7 @@ const hotelSchema = new Schema<IHotel>({
     }]
   },
   isActive: { type: Boolean, default: true },
+  isFeatured: { type: Boolean, default: false },
   isFlashSale: { type: Boolean, default: false },
   flashSalePrice: { type: Number },
   flashSaleEnd: { type: Date },
@@ -90,6 +92,7 @@ const hotelSchema = new Schema<IHotel>({
 });
 
 hotelSchema.index({ isActive: 1, location: 1, stars: -1 });
+hotelSchema.index({ isActive: 1, isFeatured: 1, stars: -1 });
 hotelSchema.index({ isActive: 1, isFlashSale: 1, flashSaleEnd: 1 });
 hotelSchema.index({ pricePerNight: 1 });
 
