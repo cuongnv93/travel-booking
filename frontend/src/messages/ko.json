@@ -84,7 +84,22 @@
     "trendingBadge": "인기 여행 이야기",
     "featuredBadge": "에디터 추천",
     "allCategories": "전체",
-    "minRead": "분 소요"
+    "minRead": "분 소요",
+    "searchPlaceholder": "여행 기사, 가이드, 꿀팁 검색...",
+    "destinationFilter": "인기 여행지:",
+    "allDestinations": "전체 여행지",
+    "sortByNewest": "최신순",
+    "sortByPopular": "인기순",
+    "newsletterTitle": "단독 여행 가이드 및 특별 할인 뉴스레터 구독",
+    "newsletterDesc": "매주 업데이트되는 베트남 자유여행 꿀팁과 최대 30% 할인 투어 쿠폰을 받아보세요.",
+    "newsletterPlaceholder": "이메일 주소를 입력하세요...",
+    "subscribeBtn": "지금 구독하기",
+    "noResultsFound": "검색 결과와 일치하는 기사가 없습니다",
+    "noResultsDesc": "다른 키워드로 검색하거나 필터를 초기화해 보세요.",
+    "resetFilters": "필터 초기화",
+    "foundArticles": "{count}개의 기사 발견",
+    "bookmarked": "저장됨",
+    "bookmark": "기사 저장"
   },
   "testimonials": {
     "tag": "고객후기",

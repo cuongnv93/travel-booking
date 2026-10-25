@@ -84,7 +84,22 @@
     "trendingBadge": "热门阅读榜",
     "featuredBadge": "编辑精选",
     "allCategories": "全部",
-    "minRead": "分钟阅读"
+    "minRead": "分钟阅读",
+    "searchPlaceholder": "搜索旅游文章、实用攻略与出行建议...",
+    "destinationFilter": "热门目的地：",
+    "allDestinations": "全部目的地",
+    "sortByNewest": "最新发布",
+    "sortByPopular": "热门精选",
+    "newsletterTitle": "订阅独家旅游手册与专属特惠资讯",
+    "newsletterDesc": "每周获取最新越南自由行宝典、独家避坑指南与最高立减30%的跟团游特惠券。",
+    "newsletterPlaceholder": "输入您的电子邮箱地址...",
+    "subscribeBtn": "立即订阅",
+    "noResultsFound": "未找到匹配的旅游文章",
+    "noResultsDesc": "尝试更换搜索关键词或重置筛选条件以浏览全部文章。",
+    "resetFilters": "重置筛选",
+    "foundArticles": "共找到 {count} 篇文章",
+    "bookmarked": "已收藏",
+    "bookmark": "收藏文章"
   },
   "testimonials": {
     "tag": "客户对我们的评价",

@@ -84,7 +84,22 @@
     "trendingBadge": "Trending Stories",
     "featuredBadge": "Editor's Pick",
     "allCategories": "All",
-    "minRead": "min read"
+    "minRead": "min read",
+    "searchPlaceholder": "Search articles, travel guides, tips...",
+    "destinationFilter": "Popular destinations:",
+    "allDestinations": "All Destinations",
+    "sortByNewest": "Newest",
+    "sortByPopular": "Most Popular",
+    "newsletterTitle": "Subscribe for Exclusive Travel Guides & Secret Deals",
+    "newsletterDesc": "Get the latest Vietnam travel handbooks, insider tips, and weekly tour discount vouchers up to 30% off.",
+    "newsletterPlaceholder": "Enter your email address...",
+    "subscribeBtn": "Subscribe Now",
+    "noResultsFound": "No matching articles found",
+    "noResultsDesc": "Try searching with different keywords or reset your filters.",
+    "resetFilters": "Reset Filters",
+    "foundArticles": "Found {count} articles",
+    "bookmarked": "Saved",
+    "bookmark": "Save Article"
   },
   "testimonials": {
     "tag": "What Our Customers Say",

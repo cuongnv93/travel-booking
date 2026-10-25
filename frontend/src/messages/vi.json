@@ -84,7 +84,22 @@
     "trendingBadge": "Xu Hướng Đọc Nhiều",
     "featuredBadge": "Tiêu Điểm",
     "allCategories": "Tất cả",
-    "minRead": "phút đọc"
+    "minRead": "phút đọc",
+    "searchPlaceholder": "Tìm kiếm bài viết, cẩm nang du lịch, mẹo hay...",
+    "destinationFilter": "Điểm đến phổ biến:",
+    "allDestinations": "Tất cả điểm đến",
+    "sortByNewest": "Mới nhất",
+    "sortByPopular": "Đọc nhiều nhất",
+    "newsletterTitle": "Đăng Ký Nhận Cẩm Nang Du Lịch & Ưu Đãi Độc Quyền",
+    "newsletterDesc": "Cập nhật cẩm nang du lịch Việt Nam mới nhất, kinh nghiệm vi vu tự túc và voucher tour giảm tới 30% mỗi tuần.",
+    "newsletterPlaceholder": "Nhập địa chỉ email của bạn...",
+    "subscribeBtn": "Đăng Ký Ngay",
+    "noResultsFound": "Không tìm thấy bài viết nào phù hợp",
+    "noResultsDesc": "Hãy thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc để xem tất cả bài viết.",
+    "resetFilters": "Đặt lại bộ lọc",
+    "foundArticles": "Tìm thấy {count} bài viết",
+    "bookmarked": "Đã lưu",
+    "bookmark": "Lưu bài viết"
   },
   "testimonials": {
     "tag": "Khách Hàng Nói Về Chúng Tôi",

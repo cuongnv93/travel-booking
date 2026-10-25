@@ -84,7 +84,22 @@
     "trendingBadge": "注目の人気記事",
     "featuredBadge": "おすすめ特集",
     "allCategories": "すべて",
-    "minRead": "分で読める"
+    "minRead": "分で読める",
+    "searchPlaceholder": "旅行記事、ガイド、旅のヒントを検索...",
+    "destinationFilter": "人気の目的地：",
+    "allDestinations": "すべての目的地",
+    "sortByNewest": "最新順",
+    "sortByPopular": "人気順",
+    "newsletterTitle": "限定旅行ガイド＆お得なクーポンを受け取る",
+    "newsletterDesc": "最新のベトナム個人旅行ガイドや、最大30%OFFの限定ツアークーポンを毎週お届け。",
+    "newsletterPlaceholder": "メールアドレスを入力...",
+    "subscribeBtn": "今すぐ登録",
+    "noResultsFound": "一致する記事が見つかりませんでした",
+    "noResultsDesc": "別のキーワードで検索するか、フィルターをリセットしてください。",
+    "resetFilters": "フィルターをリセット",
+    "foundArticles": "{count}件の記事が見つかりました",
+    "bookmarked": "保存済み",
+    "bookmark": "記事を保存"
   },
   "testimonials": {
     "tag": "お客様の声",

@@ -13,7 +13,7 @@ import { getI18nText, formatLocalizedDate } from '@/lib/utils';
 
 const fetchLatestNews = async () => {
   try {
-    const res: any = await api.get('/news?limit=12');
+    const res: any = await api.get('/news?limit=20');
     const list = Array.isArray(res) ? res : (res?.data || []);
     return list.length > 0 ? list : DEFAULT_NEWS;
   } catch {
@@ -315,9 +315,22 @@ export default function NewsSection() {
     return list.filter((item: any) => item.category === activeTab);
   }, [rawNews, activeTab]);
 
-  // Spotlight article is the first item; the next 3-4 items are the trending list
-  const spotlightArticle = useMemo(() => filteredNews[0] || DEFAULT_NEWS[0], [filteredNews]);
-  const trendingArticles = useMemo(() => filteredNews.slice(1, 5), [filteredNews]);
+  // Spotlight article is the first item
+  const spotlightArticle = useMemo(() => {
+    return filteredNews[0] || (Array.isArray(rawNews) ? rawNews[0] : DEFAULT_NEWS[0]);
+  }, [filteredNews, rawNews]);
+
+  // Trending articles: take from filteredNews, and if fewer than 4, fill remaining slots with top articles from rawNews
+  const trendingArticles = useMemo(() => {
+    const list = filteredNews.slice(1, 5);
+    if (list.length >= 4) return list;
+
+    const existingIds = new Set([spotlightArticle?._id, ...list.map((a: any) => a._id)]);
+    const fallbackPool = (Array.isArray(rawNews) && rawNews.length > 0 ? rawNews : DEFAULT_NEWS).filter(
+      (a: any) => a && !existingIds.has(a._id)
+    );
+    return [...list, ...fallbackPool.slice(0, 4 - list.length)];
+  }, [filteredNews, rawNews, spotlightArticle]);
 
   const getCategoryLabel = useCallback(
     (catKey: string) => {
