@@ -451,13 +451,13 @@ export default function NewsSection() {
       ) : filteredNews.length === 0 ? (
         <div className="p-12 text-center bg-slate-50 rounded-3xl border border-slate-200 text-slate-400 space-y-3">
           <Newspaper className="w-10 h-10 mx-auto text-slate-300" />
-          <p className="text-sm font-medium">Chưa có bài viết nào trong danh mục này.</p>
+          <p className="text-sm font-medium">{t('emptyCategory') || 'Chưa có bài viết nào trong danh mục này.'}</p>
           <button
             type="button"
             onClick={() => setActiveTab('all')}
             className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
           >
-            Quay lại xem tất cả bài viết
+            {t('backToAllArticles') || 'Quay lại xem tất cả bài viết'}
           </button>
         </div>
       ) : (
@@ -492,7 +492,7 @@ export default function NewsSection() {
                   {trendingBadgeText}
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">
-                  Top đọc nhiều tuần này
+                  {t('topWeekly') || 'Top đọc nhiều tuần này'}
                 </span>
               </div>
 

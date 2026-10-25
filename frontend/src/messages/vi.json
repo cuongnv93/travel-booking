@@ -99,7 +99,22 @@
     "resetFilters": "Đặt lại bộ lọc",
     "foundArticles": "Tìm thấy {count} bài viết",
     "bookmarked": "Đã lưu",
-    "bookmark": "Lưu bài viết"
+    "bookmark": "Lưu bài viết",
+    "topWeekly": "Top đọc nhiều tuần này",
+    "emptyCategory": "Chưa có bài viết nào trong danh mục này.",
+    "backToAllArticles": "Quay lại xem tất cả bài viết",
+    "newsletterBadge": "Bản Tin Du Lịch VIP",
+    "newsletterSubscribed": "Cảm ơn bạn! Hãy kiểm tra hộp thư để nhận cẩm nang mới nhất.",
+    "heroBadge": "Tạp Chí Du Lịch & Cẩm Nang",
+    "seoGuideBadge": "Cẩm Nang Hữu Ích",
+    "clearSearch": "Xóa tìm kiếm",
+    "gridView": "Chế độ xem dạng lưới",
+    "listView": "Chế độ xem dạng danh sách",
+    "bookmarkSaved": "Đã lưu bài viết vào danh sách yêu thích!",
+    "bookmarkRemoved": "Đã xóa bài viết khỏi danh sách đã lưu.",
+    "unbookmark": "Bỏ lưu bài viết",
+    "invalidEmail": "Vui lòng nhập đúng định dạng email hợp lệ!",
+    "subscribeSuccess": "Đăng ký nhận cẩm nang du lịch thành công! Chúng tôi đã gửi email xác nhận."
   },
   "testimonials": {
     "tag": "Khách Hàng Nói Về Chúng Tôi",

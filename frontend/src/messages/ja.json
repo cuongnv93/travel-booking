@@ -99,7 +99,22 @@
     "resetFilters": "フィルターをリセット",
     "foundArticles": "{count}件の記事が見つかりました",
     "bookmarked": "保存済み",
-    "bookmark": "記事を保存"
+    "bookmark": "記事を保存",
+    "topWeekly": "今週の注目記事",
+    "emptyCategory": "このカテゴリーの記事はまだありません。",
+    "backToAllArticles": "すべての記事に戻る",
+    "newsletterBadge": "VIP旅行ニュースレター",
+    "newsletterSubscribed": "ご登録ありがとうございます！受信トレイをご確認ください。",
+    "heroBadge": "トラベルマガジン＆ガイド",
+    "seoGuideBadge": "お役立ちガイド",
+    "clearSearch": "検索をクリア",
+    "gridView": "グリッド表示",
+    "listView": "リスト表示",
+    "bookmarkSaved": "記事をお気に入りに保存しました！",
+    "bookmarkRemoved": "保存リストから削除しました。",
+    "unbookmark": "記事の保存を解除",
+    "invalidEmail": "有効なメールアドレスを入力してください！",
+    "subscribeSuccess": "登録が完了しました！確認メールを送信しました。"
   },
   "testimonials": {
     "tag": "お客様の声",

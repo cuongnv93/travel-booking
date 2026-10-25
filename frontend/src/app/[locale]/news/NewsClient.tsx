@@ -98,16 +98,6 @@ const HOT_DESTINATIONS = [
     keywords: ['hà nội', 'ha noi', 'hanoi'],
   },
   {
-    key: 'ninh-binh',
-    label: 'Ninh Bình',
-    labelEn: 'Ninh Binh',
-    labelZh: '宁平',
-    labelKo: '닌빈',
-    labelJa: 'ニンビン',
-    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=200',
-    keywords: ['ninh bình', 'ninh binh', 'tràng an', 'trang an'],
-  },
-  {
     key: 'sapa',
     label: 'Sa Pa',
     labelEn: 'Sapa',
@@ -126,26 +116,6 @@ const HOT_DESTINATIONS = [
     labelJa: 'ハロン湾',
     image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=200',
     keywords: ['hạ long', 'ha long', 'halong'],
-  },
-  {
-    key: 'mien-tay',
-    label: 'Miền Tây',
-    labelEn: 'Mekong Delta',
-    labelZh: '湄公河三角洲',
-    labelKo: '메콩 델타',
-    labelJa: 'メコンデルタ',
-    image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=200',
-    keywords: ['miền tây', 'mien tay', 'cần thơ', 'cái răng'],
-  },
-  {
-    key: 'quy-nhon',
-    label: 'Quy Nhơn',
-    labelEn: 'Quy Nhon',
-    labelZh: '归仁与富安',
-    labelKo: '꾸이년',
-    labelJa: 'クイニョン',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200',
-    keywords: ['quy nhơn', 'quy nhon', 'phú yên', 'phu yen', 'kỳ co', 'eo gió'],
   },
 ];
 
@@ -174,6 +144,7 @@ const NewsGridCard = memo(function NewsGridCard({
   minReadText,
   isBookmarked,
   onToggleBookmark,
+  bookmarkTitle,
 }: {
   article: any;
   locale: string;
@@ -183,6 +154,7 @@ const NewsGridCard = memo(function NewsGridCard({
   minReadText: string;
   isBookmarked: boolean;
   onToggleBookmark: (slug: string) => void;
+  bookmarkTitle?: string;
 }) {
   const title = getI18nText(article.title, locale);
   const excerpt = getI18nText(article.excerpt, locale);
@@ -232,7 +204,7 @@ const NewsGridCard = memo(function NewsGridCard({
               ? 'bg-rose-500 text-white'
               : 'bg-white/90 text-slate-700 hover:bg-white hover:text-rose-500'
           }`}
-          title={isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết'}
+          title={bookmarkTitle || (isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết')}
         >
           <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
         </button>
@@ -294,6 +266,8 @@ const NewsListCard = memo(function NewsListCard({
   minReadText,
   isBookmarked,
   onToggleBookmark,
+  bookmarkTitle,
+  seoGuideBadge,
 }: {
   article: any;
   locale: string;
@@ -303,6 +277,8 @@ const NewsListCard = memo(function NewsListCard({
   minReadText: string;
   isBookmarked: boolean;
   onToggleBookmark: (slug: string) => void;
+  bookmarkTitle?: string;
+  seoGuideBadge?: string;
 }) {
   const title = getI18nText(article.title, locale);
   const excerpt = getI18nText(article.excerpt, locale);
@@ -367,7 +343,7 @@ const NewsListCard = memo(function NewsListCard({
                   ? 'bg-rose-50 text-rose-600'
                   : 'text-slate-400 hover:text-rose-500 hover:bg-slate-100'
               }`}
-              title={isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết'}
+              title={bookmarkTitle || (isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết')}
             >
               <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
             </button>
@@ -386,7 +362,7 @@ const NewsListCard = memo(function NewsListCard({
 
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">
-            Cẩm Nang Chuẩn SEO
+            {seoGuideBadge || 'Cẩm Nang Hữu Ích'}
           </span>
 
           <Link
@@ -408,11 +384,19 @@ const NewsNewsletterBox = memo(function NewsNewsletterBox({
   desc,
   placeholder,
   btnText,
+  badgeText,
+  subscribedSuccessText,
+  invalidEmailText,
+  subscribeSuccessToast,
 }: {
   title: string;
   desc: string;
   placeholder: string;
   btnText: string;
+  badgeText?: string;
+  subscribedSuccessText?: string;
+  invalidEmailText?: string;
+  subscribeSuccessToast?: string;
 }) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
@@ -420,11 +404,11 @@ const NewsNewsletterBox = memo(function NewsNewsletterBox({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      toast.warning('Vui lòng nhập đúng định dạng email hợp lệ!');
+      toast.warning(invalidEmailText || 'Vui lòng nhập đúng định dạng email hợp lệ!');
       return;
     }
     setSubscribed(true);
-    toast.success('Đăng ký nhận cẩm nang du lịch thành công! Chúng tôi đã gửi email xác nhận.');
+    toast.success(subscribeSuccessToast || 'Đăng ký nhận cẩm nang du lịch thành công! Chúng tôi đã gửi email xác nhận.');
   };
 
   return (
@@ -436,7 +420,7 @@ const NewsNewsletterBox = memo(function NewsNewsletterBox({
       <div className="relative z-10 max-w-3xl mx-auto text-center space-y-4">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-600/30 border border-blue-400/30 text-blue-300 text-xs font-extrabold uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Bản Tin Du Lịch VIP</span>
+          <span>{badgeText || 'Bản Tin Du Lịch VIP'}</span>
         </div>
 
         <h3 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white leading-tight">
@@ -450,7 +434,7 @@ const NewsNewsletterBox = memo(function NewsNewsletterBox({
         {subscribed ? (
           <div className="p-4 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl max-w-md mx-auto text-emerald-300 font-bold text-sm flex items-center justify-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span>Cảm ơn bạn! Hãy kiểm tra hộp thư để nhận cẩm nang mới nhất.</span>
+            <span>{subscribedSuccessText || 'Cảm ơn bạn! Hãy kiểm tra hộp thư để nhận cẩm nang mới nhất.'}</span>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 max-w-lg mx-auto pt-2">
@@ -510,10 +494,10 @@ function NewsClientComponent({
       let updated: string[];
       if (prev.includes(slug)) {
         updated = prev.filter((s) => s !== slug);
-        toast.info('Đã xóa bài viết khỏi danh sách đã lưu.');
+        toast.info(t('bookmarkRemoved') || 'Đã xóa bài viết khỏi danh sách đã lưu.');
       } else {
         updated = [...prev, slug];
-        toast.success('Đã lưu bài viết vào danh sách yêu thích!');
+        toast.success(t('bookmarkSaved') || 'Đã lưu bài viết vào danh sách yêu thích!');
       }
       try {
         localStorage.setItem('travel_bookmarked_news', JSON.stringify(updated));
@@ -522,7 +506,7 @@ function NewsClientComponent({
       }
       return updated;
     });
-  }, []);
+  }, [t]);
 
   const { data: newsList = (initialNews.length ? initialNews : DEFAULT_NEWS) } = useQuery({
     queryKey: ['news-all-articles'],
@@ -542,6 +526,9 @@ function NewsClientComponent({
   }, [locale]);
 
   const getDestLabel = useCallback((key: string) => {
+    if (!key) {
+      return t('allDestinations') || 'Tất cả điểm đến';
+    }
     const item = HOT_DESTINATIONS.find((d) => d.key === key);
     if (!item) return key;
     if (locale === 'en') return item.labelEn;
@@ -549,7 +536,7 @@ function NewsClientComponent({
     if (locale === 'ko') return item.labelKo;
     if (locale === 'ja') return item.labelJa;
     return item.label;
-  }, [locale]);
+  }, [locale, t]);
 
   // Comprehensive Filtering & Sorting Pipeline
   const filteredArticles = useMemo(() => {
@@ -567,9 +554,17 @@ function NewsClientComponent({
       if (destConfig && destConfig.keywords && destConfig.keywords.length > 0) {
         list = list.filter((item: any) => {
           const slug = (item.slug || '').toLowerCase();
+          const titleLocal = (getI18nText(item.title, locale) || '').toLowerCase();
           const titleVi = (typeof item.title === 'string' ? item.title : item.title?.vi || '').toLowerCase();
           const contentVi = (typeof item.content === 'string' ? item.content : item.content?.vi || '').toLowerCase();
-          return destConfig.keywords.some((kw) => slug.includes(kw) || titleVi.includes(kw) || contentVi.includes(kw));
+          const contentEn = (typeof item.content === 'object' ? item.content?.en || '' : '').toLowerCase();
+          return destConfig.keywords.some((kw) => 
+            slug.includes(kw) || 
+            titleLocal.includes(kw) || 
+            titleVi.includes(kw) || 
+            contentVi.includes(kw) ||
+            contentEn.includes(kw)
+          );
         });
       }
     }
@@ -658,7 +653,7 @@ function NewsClientComponent({
           <div className="flex items-center gap-2">
             <span className="bg-blue-600/90 backdrop-blur-md text-white text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              Tạp Chí Du Lịch & Cẩm Nang
+              <span>{t('heroBadge') || 'Tạp Chí Du Lịch & Cẩm Nang'}</span>
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
@@ -687,7 +682,7 @@ function NewsClientComponent({
                 type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-200 cursor-pointer"
-                title="Xóa tìm kiếm"
+                title={t('clearSearch') || 'Xóa tìm kiếm'}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -716,7 +711,7 @@ function NewsClientComponent({
                     ? 'bg-white text-blue-600 shadow-xs'
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
-                title="Chế độ xem dạng lưới"
+                title={t('gridView') || 'Chế độ xem dạng lưới'}
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
@@ -728,7 +723,7 @@ function NewsClientComponent({
                     ? 'bg-white text-blue-600 shadow-xs'
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
-                title="Chế độ xem dạng danh sách"
+                title={t('listView') || 'Chế độ xem dạng danh sách'}
               >
                 <ListIcon className="w-4 h-4" />
               </button>
@@ -737,7 +732,7 @@ function NewsClientComponent({
         </div>
 
         {/* Hot Destinations Tag Pills - Circular Images like Home Page */}
-        <div className="pt-3 border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0">
             {t('destinationFilter') || 'Điểm đến:'}
           </span>
@@ -751,7 +746,7 @@ function NewsClientComponent({
                 key={dest.key || 'all-dest'}
                 type="button"
                 onClick={() => setSelectedLocation(dest.key)}
-                className={`group py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 flex items-center gap-2 border ${
+                className={`group py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 border ${
                   hasImg ? 'pl-1.5 pr-3.5' : 'px-3.5'
                 } ${
                   isSelected
@@ -798,7 +793,7 @@ function NewsClientComponent({
 
         {/* Results Counter & Active Filters Reset */}
         <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
-          <span>{filteredArticles.length} bài viết</span>
+          <span>{t('foundArticles', { count: filteredArticles.length })}</span>
           {(selectedCategory || selectedLocation || searchQuery) && (
             <button
               type="button"
@@ -858,6 +853,7 @@ function NewsClientComponent({
                     minReadText={minReadText}
                     isBookmarked={bookmarkedSlugs.includes(article.slug)}
                     onToggleBookmark={handleToggleBookmark}
+                    bookmarkTitle={bookmarkedSlugs.includes(article.slug) ? (t('unbookmark') || 'Bỏ lưu bài viết') : (t('bookmark') || 'Lưu bài viết')}
                   />
                 </motion.div>
               ))}
@@ -881,6 +877,8 @@ function NewsClientComponent({
                     minReadText={minReadText}
                     isBookmarked={bookmarkedSlugs.includes(article.slug)}
                     onToggleBookmark={handleToggleBookmark}
+                    bookmarkTitle={bookmarkedSlugs.includes(article.slug) ? (t('unbookmark') || 'Bỏ lưu bài viết') : (t('bookmark') || 'Lưu bài viết')}
+                    seoGuideBadge={t('seoGuideBadge') || 'Cẩm Nang Hữu Ích'}
                   />
                 </motion.div>
               ))}
@@ -893,6 +891,10 @@ function NewsClientComponent({
             desc={t('newsletterDesc') || 'Cập nhật cẩm nang du lịch Việt Nam mới nhất, kinh nghiệm vi vu tự túc và voucher tour giảm tới 30% mỗi tuần.'}
             placeholder={t('newsletterPlaceholder') || 'Nhập địa chỉ email của bạn...'}
             btnText={t('subscribeBtn') || 'Đăng Ký Ngay'}
+            badgeText={t('newsletterBadge') || 'Bản Tin Du Lịch VIP'}
+            subscribedSuccessText={t('newsletterSubscribed') || 'Cảm ơn bạn! Hãy kiểm tra hộp thư để nhận cẩm nang mới nhất.'}
+            invalidEmailText={t('invalidEmail') || 'Vui lòng nhập đúng định dạng email hợp lệ!'}
+            subscribeSuccessToast={t('subscribeSuccess') || 'Đăng ký nhận cẩm nang du lịch thành công! Chúng tôi đã gửi email xác nhận.'}
           />
         </>
       )}

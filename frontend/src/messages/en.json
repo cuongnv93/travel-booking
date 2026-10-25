@@ -99,7 +99,22 @@
     "resetFilters": "Reset Filters",
     "foundArticles": "Found {count} articles",
     "bookmarked": "Saved",
-    "bookmark": "Save Article"
+    "bookmark": "Save Article",
+    "topWeekly": "Top Reads This Week",
+    "emptyCategory": "No articles found in this category.",
+    "backToAllArticles": "Back to all articles",
+    "newsletterBadge": "VIP Travel Newsletter",
+    "newsletterSubscribed": "Thank you! Please check your inbox for the latest travel guides.",
+    "heroBadge": "Travel Magazine & Guides",
+    "seoGuideBadge": "Helpful Guide",
+    "clearSearch": "Clear search",
+    "gridView": "Grid view",
+    "listView": "List view",
+    "bookmarkSaved": "Article saved to your favorites!",
+    "bookmarkRemoved": "Article removed from saved list.",
+    "unbookmark": "Unsave article",
+    "invalidEmail": "Please enter a valid email address!",
+    "subscribeSuccess": "Subscribed successfully! We have sent a confirmation email."
   },
   "testimonials": {
     "tag": "What Our Customers Say",

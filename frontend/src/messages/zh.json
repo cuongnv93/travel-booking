@@ -99,7 +99,22 @@
     "resetFilters": "重置筛选",
     "foundArticles": "共找到 {count} 篇文章",
     "bookmarked": "已收藏",
-    "bookmark": "收藏文章"
+    "bookmark": "收藏文章",
+    "topWeekly": "本周阅读榜单",
+    "emptyCategory": "该分类下暂无文章。",
+    "backToAllArticles": "返回查看所有文章",
+    "newsletterBadge": "VIP旅游特刊",
+    "newsletterSubscribed": "感谢您的订阅！请查看收件箱以获取最新指南。",
+    "heroBadge": "旅游杂志与攻略",
+    "seoGuideBadge": "精选实用指南",
+    "clearSearch": "清空搜索",
+    "gridView": "网格视图",
+    "listView": "列表视图",
+    "bookmarkSaved": "文章已成功保存至收藏列表！",
+    "bookmarkRemoved": "已从收藏列表中移除该文章。",
+    "unbookmark": "取消收藏",
+    "invalidEmail": "请输入有效的电子邮箱地址！",
+    "subscribeSuccess": "订阅成功！我们已向您发送确认邮件。"
   },
   "testimonials": {
     "tag": "客户对我们的评价",
