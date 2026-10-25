@@ -80,7 +80,11 @@
     "title": "여행 가이드 & 팁",
     "subtitle": "최신 여행 정보, 유용한 팁 및 코스를 확인하세요",
     "viewAll": "전체 글 보기",
-    "readMore": "자세히 보기"
+    "readMore": "자세히 보기",
+    "trendingBadge": "인기 여행 이야기",
+    "featuredBadge": "에디터 추천",
+    "allCategories": "전체",
+    "minRead": "분 소요"
   },
   "testimonials": {
     "tag": "고객후기",

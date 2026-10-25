@@ -18,6 +18,7 @@
 - 2026-10-10 — init: Next.js 14 + Tailwind CSS detected. `next-tailwind` preset applied.
 - 2026-10-10 — responsive & layout synchronization: Landing page responsive layout audit and anti-CLS optimization.
 - 2026-10-24 — landing & detail views audit: Fixed mojibake in DestinationsSection, enabled server initialData hydration in HotelDetailClient, added isFeatured/limit backend query filtering for hotels, cleaned next-intl fallback warnings, and standardized search param handling across listings.
+- 2026-10-25 — NewsSection editorial bento upgrade: Refactored home news section to an asymmetrical Bento Grid (60% hero spotlight + 40% trending ranking list), real-time category filtering tabs with spring animations, reading time calculation, and zero-CLS skeleton loader.
 
 ## Components
 - HeroBanner (`src/components/home/HeroBanner.tsx`)

@@ -80,7 +80,11 @@
     "title": "Cẩm Nang & Kinh Nghiệm Du Lịch",
     "subtitle": "Cập nhật những thông tin, mẹo hay và hành trình khám phá mới nhất",
     "viewAll": "Xem tất cả bài viết",
-    "readMore": "Đọc tiếp"
+    "readMore": "Đọc tiếp",
+    "trendingBadge": "Xu Hướng Đọc Nhiều",
+    "featuredBadge": "Tiêu Điểm",
+    "allCategories": "Tất cả",
+    "minRead": "phút đọc"
   },
   "testimonials": {
     "tag": "Khách Hàng Nói Về Chúng Tôi",

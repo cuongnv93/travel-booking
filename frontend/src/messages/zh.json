@@ -80,7 +80,11 @@
     "title": "旅游指南与经验",
     "subtitle": "获取最新的旅游资讯、实用攻略与探索行程",
     "viewAll": "查看所有文章",
-    "readMore": "阅读全文"
+    "readMore": "阅读全文",
+    "trendingBadge": "热门阅读榜",
+    "featuredBadge": "编辑精选",
+    "allCategories": "全部",
+    "minRead": "分钟阅读"
   },
   "testimonials": {
     "tag": "客户对我们的评价",

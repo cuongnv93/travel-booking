@@ -80,7 +80,11 @@
     "title": "Travel Guides & Tips",
     "subtitle": "Stay updated with the latest travel tips, stories, and itineraries",
     "viewAll": "View All Articles",
-    "readMore": "Read More"
+    "readMore": "Read More",
+    "trendingBadge": "Trending Stories",
+    "featuredBadge": "Editor's Pick",
+    "allCategories": "All",
+    "minRead": "min read"
   },
   "testimonials": {
     "tag": "What Our Customers Say",
