@@ -8,6 +8,14 @@ const i18nSchema = {
   ja: { type: String, default: '' }
 };
 
+const optionalI18nSchema = {
+  vi: { type: String, default: '' },
+  en: { type: String, default: '' },
+  zh: { type: String, default: '' },
+  ko: { type: String, default: '' },
+  ja: { type: String, default: '' }
+};
+
 export interface INews extends Document {
   slug: string;
   title: any;
@@ -29,8 +37,8 @@ const newsSchema = new Schema<INews>({
   title: i18nSchema,
   content: i18nSchema,
   excerpt: i18nSchema,
-  seoTitle: { type: i18nSchema, default: () => ({ vi: '', en: '', zh: '', ko: '', ja: '' }) },
-  seoDescription: { type: i18nSchema, default: () => ({ vi: '', en: '', zh: '', ko: '', ja: '' }) },
+  seoTitle: { type: optionalI18nSchema, default: () => ({ vi: '', en: '', zh: '', ko: '', ja: '' }) },
+  seoDescription: { type: optionalI18nSchema, default: () => ({ vi: '', en: '', zh: '', ko: '', ja: '' }) },
   focusKeyword: { type: String, default: '' },
   thumbnail: { type: String, required: true },
   category: { type: String, required: true },
