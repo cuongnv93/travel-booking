@@ -95,7 +95,7 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
     <Link href={`/${currentLocale}/tours/${tour.slug}`} className="h-full block">
       <Card className="overflow-hidden group h-full cursor-pointer hover:-translate-y-2 transition-all duration-300 relative flex flex-col justify-between">
         {/* Image */}
-        <div className="h-52 bg-slate-100 relative overflow-hidden">
+        <div className="w-full aspect-[16/10] bg-slate-100 relative overflow-hidden shrink-0">
           {hasImage || imageSource ? (
             <SmartImage
               src={imageSource || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800'}

@@ -49,7 +49,7 @@ function StatCardSkeleton() {
 function CardSkeleton({ height = 'h-96' }: { height?: string }) {
   return (
     <div className={cn('rounded-2xl overflow-hidden bg-white border border-slate-100', height)}>
-      <Skeleton className="h-56 w-full rounded-none" />
+      <Skeleton className="w-full aspect-[16/10] rounded-none" />
       <div className="p-5 space-y-3">
         <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-3 w-1/2" />

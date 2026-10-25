@@ -31,7 +31,7 @@ const DestinationCard = memo(function DestinationCard({ destName, queryParam, ph
       transition={{ duration: 0.4, delay: idx * 0.05 }}
     >
       <Link href={`/${locale}/tours?destination=${encodeURIComponent(queryParam || destName)}`}>
-        <div className="group relative h-48 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer bg-slate-100">
+        <div className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer bg-slate-100">
           <SmartImage
             src={imgSrc}
             alt={destName}

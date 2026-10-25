@@ -109,7 +109,7 @@ const FlashSaleCard = memo(function FlashSaleCard({
       <Link href={targetLink}>
         <div className="bg-slate-900/90 border border-rose-500/20 hover:border-rose-500/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-rose-600/20 transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
           {/* Image Header */}
-          <div className="h-48 bg-slate-800/40 relative overflow-hidden">
+          <div className="w-full aspect-[16/10] bg-slate-800/40 relative overflow-hidden shrink-0">
             <SmartImage
               src={imgSrc}
               alt={title}

@@ -55,7 +55,7 @@ const FeaturedHotelCard = memo(function FeaturedHotelCard({
       transition={{ duration: 0.5, delay: idx * 0.1 }}
       className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group h-full justify-between"
     >
-      <div className="h-60 bg-slate-100 relative overflow-hidden">
+      <div className="w-full aspect-[16/10] bg-slate-100 relative overflow-hidden shrink-0">
         <SmartImage
           src={imgSrc}
           alt={name}

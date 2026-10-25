@@ -4,6 +4,7 @@ import { getI18nText, formatPrice } from '@/lib/utils';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { prefetchNewsBySlug, prefetchNews, prefetchTours } from '@/lib/serverApi';
+import TourCard from '@/components/tours/TourCard';
 
 async function getRelatedArticles(currentSlug: string) {
   try {
@@ -383,67 +384,9 @@ export default async function NewsDetailPage({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredTours.map((tour: any) => {
-              const tourId = tour._id || tour.id;
-              const tourTitle = getI18nText(tour.title, locale);
-              const tourImage = tour.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
-
-              return (
-                <div 
-                  key={tourId}
-                  className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
-                >
-                  {/* Tour Image */}
-                  <div className="h-48 overflow-hidden relative bg-slate-100">
-                    <img 
-                      src={tourImage} 
-                      alt={tourTitle} 
-                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700" 
-                    />
-                    <div className="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      Tour
-                    </div>
-                    {tour.destination && (
-                      <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-amber-400" />
-                        {tour.destination}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Tour Info */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold mb-1">
-                        <Star className="w-4 h-4 fill-amber-400" />
-                        <span>{tour.rating || 5.0}</span>
-                        <span className="text-slate-400 font-normal">({tour.reviewCount || 12})</span>
-                      </div>
-
-                      <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
-                        {tourTitle}
-                      </h3>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
-                      <div>
-                        <span className="text-[10px] text-slate-400 block font-medium">
-                          {t('priceFrom')}
-                        </span>
-                        <span className="font-extrabold text-base text-orange-600">{formatPrice(tour.price || 0)}</span>
-                      </div>
-
-                      <Link
-                        href={`/${locale}/tours/${tour.slug || tourId}`}
-                        className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-colors shrink-0"
-                      >
-                        {t('bookNow')}
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {featuredTours.map((tour: any) => (
+              <TourCard key={tour._id || tour.id} tour={tour} locale={locale} />
+            ))}
           </div>
         </section>
 
