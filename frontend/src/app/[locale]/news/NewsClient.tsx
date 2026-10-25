@@ -17,7 +17,6 @@ import {
   Sparkles,
   Send,
   RotateCcw,
-  MapPin,
   CheckCircle2,
 } from 'lucide-react';
 import { getI18nText, formatLocalizedDate } from '@/lib/utils';
@@ -41,23 +40,113 @@ const fetchNews = async () => {
 
 const CATEGORY_ITEMS = [
   { key: '', label: 'Tất cả bài viết', labelEn: 'All Articles', labelZh: '全部文章', labelKo: '전체 글', labelJa: 'すべての記事' },
-  { key: 'experience', label: '✈️ Kinh nghiệm', labelEn: '✈️ Experience', labelZh: '✈️ 旅行经验', labelKo: '✈️ 여행 팁', labelJa: '✈️ 旅行体験' },
-  { key: 'destination', label: '🗺️ Điểm đến', labelEn: '🗺️ Destinations', labelZh: '🗺️ 热门目的地', labelKo: '🗺️ 추천 여행지', labelJa: '🗺️ 観光スポット' },
-  { key: 'food', label: '🍜 Ẩm thực', labelEn: '🍜 Cuisine', labelZh: '🍜 美食天地', labelKo: '🍜 미식 탐방', labelJa: '🍜 グルメ' },
-  { key: 'international', label: '🌍 Quốc tế', labelEn: '🌍 International', labelZh: '🌍 国际旅游', labelKo: '🌍 해외 여행', labelJa: '🌍 海外旅行' },
+  { key: 'experience', label: 'Kinh nghiệm', labelEn: 'Experience', labelZh: '旅行经验', labelKo: '여행 팁', labelJa: '旅行体験' },
+  { key: 'destination', label: 'Điểm đến', labelEn: 'Destinations', labelZh: '热门目的地', labelKo: '추천 여행지', labelJa: '観光スポット' },
+  { key: 'food', label: 'Ẩm thực', labelEn: 'Cuisine', labelZh: '美食天地', labelKo: '미식 탐방', labelJa: 'グルメ' },
+  { key: 'international', label: 'Quốc tế', labelEn: 'International', labelZh: '国际旅游', labelKo: '해외 여행', labelJa: '海外旅行' },
 ];
 
 const HOT_DESTINATIONS = [
-  { key: '', label: 'Tất cả điểm đến', labelEn: 'All Destinations', labelZh: '全部目的地', labelKo: '전체 여행지', labelJa: 'すべての目的地', keywords: [] },
-  { key: 'da-lat', label: '🌸 Đà Lạt', labelEn: '🌸 Da Lat', labelZh: '🌸 大叻', labelKo: '🌸 달랏', labelJa: '🌸 ダラット', keywords: ['đà lạt', 'da lat', 'dalat'] },
-  { key: 'phu-quoc', label: '🏝️ Phú Quốc', labelEn: '🏝️ Phu Quoc', labelZh: '🏝️ 富国岛', labelKo: '🏝️ 푸꾸옥', labelJa: '🏝️ フーコック', keywords: ['phú quốc', 'phu quoc', 'phuquoc'] },
-  { key: 'da-nang', label: '🌉 Đà Nẵng', labelEn: '🌉 Da Nang', labelZh: '🌉 岘港', labelKo: '🌉 다낭', labelJa: '🌉 ダナン', keywords: ['đà nẵng', 'da nang', 'danang', 'bà nà', 'sơn trà'] },
-  { key: 'ha-noi', label: '🏮 Hà Nội', labelEn: '🏮 Hanoi', labelZh: '🏮 河内', labelKo: '🏮 하노이', labelJa: '🏮 ハノイ', keywords: ['hà nội', 'ha noi', 'hanoi'] },
-  { key: 'ninh-binh', label: '🛶 Ninh Bình', labelEn: '🛶 Ninh Binh', labelZh: '🛶 宁平', labelKo: '🛶 닌빈', labelJa: '🛶 ニンビン', keywords: ['ninh bình', 'ninh binh', 'tràng an', 'trang an'] },
-  { key: 'sapa', label: '🌾 Sa Pa', labelEn: '🌾 Sapa', labelZh: '🌾 沙坝', labelKo: '🌾 사파', labelJa: '🌾 サパ', keywords: ['sa pa', 'sapa', 'fansipan'] },
-  { key: 'ha-long', label: '⛵ Hạ Long', labelEn: '⛵ Halong Bay', labelZh: '⛵ 下龙湾', labelKo: '⛵ 하롱베이', labelJa: '⛵ ハロン湾', keywords: ['hạ long', 'ha long', 'halong'] },
-  { key: 'mien-tay', label: '🚣 Miền Tây', labelEn: '🚣 Mekong Delta', labelZh: '🚣 湄公河三角洲', labelKo: '🚣 메콩 델타', labelJa: '🚣 メコンデルタ', keywords: ['miền tây', 'mien tay', 'cần thơ', 'cái răng'] },
-  { key: 'quy-nhon', label: '🏖️ Quy Nhơn', labelEn: '🏖️ Quy Nhon', labelZh: '🏖️ 归仁与富安', labelKo: '🏖️ 꾸이년', labelJa: '🏖️ クイニョン', keywords: ['quy nhơn', 'quy nhon', 'phú yên', 'phu yen', 'kỳ co', 'eo gió'] },
+  {
+    key: '',
+    label: 'Tất cả điểm đến',
+    labelEn: 'All Destinations',
+    labelZh: '全部目的地',
+    labelKo: '전체 여행지',
+    labelJa: 'すべての目的地',
+    image: '',
+    keywords: [],
+  },
+  {
+    key: 'da-lat',
+    label: 'Đà Lạt',
+    labelEn: 'Da Lat',
+    labelZh: '大叻',
+    labelKo: '달랏',
+    labelJa: 'ダラット',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=200',
+    keywords: ['đà lạt', 'da lat', 'dalat'],
+  },
+  {
+    key: 'phu-quoc',
+    label: 'Phú Quốc',
+    labelEn: 'Phu Quoc',
+    labelZh: '富国岛',
+    labelKo: '푸꾸옥',
+    labelJa: 'フーコック',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200',
+    keywords: ['phú quốc', 'phu quoc', 'phuquoc'],
+  },
+  {
+    key: 'da-nang',
+    label: 'Đà Nẵng',
+    labelEn: 'Da Nang',
+    labelZh: '岘港',
+    labelKo: '다낭',
+    labelJa: 'ダナン',
+    image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=200',
+    keywords: ['đà nẵng', 'da nang', 'danang', 'bà nà', 'sơn trà'],
+  },
+  {
+    key: 'ha-noi',
+    label: 'Hà Nội',
+    labelEn: 'Hanoi',
+    labelZh: '河内',
+    labelKo: '하노이',
+    labelJa: 'ハノイ',
+    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=200',
+    keywords: ['hà nội', 'ha noi', 'hanoi'],
+  },
+  {
+    key: 'ninh-binh',
+    label: 'Ninh Bình',
+    labelEn: 'Ninh Binh',
+    labelZh: '宁平',
+    labelKo: '닌빈',
+    labelJa: 'ニンビン',
+    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=200',
+    keywords: ['ninh bình', 'ninh binh', 'tràng an', 'trang an'],
+  },
+  {
+    key: 'sapa',
+    label: 'Sa Pa',
+    labelEn: 'Sapa',
+    labelZh: '沙坝',
+    labelKo: '사파',
+    labelJa: 'サパ',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200',
+    keywords: ['sa pa', 'sapa', 'fansipan'],
+  },
+  {
+    key: 'ha-long',
+    label: 'Hạ Long',
+    labelEn: 'Halong Bay',
+    labelZh: '下龙湾',
+    labelKo: '하롱베이',
+    labelJa: 'ハロン湾',
+    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=200',
+    keywords: ['hạ long', 'ha long', 'halong'],
+  },
+  {
+    key: 'mien-tay',
+    label: 'Miền Tây',
+    labelEn: 'Mekong Delta',
+    labelZh: '湄公河三角洲',
+    labelKo: '메콩 델타',
+    labelJa: 'メコンデルタ',
+    image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=200',
+    keywords: ['miền tây', 'mien tay', 'cần thơ', 'cái răng'],
+  },
+  {
+    key: 'quy-nhon',
+    label: 'Quy Nhơn',
+    labelEn: 'Quy Nhon',
+    labelZh: '归仁与富安',
+    labelKo: '꾸이년',
+    labelJa: 'クイニョン',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200',
+    keywords: ['quy nhơn', 'quy nhon', 'phú yên', 'phu yen', 'kỳ co', 'eo gió'],
+  },
 ];
 
 const FALLBACK_NEWS_IMG = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200';
@@ -586,19 +675,19 @@ function NewsClientComponent({
         <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
           {/* Instant Search Bar */}
           <div className="relative w-full md:flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-medium"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-medium"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-200 cursor-pointer"
+                title="Xóa tìm kiếm"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -613,8 +702,8 @@ function NewsClientComponent({
               onChange={(e: any) => setSortBy(e.target.value)}
               className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer"
             >
-              <option value="newest">⚡ {t('sortByNewest') || 'Mới nhất'}</option>
-              <option value="popular">🔥 {t('sortByPopular') || 'Đọc nhiều nhất'}</option>
+              <option value="newest">{t('sortByNewest') || 'Mới nhất'}</option>
+              <option value="popular">{t('sortByPopular') || 'Đọc nhiều nhất'}</option>
             </select>
 
             {/* Grid / List Switcher */}
@@ -647,26 +736,41 @@ function NewsClientComponent({
           </div>
         </div>
 
-        {/* Hot Destinations Tag Pills */}
-        <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-rose-500" />
+        {/* Hot Destinations Tag Pills - Circular Images like Home Page */}
+        <div className="pt-3 border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0">
             {t('destinationFilter') || 'Điểm đến:'}
           </span>
           {HOT_DESTINATIONS.map((dest) => {
             const isSelected = selectedLocation === dest.key;
+            const label = getDestLabel(dest.key);
+            const hasImg = Boolean(dest.image);
+
             return (
               <button
-                key={dest.key}
+                key={dest.key || 'all-dest'}
                 type="button"
                 onClick={() => setSelectedLocation(dest.key)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                className={`group py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 flex items-center gap-2 border ${
+                  hasImg ? 'pl-1.5 pr-3.5' : 'px-3.5'
+                } ${
                   isSelected
-                    ? 'bg-rose-500 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-600 border-slate-200/90 hover:border-blue-300'
                 }`}
               >
-                {getDestLabel(dest.key)}
+                {hasImg && (
+                  <img
+                    src={dest.image}
+                    alt={label}
+                    loading="lazy"
+                    decoding="async"
+                    className={`w-5 h-5 rounded-full object-cover ring-2 shrink-0 transition-transform group-hover:scale-110 ${
+                      isSelected ? 'ring-white/80' : 'ring-white group-hover:ring-blue-300'
+                    }`}
+                  />
+                )}
+                <span>{label}</span>
               </button>
             );
           })}
