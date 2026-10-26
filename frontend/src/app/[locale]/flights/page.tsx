@@ -71,5 +71,9 @@ export async function generateMetadata({
 }
 
 export default function FlightsPage() {
-  return <FlightsClient />;
+  return (
+    <main id="main-content" className="flex-grow">
+      <FlightsClient />
+    </main>
+  );
 }

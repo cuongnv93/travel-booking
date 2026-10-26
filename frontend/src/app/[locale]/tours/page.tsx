@@ -129,7 +129,7 @@ export default async function ToursPage({
   };
 
   return (
-    <main>
+    <main id="main-content" className="flex-grow">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(toursSchema) }}

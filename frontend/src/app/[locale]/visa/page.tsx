@@ -232,7 +232,7 @@ export default async function VisaPage({ params: { locale } }: { params: { local
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-20 space-y-12">
+    <main id="main-content" className="container mx-auto px-4 py-8 mt-20 space-y-12">
       {/* Hero Banner */}
       <VideoBackground
         videoSrc={visaVideo}
@@ -504,6 +504,6 @@ export default async function VisaPage({ params: { locale } }: { params: { local
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

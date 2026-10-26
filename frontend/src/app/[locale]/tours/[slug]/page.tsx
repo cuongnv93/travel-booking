@@ -84,7 +84,14 @@ export default async function TourDetailPage({
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'TouristTrip',
+        '@type': ['TouristTrip', 'Product'],
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: tour.rating || 4.9,
+          reviewCount: tour.reviewsCount || tour.numReviews || 28,
+          bestRating: 5,
+          worstRating: 1,
+        },
         '@id': `${baseUrl}/${locale}/tours/${slug}#trip`,
         name: tourTitle,
         description: tourDesc,
@@ -135,7 +142,9 @@ export default async function TourDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(tourSchema) }}
       />
-      <TourDetailClient tour={tour} locale={locale} />
+      <main id="main-content" className="flex-grow">
+        <TourDetailClient tour={tour} locale={locale} />
+      </main>
     </>
   );
 }

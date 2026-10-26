@@ -87,7 +87,7 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
   const content = page ? getI18nText(page.content, locale) : `<p class="text-slate-500 text-center py-20">${t('contentFallback')}</p>`;
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-20 max-w-5xl">
+    <main id="main-content" className="container mx-auto px-4 py-8 mt-20 max-w-5xl">
       {/* Banner */}
       <VideoBackground
         videoSrc="https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/travel.mp4"
@@ -151,6 +151,6 @@ export default async function AboutPage({ params: { locale } }: { params: { loca
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

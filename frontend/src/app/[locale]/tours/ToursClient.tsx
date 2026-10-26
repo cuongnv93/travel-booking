@@ -218,7 +218,7 @@ export default function ToursClient({ initialTours, toursBanner, toursVideo = 'h
         </aside>
 
         {/* Tour List */}
-        <main className="flex-1">
+        <section aria-label="Tour list" className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-100">
             <p className="text-sm font-medium text-slate-600">
               <span className="font-bold text-blue-600">{displayTours.length}</span> {t('toursFound')}
@@ -275,7 +275,7 @@ export default function ToursClient({ initialTours, toursBanner, toursVideo = 'h
               ))}
             </motion.div>
           )}
-        </main>
+        </section>
       </div>
     </div>
   );

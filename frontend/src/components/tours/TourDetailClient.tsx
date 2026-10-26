@@ -159,7 +159,7 @@ export default function TourDetailClient({
                       activeImg === idx ? 'border-blue-600 scale-105 shadow-sm opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt={`${title} - ${idx + 1}`} loading="lazy" className="w-full h-full object-cover" />
                   </motion.button>
                 ))}
               </div>

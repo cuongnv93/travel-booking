@@ -75,7 +75,7 @@ export default function ContactClient() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-20">
+    <main id="main-content" className="container mx-auto px-4 py-8 mt-20">
       {/* Banner Header */}
       <VideoBackground
         videoSrc={contactVideo}
@@ -276,6 +276,6 @@ export default function ContactClient() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

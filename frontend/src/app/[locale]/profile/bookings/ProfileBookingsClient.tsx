@@ -172,7 +172,7 @@ export default function ProfileBookingsClient() {
               >
                 <div className="flex gap-4 items-center min-w-0 flex-1">
                   <div className="w-20 h-20 rounded-2xl bg-slate-900 shrink-0 overflow-hidden relative">
-                    <img src={thumb} alt="" className="w-full h-full object-cover" />
+                    <img src={thumb} alt={title || 'Booking thumbnail'} loading="lazy" className="w-full h-full object-cover" />
                     <span className="absolute top-1 left-1 bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
                       {isHotel ? 'Hotel' : isFlight ? 'Flight' : 'Tour'}
                     </span>

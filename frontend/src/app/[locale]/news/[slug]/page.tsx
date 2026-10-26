@@ -100,7 +100,7 @@ export default async function NewsDetailPage({
 
   if (!article) {
     return (
-      <div className="container mx-auto px-4 py-28 mt-12 text-center max-w-lg">
+      <main id="main-content" className="container mx-auto px-4 py-28 mt-12 text-center max-w-lg">
         <h1 className="text-2xl font-extrabold mb-3 text-slate-900">
           {t('notFoundTitle')}
         </h1>
@@ -113,7 +113,7 @@ export default async function NewsDetailPage({
         >
           <ArrowLeft className="w-4 h-4" /> {t('backToNews')}
         </Link>
-      </div>
+      </main>
     );
   }
 
@@ -200,7 +200,7 @@ export default async function NewsDetailPage({
                         t('news');
 
   return (
-    <div className="bg-slate-50/70 min-h-screen pb-24 pt-24">
+    <main id="main-content" className="bg-slate-50/70 min-h-screen pb-24 pt-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -234,7 +234,7 @@ export default async function NewsDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* 3/4 Width Main Article Column (lg:col-span-9) */}
-          <main className="lg:col-span-9 bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-sm space-y-8">
+          <article className="lg:col-span-9 bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-sm space-y-8">
             
             {/* Article Header Details */}
             <div className="space-y-4 border-b border-slate-100 pb-6">
@@ -306,7 +306,7 @@ export default async function NewsDetailPage({
                 <span>{t('shareArticle')}</span>
               </div>
             </div>
-          </main>
+          </article>
 
           {/* 1/4 Width Sidebar Column (lg:col-span-3) */}
           <aside className="lg:col-span-3 space-y-6 sticky top-24">
@@ -391,6 +391,6 @@ export default async function NewsDetailPage({
         </section>
 
       </div>
-    </div>
+    </main>
   );
 }

@@ -313,7 +313,7 @@ export default function HotelDetailClient({ initialHotel }: { initialHotel?: any
                   onClick={() => setActiveImg(idx)}
                   className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-all snap-start cursor-pointer ${activeImg === idx ? 'border-blue-400 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt={`${name} - ${idx + 1}`} loading="lazy" className="w-full h-full object-cover" />
                 </motion.button>
               ))}
             </div>

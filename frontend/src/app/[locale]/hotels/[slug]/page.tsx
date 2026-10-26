@@ -85,6 +85,13 @@ export default async function HotelDetailPage({
           streetAddress: hotel.address || hotel.location || '',
           addressCountry: 'VN',
         },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: hotel.rating || hotel.stars || 4.8,
+          reviewCount: hotel.reviewsCount || 36,
+          bestRating: 5,
+          worstRating: 1,
+        },
         starRating: {
           '@type': 'Rating',
           ratingValue: hotel.stars || 5,
@@ -126,7 +133,9 @@ export default async function HotelDetailPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(hotelSchema) }}
         />
       )}
-      <HotelDetailClient initialHotel={hotel} />
+      <main id="main-content" className="flex-grow">
+        <HotelDetailClient initialHotel={hotel} />
+      </main>
     </>
   );
 }

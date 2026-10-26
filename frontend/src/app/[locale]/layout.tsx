@@ -186,6 +186,12 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages} locale={locale}>
       <Providers>
         <script
+          id="lang-sync"
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.lang = ${JSON.stringify(locale)};`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
@@ -200,7 +206,7 @@ export default async function LocaleLayout({
         <div className="flex flex-col min-h-screen relative overflow-x-hidden w-full">
           <NavigationProgress />
           <Header />
-          <main className="flex-grow w-full">{children}</main>
+          <div className="flex-grow w-full flex flex-col">{children}</div>
           <Footer />
           <FloatingChat />
           <MobileMenu />
