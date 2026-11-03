@@ -1,68 +1,15 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Tour from '../models/Tour';
-import { paginate, escapeRegex, buildDestinationRegex, slugify } from '../utils/helpers';
+import { paginate, buildDestinationRegex, slugify } from '../utils/helpers';
 import { cacheService } from '../services/cacheService';
 
 const generateSlug = (title: string) => slugify(title, true);
 
-const TOUR_LANDMARK_MAP: Record<string, string[]> = {
-  'ha-long-bay': [
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
-  ],
-  'nha-trang-diving': [
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200',
-    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200'
-  ],
-  'ho-guom-hanoi': [
-    'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
-  ],
-  'da-nang-ba-na-hills': [
-    'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200',
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200'
-  ],
-  'ban-gioc-cao-bang': [
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200'
-  ],
-  'phu-quoc-paradise': [
-    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200',
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200'
-  ],
-  'sapa-fansipan': [
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200',
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
-  ],
-  'hue-culture-tour': [
-    'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200'
-  ]
-};
-
-export const fixLandmarkImages = async (_req: Request, res: Response) => {
-  try {
-    cacheService.flush();
-    const tours = await Tour.find({});
-    for (const tour of tours) {
-      if (TOUR_LANDMARK_MAP[tour.slug]) {
-        tour.images = TOUR_LANDMARK_MAP[tour.slug];
-      } else if (tour.destination === 'Nha Trang') {
-        tour.images = TOUR_LANDMARK_MAP['nha-trang-diving'];
-      } else if (tour.destination && /Hạ Long|Ha Long/i.test(tour.destination)) {
-        tour.images = TOUR_LANDMARK_MAP['ha-long-bay'];
-      } else if (tour.destination && /Hà Nội|Ha Noi/i.test(tour.destination)) {
-        tour.images = TOUR_LANDMARK_MAP['ho-guom-hanoi'];
-      } else if (tour.destination === 'ÄÃ  Náºµng') {
-        tour.images = TOUR_LANDMARK_MAP['da-nang-ba-na-hills'];
-      }
-      await tour.save();
-    }
-    res.json({ message: 'Successfully updated all tour images with zero people/handbag photos!' });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
+const invalidateTourCaches = () => {
+  cacheService.delByPrefix('tours_');
+  cacheService.del('tour_destinations');
+  cacheService.del('flash_sale_items');
 };
 
 export const getAll = async (req: Request, res: Response) => {
@@ -111,36 +58,54 @@ export const getAll = async (req: Request, res: Response) => {
       .lean();
     const total = await Tour.countDocuments(query);
     const result = paginate(tours, total, Number(page), Number(limit));
-    cacheService.set(cacheKey, result);
+    cacheService.set(cacheKey, result, 120); // Cache 2 minutes
     res.json(result);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
 
+/**
+ * Highly optimized destination listing using a single MongoDB aggregation pipeline.
+ * Eliminates N+1 queries.
+ */
 export const getDestinations = async (_req: Request, res: Response) => {
   try {
     const cached = cacheService.get('tour_destinations');
     if (cached) return res.json(cached);
 
-    const rawDestinations = await Tour.distinct('destination');
-    const filtered = rawDestinations.filter(Boolean);
+    const list = await Tour.aggregate([
+      {
+        $match: {
+          destination: { $exists: true, $ne: '' },
+          isActive: { $ne: false },
+        },
+      },
+      {
+        $sort: { isFeatured: -1, rating: -1, createdAt: -1 },
+      },
+      {
+        $group: {
+          _id: '$destination',
+          sampleImage: { $first: { $arrayElemAt: ['$images', 0] } },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id',
+          image: {
+            $ifNull: [
+              '$sampleImage',
+              'https://images.unsplash.com/photo-1528127269322-539801943592?w=800',
+            ],
+          },
+        },
+      },
+      { $sort: { name: 1 } },
+    ]);
 
-    const list = await Promise.all(
-      filtered.map(async (destName) => {
-        const sampleTour = await Tour.findOne({ destination: destName })
-          .sort({ isFeatured: -1, rating: -1, createdAt: -1 })
-          .select('images')
-          .lean();
-        const image = sampleTour?.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
-        return {
-          name: destName,
-          image: image
-        };
-      })
-    );
-
-    cacheService.set('tour_destinations', list);
+    cacheService.set('tour_destinations', list, 300);
     res.json(list);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -154,7 +119,7 @@ export const getBySlug = async (req: Request, res: Response) => {
     if (!tour && /^[0-9a-fA-F]{24}$/.test(slug)) {
       tour = await Tour.findById(slug).lean();
     }
-    if (!tour) return res.status(404).json({ message: 'Tour not found' });
+    if (!tour) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     res.json(tour);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -165,11 +130,13 @@ export const create = async (req: Request, res: Response) => {
   try {
     const data = { ...req.body };
     if (!data.slug) {
-      const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
+      const titleStr = typeof data.title === 'string'
+        ? data.title
+        : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
       data.slug = generateSlug(String(titleStr));
     }
     const tour = await Tour.create(data);
-    cacheService.flush();
+    invalidateTourCaches();
     res.status(201).json(tour);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -179,16 +146,18 @@ export const create = async (req: Request, res: Response) => {
 export const update = async (req: Request, res: Response) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: 'Tour not found' });
+      return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     }
     const data = { ...req.body };
     if (!data.slug && data.title) {
-      const titleStr = typeof data.title === 'string' ? data.title : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
+      const titleStr = typeof data.title === 'string'
+        ? data.title
+        : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
       data.slug = generateSlug(String(titleStr));
     }
     const tour = await Tour.findByIdAndUpdate(req.params.id, data, { new: true });
-    if (!tour) return res.status(404).json({ message: 'Tour not found' });
-    cacheService.flush();
+    if (!tour) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
+    invalidateTourCaches();
     res.json(tour);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -198,12 +167,12 @@ export const update = async (req: Request, res: Response) => {
 export const deleteTour = async (req: Request, res: Response) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: 'Tour not found' });
+      return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     }
     const tour = await Tour.findByIdAndDelete(req.params.id);
-    if (!tour) return res.status(404).json({ message: 'Tour not found' });
-    cacheService.flush();
-    res.json({ message: 'Tour removed' });
+    if (!tour) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
+    invalidateTourCaches();
+    res.json({ message: 'Đã xóa tour thành công' });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -212,13 +181,13 @@ export const deleteTour = async (req: Request, res: Response) => {
 export const toggleFeatured = async (req: Request, res: Response) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: 'Tour not found' });
+      return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     }
     const tour = await Tour.findById(req.params.id);
-    if (!tour) return res.status(404).json({ message: 'Tour not found' });
+    if (!tour) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     tour.isFeatured = !tour.isFeatured;
     await tour.save();
-    cacheService.flush();
+    invalidateTourCaches();
     res.json(tour);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -228,13 +197,13 @@ export const toggleFeatured = async (req: Request, res: Response) => {
 export const toggleActive = async (req: Request, res: Response) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: 'Tour not found' });
+      return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     }
     const tour = await Tour.findById(req.params.id);
-    if (!tour) return res.status(404).json({ message: 'Tour not found' });
+    if (!tour) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     tour.isActive = !tour.isActive;
     await tour.save();
-    cacheService.flush();
+    invalidateTourCaches();
     res.json(tour);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -244,13 +213,15 @@ export const toggleActive = async (req: Request, res: Response) => {
 export const duplicateTour = async (req: Request, res: Response) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: 'Tour not found' });
+      return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     }
     const original = await Tour.findById(req.params.id).lean();
-    if (!original) return res.status(404).json({ message: 'Tour not found' });
+    if (!original) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
 
     const { _id, createdAt, ...rest } = original as any;
-    const viTitle = typeof rest.title === 'string' ? `${rest.title} (Bản sao)` : `${rest.title?.vi || 'Tour'} (Bản sao)`;
+    const viTitle = typeof rest.title === 'string'
+      ? `${rest.title} (Bản sao)`
+      : `${rest.title?.vi || 'Tour'} (Bản sao)`;
     const newTitle = typeof rest.title === 'object' && rest.title
       ? { ...rest.title, vi: viTitle, en: rest.title.en ? `${rest.title.en} (Copy)` : '' }
       : { vi: viTitle, en: '' };
@@ -266,7 +237,7 @@ export const duplicateTour = async (req: Request, res: Response) => {
       createdAt: new Date(),
     });
 
-    cacheService.flush();
+    invalidateTourCaches();
     res.status(201).json(duplicated);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

@@ -32,3 +32,25 @@ export const bookingCreateLimiter = rateLimit({
     message: 'Bạn đã tạo quá nhiều yêu cầu đặt chỗ. Vui lòng thử lại sau 1 giờ.',
   },
 });
+
+// Consultation & contact submission limiter: 10 requests per 15 minutes
+export const consultationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: 'Bạn đã gửi yêu cầu tư vấn nhiều lần. Vui lòng đợi 15 phút trước khi gửi lại.',
+  },
+});
+
+// Sensitive public search/validation limiter (coupon check, booking lookup): 30 requests per 15 minutes
+export const sensitiveLookupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: 'Quá nhiều lượt tra cứu liên tiếp. Vui lòng thử lại sau 15 phút.',
+  },
+});

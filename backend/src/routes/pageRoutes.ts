@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { getBySlug, upsert } from '../controllers/pageController';
-import { protect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
+import { protect, adminOnly } from '../middleware/auth';
 
 const router = Router();
 

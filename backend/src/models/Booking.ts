@@ -32,38 +32,38 @@ export interface IBooking extends Document {
 }
 
 const bookingSchema = new Schema<IBooking>({
-  bookingCode: { type: String, required: true, unique: true },
-  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  bookingCode: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
   tourId: { type: Schema.Types.ObjectId, ref: 'Tour' },
   hotelId: { type: Schema.Types.ObjectId, ref: 'Hotel' },
   flightId: { type: Schema.Types.ObjectId, ref: 'Flight' },
-  type: { type: String, enum: ['tour', 'hotel', 'flight'], default: 'tour' },
-  status: { type: String, enum: ['pending', 'confirmed', 'cancelled', 'completed'], default: 'pending' },
+  type: { type: String, enum: ['tour', 'hotel', 'flight'], default: 'tour', index: true },
+  status: { type: String, enum: ['pending', 'confirmed', 'cancelled', 'completed'], default: 'pending', index: true },
   travelDate: { type: Date },
   checkIn: { type: Date },
   checkOut: { type: Date },
-  roomName: { type: String },
+  roomName: { type: String, trim: true },
   guests: {
-    adults: { type: Number, default: 1 },
-    children: { type: Number, default: 0 }
+    adults: { type: Number, default: 1, min: 1 },
+    children: { type: Number, default: 0, min: 0 }
   },
-  rooms: { type: Number, default: 1 },
-  totalPrice: { type: Number, required: true },
-  discount: { type: Number, default: 0 },
-  couponCode: { type: String },
-  paymentStatus: { type: String, enum: ['pending', 'paid', 'refunded'], default: 'pending' },
+  rooms: { type: Number, default: 1, min: 1 },
+  totalPrice: { type: Number, required: true, min: 0 },
+  discount: { type: Number, default: 0, min: 0 },
+  couponCode: { type: String, trim: true, uppercase: true },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'refunded'], default: 'pending', index: true },
   customerInfo: {
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String },
-    notes: { type: String }
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    phone: { type: String, required: true, trim: true },
+    address: { type: String, trim: true },
+    notes: { type: String, trim: true }
   },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now, index: true }
 });
 
 bookingSchema.index({ userId: 1, createdAt: -1 });
 bookingSchema.index({ status: 1, createdAt: -1 });
-bookingSchema.index({ type: 1, status: 1 });
+bookingSchema.index({ type: 1, status: 1, createdAt: -1 });
 
 export default mongoose.model<IBooking>('Booking', bookingSchema);

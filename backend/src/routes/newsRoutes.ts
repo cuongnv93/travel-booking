@@ -1,7 +1,15 @@
 import { Router } from 'express';
-import { getAll, getAllAdmin, getBySlug, create, update, deleteNews, duplicateNews, seedSeoDefaults } from '../controllers/newsController';
-import { protect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
+import {
+  getAll,
+  getAllAdmin,
+  getBySlug,
+  create,
+  update,
+  deleteNews,
+  duplicateNews,
+  seedSeoDefaults,
+} from '../controllers/newsController';
+import { protect, adminOnly } from '../middleware/auth';
 
 const router = Router();
 

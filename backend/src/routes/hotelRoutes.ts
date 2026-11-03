@@ -10,8 +10,7 @@ import {
   toggleFlashSale,
   duplicateHotel
 } from '../controllers/hotelController';
-import { protect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
+import { protect, adminOnly } from '../middleware/auth';
 
 const router = Router();
 

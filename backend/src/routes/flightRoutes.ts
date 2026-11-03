@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { getAll, getById, create, update, remove } from '../controllers/flightController';
-import { protect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
+import { protect, adminOnly } from '../middleware/auth';
 
 const router = Router();
 

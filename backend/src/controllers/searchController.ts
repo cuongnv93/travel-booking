@@ -3,6 +3,7 @@ import Tour from '../models/Tour';
 import Hotel from '../models/Hotel';
 import News from '../models/News';
 import { escapeRegex } from '../utils/helpers';
+import { cacheService } from '../services/cacheService';
 
 export const globalSearch = async (req: Request, res: Response) => {
   try {
@@ -11,9 +12,15 @@ export const globalSearch = async (req: Request, res: Response) => {
       return res.json({ tours: [], hotels: [], news: [] });
     }
 
-    const safeRegex = new RegExp(escapeRegex(q.trim()), 'i');
+    const trimmed = q.trim();
     const searchLimit = Math.min(Math.max(1, Number(req.query.limit) || 12), 50);
-    
+
+    const cacheKey = `search_${trimmed.toLowerCase()}_${searchLimit}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached) return res.json(cached);
+
+    const safeRegex = new RegExp(escapeRegex(trimmed), 'i');
+
     const [tours, hotels, news] = await Promise.all([
       Tour.find({
         isActive: { $ne: false },
@@ -25,10 +32,10 @@ export const globalSearch = async (req: Request, res: Response) => {
           { 'title.ko': safeRegex },
           { 'title.ja': safeRegex },
           { destination: safeRegex },
-          { tags: safeRegex }
-        ]
+          { category: safeRegex },
+        ],
       })
-        .select('title images price duration destination rating slug')
+        .select('title images price originalPrice duration destination rating slug')
         .limit(searchLimit)
         .lean(),
       Hotel.find({
@@ -41,10 +48,10 @@ export const globalSearch = async (req: Request, res: Response) => {
           { 'name.ko': safeRegex },
           { 'name.ja': safeRegex },
           { location: safeRegex },
-          { city: safeRegex }
-        ]
+          { address: safeRegex },
+        ],
       })
-        .select('name images pricePerNight stars location slug')
+        .select('name images pricePerNight stars location address slug')
         .limit(searchLimit)
         .lean(),
       News.find({
@@ -56,15 +63,18 @@ export const globalSearch = async (req: Request, res: Response) => {
           { 'title.zh': safeRegex },
           { 'title.ko': safeRegex },
           { 'title.ja': safeRegex },
-          { category: safeRegex }
-        ]
+          { category: safeRegex },
+          { author: safeRegex },
+        ],
       })
         .select('title thumbnail category author publishedAt slug')
         .limit(searchLimit)
-        .lean()
+        .lean(),
     ]);
 
-    res.json({ tours, hotels, news });
+    const result = { tours, hotels, news };
+    cacheService.set(cacheKey, result, 60); // Cache 1 minute
+    res.json(result);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

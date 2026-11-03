@@ -1,35 +1,112 @@
 import { Request, Response } from 'express';
-import cloudinary from '../config/cloudinary';
 import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import fs from 'fs';
 
-const storage = multer.memoryStorage();
-export const upload = multer({ storage });
+const uploadDir = path.join(__dirname, '../../public/uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-export const uploadImage = async (req: Request, res: Response) => {
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, 'img-' + uniqueSuffix + ext);
+  },
+});
+
+export const uploadMiddleware = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (_req, file, cb) => {
+    const allowedMime = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    if (file.mimetype.startsWith('image/') || allowedMime.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận các tệp tin hình ảnh (JPG, PNG, WEBP, GIF, SVG)!'));
+    }
+  },
+});
+
+export const uploadSingle = (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Vui lòng chọn một tệp hình ảnh để tải lên' });
+  }
+
+  const host = req.get('host') || 'localhost:5000';
+  const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
+  const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
+  res.status(201).json({
+    url: imageUrl,
+    path: `/uploads/${req.file.filename}`,
+    filename: req.file.filename,
+    size: req.file.size,
+    message: 'Tải hình ảnh lên thành công',
+  });
+};
+
+export const listMedia = (req: Request, res: Response) => {
   try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    if (!fs.existsSync(uploadDir)) {
+      return res.json([]);
+    }
 
-    const b64 = Buffer.from(req.file.buffer).toString('base64');
-    let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
-    
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'travel',
-      public_id: uuidv4()
-    });
+    const host = req.get('host') || 'localhost:5000';
+    const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
+    const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
 
-    res.json({ url: result.secure_url, public_id: result.public_id });
+    const files = fs.readdirSync(uploadDir);
+    const images = files
+      .filter((file) => /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file))
+      .map((file) => {
+        try {
+          const stats = fs.statSync(path.join(uploadDir, file));
+          return {
+            filename: file,
+            url: `${baseUrl}/uploads/${file}`,
+            createdAt: stats.mtime,
+            size: stats.size,
+          };
+        } catch {
+          return {
+            filename: file,
+            url: `${baseUrl}/uploads/${file}`,
+            createdAt: new Date(),
+            size: 0,
+          };
+        }
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    res.json(images);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const deleteImage = async (req: Request, res: Response) => {
+export const deleteMedia = (req: Request, res: Response) => {
   try {
-    const { public_id } = req.body;
-    if (!public_id) return res.status(400).json({ message: 'public_id is required' });
-    await cloudinary.uploader.destroy(public_id);
-    res.json({ message: 'Image deleted successfully' });
+    const rawFilename = req.params.filename;
+    if (!rawFilename) {
+      return res.status(400).json({ message: 'Tên tệp không hợp lệ' });
+    }
+
+    // Path traversal mitigation: strictly extract base filename
+    const safeFilename = path.basename(rawFilename);
+    const targetPath = path.join(uploadDir, safeFilename);
+
+    if (!fs.existsSync(targetPath)) {
+      return res.status(404).json({ message: 'Không tìm thấy tệp tin cần xóa' });
+    }
+
+    fs.unlinkSync(targetPath);
+    res.json({ message: 'Đã xóa tệp tin thành công', filename: safeFilename });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

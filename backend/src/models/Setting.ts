@@ -9,14 +9,13 @@ export interface ISetting extends Document {
 }
 
 const settingSchema = new Schema<ISetting>({
-  key: { type: String, required: true, unique: true },
+  key: { type: String, required: true, unique: true, trim: true },
   value: { type: Schema.Types.Mixed, required: true },
-  group: { type: String, required: true, index: true },
+  group: { type: String, required: true, index: true, trim: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 
-settingSchema.index({ key: 1, group: 1 });
-settingSchema.index({ group: 1 });
+settingSchema.index({ group: 1, updatedAt: -1 });
 
 export default mongoose.model<ISetting>('Setting', settingSchema);

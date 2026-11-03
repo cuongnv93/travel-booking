@@ -1,7 +1,14 @@
 import { Router } from 'express';
-import { getAll, getByGroup, getByKey, upsert, batchUpsert, seedMaster, seedMultiLang } from '../controllers/settingController';
-import { protect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
+import {
+  getAll,
+  getByGroup,
+  getByKey,
+  upsert,
+  batchUpsert,
+  seedMaster,
+  seedMultiLang,
+} from '../controllers/settingController';
+import { protect, adminOnly } from '../middleware/auth';
 
 const router = Router();
 

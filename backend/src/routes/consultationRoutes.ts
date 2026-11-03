@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { create, getAll, updateStatus, remove, getStats } from '../controllers/consultationController';
-import { protect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
+import { protect, adminOnly } from '../middleware/auth';
+import { consultationLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-// Public route to submit consultation / contact leads
-router.post('/', create);
+// Public route to submit consultation / contact leads (protected with rate limiter)
+router.post('/', consultationLimiter, create);
 
 // Admin-only management routes
 router.get('/', protect, adminOnly, getAll);

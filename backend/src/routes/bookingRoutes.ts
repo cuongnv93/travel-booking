@@ -9,24 +9,23 @@ import {
   lookupByCode,
   getStats,
 } from '../controllers/bookingController';
-import { protect, optionalProtect } from '../middleware/auth';
-import { adminOnly } from '../middleware/adminOnly';
-import { bookingCreateLimiter } from '../middleware/rateLimiter';
+import { protect, optionalProtect, adminOnly } from '../middleware/auth';
+import { bookingCreateLimiter, sensitiveLookupLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
 // Public / Guest / Auth
-router.post('/', bookingCreateLimiter, optionalProtect, create);                                    // Create booking (guest or auth)
-router.get('/lookup', lookupByCode);                         // GET /api/bookings/lookup?code=TRV-xxx
+router.post('/', bookingCreateLimiter, optionalProtect, create);
+router.get('/lookup', sensitiveLookupLimiter, lookupByCode);
 
 // Authenticated user
-router.get('/my', protect, getByUser);                       // User's own bookings
-router.patch('/:id/cancel', protect, cancelBooking);         // User self-cancel
+router.get('/my', protect, getByUser);
+router.patch('/:id/cancel', protect, cancelBooking);
 
 // Admin only
-router.get('/stats', protect, adminOnly, getStats);          // Dashboard stats
-router.get('/', protect, adminOnly, getAll);                 // All bookings
-router.get('/:id', protect, getById);                        // Single booking
-router.patch('/:id/status', protect, adminOnly, updateStatus); // Admin update status
+router.get('/stats', protect, adminOnly, getStats);
+router.get('/', protect, adminOnly, getAll);
+router.get('/:id', protect, getById);
+router.patch('/:id/status', protect, adminOnly, updateStatus);
 
 export default router;

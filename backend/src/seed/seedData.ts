@@ -36,10 +36,8 @@ export const seedDataInternal = async () => {
   try {
     const userCount = await User.countDocuments();
     if (userCount > 0) {
-      console.log('Database already contains data. Dropping database for re-seed...');
-      if (mongoose.connection.db) {
-      await mongoose.connection.db.dropDatabase();
-    }
+      console.log('✅ Database already populated. Skipping initial seed.');
+      return;
     }
 
     console.log('Seeding initial data into database...');
