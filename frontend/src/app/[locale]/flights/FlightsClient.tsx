@@ -1,112 +1,38 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, memo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { Plane, Calendar, Users, ShieldCheck, Clock, Headphones, Loader2, X, CheckCircle2, Flame, ChevronRight, Ticket, AlertCircle } from 'lucide-react';
+import {
+  Plane,
+  ShieldCheck,
+  Clock,
+  Headphones,
+  Loader2,
+  Flame,
+  ChevronRight,
+  Ticket,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { VideoBackground } from '@/components/ui/VideoBackground';
-import { formatPrice, removeVietnameseTones } from '@/lib/utils';
 import TourCard from '@/components/tours/TourCard';
-import { useAirportsCatalog, useAirlinesCatalog, usePageBanners, DEFAULT_AIRPORTS, DEFAULT_AIRLINES, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
+import {
+  useAirportsCatalog,
+  useAirlinesCatalog,
+  usePageBanners,
+  DEFAULT_AIRPORTS,
+  DEFAULT_AIRLINES,
+  DEFAULT_PAGE_BANNERS,
+} from '@/hooks/useSettings';
 import { getLocalizedError } from '@/lib/errorUtils';
 import { useAuthStore } from '@/stores/authStore';
-
-const AIRPORTS = DEFAULT_AIRPORTS;
-
-function findAirportCode(query: string | null, customAirports: any[] = AIRPORTS): string | null {
-  if (!query) return null;
-  const list = Array.isArray(customAirports) && customAirports.length > 0 ? customAirports : AIRPORTS;
-  const raw = query.trim().toLowerCase();
-  const qClean = removeVietnameseTones(query);
-  const directMatch = list.find((a: any) => a && (a.code?.toLowerCase() === raw || removeVietnameseTones(a.code || '') === qClean));
-  if (directMatch) return directMatch.code;
-
-  const nameMatch = list.find((a: any) => {
-    if (!a) return false;
-    const cityObj = a.cities || a.city || {};
-    const cityValues = typeof cityObj === 'object' && cityObj ? Object.values(cityObj) : [cityObj];
-    const nameClean = removeVietnameseTones(a.name || '');
-    return (
-      nameClean.includes(qClean) ||
-      qClean.includes(nameClean) ||
-      cityValues.some((cityName: any) => {
-        if (typeof cityName !== 'string') return false;
-        const cnClean = removeVietnameseTones(cityName);
-        return cnClean.includes(qClean) || qClean.includes(cnClean);
-      })
-    );
-  });
-  return nameMatch ? nameMatch.code : null;
-}
-
-interface FlightCardProps {
-  flight: any;
-  airlinesList?: any[];
-  onSelectFlight: (flight: any) => void;
-  t: (key: string) => string;
-}
-
-const FlightCard = memo(function FlightCard({ flight, airlinesList = [], onSelectFlight, t }: FlightCardProps) {
-  const matchedAirline = airlinesList.find(
-    (a: any) => a.code === flight.logo || (flight.airline && flight.airline.toLowerCase().includes(a.name.toLowerCase()))
-  );
-
-  const isPartner = matchedAirline?.isPartner ?? (flight.airline?.includes('Vietravel') || flight.logo === 'VU');
-  const partnerBadge = matchedAirline?.partnerBadge || (isPartner ? t('vietravelPartner') : null);
-  const badgeColor = matchedAirline?.badgeColor || (
-    isPartner ? 'bg-amber-400 text-blue-950 border-amber-300' :
-    flight.airline?.includes('Vietnam') || flight.logo === 'VN' ? 'bg-blue-900 text-yellow-300 border-blue-800' :
-    flight.airline?.includes('Vietjet') || flight.logo === 'VJ' ? 'bg-red-600 text-white border-red-500' :
-    'bg-emerald-600 text-white border-emerald-500'
-  );
-  const logoText = matchedAirline?.logoText || flight.logo || 'VN';
-
-  return (
-    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all group">
-      <div className="flex items-center gap-3.5 min-w-[280px]">
-        <div className={`w-12 h-12 rounded-xl font-bold text-sm flex items-center justify-center shrink-0 shadow-xs border ${badgeColor}`}>
-          <span>{logoText}</span>
-        </div>
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-bold text-slate-900 text-base leading-snug">{flight.airline}</h4>
-            {isPartner && partnerBadge && (
-              <span className="bg-amber-100/90 text-amber-900 border border-amber-300/80 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
-                {partnerBadge}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">{flight.flightNumber} • {t('directFlight')}</p>
-        </div>
-      </div>
-
-      <div className="text-center bg-slate-50 px-6 py-2.5 rounded-xl border border-slate-100/80 min-w-[180px]">
-        <p className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-none mb-1">{flight.departureTime} &rarr; {flight.arrivalTime}</p>
-        <p className="text-xs text-slate-500 font-medium">{t('duration')}: {flight.duration || '2h 15m'}</p>
-      </div>
-
-      <div className="text-right flex items-center gap-4 self-end md:self-auto min-w-[200px] justify-end">
-        <div>
-          <p className="text-xs text-slate-400">{t('taxIncluded')}</p>
-          <p className="text-2xl font-bold text-orange-600 leading-tight">{formatPrice(flight.price)}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => onSelectFlight(flight)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer whitespace-nowrap"
-        >
-          {t('bookFlightBtn')}
-        </button>
-      </div>
-    </div>
-  );
-});
-
+import { findAirportCode } from '@/components/flights/flightUtils';
+import { FlightCard } from '@/components/flights/FlightCard';
+import { FlightBookingModal } from '@/components/flights/FlightBookingModal';
 
 function FlightsContent() {
   const router = useRouter();
@@ -457,103 +383,21 @@ function FlightsContent() {
       {/* Booking Form Modal */}
       <AnimatePresence>
         {selectedFlight && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedFlight(null)}
-              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 16 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-100 space-y-5 relative z-10"
-            >
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">{t('bookingModalTitle')} {selectedFlight.flightNumber}</h3>
-                <p className="text-xs text-slate-500">{selectedFlight.from} &rarr; {selectedFlight.to} | {formatPrice(selectedFlight.price)}</p>
-              </div>
-              <button onClick={() => setSelectedFlight(null)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleBookingSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">{t('passengerName')}</label>
-                <input
-                  required
-                  placeholder="John Doe"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">{t('passengerPhone')}</label>
-                <input
-                  required
-                  placeholder="+1 234 567 890"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 font-semibold focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">{t('passengerEmail')}</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="example@gmail.com"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-slate-600 space-y-1">
-                <div className="flex justify-between font-semibold text-slate-800">
-                  <span>{t('totalPriceLabel')}</span>
-                  <span className="text-orange-600 font-bold text-sm">{formatPrice(selectedFlight.price)}</span>
-                </div>
-                <p className="text-xs text-slate-400">{t('luggageNote')}</p>
-              </div>
-
-              {/* Error Alert */}
-              {bookingError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs font-semibold animate-in fade-in duration-200">
-                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
-                  <span>{bookingError}</span>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedFlight(null)}
-                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-semibold cursor-pointer"
-                >
-                  {t('cancelBtn')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-md cursor-pointer"
-                >
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  {t('confirmBtn')}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+          <FlightBookingModal
+            selectedFlight={selectedFlight}
+            customerName={customerName}
+            customerPhone={customerPhone}
+            customerEmail={customerEmail}
+            bookingError={bookingError}
+            isSubmitting={isSubmitting}
+            onClose={() => setSelectedFlight(null)}
+            onNameChange={setCustomerName}
+            onPhoneChange={setCustomerPhone}
+            onEmailChange={setCustomerEmail}
+            onSubmit={handleBookingSubmit}
+            t={t}
+          />
+        )}
       </AnimatePresence>
 
       {/* Features Grid */}

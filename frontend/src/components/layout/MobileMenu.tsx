@@ -10,24 +10,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useUiStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
-import { NAV_ITEMS, LOCALES } from '@/lib/constants';
+import { NAV_ITEMS, LOCALES, LOCALE_FLAGS, LOCALE_SHORT_CODES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-
-const flagImages: Record<string, string> = {
-  vi: 'https://flagcdn.com/w40/vn.png',
-  en: 'https://flagcdn.com/w40/gb.png',
-  zh: 'https://flagcdn.com/w40/cn.png',
-  ko: 'https://flagcdn.com/w40/kr.png',
-  ja: 'https://flagcdn.com/w40/jp.png',
-};
-
-const shortCodes: Record<string, string> = {
-  vi: 'VI',
-  en: 'EN',
-  zh: 'ZH',
-  ko: 'KO',
-  ja: 'JA',
-};
 
 export default function MobileMenu() {
   const t = useTranslations();
@@ -269,13 +253,13 @@ export default function MobileMenu() {
                     )}
                   >
                     <Image
-                      src={flagImages[l]}
+                      src={LOCALE_FLAGS[l]}
                       alt={l}
                       width={18}
                       height={12}
                       className="w-4.5 h-3 object-cover rounded-xs mb-1 shadow-2xs border border-black/10"
                     />
-                    <span>{shortCodes[l]}</span>
+                    <span>{LOCALE_SHORT_CODES[l]}</span>
                   </button>
                 ))}
               </div>

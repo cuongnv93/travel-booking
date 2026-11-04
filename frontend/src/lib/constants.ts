@@ -1,5 +1,30 @@
 export const LOCALES = ['vi', 'en', 'zh', 'ko', 'ja'] as const;
+export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE = 'vi';
+
+export const LOCALE_FLAGS: Record<string, string> = {
+  vi: 'https://flagcdn.com/w40/vn.png',
+  en: 'https://flagcdn.com/w40/gb.png',
+  zh: 'https://flagcdn.com/w40/cn.png',
+  ko: 'https://flagcdn.com/w40/kr.png',
+  ja: 'https://flagcdn.com/w40/jp.png',
+};
+
+export const LOCALE_NAMES: Record<string, string> = {
+  vi: 'Tiếng Việt',
+  en: 'English',
+  zh: '中文',
+  ko: '한국어',
+  ja: '日本語',
+};
+
+export const LOCALE_SHORT_CODES: Record<string, string> = {
+  vi: 'VI',
+  en: 'EN',
+  zh: 'ZH',
+  ko: 'KO',
+  ja: 'JA',
+};
 
 export const NAV_ITEMS = [
   { path: '/', i18nKey: 'nav.home' },

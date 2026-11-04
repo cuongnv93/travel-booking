@@ -1,159 +1,20 @@
 'use client';
 
-import { useState, useCallback, useMemo, memo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
-import { formatPrice, getI18nText } from '@/lib/utils';
 import { 
-  ShoppingBag, Trash2, Calendar, Users, MapPin, ShieldCheck, 
-  CreditCard, Tag, ArrowRight, CheckCircle2, Phone, Mail, User,
-  AlertCircle, Sparkles, Clock, ChevronRight
+  ShoppingBag, ArrowRight, AlertCircle, Clock, ChevronRight
 } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
 import { getLocalizedError } from '@/lib/errorUtils';
-
-interface CartItemCardProps {
-  item: any;
-  index: number;
-  locale: string;
-  onRemove: (itemId: string, travelDate: string) => void;
-  onGuestChange: (item: any, guestType: 'adults' | 'children', delta: number) => void;
-  t: (key: string, options?: any) => string;
-}
-
-const CartItemCard = memo(function CartItemCard({
-  item,
-  index,
-  locale,
-  onRemove,
-  onGuestChange,
-  t,
-}: CartItemCardProps) {
-  const itemId = item.itemData._id || item.itemData.id || item.itemData.slug || '';
-  const title = getI18nText(item.itemData.title || item.itemData.name, locale);
-  const itemKey = `${itemId}-${item.travelDate}-${index}`;
-  const isTour = item.type === 'tour';
-  const isHotel = item.type === 'hotel';
-  const [imgSrc, setImgSrc] = useState(
-    item.itemData.images?.[0] || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800'
-  );
-
-  const handleImgError = useCallback(() => {
-    setImgSrc('https://images.unsplash.com/photo-1528127269322-539801943592?w=800');
-  }, []);
-
-  return (
-    <div key={itemKey} className="bg-white rounded-3xl p-5 md:p-6 border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-      <div className="flex flex-col sm:flex-row gap-5 items-start">
-        {/* Thumbnail Image */}
-        <div className="w-full sm:w-44 h-36 rounded-2xl overflow-hidden bg-slate-100 shrink-0 relative">
-          <img 
-            src={imgSrc} 
-            alt="" 
-            onError={handleImgError}
-            className="w-full h-full object-cover" 
-          />
-          <span className="absolute top-2 left-2 bg-blue-600/90 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            {isTour ? t('package_tour', { fallback: 'Tour Trọn Gói' }) : isHotel ? t('hotelBadge', { fallback: 'Khách Sạn' }) : t('flightBadge', { fallback: 'Vé Máy Bay' })}
-          </span>
-        </div>
-
-        {/* Tour Info & Controls */}
-        <div className="flex-1 space-y-3 w-full">
-          <div className="flex justify-between items-start gap-3">
-            <div>
-              <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-widest block mb-0.5">
-                {t('service_code', { fallback: 'Mã Dịch Vụ:' })} {item.type.toUpperCase()}-{(itemId || '').slice(-6).toUpperCase()}
-              </span>
-              <h3 className="font-extrabold text-base md:text-lg text-slate-900 leading-snug hover:text-blue-600 transition-colors">
-                {title}
-              </h3>
-            </div>
-            <button 
-              onClick={() => onRemove(itemId, item.travelDate)} 
-              className="text-slate-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-xl transition-colors shrink-0"
-              title={t('remove_from_cart', { fallback: 'Xóa khỏi giỏ hàng' })}
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>{isHotel ? t('checkinDate', { fallback: 'Nhận phòng:' }) : t('departure_date', { fallback: 'Ngày khởi hành:' })} <strong className="text-slate-900">{item.travelDate}</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>{t('destination', { fallback: 'Điểm đến:' })} <strong className="text-slate-900">{item.itemData.destination || item.itemData.location || t('vietnam', { fallback: 'Việt Nam' })}</strong></span>
-            </div>
-          </div>
-
-          {/* Guest Counter Controls */}
-          <div className="flex flex-wrap justify-between items-center pt-2 gap-3">
-            <div className="flex items-center gap-4 text-xs">
-              {/* Adults Counter */}
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-slate-700">{t('adults', { fallback: 'Người lớn:' })}</span>
-                <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => onGuestChange(item, 'adults', -1)}
-                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="px-3 font-extrabold text-slate-900">{item.guests.adults || 1}</span>
-                  <button
-                    type="button"
-                    onClick={() => onGuestChange(item, 'adults', 1)}
-                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* Children Counter */}
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-slate-700">{t('children', { fallback: 'Trẻ em:' })}</span>
-                <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => onGuestChange(item, 'children', -1)}
-                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="px-3 font-extrabold text-slate-900">{item.guests.children || 0}</span>
-                  <button
-                    type="button"
-                    onClick={() => onGuestChange(item, 'children', 1)}
-                    className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Total Price */}
-            <div className="text-right">
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase">{t('total_amount', { fallback: 'Thành tiền' })}</span>
-              <span className="font-extrabold text-lg md:text-xl text-orange-600">
-                {formatPrice(item.totalPrice)}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
+import { CartItemCard } from '@/components/cart/CartItemCard';
+import { CartContactForm, CartContactFormData } from '@/components/cart/CartContactForm';
+import { CartOrderSummary } from '@/components/cart/CartOrderSummary';
 
 export default function CartClient() {
   const t = useTranslations('cart');
@@ -168,7 +29,13 @@ export default function CartClient() {
   const currentUser = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', address: '', notes: '' });
+  const [formData, setFormData] = useState<CartContactFormData>({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    notes: '',
+  });
   const [paymentMethod, setPaymentMethod] = useState<'vietqr' | 'office'>('office');
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
@@ -189,6 +56,10 @@ export default function CartClient() {
       }));
     }
   }, [currentUser]);
+
+  const handleFormFieldChange = useCallback((field: keyof CartContactFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   // Handle Coupon Code
   const handleApplyCoupon = useCallback(async () => {
@@ -428,224 +299,30 @@ export default function CartClient() {
           </AnimatePresence>
 
           {/* Contact Information Form Card (Left Side) */}
-          <div className="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-5">
-            <h3 className="font-extrabold text-lg text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-600" />
-              {t('contact_info_title', { fallback: 'Thông Tin Liên Hệ Đặt Chỗ' })}
-            </h3>
-
-            {/* Input Form */}
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1.5">{t('full_name_label', { fallback: 'Họ và tên khách hàng *' })}</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                  <input
-                    required
-                    type="text"
-                    placeholder={t('full_name_placeholder', { fallback: 'Nguyễn Văn A' })}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl pl-10 pr-3.5 py-3 text-slate-900 font-bold focus:outline-none focus:border-blue-600 bg-slate-50/50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1.5">{t('phone_label', { fallback: 'Số điện thoại *' })}</label>
-                  <div className="relative">
-                    <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <input
-                      required
-                      type="tel"
-                      placeholder="0912345678"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full border border-slate-200 rounded-xl pl-10 pr-3.5 py-3 text-slate-900 font-bold focus:outline-none focus:border-blue-600 bg-slate-50/50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1.5">{t('email_label', { fallback: 'Email nhận vé *' })}</label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <input
-                      required
-                      type="email"
-                      placeholder="email@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full border border-slate-200 rounded-xl pl-10 pr-3.5 py-3 text-slate-900 font-bold focus:outline-none focus:border-blue-600 bg-slate-50/50"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1.5">{t('address_label', { fallback: 'Địa chỉ sinh sống' })}</label>
-                <input
-                  type="text"
-                  placeholder={t('address_placeholder', { fallback: 'Nhập địa chỉ của bạn...' })}
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full border border-slate-200 rounded-xl px-3.5 py-3 text-slate-900 focus:outline-none focus:border-blue-600 bg-slate-50/50"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1.5">{t('notes_label', { fallback: 'Ghi chú đặc biệt' })}</label>
-                <textarea
-                  rows={2}
-                  placeholder={t('notes_placeholder', { fallback: 'Yêu cầu phòng, dị ứng thức ăn,...' })}
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:border-blue-600 bg-slate-50/50"
-                />
-              </div>
-            </div>
-          </div>
+          <CartContactForm
+            formData={formData}
+            onChange={handleFormFieldChange}
+            t={t}
+          />
         </div>
 
         {/* Sidebar: Total Summary, Coupon & Payment Method Selector */}
-        <div className="w-full lg:w-[400px] shrink-0 space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xl space-y-6 sticky top-24">
-            
-            {/* 1. Total Price Summary (Top) */}
-            <div>
-              <h3 className="font-extrabold text-base text-slate-900 pb-3 border-b border-slate-100 mb-3">
-                {t('orderDetailTitle', { fallback: 'Tóm Tắt Thanh Toán' })}
-              </h3>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-                <div className="flex justify-between text-xs text-slate-600">
-                  <span>{t('subtotal', { fallback: 'Tạm tính' })} ({items.length} {t('services', { fallback: 'dịch vụ' })})</span>
-                  <span className="font-bold text-slate-900">{formatPrice(rawSubtotal)}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-xs text-emerald-600 font-bold">
-                    <span>{t('voucher_discount', { fallback: 'Giảm giá Voucher' })}</span>
-                    <span>-{formatPrice(discount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-xs text-slate-600">
-                  <span>{t('service_tax_fee', { fallback: 'Phí dịch vụ & Thuế' })}</span>
-                  <span className="font-semibold text-emerald-600">{t('free', { fallback: 'Miễn phí' })}</span>
-                </div>
-
-                <div className="border-t border-slate-200 pt-3 flex justify-between items-baseline">
-                  <span className="font-extrabold text-sm text-slate-900">{t('total_payment', { fallback: 'Tổng tiền thanh toán' })}</span>
-                  <span className="font-extrabold text-2xl text-orange-600">{formatPrice(finalTotal)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Coupon Code Section (Right Sidebar - Below Total Money) */}
-            <div className="pt-2 border-t border-slate-100 space-y-2.5">
-              <label className="font-extrabold text-slate-900 block text-xs flex items-center gap-1.5">
-                <Tag className="w-4 h-4 text-amber-500" />
-                {t('coupon_title', { fallback: 'Mã Ưu Đãi / Voucher Giảm Giá' })}
-              </label>
-              
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder={t('coupon_placeholder', { fallback: 'Nhập mã giảm giá' })}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-600 uppercase bg-slate-50/50"
-                />
-                <button
-                  type="button"
-                  onClick={handleApplyCoupon}
-                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors shrink-0"
-                >
-                  {t('apply_btn', { fallback: 'Áp Dụng' })}
-                </button>
-              </div>
-
-              {couponError && <p className="text-xs text-red-500 font-semibold">{couponError}</p>}
-              {couponApplied && (
-                <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  {t('coupon_success_applied', { fallback: 'Đã áp dụng giảm giá' })} {formatPrice(discount)}.
-                </p>
-              )}
-            </div>
-
-            {/* 3. Payment Method Selector (Below Coupon Section) */}
-            <div className="space-y-2.5 pt-2 border-t border-slate-100">
-              <label className="font-extrabold text-slate-900 block text-xs">{t('payment_method_title', { fallback: 'Phương Thức Thanh Toán' })}</label>
-              
-              {/* 3.1 Online Payment - Temporarily Disabled & Darkened */}
-              <div 
-                className="p-3.5 rounded-2xl border border-slate-200 bg-slate-100/90 opacity-40 cursor-not-allowed flex items-center justify-between select-none grayscale-[50%] transition-all"
-                title={t('onlineDisabledTitle', { fallback: 'Cổng thanh toán online tạm thời bảo trì nâng cấp' })}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-slate-400 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                    QR
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-xs text-slate-500 line-through">
-                        {t('payment_vietqr_title', { fallback: 'Chuyển Khoản VietQR Auto' })}
-                      </span>
-                      <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-amber-200 text-amber-800">
-                        {t('maintenanceBadge', { fallback: 'Tạm bảo trì' })}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-400">
-                      {t('onlineDisabledDesc', { fallback: 'Cổng thanh toán trực tuyến tạm thời không khả dụng' })}
-                    </span>
-                  </div>
-                </div>
-                <input type="radio" disabled checked={false} className="w-4 h-4 text-slate-300 cursor-not-allowed" />
-              </div>
-
-              {/* 3.2 Office Payment - Active & Default */}
-              <div 
-                onClick={() => setPaymentMethod('office')}
-                className={`p-3.5 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${
-                  paymentMethod === 'office' ? 'border-blue-600 bg-blue-50/60 shadow-xs ring-1 ring-blue-600/30' : 'border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                    🏢
-                  </div>
-                  <div>
-                    <span className="font-extrabold text-xs text-slate-900 block">{t('payment_office_title', { fallback: 'Thanh Toán Tại Văn Phòng' })}</span>
-                    <span className="text-[10px] text-slate-500">{t('payment_office_desc', { fallback: 'Giữ chỗ trước, nộp tiền mặt sau' })}</span>
-                  </div>
-                </div>
-                <input type="radio" checked={paymentMethod === 'office'} readOnly className="w-4 h-4 text-blue-600 cursor-pointer" />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="w-full h-14 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-base rounded-2xl shadow-xl shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              {loading ? t('creating_order', { fallback: 'Đang tạo đơn hàng...' }) : t('confirm_create_order', { fallback: 'Xác Nhận & Tạo Đơn Đặt Tour' })}
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            {/* Trust Guarantee Badges */}
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-medium">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{t('secure_100', { fallback: 'Bảo mật 100%' })}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>{t('instant_hold', { fallback: 'Giữ chỗ tức thì' })}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CartOrderSummary
+          itemsCount={items.length}
+          rawSubtotal={rawSubtotal}
+          discount={discount}
+          finalTotal={finalTotal}
+          couponCode={couponCode}
+          couponError={couponError}
+          couponApplied={couponApplied}
+          paymentMethod={paymentMethod}
+          loading={loading}
+          onCouponChange={setCouponCode}
+          onApplyCoupon={handleApplyCoupon}
+          onPaymentMethodChange={setPaymentMethod}
+          onCheckout={handleCheckout}
+          t={t}
+        />
       </div>
     </div>
   );

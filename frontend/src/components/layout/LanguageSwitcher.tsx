@@ -6,33 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { LOCALES } from '@/lib/constants';
-
-// High-resolution real national flag PNG images from FlagCDN
-const flagImages: Record<string, string> = {
-  vi: 'https://flagcdn.com/w40/vn.png',
-  en: 'https://flagcdn.com/w40/gb.png',
-  zh: 'https://flagcdn.com/w40/cn.png',
-  ko: 'https://flagcdn.com/w40/kr.png',
-  ja: 'https://flagcdn.com/w40/jp.png',
-};
-
-const names: Record<string, string> = {
-  vi: 'Tiếng Việt',
-  en: 'English',
-  zh: '中文',
-  ko: '한국어',
-  ja: '日本語',
-};
-
-const shortCodes: Record<string, string> = {
-  vi: 'VI',
-  en: 'EN',
-  zh: 'ZH',
-  ko: 'KO',
-  ja: 'JA',
-};
-
+import { LOCALES, LOCALE_FLAGS, LOCALE_NAMES, LOCALE_SHORT_CODES } from '@/lib/constants';
 import { useLocale } from 'next-intl';
 
 function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome: boolean }) {
@@ -89,13 +63,13 @@ function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome:
         )}
       >
         <Image
-          src={flagImages[locale] || flagImages.vi}
+          src={LOCALE_FLAGS[locale] || LOCALE_FLAGS.vi}
           alt={locale}
           width={20}
           height={14}
           className="w-5 h-3.5 object-cover rounded-xs shadow-xs shrink-0 border border-black/10"
         />
-        <span className="font-extrabold uppercase tracking-wider">{shortCodes[locale] || locale}</span>
+        <span className="font-extrabold uppercase tracking-wider">{LOCALE_SHORT_CODES[locale] || locale}</span>
         <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200 opacity-70', isOpen && 'rotate-180')} />
       </button>
 
@@ -120,13 +94,13 @@ function LanguageSwitcher({ isScrolled, isHome }: { isScrolled: boolean; isHome:
               >
                 <div className="flex items-center gap-2.5">
                   <Image
-                    src={flagImages[l]}
+                    src={LOCALE_FLAGS[l]}
                     alt={l}
                     width={20}
                     height={14}
                     className="w-5 h-3.5 object-cover rounded-xs shadow-xs shrink-0 border border-black/10"
                   />
-                  <span className="font-semibold text-slate-800 text-xs">{names[l]}</span>
+                  <span className="font-semibold text-slate-800 text-xs">{LOCALE_NAMES[l]}</span>
                 </div>
                 {locale === l && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
               </button>

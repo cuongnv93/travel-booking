@@ -73,7 +73,8 @@ api.interceptors.response.use(
         // Detect locale from path (first segment)
         const segments = currentPath.split('/').filter(Boolean);
         const supportedLocales = ['vi', 'en', 'zh', 'ko', 'ja'];
-        const locale = supportedLocales.includes(segments[0]) ? segments[0] : 'vi';
+        const firstSegment = segments[0] ?? '';
+        const locale = supportedLocales.includes(firstSegment) ? firstSegment : 'vi';
         window.location.href = `/${locale}/login?expired=true&returnUrl=${returnUrl}`;
       }
     }
