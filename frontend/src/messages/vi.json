@@ -13,7 +13,8 @@
     "myBookings": "Lịch sử đặt chỗ",
     "myCart": "Giỏ hàng của tôi",
     "login": "Đăng nhập",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "logoutSuccess": "Đã đăng xuất tài khoản thành công."
   },
   "hero": {
     "title": "Khám phá thế giới cùng Travel",
@@ -170,7 +171,9 @@
     "badgeProvinces": "63 Tỉnh Thành Việt Nam",
     "badgeQuality": "Tour Việt Nam Chất Lượng 5★",
     "sessionExpired": "Phiên đăng nhập đã hết hạn (1 tiếng) hoặc token không hợp lệ. Vui lòng đăng nhập lại.",
-    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự."
+    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự.",
+    "loginSuccess": "Đăng nhập tài khoản thành công!",
+    "registerSuccess": "Đăng ký tài khoản thành công!"
   },
   "cart": {
     "title": "Giỏ Hàng Của Bạn",
@@ -275,7 +278,9 @@
     "stepPayment": "Thanh Toán",
     "maintenanceBadge": "Tạm bảo trì",
     "onlineDisabledDesc": "Cổng thanh toán trực tuyến tạm thời không khả dụng",
-    "onlineDisabledTitle": "Cổng thanh toán online tạm thời bảo trì nâng cấp"
+    "onlineDisabledTitle": "Cổng thanh toán online tạm thời bảo trì nâng cấp",
+    "coupon_applied_success": "Áp dụng mã giảm giá thành công!",
+    "item_removed": "Đã xóa dịch vụ khỏi giỏ hàng."
   },
   "booking": {
     "success": "Đặt Tour Thành Công!",
@@ -338,7 +343,10 @@
     "hotTour": "Tour Hot",
     "hotelType": "Khách Sạn",
     "flightType": "Vé Máy Bay",
-    "close": "Đóng"
+    "close": "Đóng",
+    "wishlistAdded": "Đã thêm vào danh sách yêu thích!",
+    "wishlistRemoved": "Đã xóa khỏi danh sách yêu thích.",
+    "copied": "Đã sao chép vào bộ nhớ tạm!"
   },
   "footer": {
     "about": "Travel Booking",
@@ -407,7 +415,8 @@
     "submitBtn": "Gửi Tin Nhắn",
     "successTitle": "Gửi Thông Tin Thành Công!",
     "successDesc": "Cảm ơn bạn đã liên hệ. Chúng tôi đã nhận được tin nhắn.",
-    "anotherMsgBtn": "Gửi tin nhắn khác"
+    "anotherMsgBtn": "Gửi tin nhắn khác",
+    "submitting": "Đang gửi..."
   },
   "lookup": {
     "badge": "Hệ Thống Tra Cứu Trực Tuyến",
@@ -428,7 +437,8 @@
     "adults": "người lớn",
     "children": "trẻ em",
     "defaultTourTitle": "Dịch vụ du lịch",
-    "completed": "Đã hoàn thành"
+    "completed": "Đã hoàn thành",
+    "copySuccess": "Đã sao chép mã đặt chỗ thành công!"
   },
   "success": {
     "heroTitle": "Đặt Chỗ Thành Công!",
@@ -483,7 +493,8 @@
     "waitingPayment": "Chờ thanh toán",
     "officePaymentNotice": "Cảm ơn quý khách! Đơn đặt chỗ đã được chuyển tới chuyên viên tư vấn. Quý khách có thể đến trực tiếp các chi nhánh của chúng tôi để thanh toán hoặc chờ tổng đài viên liên hệ xác nhận trong vòng 15-30 phút.",
     "hotline247": "Tổng đài hỗ trợ 24/7:",
-    "bookingCodeShort": "Mã đặt chỗ:"
+    "bookingCodeShort": "Mã đặt chỗ:",
+    "copySuccess": "Đã sao chép mã đơn hàng thành công!"
   },
   "visa": {
     "heroTitle": "Dịch Vụ Hỗ Trợ Visa Du Lịch Trọn Gói",
@@ -681,7 +692,8 @@
     "bookNow": "Đặt Ngay",
     "notFoundTitle": "Không Tìm Thấy Bài Viết Này",
     "notFoundDesc": "Bài viết có thể đã bị thay đổi đường dẫn hoặc tạm dừng hiển thị.",
-    "backToNews": "Quay lại danh sách Tin Tức"
+    "backToNews": "Quay lại danh sách Tin Tức",
+    "shareSuccess": "Đã sao chép liên kết bài viết thành công!"
   },
   "hotelDetail": {
     "noRooms": "Khách sạn đang cập nhật thông tin phòng. Vui lòng quay lại sau.",
@@ -733,7 +745,8 @@
     "checkInFrom": "Nhận phòng từ",
     "checkOutBefore": "Trả phòng trước",
     "starsLabel": "Sao",
-    "priceBreakdown": "{price} × {nights} đêm × {rooms} phòng"
+    "priceBreakdown": "{price} × {nights} đêm × {rooms} phòng",
+    "errInvalidEmail": "Định dạng email không hợp lệ."
   },
   "specialtiesPage": {
     "badge": "🍜 Ẩm Thực & Món Ngon 3 Miền",
@@ -799,7 +812,8 @@
     "directConsult": "Tư Vấn Trực Tiếp (1800 646 888)",
     "instantHold": "Giữ chỗ tức thì",
     "securePayment": "Thanh toán an toàn 100%",
-    "errSelectDate": "Vui lòng chọn ngày khởi hành"
+    "errSelectDate": "Vui lòng chọn ngày khởi hành",
+    "addedToCart": "Đã thêm tour vào giỏ hàng thành công!"
   },
   "userBookings": {
     "backToProfile": "Trở về Hồ sơ cá nhân",

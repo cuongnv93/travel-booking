@@ -13,6 +13,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
 import LanguageSwitcher from './LanguageSwitcher';
+import { toast } from '@/stores/toastStore';
 
 export default function Header() {
   const t = useTranslations();
@@ -96,6 +97,7 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     setUserDropdownOpen(false);
+    toast.info(t('nav.logoutSuccess') || 'Đã đăng xuất tài khoản');
     router.push(`/${locale}`);
   };
 

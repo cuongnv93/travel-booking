@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import FloatingChat from '@/components/layout/FloatingChat';
 import MobileMenu from '@/components/layout/MobileMenu';
 import NavigationProgress from '@/components/layout/NavigationProgress';
+import ClientToastContainer from '@/components/common/ClientToastContainer';
 
 const SEO_DICTIONARY: Record<string, { title: string; description: string; ogLocale: string; keywords: string[] }> = {
   vi: {
@@ -210,6 +211,7 @@ export default async function LocaleLayout({
           <Footer />
           <FloatingChat />
           <MobileMenu />
+          <ClientToastContainer />
         </div>
       </Providers>
     </NextIntlClientProvider>

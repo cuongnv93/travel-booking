@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { AMENITY_ICONS, FALLBACK_ROOM_IMG } from '@/components/hotels/amenitiesConstants';
 import { HotelRoomCard } from '@/components/hotels/HotelRoomCard';
 import { HotelBookingSidebar, HotelBookingFormData } from '@/components/hotels/HotelBookingSidebar';
+import { toast } from '@/stores/toastStore';
 
 export default function HotelDetailClient({ initialHotel }: { initialHotel?: any }) {
   const t = useTranslations('hotelDetail');
@@ -120,38 +121,48 @@ export default function HotelDetailClient({ initialHotel }: { initialHotel?: any
       setBookedCode(code);
       setSuccess(true); 
       setError('');
+      toast.success(t('bookingSuccessTitle') || 'Đặt Phòng Thành Công!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    onError: (err: any) => setError(getLocalizedError(err, locale, t('error'))),
+    onError: (err: any) => {
+      const msg = getLocalizedError(err, locale, t('error'));
+      setError(msg);
+      toast.error(msg);
+    },
   });
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRoom) {
       setError(t('errSelectRoom'));
+      toast.warning(t('errSelectRoom'));
       const roomSection = document.getElementById('rooms-section');
       if (roomSection) roomSection.scrollIntoView({ behavior: 'smooth' });
       return;
     }
     if (!formData.name || !formData.email || !formData.phone) {
       setError(t('errFillInfo'));
+      toast.warning(t('errFillInfo'));
       return;
     }
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      setError(locale === 'vi' ? 'Định dạng email không hợp lệ.' : 'Invalid email format.');
+      setError(t('errInvalidEmail'));
+      toast.warning(t('errInvalidEmail'));
       return;
     }
     if (!formData.checkIn || !formData.checkOut) {
       setError(t('errSelectDates'));
+      toast.warning(t('errSelectDates'));
       return;
     }
     if (nights <= 0) {
       setError(t('errInvalidDates'));
+      toast.warning(t('errInvalidDates'));
       return;
     }
     setError('');
     bookingMutation.mutate();
-  }, [selectedRoom, formData, nights, bookingMutation, t, locale]);
+  }, [selectedRoom, formData, nights, bookingMutation, t]);
 
   const handleSelectRoom = useCallback((room: any) => {
     setSelectedRoom(room);

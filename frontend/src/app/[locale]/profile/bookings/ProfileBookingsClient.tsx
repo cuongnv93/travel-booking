@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuthStore } from '@/stores/authStore';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { toast } from '@/stores/toastStore';
 
 const fetchUserBookings = async () => {
   try {
@@ -63,11 +64,11 @@ export default function ProfileBookingsClient() {
     mutationFn: (id: string) => api.patch(`/bookings/${id}/cancel`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-bookings'] });
-      alert(t('cancelSuccess'));
+      toast.success(t('cancelSuccess') || 'Đã hủy đơn thành công');
       setSelectedBooking(null);
     },
     onError: (err: any) => {
-      alert(`${t('cancelError')}: ${getLocalizedError(err, locale)}`);
+      toast.error(`${t('cancelError')}: ${getLocalizedError(err, locale)}`);
     }
   });
 

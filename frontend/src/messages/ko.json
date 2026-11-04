@@ -13,7 +13,8 @@
     "myBookings": "예약 내역",
     "myCart": "장바구니",
     "login": "로그인",
-    "logout": "로그아웃"
+    "logout": "로그아웃",
+    "logoutSuccess": "성공적으로 로그아웃되었습니다."
   },
   "hero": {
     "title": "Travel과 함께 세계를 탐험하세요",
@@ -170,7 +171,9 @@
     "badgeProvinces": "베트남 63개 전역 여행",
     "badgeQuality": "5★ 베트남 프리미엄 투어",
     "sessionExpired": "세션이 만료되었거나 토큰이 유효하지 않습니다. 다시 로그인해주세요.",
-    "passwordTooShort": "비밀번호는 6자 이상이어야 합니다."
+    "passwordTooShort": "비밀번호는 6자 이상이어야 합니다.",
+    "loginSuccess": "로그인에 성공했습니다!",
+    "registerSuccess": "회원가입이 완료되었습니다!"
   },
   "cart": {
     "title": "내 장바구니",
@@ -275,7 +278,9 @@
     "stepPayment": "결제하기",
     "maintenanceBadge": "점검 중",
     "onlineDisabledDesc": "온라인 결제 시스템이 일시적으로 이용 불가합니다",
-    "onlineDisabledTitle": "온라인 결제 게이트웨이 시스템 점검 중"
+    "onlineDisabledTitle": "온라인 결제 게이트웨이 시스템 점검 중",
+    "coupon_applied_success": "쿠폰이 성공적으로 적용되었습니다!",
+    "item_removed": "장바구니에서 상품이 삭제되었습니다."
   },
   "booking": {
     "success": "예약이 성공적으로 완료되었습니다!",
@@ -338,7 +343,10 @@
     "hotTour": "인기 투어",
     "hotelType": "호텔",
     "flightType": "항공권",
-    "close": "닫기"
+    "close": "닫기",
+    "wishlistAdded": "투어가 즐겨찾기에 추가되었습니다!",
+    "wishlistRemoved": "투어가 즐겨찾기에서 삭제되었습니다.",
+    "copied": "클립보드에 복사되었습니다!"
   },
   "footer": {
     "about": "Travel Booking",
@@ -407,7 +415,8 @@
     "submitBtn": "메시지 보내기",
     "successTitle": "메시지가 성공적으로 전송되었습니다!",
     "successDesc": "연락해 주셔서 감사합니다. 귀하의 메시지를 받았습니다.",
-    "anotherMsgBtn": "다른 메시지 보내기"
+    "anotherMsgBtn": "다른 메시지 보내기",
+    "submitting": "전송 중..."
   },
   "lookup": {
     "badge": "온라인 예약 조회 시스템",
@@ -428,7 +437,8 @@
     "adults": "성인",
     "children": "아동",
     "defaultTourTitle": "여행 서비스",
-    "completed": "완료"
+    "completed": "완료",
+    "copySuccess": "예약 코드가 복사되었습니다!"
   },
   "success": {
     "heroTitle": "예약 성공!",
@@ -483,7 +493,8 @@
     "waitingPayment": "결제 대기",
     "officePaymentNotice": "감사합니다! 예약이 담당자에게 전달되었습니다. 지점을 방문하여 결제하시거나 15~30분 이내에 상담원의 연락을 기다려 주세요.",
     "hotline247": "24/7 고객센터:",
-    "bookingCodeShort": "예약 번호:"
+    "bookingCodeShort": "예약 번호:",
+    "copySuccess": "주문 번호가 복사되었습니다!"
   },
   "visa": {
     "heroTitle": "비자 지원 서비스",
@@ -681,7 +692,8 @@
     "bookNow": "지금 예약",
     "notFoundTitle": "아티클을 찾을 수 없습니다",
     "notFoundDesc": "요청하신 아티클이 삭제되었거나 주소가 변경되었을 수 있습니다.",
-    "backToNews": "목록으로 돌아가기"
+    "backToNews": "목록으로 돌아가기",
+    "shareSuccess": "기사 링크가 복사되었습니다!"
   },
   "hotelDetail": {
     "noRooms": "호텔의 객실 정보를 업데이트 중입니다. 나중에 다시 확인해 주세요.",
@@ -733,7 +745,8 @@
     "checkInFrom": "체크인",
     "checkOutBefore": "체크아웃",
     "starsLabel": "성급",
-    "priceBreakdown": "{price} × {nights} 박 × {rooms} 개 객실"
+    "priceBreakdown": "{price} × {nights} 박 × {rooms} 개 객실",
+    "errInvalidEmail": "이메일 형식이 올바르지 않습니다."
   },
   "specialtiesPage": {
     "badge": "🍜 베트남 3대 지역 향토 음식",
@@ -799,7 +812,8 @@
     "directConsult": "전문 상담 문의 (1800 646 888)",
     "instantHold": "즉시 좌석 확보",
     "securePayment": "100% 안전 결제",
-    "errSelectDate": "출발 일정을 선택해주세요"
+    "errSelectDate": "출발 일정을 선택해주세요",
+    "addedToCart": "투어가 장바구니에 추가되었습니다!"
   },
   "userBookings": {
     "backToProfile": "프로필로 돌아가기",

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, CheckCircle2, XCircle, Clock, AlertCircle, Ticket, User, Mail, Phone, Calendar, Users, ShieldCheck } from 'lucide-react';
+import { Search, CheckCircle2, XCircle, Clock, AlertCircle, Ticket, User, Mail, Phone, Calendar, Users, ShieldCheck, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { VideoBackground } from '@/components/ui/VideoBackground';
@@ -13,6 +13,7 @@ import api from '@/lib/api';
 import { usePageBanners, DEFAULT_PAGE_BANNERS } from '@/hooks/useSettings';
 import { useBookingLookup } from '@/hooks/useBookingLookup';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { toast } from '@/stores/toastStore';
 
 export default function BookingLookupClient() {
   const t = useTranslations('lookup');
@@ -23,6 +24,15 @@ export default function BookingLookupClient() {
 
   const [inputCode, setInputCode] = useState(urlCode);
   const [activeCode, setActiveCode] = useState(urlCode);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const handleCopy = (code: string) => {
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    setCopiedCode(true);
+    toast.success(t('copySuccess') || tCommon('copied') || 'Đã sao chép mã đặt chỗ!');
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
 
   useEffect(() => {
     if (urlCode && urlCode !== activeCode) {
@@ -134,9 +144,19 @@ export default function BookingLookupClient() {
                   <span className="text-xs text-slate-400 font-medium block mb-1 uppercase tracking-wider">
                     {t('orderCode')}
                   </span>
-                  <span className="text-2xl md:text-3xl font-mono font-extrabold text-blue-400 tracking-wider">
-                    {booking.bookingCode}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl md:text-3xl font-mono font-extrabold text-blue-400 tracking-wider">
+                      {booking.bookingCode}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(booking.bookingCode)}
+                      title={tCommon('select') || 'Sao chép'}
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {copiedCode ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div>

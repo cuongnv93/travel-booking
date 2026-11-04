@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { prefetchNewsBySlug, prefetchNews, prefetchTours } from '@/lib/serverApi';
 import TourCard from '@/components/tours/TourCard';
+import ShareArticleButton from '@/components/news/ShareArticleButton';
 
 async function getRelatedArticles(currentSlug: string) {
   try {
@@ -301,10 +302,7 @@ export default async function NewsDetailPage({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs cursor-pointer hover:bg-slate-100 transition-colors">
-                <Share2 className="w-4 h-4 text-blue-600" />
-                <span>{t('shareArticle')}</span>
-              </div>
+              <ShareArticleButton title={title} buttonText={t('shareArticle')} />
             </div>
           </article>
 

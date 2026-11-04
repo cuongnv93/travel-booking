@@ -13,6 +13,7 @@ import { useCompanyBranches, useWorkingHours, usePageBanners, DEFAULT_PAGE_BANNE
 import { getLocalizedBranchInfo, getLocalizedHours } from '@/lib/settingsI18n';
 import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
 import { useAuthStore } from '@/stores/authStore';
+import { toast } from '@/stores/toastStore';
 
 export default function ContactClient() {
   const t = useTranslations('contact');
@@ -66,11 +67,13 @@ export default function ContactClient() {
       await api.post('/consultations', payload);
       setSubmitting(false);
       setSubmitted(true);
+      toast.success(t('successTitle'));
     } catch (err: any) {
       console.warn('Network issue submitting contact, storing locally for guaranteed capture:', err);
       enqueueConsultationLead(payload);
       setSubmitting(false);
       setSubmitted(true);
+      toast.success(t('successTitle'));
     }
   };
 
@@ -268,7 +271,7 @@ export default function ContactClient() {
 
                   <Button type="submit" disabled={submitting} size="lg" className="w-full sm:w-auto px-8 h-14 rounded-2xl font-semibold gap-2 disabled:opacity-50">
                     <Send className="w-5 h-5" />
-                    {submitting ? 'Đang gửi...' : t('submitBtn')}
+                    {submitting ? (t('submitting') || 'Sending...') : t('submitBtn')}
                   </Button>
                 </motion.form>
               )}

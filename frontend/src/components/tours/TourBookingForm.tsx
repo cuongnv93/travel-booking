@@ -9,6 +9,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { formatPrice, formatLocalizedDate } from '@/lib/utils';
 import { Users, Calendar, Zap, PhoneCall, ShieldCheck, CheckCircle, AlertCircle } from 'lucide-react';
 import { Tour } from '@/types';
+import { toast } from '@/stores/toastStore';
 
 const safeIsoDate = (dateVal: any): string => {
   if (!dateVal) return '';
@@ -77,6 +78,7 @@ function TourBookingFormComponent({ tour, selectedDateFromParent }: TourBookingF
   const handleAddToCart = useCallback(() => {
     if (!date) {
       setFormError(t('errSelectDate'));
+      toast.warning(t('errSelectDate'));
       const card = document.getElementById('booking-form-card');
       if (card) card.scrollIntoView({ behavior: 'smooth' });
       return;
@@ -90,6 +92,7 @@ function TourBookingFormComponent({ tour, selectedDateFromParent }: TourBookingF
       guests: { adults, children },
       totalPrice,
     });
+    toast.success(t('addedToCart') || 'Đã thêm tour vào giỏ hàng thành công!');
 
     router.push(`/${locale}/cart`);
   }, [date, addItem, tour, adults, children, totalPrice, router, locale, t]);

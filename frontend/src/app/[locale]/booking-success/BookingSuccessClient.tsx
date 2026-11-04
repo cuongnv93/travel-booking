@@ -1,19 +1,30 @@
 'use client';
 
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { CheckCircle2, Clock, MapPin, Calendar, User, Phone, Mail, ArrowRight, Loader2, FileText } from 'lucide-react';
+import { CheckCircle2, Clock, MapPin, Calendar, User, Phone, Mail, ArrowRight, Loader2, FileText, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { formatPrice, getI18nText, formatLocalizedDate } from '@/lib/utils';
+import { toast } from '@/stores/toastStore';
 
 export default function BookingSuccessClient() {
   const t = useTranslations('success');
   const searchParams = useSearchParams();
   const locale = useLocale();
   const code = searchParams.get('code') || '';
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    toast.success(t('copySuccess') || 'Đã sao chép mã đơn hàng!');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const { data: booking, isLoading, isError } = useQuery({
     queryKey: ['booking-success', code],
@@ -41,7 +52,19 @@ export default function BookingSuccessClient() {
         {/* Booking Code Banner */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4 text-center">
           <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">{t('bookingCodeLabel')}</p>
-          <p className="text-3xl font-mono font-extrabold text-blue-600 tracking-wider">{code || 'N/A'}</p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-3xl font-mono font-extrabold text-blue-600 tracking-wider">{code || 'N/A'}</p>
+            {code && (
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                title="Sao chép mã"
+                className="p-1.5 rounded-lg bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors shadow-2xs cursor-pointer"
+              >
+                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+              </button>
+            )}
+          </div>
           <p className="text-[11px] text-slate-400 mt-1">{t('saveCodeNote')}</p>
         </div>
 

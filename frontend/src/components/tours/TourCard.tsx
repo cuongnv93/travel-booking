@@ -8,6 +8,7 @@ import { formatPrice, getI18nText } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { I18nText } from '@/types';
+import { toast } from '@/stores/toastStore';
 
 interface TourCardProps {
   tour: {
@@ -30,7 +31,7 @@ interface TourCardProps {
 }
 
 // Persist wishlist in localStorage
-function useWishlist(slug: string) {
+function useWishlist(slug: string, addedText?: string, removedText?: string) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -45,11 +46,17 @@ function useWishlist(slug: string) {
     e.stopPropagation();
     try {
       const list: string[] = JSON.parse(localStorage.getItem('tour-wishlist') || '[]');
-      const next = list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug];
+      const isAdding = !list.includes(slug);
+      const next = isAdding ? [...list, slug] : list.filter((s) => s !== slug);
       localStorage.setItem('tour-wishlist', JSON.stringify(next));
-      setSaved(next.includes(slug));
+      setSaved(isAdding);
+      if (isAdding) {
+        toast.success(addedText || 'Đã thêm vào danh sách yêu thích!');
+      } else {
+        toast.info(removedText || 'Đã xóa khỏi danh sách yêu thích.');
+      }
     } catch { /* ignore */ }
-  }, [slug]);
+  }, [slug, addedText, removedText]);
 
   return { saved, toggle };
 }
@@ -58,7 +65,7 @@ function TourCardComponent({ tour, locale }: TourCardProps) {
   const t = useTranslations();
   const activeLocale = useLocale();
   const currentLocale = locale || activeLocale || 'vi';
-  const { saved, toggle } = useWishlist(tour.slug);
+  const { saved, toggle } = useWishlist(tour.slug, t('common.wishlistAdded'), t('common.wishlistRemoved'));
 
   const hasImage = tour.images && tour.images.length > 0 && tour.images[0].startsWith('http');
   const imageSource = hasImage ? tour.images![0] : (tour.images?.[0] || '');

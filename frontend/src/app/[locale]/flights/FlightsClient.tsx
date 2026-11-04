@@ -33,6 +33,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { findAirportCode } from '@/components/flights/flightUtils';
 import { FlightCard } from '@/components/flights/FlightCard';
 import { FlightBookingModal } from '@/components/flights/FlightBookingModal';
+import { toast } from '@/stores/toastStore';
 
 function FlightsContent() {
   const router = useRouter();
@@ -166,7 +167,9 @@ function FlightsContent() {
         setSelectedFlight(null);
       }
     } catch (err: any) {
-      setBookingError(getLocalizedError(err, locale));
+      const errMsg = getLocalizedError(err, locale);
+      setBookingError(errMsg);
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }

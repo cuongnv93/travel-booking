@@ -13,7 +13,8 @@
     "myBookings": "我的订单",
     "myCart": "我的购物车",
     "login": "登录",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "logoutSuccess": "已成功退出登录。"
   },
   "hero": {
     "title": "与 Travel 一起探索世界",
@@ -170,7 +171,9 @@
     "badgeProvinces": "越南 63 省市精选",
     "badgeQuality": "5★ 高品质越南行程",
     "sessionExpired": "登录已过期或 Token 无效，请重新登录。",
-    "passwordTooShort": "密码必须至少6个字符。"
+    "passwordTooShort": "密码必须至少6个字符。",
+    "loginSuccess": "登录成功！",
+    "registerSuccess": "账号注册成功！"
   },
   "cart": {
     "title": "您的购物车",
@@ -275,7 +278,9 @@
     "stepPayment": "订单支付",
     "maintenanceBadge": "临时维护",
     "onlineDisabledDesc": "在线支付通道暂时不可用，正在升级维护中",
-    "onlineDisabledTitle": "在线支付网关临时维护升级中"
+    "onlineDisabledTitle": "在线支付网关临时维护升级中",
+    "coupon_applied_success": "优惠券使用成功！",
+    "item_removed": "已从购物车中移除该服务。"
   },
   "booking": {
     "success": "预订成功！",
@@ -338,7 +343,10 @@
     "hotTour": "热门行程",
     "hotelType": "酒店",
     "flightType": "机票",
-    "close": "关闭"
+    "close": "关闭",
+    "wishlistAdded": "已将行程添加至收藏夹！",
+    "wishlistRemoved": "已从收藏夹中移除该行程。",
+    "copied": "已复制到剪贴板！"
   },
   "footer": {
     "about": "Travel Booking",
@@ -407,7 +415,8 @@
     "submitBtn": "发送信息",
     "successTitle": "信息发送成功！",
     "successDesc": "感谢您的联系。我们已收到您的信息。",
-    "anotherMsgBtn": "发送其他信息"
+    "anotherMsgBtn": "发送其他信息",
+    "submitting": "发送中..."
   },
   "lookup": {
     "badge": "在线订单查询系统",
@@ -428,7 +437,8 @@
     "adults": "成人",
     "children": "儿童",
     "defaultTourTitle": "旅游服务",
-    "completed": "已完成"
+    "completed": "已完成",
+    "copySuccess": "预订编号已复制！"
   },
   "success": {
     "heroTitle": "预订成功！",
@@ -483,7 +493,8 @@
     "waitingPayment": "等待付款",
     "officePaymentNotice": "感谢您的预订！订单已转交专属客服。您可以前往我们的门店付款，或等待客服在15-30分钟内致电确认。",
     "hotline247": "24/7 客服热线：",
-    "bookingCodeShort": "预订代码："
+    "bookingCodeShort": "预订代码：",
+    "copySuccess": "订单编号已复制！"
   },
   "visa": {
     "heroTitle": "一站式旅游签证服务",
@@ -681,7 +692,8 @@
     "bookNow": "立即预订",
     "notFoundTitle": "未找到文章",
     "notFoundDesc": "该文章可能已被删除或更改了链接。",
-    "backToNews": "返回文章列表"
+    "backToNews": "返回文章列表",
+    "shareSuccess": "文章链接已复制！"
   },
   "hotelDetail": {
     "noRooms": "酒店正在更新客房信息。请稍后再回来。",
@@ -733,7 +745,8 @@
     "checkInFrom": "入住时间",
     "checkOutBefore": "退房时间",
     "starsLabel": "星级",
-    "priceBreakdown": "{price} × {nights} 晚 × {rooms} 间房"
+    "priceBreakdown": "{price} × {nights} 晚 × {rooms} 间房",
+    "errInvalidEmail": "电子邮件格式无效。"
   },
   "specialtiesPage": {
     "badge": "🍜 越南三大地区特色美食",
@@ -799,7 +812,8 @@
     "directConsult": "人工专线咨询 (1800 646 888)",
     "instantHold": "即时保留席位",
     "securePayment": "100% 安全交易保障",
-    "errSelectDate": "请先选择出发日期"
+    "errSelectDate": "请先选择出发日期",
+    "addedToCart": "已成功添加至购物车！"
   },
   "userBookings": {
     "backToProfile": "返回个人中心",

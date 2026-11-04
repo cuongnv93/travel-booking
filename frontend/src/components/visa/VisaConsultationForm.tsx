@@ -7,6 +7,7 @@ import { Send, CheckCircle2, ShieldCheck, Loader2, Sparkles, Calendar, Users, Ph
 import api from '@/lib/api';
 import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
 import { useAuthStore } from '@/stores/authStore';
+import { toast } from '@/stores/toastStore';
 
 interface CountryOption {
   key: string;
@@ -132,14 +133,16 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
       await api.post('/consultations', payload);
       setIsSubmitting(false);
       setSubmitted(true);
+      toast.success(t('formSuccessTitle') || 'Gửi yêu cầu tư vấn thành công!');
     } catch (err: any) {
       console.warn('Network issue submitting consultation, storing locally for guaranteed capture:', err);
       // Guarantee zero data loss by storing offline queue
       enqueueConsultationLead(payload);
       setIsSubmitting(false);
       setSubmitted(true);
+      toast.success(t('formSuccessTitle') || 'Gửi yêu cầu tư vấn thành công!');
     }
-  }, [name, phone, selectedCountry.name, travelDate, guests]);
+  }, [name, phone, selectedCountry.name, travelDate, guests, t]);
 
   const renderFlag = useCallback((flag: string, alt: string) => {
     if (typeof flag === 'string' && flag.startsWith('http')) {

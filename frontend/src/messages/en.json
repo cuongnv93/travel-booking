@@ -13,7 +13,8 @@
     "myBookings": "My Bookings",
     "myCart": "My Cart",
     "login": "Sign In",
-    "logout": "Logout"
+    "logout": "Logout",
+    "logoutSuccess": "Logged out successfully."
   },
   "hero": {
     "title": "Explore the World with Travel",
@@ -170,7 +171,9 @@
     "badgeProvinces": "63 Vietnam Destinations",
     "badgeQuality": "5★ Quality Vietnam Tours",
     "sessionExpired": "Session expired or invalid token. Please log in again.",
-    "passwordTooShort": "Password must be at least 6 characters."
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "loginSuccess": "Logged in successfully!",
+    "registerSuccess": "Account registered successfully!"
   },
   "cart": {
     "title": "Your Shopping Cart",
@@ -275,7 +278,9 @@
     "stepPayment": "Payment",
     "maintenanceBadge": "Maintenance",
     "onlineDisabledDesc": "Online payment gateway is temporarily unavailable",
-    "onlineDisabledTitle": "Online payment gateway is under maintenance"
+    "onlineDisabledTitle": "Online payment gateway is under maintenance",
+    "coupon_applied_success": "Coupon applied successfully!",
+    "item_removed": "Item removed from cart."
   },
   "booking": {
     "success": "Booking Successful!",
@@ -338,7 +343,10 @@
     "hotTour": "Hot Tour",
     "hotelType": "Hotel",
     "flightType": "Flight Ticket",
-    "close": "Close"
+    "close": "Close",
+    "wishlistAdded": "Tour added to your favorites!",
+    "wishlistRemoved": "Tour removed from your favorites.",
+    "copied": "Copied to clipboard!"
   },
   "footer": {
     "about": "Travel Booking",
@@ -407,7 +415,8 @@
     "submitBtn": "Send Message",
     "successTitle": "Message Sent Successfully!",
     "successDesc": "Thank you for contacting us. We have received your message.",
-    "anotherMsgBtn": "Send another message"
+    "anotherMsgBtn": "Send another message",
+    "submitting": "Sending..."
   },
   "lookup": {
     "badge": "Online Order Lookup System",
@@ -428,7 +437,8 @@
     "adults": "adults",
     "children": "children",
     "defaultTourTitle": "Travel service",
-    "completed": "Completed"
+    "completed": "Completed",
+    "copySuccess": "Booking code copied successfully!"
   },
   "success": {
     "heroTitle": "Booking Successful!",
@@ -483,7 +493,8 @@
     "waitingPayment": "Awaiting Payment",
     "officePaymentNotice": "Thank you! Your reservation has been forwarded to our travel specialist. You may pay at our branch or wait for our customer representative to contact you within 15-30 minutes.",
     "hotline247": "24/7 Support Hotline:",
-    "bookingCodeShort": "Booking Code:"
+    "bookingCodeShort": "Booking Code:",
+    "copySuccess": "Booking code copied successfully!"
   },
   "visa": {
     "heroTitle": "Comprehensive Tourist Visa Support Service",
@@ -681,7 +692,8 @@
     "bookNow": "Book Now",
     "notFoundTitle": "Article Not Found",
     "notFoundDesc": "The article may have been moved or is currently unavailable.",
-    "backToNews": "Back to News List"
+    "backToNews": "Back to News List",
+    "shareSuccess": "Article link copied successfully!"
   },
   "hotelDetail": {
     "noRooms": "The hotel is updating room information. Please come back later.",
@@ -733,7 +745,8 @@
     "checkInFrom": "Check-in from",
     "checkOutBefore": "Check-out before",
     "starsLabel": "Stars",
-    "priceBreakdown": "{price} × {nights} nights × {rooms} rooms"
+    "priceBreakdown": "{price} × {nights} nights × {rooms} rooms",
+    "errInvalidEmail": "Invalid email format."
   },
   "specialtiesPage": {
     "badge": "🍜 3-Region Culinary Specialties",
@@ -799,7 +812,8 @@
     "directConsult": "Direct Consultation (1800 646 888)",
     "instantHold": "Instant reservation",
     "securePayment": "100% secure payment",
-    "errSelectDate": "Please select a departure date"
+    "errSelectDate": "Please select a departure date",
+    "addedToCart": "Tour added to cart successfully!"
   },
   "userBookings": {
     "backToProfile": "Back to Profile",

@@ -3,6 +3,8 @@
  * Ensures Vietnamese accents render perfectly in Microsoft Excel, Google Sheets, and LibreOffice.
  */
 
+import { toast } from '@/stores/toastStore';
+
 export interface CsvColumn<T = any> {
   key: string;
   label: string;
@@ -15,7 +17,7 @@ export function exportToCsv<T = any>(
   columns: CsvColumn<T>[]
 ) {
   if (!rows || rows.length === 0) {
-    alert('Không có dữ liệu để xuất file CSV.');
+    toast.warning('Không có dữ liệu để xuất file CSV.');
     return;
   }
 

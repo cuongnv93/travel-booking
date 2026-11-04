@@ -10,6 +10,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useUiStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
+import { toast } from '@/stores/toastStore';
 import { NAV_ITEMS, LOCALES, LOCALE_FLAGS, LOCALE_SHORT_CODES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
@@ -51,6 +52,7 @@ export default function MobileMenu() {
   const handleLogout = () => {
     logout();
     setMobileMenuOpen(false);
+    toast.info(t('nav.logoutSuccess') || 'Đã đăng xuất tài khoản');
     router.push(`/${locale}`);
   };
 

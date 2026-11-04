@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/Input';
 import { Mail, Lock, User, Phone, AlertCircle, ShieldAlert, Sparkles, Compass } from 'lucide-react';
 import api from '@/lib/api';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { toast } from '@/stores/toastStore';
 
 function UserLoginForm() {
   const t = useTranslations('auth');
@@ -45,9 +46,11 @@ function UserLoginForm() {
       if (isLogin) {
         const res: any = await api.post('/auth/login', { email, password });
         login(res.user, res.accessToken);
+        toast.success(t('loginSuccess') || 'Đăng nhập thành công!');
       } else {
         const res: any = await api.post('/auth/register', { name, email, password, phone });
         login(res.user, res.accessToken);
+        toast.success(t('registerSuccess') || 'Đăng ký tài khoản thành công!');
       }
       // Redirect to returnUrl if present, otherwise default to home
       const returnUrl = searchParams.get('returnUrl');
@@ -57,7 +60,9 @@ function UserLoginForm() {
         router.push(`/${locale}`);
       }
     } catch (err: any) {
-      setError(getLocalizedError(err, locale, t('loginError')));
+      const errMsg = getLocalizedError(err, locale, t('loginError'));
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

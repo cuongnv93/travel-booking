@@ -13,7 +13,8 @@
     "myBookings": "予約履歴",
     "myCart": "カート",
     "login": "ログイン",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "logoutSuccess": "正常にログアウトしました。"
   },
   "hero": {
     "title": "Travelと世界を旅しよう",
@@ -170,7 +171,9 @@
     "badgeProvinces": "ベトナム63省市を網羅",
     "badgeQuality": "5★ 高品質ベトナムツアー",
     "sessionExpired": "セッションの期限が切れたかトークンが無効です。再度ログインしてください。",
-    "passwordTooShort": "パスワードは6文字以上でなければなりません。"
+    "passwordTooShort": "パスワードは6文字以上でなければなりません。",
+    "loginSuccess": "ログインに成功しました！",
+    "registerSuccess": "アカウントが正常に登録されました！"
   },
   "cart": {
     "title": "ショッピングカート",
@@ -275,7 +278,9 @@
     "stepPayment": "お支払い",
     "maintenanceBadge": "メンテナンス中",
     "onlineDisabledDesc": "オンライン決済は現在メンテナンス中のため利用できません",
-    "onlineDisabledTitle": "オンライン決済システム一時メンテナンス中"
+    "onlineDisabledTitle": "オンライン決済システム一時メンテナンス中",
+    "coupon_applied_success": "クーポンが適用されました！",
+    "item_removed": "カートから削除しました。"
   },
   "booking": {
     "success": "ご予約が完了しました！",
@@ -338,7 +343,10 @@
     "hotTour": "人気ツアー",
     "hotelType": "ホテル",
     "flightType": "航空券",
-    "close": "閉じる"
+    "close": "閉じる",
+    "wishlistAdded": "ツアーをお気に入りに追加しました！",
+    "wishlistRemoved": "ツアーをお気に入りから削除しました。",
+    "copied": "クリップボードにコピーしました！"
   },
   "footer": {
     "about": "Travel Booking",
@@ -407,7 +415,8 @@
     "submitBtn": "メッセージを送信",
     "successTitle": "送信成功！",
     "successDesc": "ご連絡ありがとうございます。メッセージを受け取りました。",
-    "anotherMsgBtn": "別のメッセージを送信"
+    "anotherMsgBtn": "別のメッセージを送信",
+    "submitting": "送信中..."
   },
   "lookup": {
     "badge": "オンライン予約検索システム",
@@ -428,7 +437,8 @@
     "adults": "大人",
     "children": "子供",
     "defaultTourTitle": "旅行サービス",
-    "completed": "完了"
+    "completed": "完了",
+    "copySuccess": "予約コードをコピーしました！"
   },
   "success": {
     "heroTitle": "予約完了！",
@@ -483,7 +493,8 @@
     "waitingPayment": "お支払い待ち",
     "officePaymentNotice": "ありがとうございます！予約情報が担当者に送信されました。支店でのお支払い、または15〜30分以内にスタッフからのご連絡をお待ちください。",
     "hotline247": "24時間年中無休サポート:",
-    "bookingCodeShort": "予約コード:"
+    "bookingCodeShort": "予約コード:",
+    "copySuccess": "注文コードをコピーしました！"
   },
   "visa": {
     "heroTitle": "観光ビザ申請サポートサービス",
@@ -681,7 +692,8 @@
     "bookNow": "今すぐ予約",
     "notFoundTitle": "記事が見つかりません",
     "notFoundDesc": "お探しの記事は削除されたか、URLが変更された可能性があります。",
-    "backToNews": "記事一覧へ戻る"
+    "backToNews": "記事一覧へ戻る",
+    "shareSuccess": "記事リンクをコピーしました！"
   },
   "hotelDetail": {
     "noRooms": "ホテルは客室情報を更新中です。後でもう一度ご確認ください。",
@@ -733,7 +745,8 @@
     "checkInFrom": "チェックイン",
     "checkOutBefore": "チェックアウト",
     "starsLabel": "つ星",
-    "priceBreakdown": "{price} × {nights} 泊 × {rooms} 室"
+    "priceBreakdown": "{price} × {nights} 泊 × {rooms} 室",
+    "errInvalidEmail": "無効なメールアドレス形式です。"
   },
   "specialtiesPage": {
     "badge": "🍜 ベトナム3大地域の郷土料理",
@@ -799,7 +812,8 @@
     "directConsult": "直接お電話でご相談 (1800 646 888)",
     "instantHold": "即時予約確定",
     "securePayment": "100% 安全な決済",
-    "errSelectDate": "出発日を選択してください"
+    "errSelectDate": "出発日を選択してください",
+    "addedToCart": "ツアーをカートに追加しました！"
   },
   "userBookings": {
     "backToProfile": "マイページへ戻る",

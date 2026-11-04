@@ -12,6 +12,7 @@ import {
 import api from '@/lib/api';
 import Link from 'next/link';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { toast } from '@/stores/toastStore';
 import { CartItemCard } from '@/components/cart/CartItemCard';
 import { CartContactForm, CartContactFormData } from '@/components/cart/CartContactForm';
 import { CartOrderSummary } from '@/components/cart/CartOrderSummary';
@@ -72,9 +73,12 @@ export default function CartClient() {
       if (res && res.discountAmount) {
         setDiscount(res.discountAmount);
         setCouponApplied(true);
+        toast.success(t('coupon_applied_success') || 'Áp dụng mã giảm giá thành công!');
       }
     } catch (err: any) {
-      setCouponError(getLocalizedError(err, locale, t('coupon_invalid')));
+      const errText = getLocalizedError(err, locale, t('coupon_invalid'));
+      setCouponError(errText);
+      toast.error(errText);
       setDiscount(0);
       setCouponApplied(false);
     }
@@ -107,7 +111,8 @@ export default function CartClient() {
 
   const handleRemoveItem = useCallback((itemId: string, travelDate: string) => {
     removeItem(itemId, travelDate);
-  }, [removeItem]);
+    toast.info(t('item_removed') || 'Đã xóa dịch vụ khỏi giỏ hàng.');
+  }, [removeItem, t]);
 
   const rawSubtotal = getTotalPrice();
   const finalTotal = useMemo(() => Math.max(0, rawSubtotal - discount), [rawSubtotal, discount]);
@@ -115,6 +120,7 @@ export default function CartClient() {
   const handleCheckout = useCallback(async () => {
     if (!formData.name || !formData.email || !formData.phone) {
       setError(t('error_missing_fields'));
+      toast.warning(t('error_missing_fields'));
       return;
     }
 
@@ -169,7 +175,9 @@ export default function CartClient() {
       router.push(`/${locale}/booking-success?code=${primaryCode}`);
     } catch (err: any) {
       console.error('Checkout error:', err);
-      setError(getLocalizedError(err, locale, t('error_checkout_failed')));
+      const errMsg = getLocalizedError(err, locale, t('error_checkout_failed'));
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

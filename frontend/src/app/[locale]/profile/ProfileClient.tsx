@@ -11,6 +11,7 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getLocalizedError } from '@/lib/errorUtils';
+import { toast } from '@/stores/toastStore';
 
 export default function ProfileClient() {
   const router = useRouter();
@@ -50,9 +51,12 @@ export default function ProfileClient() {
       if (res) {
         setUser(res);
         setSuccess(true);
+        toast.success(t('successUpdate'));
       }
     } catch (err: any) {
-      setError(getLocalizedError(err, locale, t('updateError')));
+      const msg = getLocalizedError(err, locale, t('updateError'));
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
