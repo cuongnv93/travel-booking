@@ -16,6 +16,9 @@ dotenv.config();
 
 const app = express();
 
+// Enable reverse proxy trust (for Render, Railway, Cloudflare, Vercel)
+app.set('trust proxy', 1);
+
 // Disable x-powered-by header for information disclosure protection
 app.disable('x-powered-by');
 
@@ -35,13 +38,28 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
-// CORS Configuration — strictly enforced in production
-const allowedOrigins = [
+// CORS Configuration — support production domains, custom env & local dev
+const envOrigins = [
   constants.FRONTEND_URL,
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGIN,
+]
+  .filter(Boolean)
+  .flatMap((url) => (url as string).split(',').map((u) => u.trim()));
+
+const defaultAllowedOrigins = [
+  'https://timesgreen.net',
+  'https://www.timesgreen.net',
+  'http://timesgreen.net',
+  'http://www.timesgreen.net',
+  'https://travel-booking-ruby.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'https://travel-booking-ruby.vercel.app',
-].filter(Boolean);
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+];
+
+const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...envOrigins])).filter(Boolean);
 
 app.use(
   cors({
@@ -49,17 +67,31 @@ app.use(
       // Allow server-to-server or curl/mobile requests without origin header
       if (!origin) return callback(null, true);
 
+      let originHostname = '';
+      try {
+        originHostname = new URL(origin).hostname.toLowerCase();
+      } catch {
+        originHostname = origin.toLowerCase();
+      }
+
       const isAllowed =
         allowedOrigins.includes(origin) ||
-        origin.endsWith('.vercel.app') ||
+        originHostname === 'timesgreen.net' ||
+        originHostname.endsWith('.timesgreen.net') ||
+        originHostname === 'travel-booking-ruby.vercel.app' ||
+        originHostname.endsWith('.vercel.app') ||
         process.env.NODE_ENV !== 'production';
 
       if (isAllowed) {
         return callback(null, true);
       }
-      return callback(new Error('Yêu cầu bị từ chối bởi chính sách bảo mật CORS'));
+
+      // Do NOT throw Error — return callback(null, false) so browser rejects without 500 server crash
+      return callback(null, false);
     },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language', 'X-Requested-With'],
   })
 );
 

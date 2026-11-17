@@ -4,6 +4,12 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message || 'Lỗi máy chủ nội bộ';
 
+  // Handle CORS errors
+  if (err.message && (err.message.includes('CORS') || err.message.includes('chính sách bảo mật CORS'))) {
+    statusCode = 403;
+    message = 'Yêu cầu bị từ chối bởi chính sách bảo mật CORS.';
+  }
+
   // Handle Mongoose Bad ObjectId (CastError)
   if (err.name === 'CastError') {
     statusCode = 400;

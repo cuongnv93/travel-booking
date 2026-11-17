@@ -6,6 +6,7 @@ export const apiLimiter = rateLimit({
   max: 500,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     message: 'Quá nhiều yêu cầu từ địa chỉ IP này. Vui lòng thử lại sau 15 phút.',
   },
@@ -17,6 +18,7 @@ export const authLimiter = rateLimit({
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     message: 'Quá nhiều lần thử đăng nhập/đăng ký. Vui lòng thử lại sau 15 phút.',
   },
@@ -28,6 +30,7 @@ export const bookingCreateLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     message: 'Bạn đã tạo quá nhiều yêu cầu đặt chỗ. Vui lòng thử lại sau 1 giờ.',
   },
@@ -39,6 +42,7 @@ export const consultationLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     message: 'Bạn đã gửi yêu cầu tư vấn nhiều lần. Vui lòng đợi 15 phút trước khi gửi lại.',
   },
@@ -50,6 +54,7 @@ export const sensitiveLookupLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     message: 'Quá nhiều lượt tra cứu liên tiếp. Vui lòng thử lại sau 15 phút.',
   },
