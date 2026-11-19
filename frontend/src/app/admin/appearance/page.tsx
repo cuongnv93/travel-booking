@@ -16,6 +16,7 @@ import {
 } from '@/components/admin/settings/HomeBlocksSettingsTab';
 import { MediaBannerUploadCard } from '@/components/admin/settings/MediaBannerUploadCard';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import Link from 'next/link';
 import { toast } from '@/stores/toastStore';
 
@@ -120,6 +121,8 @@ export default function AdminAppearancePage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [mediaPickerSlideIndex, setMediaPickerSlideIndex] = useState<number | null>(null);
+  const [deleteSlideIndex, setDeleteSlideIndex] = useState<number | null>(null);
+  const [deleteReviewId, setDeleteReviewId] = useState<number | null>(null);
 
   // Hero Slides
   const [slides, setSlides] = useState<HeroSlide[]>(DEFAULT_SLIDES);
@@ -297,7 +300,15 @@ export default function AdminAppearancePage() {
       toast.warning('Phải giữ lại ít nhất 1 slide.');
       return;
     }
-    setSlides(slides.filter((_, i) => i !== idx));
+    setDeleteSlideIndex(idx);
+  };
+
+  const confirmRemoveSlide = () => {
+    if (deleteSlideIndex !== null) {
+      setSlides(slides.filter((_, i) => i !== deleteSlideIndex));
+      setDeleteSlideIndex(null);
+      toast.success('Đã xóa slide khỏi danh sách.');
+    }
   };
 
   const handleAddReview = () => {
@@ -308,7 +319,15 @@ export default function AdminAppearancePage() {
   };
 
   const handleRemoveReview = (id: number) => {
-    setReviews(reviews.filter(r => r.id !== id));
+    setDeleteReviewId(id);
+  };
+
+  const confirmRemoveReview = () => {
+    if (deleteReviewId !== null) {
+      setReviews(reviews.filter((r) => r.id !== deleteReviewId));
+      setDeleteReviewId(null);
+      toast.success('Đã xóa đánh giá của khách hàng.');
+    }
   };
 
   const handleReviewChange = (id: number, field: string, val: any) => {
@@ -762,6 +781,28 @@ export default function AdminAppearancePage() {
           }
         }}
         title={`Chọn Hình Ảnh Cho Slide #${(mediaPickerSlideIndex ?? 0) + 1}`}
+      />
+
+      {/* Confirm Delete Slide Modal */}
+      <AdminConfirmModal
+        isOpen={deleteSlideIndex !== null}
+        onClose={() => setDeleteSlideIndex(null)}
+        onConfirm={confirmRemoveSlide}
+        title="Xác nhận xóa Slide Hero"
+        message={`Bạn có chắc chắn muốn xóa Slide #${(deleteSlideIndex ?? 0) + 1} khỏi danh sách trình chiếu?`}
+        confirmText="Xác nhận xóa"
+        variant="danger"
+      />
+
+      {/* Confirm Delete Review Modal */}
+      <AdminConfirmModal
+        isOpen={deleteReviewId !== null}
+        onClose={() => setDeleteReviewId(null)}
+        onConfirm={confirmRemoveReview}
+        title="Xác nhận xóa đánh giá"
+        message="Bạn có chắc chắn muốn xóa nhận xét của khách hàng này khỏi danh sách đánh giá?"
+        confirmText="Xác nhận xóa"
+        variant="danger"
       />
     </div>
   );

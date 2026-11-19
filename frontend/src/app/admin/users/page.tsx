@@ -32,6 +32,7 @@ const fetchAdminUsers = async () => {
 export default function UsersAdminPage() {
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
+  const isAdmin = currentUser?.role === 'admin';
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'user'>('all');
@@ -118,6 +119,10 @@ export default function UsersAdminPage() {
   }, [currentUser]);
 
   const openEditModal = (user: any) => {
+    if (!isAdmin) {
+      toast.error('Chỉ Quản Trị Viên (Admin) mới có quyền chỉnh sửa thông tin người dùng!');
+      return;
+    }
     setEditingUser(user);
     setEditForm({
       name: user.name || '',
@@ -130,12 +135,20 @@ export default function UsersAdminPage() {
 
   const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      toast.error('Chỉ Quản Trị Viên (Admin) mới có quyền chỉnh sửa thông tin người dùng!');
+      return;
+    }
     if (!editingUser) return;
     const userId = editingUser._id || editingUser.id;
     editMutation.mutate({ id: userId, payload: editForm });
   };
 
   const handleToggleStatus = (user: any) => {
+    if (!isAdmin) {
+      toast.error('Chỉ Quản Trị Viên (Admin) mới có quyền thay đổi trạng thái tài khoản!');
+      return;
+    }
     const userId = user._id || user.id;
     const isSelf = isUserSelf(user);
     if (isSelf) {
@@ -160,6 +173,10 @@ export default function UsersAdminPage() {
   };
 
   const handleDeleteUser = (user: any) => {
+    if (!isAdmin) {
+      toast.error('Chỉ Quản Trị Viên (Admin) mới có quyền xóa tài khoản người dùng!');
+      return;
+    }
     const userId = user._id || user.id;
     const isSelf = isUserSelf(user);
     if (isSelf) {
@@ -377,8 +394,13 @@ export default function UsersAdminPage() {
                           <button
                             type="button"
                             onClick={() => openEditModal(u)}
-                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer inline-flex items-center gap-1"
-                            title="Chỉnh sửa thông tin người dùng"
+                            disabled={!isAdmin}
+                            className={`px-2.5 py-1.5 font-semibold rounded-md transition-colors text-xs inline-flex items-center gap-1 ${
+                              !isAdmin
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer'
+                            }`}
+                            title={!isAdmin ? 'Chỉ Quản trị viên mới có quyền sửa' : 'Chỉnh sửa thông tin người dùng'}
                           >
                             <Pencil className="w-3.5 h-3.5" />
                             <span>Sửa</span>
@@ -388,15 +410,23 @@ export default function UsersAdminPage() {
                           <button
                             type="button"
                             onClick={() => handleToggleStatus(u)}
-                            disabled={isSelf || toggleStatusMutation.isPending}
-                            className={`px-2.5 py-1.5 font-semibold rounded-md transition-colors text-xs inline-flex items-center gap-1 cursor-pointer ${
-                              isSelf
+                            disabled={!isAdmin || isSelf || toggleStatusMutation.isPending}
+                            className={`px-2.5 py-1.5 font-semibold rounded-md transition-colors text-xs inline-flex items-center gap-1 ${
+                              !isAdmin || isSelf
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50'
                                 : isActive
-                                ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
-                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 cursor-pointer'
+                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 cursor-pointer'
                             }`}
-                            title={isSelf ? 'Không thể tự khóa tài khoản của bạn' : (isActive ? 'Khóa tài khoản (Inactive)' : 'Kích hoạt lại tài khoản')}
+                            title={
+                              !isAdmin
+                                ? 'Chỉ Quản trị viên mới có quyền thay đổi trạng thái'
+                                : isSelf
+                                ? 'Không thể tự khóa tài khoản của bạn'
+                                : isActive
+                                ? 'Khóa tài khoản (Inactive)'
+                                : 'Kích hoạt lại tài khoản'
+                            }
                           >
                             {isActive ? <PowerOff className="w-3.5 h-3.5" /> : <Power className="w-3.5 h-3.5" />}
                             <span>{isActive ? 'Khóa' : 'Mở'}</span>
@@ -406,13 +436,19 @@ export default function UsersAdminPage() {
                           <button
                             type="button"
                             onClick={() => handleDeleteUser(u)}
-                            disabled={isSelf || deleteMutation.isPending}
-                            className={`p-1.5 font-semibold rounded-md transition-colors text-xs inline-flex items-center cursor-pointer ${
-                              isSelf
+                            disabled={!isAdmin || isSelf || deleteMutation.isPending}
+                            className={`p-1.5 font-semibold rounded-md transition-colors text-xs inline-flex items-center ${
+                              !isAdmin || isSelf
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50'
-                                : 'bg-red-50 hover:bg-red-100 text-red-600'
+                                : 'bg-red-50 hover:bg-red-100 text-red-600 cursor-pointer'
                             }`}
-                            title={isSelf ? 'Không thể xóa tài khoản của chính mình' : 'Xóa tài khoản vĩnh viễn'}
+                            title={
+                              !isAdmin
+                                ? 'Chỉ Quản trị viên mới có quyền xóa'
+                                : isSelf
+                                ? 'Không thể xóa tài khoản của chính mình'
+                                : 'Xóa tài khoản vĩnh viễn'
+                            }
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

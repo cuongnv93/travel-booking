@@ -6,6 +6,7 @@ import api from '@/lib/api';
 import { AdminI18nTabs } from '@/components/admin/common/AdminI18nTabs';
 import { toast } from '@/stores/toastStore';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 
 export interface DestinationItem {
   id: string;
@@ -54,6 +55,8 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
   const [activeSubTab, setActiveSubTab] = useState<'destinations' | 'whyUs' | 'stats'>('destinations');
   const [activeLang, setActiveLang] = useState<string>('vi');
   const [mediaPickerDestIndex, setMediaPickerDestIndex] = useState<number | null>(null);
+  const [deleteDestIndex, setDeleteDestIndex] = useState<number | null>(null);
+  const [deleteWhyUsIndex, setDeleteWhyUsIndex] = useState<number | null>(null);
 
   // Destinations Handlers
   const handleAddDestination = () => {
@@ -81,7 +84,15 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
   };
 
   const handleRemoveDest = (idx: number) => {
-    setDestinations(destinations.filter((_, i) => i !== idx));
+    setDeleteDestIndex(idx);
+  };
+
+  const confirmRemoveDest = () => {
+    if (deleteDestIndex !== null) {
+      setDestinations(destinations.filter((_, i) => i !== deleteDestIndex));
+      setDeleteDestIndex(null);
+      toast.success('Đã xóa điểm đến khỏi danh sách.');
+    }
   };
 
   // Upload image for destination
@@ -126,7 +137,15 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
   };
 
   const handleRemoveWhyUs = (idx: number) => {
-    setWhyChooseUs(whyChooseUs.filter((_, i) => i !== idx));
+    setDeleteWhyUsIndex(idx);
+  };
+
+  const confirmRemoveWhyUs = () => {
+    if (deleteWhyUsIndex !== null) {
+      setWhyChooseUs(whyChooseUs.filter((_, i) => i !== deleteWhyUsIndex));
+      setDeleteWhyUsIndex(null);
+      toast.success('Đã xóa cam kết dịch vụ.');
+    }
   };
 
   // Stats Handlers
@@ -431,6 +450,28 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
           }
         }}
         title={`Chọn Hình Ảnh Cho Điểm Đến #${(mediaPickerDestIndex ?? 0) + 1}`}
+      />
+
+      {/* Confirm Delete Destination Modal */}
+      <AdminConfirmModal
+        isOpen={deleteDestIndex !== null}
+        onClose={() => setDeleteDestIndex(null)}
+        onConfirm={confirmRemoveDest}
+        title="Xác nhận xóa điểm đến"
+        message={`Bạn có chắc chắn muốn xóa điểm đến "${destinations[deleteDestIndex ?? 0]?.name?.vi || 'này'}" khỏi danh sách hiển thị trên trang chủ?`}
+        confirmText="Xác nhận xóa"
+        variant="danger"
+      />
+
+      {/* Confirm Delete Why Choose Us Modal */}
+      <AdminConfirmModal
+        isOpen={deleteWhyUsIndex !== null}
+        onClose={() => setDeleteWhyUsIndex(null)}
+        onConfirm={confirmRemoveWhyUs}
+        title="Xác nhận xóa cam kết dịch vụ"
+        message={`Bạn có chắc chắn muốn xóa cam kết "${whyChooseUs[deleteWhyUsIndex ?? 0]?.title?.vi || 'này'}"?`}
+        confirmText="Xác nhận xóa"
+        variant="danger"
       />
     </div>
   );
