@@ -879,8 +879,11 @@ export default function AdminNewsPage() {
                 <div className="space-y-4">
                   <AdminNewsSeoAssistant
                     title={title[activeLang] || ''}
+                    onTitleChange={(val) => setTitle((prev) => ({ ...prev, [activeLang]: val }))}
                     excerpt={excerpt[activeLang] || ''}
+                    onExcerptChange={(val) => setExcerpt((prev) => ({ ...prev, [activeLang]: val }))}
                     content={content[activeLang] || ''}
+                    onContentChange={(val) => setContent((prev) => ({ ...prev, [activeLang]: val }))}
                     slug={customSlug || (title.vi ? toSlug(title.vi) : '')}
                     onSlugChange={setCustomSlug}
                     thumbnail={thumbnail}
