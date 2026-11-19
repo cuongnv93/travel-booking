@@ -1,10 +1,11 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { Plus, Trash2, Upload, MapPin, Shield, Star } from 'lucide-react';
+import { Plus, Trash2, Upload, MapPin, Shield, Star, Image as ImageIcon, Sparkles } from 'lucide-react';
 import api from '@/lib/api';
 import { AdminI18nTabs } from '@/components/admin/common/AdminI18nTabs';
 import { toast } from '@/stores/toastStore';
+import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
 
 export interface DestinationItem {
   id: string;
@@ -52,6 +53,7 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
 }: Props) {
   const [activeSubTab, setActiveSubTab] = useState<'destinations' | 'whyUs' | 'stats'>('destinations');
   const [activeLang, setActiveLang] = useState<string>('vi');
+  const [mediaPickerDestIndex, setMediaPickerDestIndex] = useState<number | null>(null);
 
   // Destinations Handlers
   const handleAddDestination = () => {
@@ -197,20 +199,62 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {destinations.map((dest, idx) => (
               <div key={dest.id || idx} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3 relative group">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-700 text-[11px] flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+                      {idx + 1}
+                    </span>
+                    Điểm đến #{idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setMediaPickerDestIndex(idx)}
+                    className="text-blue-600 hover:text-blue-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer hover:underline"
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-500" /> Chọn từ Media
+                  </button>
+                </div>
+
                 <div className="h-32 rounded-xl overflow-hidden relative bg-slate-900 group/img">
                   <img src={dest.image} alt={dest.name?.vi} className="w-full h-full object-cover" />
-                  <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white text-xs font-bold gap-1.5">
-                    <Upload className="w-4 h-4" /> Đổi Ảnh
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => e.target.files?.[0] && handleUploadDestImage(idx, e.target.files[0])}
-                    />
-                  </label>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
+                    <button
+                      type="button"
+                      onClick={() => setMediaPickerDestIndex(idx)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-md transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <ImageIcon className="w-3 h-3" />
+                      <span>Thư Viện Media</span>
+                    </button>
+                    <label className="bg-white/95 text-slate-800 text-[11px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-1 shadow-md hover:bg-white transition-colors">
+                      <Upload className="w-3 h-3 text-blue-600" /> Đổi Ảnh
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => e.target.files?.[0] && handleUploadDestImage(idx, e.target.files[0])}
+                      />
+                    </label>
+                  </div>
                   <span className="absolute top-2 left-2 bg-blue-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
                     #{dest.order || idx + 1}
                   </span>
+                </div>
+
+                <div className="relative">
+                  <input
+                    value={dest.image}
+                    onChange={(e) => handleUpdateDest(idx, 'image', e.target.value)}
+                    placeholder="URL hình ảnh điểm đến..."
+                    className="w-full border border-slate-200 rounded-lg p-2 pr-20 text-slate-700 text-[11px] font-mono focus:outline-none focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMediaPickerDestIndex(idx)}
+                    className="absolute right-1 top-1 bottom-1 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] rounded-md transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <ImageIcon className="w-2.5 h-2.5" /> Chọn
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
@@ -375,6 +419,19 @@ export const HomeBlocksSettingsTab = memo(function HomeBlocksSettingsTab({
           </div>
         </div>
       )}
+
+      {/* Central Media Library Picker Modal for Destinations */}
+      <AdminMediaPickerModal
+        isOpen={mediaPickerDestIndex !== null}
+        onClose={() => setMediaPickerDestIndex(null)}
+        onSelect={(url) => {
+          if (mediaPickerDestIndex !== null) {
+            handleUpdateDest(mediaPickerDestIndex, 'image', url);
+            setMediaPickerDestIndex(null);
+          }
+        }}
+        title={`Chọn Hình Ảnh Cho Điểm Đến #${(mediaPickerDestIndex ?? 0) + 1}`}
+      />
     </div>
   );
 });
