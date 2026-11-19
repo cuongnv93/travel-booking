@@ -7,19 +7,32 @@ import {
   XCircle,
   Smartphone,
   Monitor,
-  Sparkles,
+  Share2,
   Search,
   ChevronDown,
   ChevronUp,
   FileCheck,
   TrendingUp,
+  Sparkles,
+  BookOpen,
+  Lightbulb,
+  Layers,
+  Link2,
+  Image as ImageIcon,
+  Zap,
+  Globe,
+  Tag,
+  Check,
 } from 'lucide-react';
+import { toSlug } from '@/lib/utils';
 
-interface AdminNewsSeoAssistantProps {
+export interface AdminNewsSeoAssistantProps {
   title: string;
   excerpt: string;
   content: string;
   slug: string;
+  onSlugChange?: (newSlug: string) => void;
+  thumbnail?: string;
   focusKeyword: string;
   onFocusKeywordChange: (keyword: string) => void;
   seoTitle: string;
@@ -29,11 +42,34 @@ interface AdminNewsSeoAssistantProps {
   activeLang: string;
 }
 
+// Common Vietnamese power words in travel journalism to boost CTR
+const TRAVEL_POWER_WORDS = [
+  'top',
+  'kinh nghiệm',
+  'bí kíp',
+  'hướng dẫn',
+  'chi tiết',
+  'mới nhất',
+  'review',
+  'cẩm nang',
+  'lịch trình',
+  'khám phá',
+  'tuyệt đẹp',
+  'check-in',
+  'đẹp nhất',
+  'tiết kiệm',
+  'giá rẻ',
+  'đáng đi',
+  '2026',
+];
+
 export const AdminNewsSeoAssistant: React.FC<AdminNewsSeoAssistantProps> = ({
   title,
   excerpt,
   content,
   slug,
+  onSlugChange,
+  thumbnail,
   focusKeyword,
   onFocusKeywordChange,
   seoTitle,
@@ -42,9 +78,9 @@ export const AdminNewsSeoAssistant: React.FC<AdminNewsSeoAssistantProps> = ({
   onSeoDescriptionChange,
   activeLang,
 }) => {
-  const [devicePreview, setDevicePreview] = useState<'mobile' | 'desktop'>('mobile');
-  const [isAuditExpanded, setIsAuditExpanded] = useState(true);
-  const [isMetaExpanded, setIsMetaExpanded] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'google_mobile' | 'google_desktop' | 'social'>('google_mobile');
+  const [activeChecklistTab, setActiveChecklistTab] = useState<'all' | 'basic' | 'additional' | 'title' | 'content'>('all');
+  const [isEditorExpanded, setIsEditorExpanded] = useState(true);
 
   // Strip HTML utility
   const plainText = useMemo(() => {
@@ -68,521 +104,915 @@ export const AdminNewsSeoAssistant: React.FC<AdminNewsSeoAssistantProps> = ({
     if (!normalizedKeyword) {
       return {
         inTitle: false,
-        inExcerpt: false,
+        inTitleBeginning: false,
+        inMetaDesc: false,
         inSlug: false,
         inFirstParagraph: false,
         inHeadings: false,
+        inImageAlt: false,
         occurrences: 0,
         density: 0,
       };
     }
 
-    const lowerTitle = title.toLowerCase();
-    const lowerExcerpt = excerpt.toLowerCase();
+    const effectiveTitle = (seoTitle || title).toLowerCase();
+    const effectiveDesc = (seoDescription || excerpt).toLowerCase();
     const lowerSlug = slug.toLowerCase();
     const lowerContent = content.toLowerCase();
     const lowerPlainText = plainText.toLowerCase();
 
     // Occurrences count
-    const regex = new RegExp(normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    const escapedKw = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedKw, 'gi');
     const matches = lowerPlainText.match(regex);
     const count = matches ? matches.length : 0;
     const density = wordCount > 0 ? (count / wordCount) * 100 : 0;
+
+    // Keyword at the beginning of title (first 50% of title string)
+    const titleFirstHalf = effectiveTitle.slice(0, Math.ceil(effectiveTitle.length / 2));
+    const inTitleBeginning = titleFirstHalf.includes(normalizedKeyword);
 
     // First paragraph (first 100 words)
     const first100Words = lowerPlainText.split(/\s+/).slice(0, 100).join(' ');
     const inFirstParagraph = first100Words.includes(normalizedKeyword);
 
-    // Headings check
-    const headingMatches = lowerContent.match(/<h[2-3][^>]*>(.*?)<\/h[2-3]>/gi) || [];
+    // Headings check (H2, H3)
+    const headingMatches = lowerContent.match(/<h[2-4][^>]*>(.*?)<\/h[2-4]>/gi) || [];
     const inHeadings = headingMatches.some((h) => h.includes(normalizedKeyword));
 
+    // Images Alt check
+    const altRegex = /alt=["']([^"']*)["']/gi;
+    let altMatch;
+    let inImageAlt = false;
+    while ((altMatch = altRegex.exec(lowerContent)) !== null) {
+      if (altMatch[1] && altMatch[1].includes(normalizedKeyword)) {
+        inImageAlt = true;
+        break;
+      }
+    }
+
+    // Slug check (replace spaces with hyphens)
+    const slugKeyword = normalizedKeyword
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/\s+/g, '-');
+    const inSlug = lowerSlug.includes(slugKeyword) || lowerSlug.includes(normalizedKeyword.replace(/\s+/g, '-'));
+
     return {
-      inTitle: lowerTitle.includes(normalizedKeyword),
-      inExcerpt: lowerExcerpt.includes(normalizedKeyword),
-      inSlug: lowerSlug.includes(normalizedKeyword.replace(/\s+/g, '-')),
+      inTitle: effectiveTitle.includes(normalizedKeyword),
+      inTitleBeginning,
+      inMetaDesc: effectiveDesc.includes(normalizedKeyword),
+      inSlug,
       inFirstParagraph,
       inHeadings,
+      inImageAlt,
       occurrences: count,
       density: parseFloat(density.toFixed(2)),
     };
-  }, [normalizedKeyword, title, excerpt, slug, content, plainText, wordCount]);
+  }, [normalizedKeyword, title, seoTitle, excerpt, seoDescription, slug, content, plainText, wordCount]);
 
-  // Structural checks
+  // Structural & Readability checks
   const structureStats = useMemo(() => {
     const h2Matches = content.match(/<h2[^>]*>(.*?)<\/h2>/gi) || [];
     const h3Matches = content.match(/<h3[^>]*>(.*?)<\/h3>/gi) || [];
     const imgMatches = content.match(/<img[^>]*>/gi) || [];
     const altMatches = content.match(/<img[^>]*alt=["'](?!["'])[^"']+["'][^>]*>/gi) || [];
-    const figcaptionMatches = content.match(/<figcaption[^>]*>(.*?)<\/figcaption>/gi) || [];
     const linkMatches = content.match(/<a[^>]*href=["'][^"']+["'][^>]*>/gi) || [];
+    const listMatches = content.match(/<(ul|ol)[^>]*>[\s\S]*?<\/(ul|ol)>/gi) || [];
+
+    // Internal vs External links
+    const internalLinks = linkMatches.filter(
+      (l) => l.includes('travel-booking') || l.includes('timesgreen.net') || l.startsWith('<a href="/"') || l.includes('href="/')
+    ).length;
+    const externalLinks = linkMatches.length - internalLinks;
+
+    // Paragraph length check (WordPress readability recommends < 150 words per paragraph)
+    const rawParagraphs = content.split(/<\/p>|<br\s*\/?>/i);
+    const longParagraphs = rawParagraphs.filter((p) => {
+      const pText = p.replace(/<[^>]*>/g, '').trim();
+      const pWordCount = pText.split(/\s+/).filter(Boolean).length;
+      return pWordCount > 150;
+    }).length;
+
+    // Title checks
+    const effectiveTitle = seoTitle || title;
+    const hasNumbersInTitle = /\d+/.test(effectiveTitle);
+    const lowerTitle = effectiveTitle.toLowerCase();
+    const hasPowerWordInTitle = TRAVEL_POWER_WORDS.some((pw) => lowerTitle.includes(pw));
 
     return {
       h2Count: h2Matches.length,
       h3Count: h3Matches.length,
       imgCount: imgMatches.length,
       altCount: altMatches.length,
-      figcaptionCount: figcaptionMatches.length,
       linkCount: linkMatches.length,
+      internalLinks,
+      externalLinks,
+      listCount: listMatches.length,
+      longParagraphs,
+      hasNumbersInTitle,
+      hasPowerWordInTitle,
     };
-  }, [content]);
+  }, [content, seoTitle, title]);
 
-  // Overall Score Calculation (0 - 100)
-  const seoScore = useMemo(() => {
-    let score = 0;
+  // Effective display values
+  const effectiveSeoTitle = seoTitle || title || 'Tiêu đề bài viết hiển thị trên Google Search...';
+  const effectiveSeoDesc =
+    seoDescription ||
+    excerpt ||
+    'Đoạn mô tả ngắn tóm tắt bài viết sẽ xuất hiện ở đây dưới dạng kết quả tìm kiếm Google (Meta Description)...';
 
-    // 1. Focus keyword set (10 pts)
-    if (normalizedKeyword) score += 10;
-
-    // 2. Keyword in title (15 pts)
-    if (keywordStats.inTitle) score += 15;
-
-    // 3. Keyword in excerpt (10 pts)
-    if (keywordStats.inExcerpt) score += 10;
-
-    // 4. Keyword in slug (5 pts)
-    if (keywordStats.inSlug) score += 5;
-
-    // 5. Title length optimal 40-65 chars (10 pts)
+  // Audit Checklist items categorized like Rank Math / Yoast SEO
+  const auditGroups = useMemo(() => {
     const effectiveTitle = seoTitle || title;
-    if (effectiveTitle.length >= 40 && effectiveTitle.length <= 65) {
-      score += 10;
-    } else if (effectiveTitle.length > 25 && effectiveTitle.length <= 80) {
-      score += 5;
-    }
-
-    // 6. Excerpt / Meta description length optimal 120-160 chars (10 pts)
     const effectiveDesc = seoDescription || excerpt;
-    if (effectiveDesc.length >= 120 && effectiveDesc.length <= 165) {
-      score += 10;
-    } else if (effectiveDesc.length >= 80) {
-      score += 5;
-    }
 
-    // 7. Word count length (15 pts)
-    if (wordCount >= 800) score += 15;
-    else if (wordCount >= 400) score += 10;
-    else if (wordCount >= 200) score += 5;
+    return {
+      basic: [
+        {
+          id: 'focus_keyword_set',
+          title: 'Đã đặt từ khóa chính (Focus Keyword)',
+          passed: Boolean(normalizedKeyword),
+          score: 10,
+          tip: 'Hãy nhập từ khóa mục tiêu bạn muốn bài viết này lên Top tìm kiếm Google.',
+        },
+        {
+          id: 'keyword_in_title',
+          title: 'Từ khóa chính xuất hiện trong Tiêu đề SEO',
+          passed: keywordStats.inTitle,
+          score: 15,
+          tip: 'Đưa từ khóa chính vào tiêu đề bài viết để người dùng và Google nhận biết chủ đề.',
+        },
+        {
+          id: 'keyword_in_meta_desc',
+          title: 'Từ khóa chính xuất hiện trong Meta Description',
+          passed: keywordStats.inMetaDesc,
+          score: 10,
+          tip: 'Thêm từ khóa chính vào đoạn mô tả Meta Description để tăng tỷ lệ click (CTR).',
+        },
+        {
+          id: 'keyword_in_slug',
+          title: 'Từ khóa chính có trong Đường dẫn URL (Slug)',
+          passed: keywordStats.inSlug,
+          score: 10,
+          tip: 'Đường dẫn URL nên chứa từ khóa không dấu, ngắn gọn (VD: du-lich-da-nang).',
+        },
+        {
+          id: 'keyword_in_first_p',
+          title: 'Từ khóa xuất hiện trong 10% đầu bài viết (Đoạn mở bài)',
+          passed: keywordStats.inFirstParagraph,
+          score: 10,
+          tip: 'Google đánh giá cao khi từ khóa xuất hiện ngay trong 100 từ đầu tiên của bài viết.',
+        },
+        {
+          id: 'content_word_count',
+          title: `Độ dài bài viết đạt chuẩn (${wordCount} từ)`,
+          passed: wordCount >= 600,
+          warning: wordCount >= 300 && wordCount < 600,
+          score: wordCount >= 600 ? 15 : wordCount >= 300 ? 8 : 0,
+          tip:
+            wordCount >= 600
+              ? 'Độ dài bài viết rất tốt, cung cấp thông tin chuyên sâu cho người đọc.'
+              : wordCount >= 300
+              ? 'Độ dài trung bình (300-600 từ). Khuyến nghị nâng lên tối thiểu 600-1000 từ để cạnh tranh Top Google.'
+              : 'Bài viết dưới 300 từ có nguy cơ bị Google đánh giá là nội dung sơ sài (thin content).',
+        },
+      ],
+      additional: [
+        {
+          id: 'keyword_in_headings',
+          title: 'Từ khóa chính có trong các thẻ tiêu đề phụ (H2 / H3)',
+          passed: keywordStats.inHeadings,
+          score: 10,
+          tip: 'Chèn từ khóa chính hoặc biến thể từ khóa vào ít nhất một thẻ H2 hoặc H3.',
+        },
+        {
+          id: 'keyword_density',
+          title: `Mật độ từ khóa đạt chuẩn: ${keywordStats.density}% (${keywordStats.occurrences} lần)`,
+          passed: keywordStats.density >= 0.8 && keywordStats.density <= 2.5,
+          warning: (keywordStats.density > 0 && keywordStats.density < 0.8) || keywordStats.density > 2.5,
+          score: keywordStats.density >= 0.8 && keywordStats.density <= 2.5 ? 10 : 5,
+          tip:
+            keywordStats.density > 2.5
+              ? 'Mật độ từ khóa > 2.5% có nguy cơ bị phạt nhồi nhét từ khóa (keyword stuffing). Hãy giảm bớt.'
+              : keywordStats.density >= 0.8
+              ? 'Mật độ từ khóa rất lý tưởng (từ 0.8% đến 2.5%).'
+              : 'Mật độ từ khóa hơi thấp. Hãy lặp lại từ khóa chính tự nhiên thêm 2-3 lần trong bài.',
+        },
+        {
+          id: 'keyword_in_image_alt',
+          title: 'Từ khóa chính có trong thuộc tính ALT của hình ảnh',
+          passed: keywordStats.inImageAlt,
+          score: 5,
+          tip: 'Thêm thuộc tính alt có chứa từ khóa cho ảnh để tối ưu hóa trên Google Image Search.',
+        },
+        {
+          id: 'internal_links',
+          title: `Liên kết nội bộ (Internal Links): ${structureStats.linkCount} liên kết`,
+          passed: structureStats.linkCount >= 1,
+          score: 5,
+          tip: 'Chèn ít nhất 1-2 liên kết trỏ đến Tour du lịch, Khách sạn hoặc bài viết liên quan.',
+        },
+        {
+          id: 'slug_length',
+          title: `Độ dài đường dẫn URL: ${slug.length} ký tự`,
+          passed: slug.length <= 75 && slug.length > 5,
+          score: 5,
+          tip: 'Đường dẫn URL nên ngắn gọn, súc tích (dưới 75 ký tự) để hiển thị đẹp trên kết quả tìm kiếm.',
+        },
+      ],
+      title: [
+        {
+          id: 'title_length',
+          title: `Độ dài tiêu đề SEO: ${effectiveTitle.length} ký tự`,
+          passed: effectiveTitle.length >= 40 && effectiveTitle.length <= 60,
+          warning: (effectiveTitle.length >= 30 && effectiveTitle.length < 40) || (effectiveTitle.length > 60 && effectiveTitle.length <= 70),
+          score: effectiveTitle.length >= 40 && effectiveTitle.length <= 60 ? 10 : 5,
+          tip:
+            effectiveTitle.length > 60
+              ? 'Tiêu đề quá 60 ký tự có thể bị Google cắt ngắn dấu ba chấm (...) trên kết quả tìm kiếm.'
+              : effectiveTitle.length < 40
+              ? 'Tiêu đề hơi ngắn. Nên bổ sung thêm tên địa danh hoặc từ khóa phụ (40 - 60 ký tự là tối ưu).'
+              : 'Độ dài tiêu đề đạt chuẩn hiển thị hoàn hảo trên Google Desktop & Mobile.',
+        },
+        {
+          id: 'keyword_at_beginning',
+          title: 'Từ khóa chính nằm ở nửa đầu tiêu đề',
+          passed: keywordStats.inTitleBeginning,
+          score: 5,
+          tip: 'Đặt từ khóa ở đầu tiêu đề giúp người tìm kiếm chú ý ngay lập tức và tăng CTR.',
+        },
+        {
+          id: 'has_numbers',
+          title: 'Tiêu đề có chứa con số (VD: Top 10, 5 địa điểm, 2026)',
+          passed: structureStats.hasNumbersInTitle,
+          score: 5,
+          tip: 'Các bài viết chứa số trong tiêu đề thường đạt tỷ lệ nhấp chuột cao hơn 36%.',
+        },
+        {
+          id: 'has_power_word',
+          title: 'Tiêu đề chứa từ ngữ kích thích click (Kinh nghiệm, Bí kíp, Review, Mới nhất...)',
+          passed: structureStats.hasPowerWordInTitle,
+          score: 5,
+          tip: 'Bổ sung các từ lôi cuốn như "Kinh nghiệm", "Review", "Chi tiết", "Cẩm nang", "2026".',
+        },
+      ],
+      content: [
+        {
+          id: 'headings_distribution',
+          title: `Phân cấp đề mục Headings: ${structureStats.h2Count} thẻ H2 &bull; ${structureStats.h3Count} thẻ H3`,
+          passed: structureStats.h2Count >= 2,
+          warning: structureStats.h2Count === 1,
+          score: structureStats.h2Count >= 2 ? 10 : 5,
+          tip: 'Sử dụng ít nhất 2-3 thẻ H2 để chia nhỏ các phần chính của bài viết cho người đọc dễ theo dõi.',
+        },
+        {
+          id: 'images_present',
+          title: `Hình ảnh minh họa trong bài viết: ${structureStats.imgCount} ảnh`,
+          passed: structureStats.imgCount >= 2,
+          warning: structureStats.imgCount === 1,
+          score: structureStats.imgCount >= 2 ? 5 : 2,
+          tip: 'Bài viết du lịch nên có ít nhất 2-3 hình ảnh đẹp chất lượng cao để tăng độ tin cậy và thẩm mỹ.',
+        },
+        {
+          id: 'lists_present',
+          title: `Sử dụng danh sách (Lists): ${structureStats.listCount} danh sách`,
+          passed: structureStats.listCount >= 1,
+          score: 5,
+          tip: 'Dùng danh sách gạch đầu dòng hoặc số thứ tự giúp người đọc nắm thông tin nhanh chóng.',
+        },
+        {
+          id: 'paragraph_length',
+          title: 'Độ dài các đoạn văn bản vừa phải (< 150 từ/đoạn)',
+          passed: structureStats.longParagraphs === 0,
+          score: 5,
+          tip:
+            structureStats.longParagraphs > 0
+              ? `Có ${structureStats.longParagraphs} đoạn văn quá dài (> 150 từ). Hãy ngắt thành các đoạn ngắn hơn.`
+              : 'Bố cục các đoạn văn ngắn gọn, thoáng đãng, dễ đọc trên thiết bị di động.',
+        },
+      ],
+    };
+  }, [normalizedKeyword, keywordStats, structureStats, wordCount, title, seoTitle, excerpt, seoDescription, slug]);
 
-    // 8. Keyword density (1.0% - 2.5% is ideal) (10 pts)
-    if (keywordStats.density >= 0.8 && keywordStats.density <= 3.0) {
-      score += 10;
-    } else if (keywordStats.occurrences > 0) {
-      score += 5;
-    }
+  // Total Score Calculation (Sum of all criteria scaled to 100)
+  const seoScore = useMemo(() => {
+    let earned = 0;
+    let max = 0;
 
-    // 9. Headings structure (10 pts)
-    if (structureStats.h2Count >= 2 && structureStats.h3Count >= 1) score += 10;
-    else if (structureStats.h2Count >= 1) score += 5;
+    Object.values(auditGroups).forEach((group) => {
+      group.forEach((item) => {
+        max += item.score;
+        if (item.passed) {
+          earned += item.score;
+        } else if ((item as any).warning) {
+          earned += Math.round(item.score * 0.5);
+        }
+      });
+    });
 
-    // 10. Images & Alt attributes (5 pts)
-    if (structureStats.imgCount >= 1 && structureStats.altCount === structureStats.imgCount) {
-      score += 5;
-    } else if (structureStats.imgCount >= 1) {
-      score += 3;
-    }
+    return max > 0 ? Math.min(100, Math.round((earned / max) * 100)) : 0;
+  }, [auditGroups]);
 
-    return Math.min(100, Math.max(0, score));
-  }, [
-    normalizedKeyword,
-    keywordStats,
-    title,
-    seoTitle,
-    excerpt,
-    seoDescription,
-    wordCount,
-    structureStats,
-  ]);
-
-  // Score visual tier
+  // Visual status badge
   const scoreBadge = useMemo(() => {
     if (seoScore >= 80) {
       return {
-        bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        bg: 'bg-emerald-50 text-emerald-800 border-emerald-300',
         bar: 'bg-emerald-500',
-        label: 'Tối ưu SEO Xuất Sắc',
-        icon: CheckCircle2,
+        text: 'text-emerald-700',
+        label: 'Tối Ưu SEO Xuất Sắc',
+        rankMathColor: '#10b981',
       };
     }
     if (seoScore >= 50) {
       return {
-        bg: 'bg-amber-50 text-amber-700 border-amber-200',
+        bg: 'bg-amber-50 text-amber-800 border-amber-300',
         bar: 'bg-amber-500',
+        text: 'text-amber-700',
         label: 'Khá – Cần Hoàn Thiện Thêm',
-        icon: AlertCircle,
+        rankMathColor: '#f59e0b',
       };
     }
     return {
-      bg: 'bg-rose-50 text-rose-700 border-rose-200',
+      bg: 'bg-rose-50 text-rose-800 border-rose-300',
       bar: 'bg-rose-500',
+      text: 'text-rose-700',
       label: 'Chưa Đạt Chuẩn SEO',
-      icon: XCircle,
+      rankMathColor: '#ef4444',
     };
   }, [seoScore]);
 
-  const ScoreIcon = scoreBadge.icon;
+  // Filter checklist by active tab
+  const activeItems = useMemo(() => {
+    if (activeChecklistTab === 'all') {
+      return [
+        ...auditGroups.basic.map((item) => ({ ...item, category: 'SEO Cơ Bản' })),
+        ...auditGroups.additional.map((item) => ({ ...item, category: 'SEO Bổ Sung' })),
+        ...auditGroups.title.map((item) => ({ ...item, category: 'Tiêu Đề' })),
+        ...auditGroups.content.map((item) => ({ ...item, category: 'Nội Dung' })),
+      ];
+    }
+    return auditGroups[activeChecklistTab].map((item) => ({
+      ...item,
+      category:
+        activeChecklistTab === 'basic'
+          ? 'SEO Cơ Bản'
+          : activeChecklistTab === 'additional'
+          ? 'SEO Bổ Sung'
+          : activeChecklistTab === 'title'
+          ? 'Tiêu Đề'
+          : 'Nội Dung',
+    }));
+  }, [auditGroups, activeChecklistTab]);
 
-  const displayTitle = seoTitle || title || 'Tiêu đề bài viết hiển thị trên Google Search...';
-  const displayDesc =
-    seoDescription ||
-    excerpt ||
-    'Đoạn trích dẫn mô tả bài viết sẽ xuất hiện tại đây dưới dạng kết quả tìm kiếm Google (Meta Description)...';
+  // Counts for checklist status
+  const checklistStats = useMemo(() => {
+    const all = [
+      ...auditGroups.basic,
+      ...auditGroups.additional,
+      ...auditGroups.title,
+      ...auditGroups.content,
+    ];
+    const passed = all.filter((i) => i.passed).length;
+    const errors = all.filter((i) => !i.passed && !(i as any).warning).length;
+    const warnings = all.filter((i) => !i.passed && (i as any).warning).length;
+    return { total: all.length, passed, errors, warnings };
+  }, [auditGroups]);
+
+  // Helper to highlight focus keyword in snippet text (like Google SERP bolding)
+  const renderHighlightedSnippet = (text: string) => {
+    if (!normalizedKeyword) return text;
+    const parts = text.split(new RegExp(`(${normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+    return parts.map((part, i) =>
+      part.toLowerCase() === normalizedKeyword ? (
+        <strong key={i} className="font-extrabold text-slate-900 bg-amber-100/80 px-0.5 rounded">
+          {part}
+        </strong>
+      ) : (
+        part
+      )
+    );
+  };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-5">
-      {/* Header & Score Gauge */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <h3 className="font-extrabold text-slate-900 text-sm">
-              Trợ Lý SEO & Phân Tích Chuẩn Google
-            </h3>
-            <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-              {activeLang.toUpperCase()}
-            </span>
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden space-y-6">
+      {/* 1. TOP HEADER: Score Circle & Meta Summary */}
+      <div className="p-5 sm:p-6 bg-gradient-to-r from-slate-50 via-white to-blue-50/30 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                SEO
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                  Trợ Lý Tối Ưu SEO & Thẻ Meta Chuẩn WordPress
+                  <span className="text-[10px] font-extrabold uppercase bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                    {activeLang.toUpperCase()}
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Phân tích thời gian thực theo thuật toán Google Ranking, Yoast SEO & Rank Math
+                </p>
+              </div>
+            </div>
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            Đánh giá theo thời gian thực các tiêu chuẩn On-Page SEO của Google và Rank Math
-          </p>
+
+          {/* Large Visual Score Card */}
+          <div className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
+            {/* Circular Gauge */}
+            <div className="relative w-14 h-14 flex items-center justify-center">
+              <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-slate-100"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  style={{ stroke: scoreBadge.rankMathColor }}
+                  strokeDasharray={`${seoScore}, 100`}
+                  strokeLinecap="round"
+                  strokeWidth="3.5"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  className="transition-all duration-500 ease-out"
+                />
+              </svg>
+              <div className="absolute flex flex-col items-center justify-center text-center">
+                <span className="text-sm font-black text-slate-900 leading-none">{seoScore}</span>
+                <span className="text-[9px] font-bold text-slate-400">/100</span>
+              </div>
+            </div>
+
+            <div className="text-left">
+              <div className={`text-xs font-bold ${scoreBadge.text}`}>{scoreBadge.label}</div>
+              <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                  <CheckCircle2 className="w-3 h-3" /> {checklistStats.passed} Đạt
+                </span>
+                <span>&bull;</span>
+                <span className="inline-flex items-center gap-1 text-rose-600 font-semibold">
+                  <XCircle className="w-3 h-3" /> {checklistStats.errors} Cần sửa
+                </span>
+                {checklistStats.warnings > 0 && (
+                  <>
+                    <span>&bull;</span>
+                    <span className="inline-flex items-center gap-1 text-amber-600 font-semibold">
+                      <AlertCircle className="w-3 h-3" /> {checklistStats.warnings} Chú ý
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Score Pill */}
-        <div className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border ${scoreBadge.bg}`}>
-          <ScoreIcon className="w-4 h-4 shrink-0" />
-          <div className="text-right">
-            <span className="text-base font-black tracking-tight">{seoScore}</span>
-            <span className="text-[11px] font-bold opacity-80">/100</span>
+        {/* Quick content summary bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 pt-4 border-t border-slate-200/60 text-xs">
+          <div className="bg-white p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-blue-600 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-400 block">Độ dài nội dung</span>
+              <span className="font-bold text-slate-800">{wordCount} từ</span>
+            </div>
           </div>
-          <span className="text-xs font-bold pl-1 border-l border-current/20 hidden sm:inline">
-            {scoreBadge.label}
-          </span>
+          <div className="bg-white p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-indigo-600 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-400 block">Thời gian đọc</span>
+              <span className="font-bold text-slate-800">~{readingTime} phút</span>
+            </div>
+          </div>
+          <div className="bg-white p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-purple-600 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-400 block">Phân cấp đề mục</span>
+              <span className="font-bold text-slate-800">
+                {structureStats.h2Count} H2 &bull; {structureStats.h3Count} H3
+              </span>
+            </div>
+          </div>
+          <div className="bg-white p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
+            <ImageIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-400 block">Hình ảnh & Media</span>
+              <span className="font-bold text-slate-800">
+                {structureStats.imgCount} ảnh ({structureStats.altCount} có alt)
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-        <div
-          className={`h-full ${scoreBadge.bar} transition-all duration-300 ease-out`}
-          style={{ width: `${seoScore}%` }}
-        />
-      </div>
+      <div className="p-5 sm:p-6 space-y-6 pt-0">
+        {/* 2. FOCUS KEYWORD INPUT (YOAST / RANK MATH STYLE) */}
+        <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-4.5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <label className="text-xs font-bold text-slate-900 flex items-center gap-2">
+              <Search className="w-4 h-4 text-blue-600" />
+              Từ Khóa Trọng Tâm (Focus Keyword):
+            </label>
+            {normalizedKeyword && (
+              <span className="text-[11px] text-slate-600 font-medium bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                Xuất hiện: <strong className="text-blue-600">{keywordStats.occurrences}</strong> lần (
+                <strong className={keywordStats.density >= 0.8 && keywordStats.density <= 2.5 ? 'text-emerald-600' : 'text-amber-600'}>
+                  {keywordStats.density}%
+                </strong>
+                )
+              </span>
+            )}
+          </div>
 
-      {/* Focus Keyword Input */}
-      <div>
-        <label className="flex items-center justify-between text-xs font-bold text-slate-800 mb-1">
-          <span className="flex items-center gap-1.5">
-            <Search className="w-3.5 h-3.5 text-blue-600" />
-            Từ Khóa Trọng Tâm (Focus Keyword):
-          </span>
-          {normalizedKeyword && (
-            <span className="text-[11px] text-slate-500 font-normal">
-              Xuất hiện: <strong className="text-blue-600">{keywordStats.occurrences}</strong> lần (
-              {keywordStats.density}%)
-            </span>
+          <div className="relative">
+            <input
+              type="text"
+              value={focusKeyword}
+              onChange={(e) => onFocusKeywordChange(e.target.value)}
+              placeholder="Nhập từ khóa mục tiêu (VD: du lịch ninh bình, kinh nghiệm đà nẵng, vé máy bay giá rẻ)..."
+              className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-slate-900 font-semibold focus:outline-none shadow-2xs"
+            />
+          </div>
+
+          {/* Keyword quick presence pills */}
+          {normalizedKeyword ? (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+              <span className="text-slate-400 font-medium">Vị trí từ khóa:</span>
+              <span
+                className={`px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 ${
+                  keywordStats.inTitle ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                {keywordStats.inTitle ? <Check className="w-3 h-3" /> : <XCircle className="w-3 h-3" />} Tiêu đề
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 ${
+                  keywordStats.inMetaDesc ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                {keywordStats.inMetaDesc ? <Check className="w-3 h-3" /> : <XCircle className="w-3 h-3" />} Meta Desc
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 ${
+                  keywordStats.inSlug ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                {keywordStats.inSlug ? <Check className="w-3 h-3" /> : <XCircle className="w-3 h-3" />} URL Slug
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 ${
+                  keywordStats.inFirstParagraph ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                {keywordStats.inFirstParagraph ? <Check className="w-3 h-3" /> : <XCircle className="w-3 h-3" />} 100 từ đầu
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 ${
+                  keywordStats.inHeadings ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                {keywordStats.inHeadings ? <Check className="w-3 h-3" /> : <XCircle className="w-3 h-3" />} Thẻ H2/H3
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-md font-semibold inline-flex items-center gap-1 ${
+                  keywordStats.inImageAlt ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                {keywordStats.inImageAlt ? <Check className="w-3 h-3" /> : <XCircle className="w-3 h-3" />} Thẻ Alt ảnh
+              </span>
+            </div>
+          ) : (
+            <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+              💡 Bạn chưa đặt từ khóa chính. Nhập từ khóa mục tiêu để hệ thống tự động kiểm tra mật độ và phân bổ SEO.
+            </p>
           )}
-        </label>
-        <input
-          type="text"
-          value={focusKeyword}
-          onChange={(e) => onFocusKeywordChange(e.target.value)}
-          placeholder="VD: du lịch ninh bình, kinh nghiệm du lịch hà nội, ẩm thực đà nẵng..."
-          className="w-full border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 font-medium bg-slate-50/50"
-        />
-        <p className="text-[10px] text-slate-400 mt-1">
-          Từ khóa chính giúp hệ thống kiểm tra mật độ xuất hiện trong tiêu đề, mô tả, heading và bài viết.
-        </p>
-      </div>
+        </div>
 
-      {/* Google SERP Snippet Preview */}
-      <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2.5">
-        <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-          <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-indigo-600" />
-            Xem trước hiển thị kết quả tìm kiếm Google (SERP Preview)
-          </span>
+        {/* 3. GOOGLE SERP & SOCIAL SNIPPET PREVIEW & METADATA EDITOR */}
+        <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-4.5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/70 pb-3">
+            <div>
+              <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-blue-600" />
+                Xem Trước Đoạn Trích Hiển Thị (Snippet Preview)
+              </h4>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Mô phỏng chính xác giao diện bài viết trên kết quả tìm kiếm Google và khi chia sẻ lên mạng xã hội
+              </p>
+            </div>
 
-          <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
+            {/* Mode switch pills */}
+            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setPreviewMode('google_mobile')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+                  previewMode === 'google_mobile' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5" /> Google Mobile
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewMode('google_desktop')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+                  previewMode === 'google_desktop' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Monitor className="w-3.5 h-3.5" /> Google Desktop
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewMode('social')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+                  previewMode === 'social' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Share2 className="w-3.5 h-3.5" /> Facebook / Zalo
+              </button>
+            </div>
+          </div>
+
+          {/* Preview Canvas */}
+          {previewMode !== 'social' ? (
+            <div
+              className={`bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm space-y-1.5 ${
+                previewMode === 'google_mobile' ? 'max-w-md' : 'w-full'
+              }`}
+            >
+              {/* Google Breadcrumb */}
+              <div className="flex items-center gap-2 text-[11px] text-slate-700">
+                <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-black shrink-0">
+                  T
+                </div>
+                <div className="flex flex-col leading-tight truncate">
+                  <span className="font-semibold text-slate-800">Travel Booking</span>
+                  <span className="text-[10px] text-slate-500 font-mono truncate">
+                    https://travel-booking-ruby.vercel.app/{activeLang}/news/{slug || 'du-lich-viet-nam'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Title */}
+              <h4 className="text-blue-700 hover:underline cursor-pointer font-medium text-base sm:text-lg leading-snug pt-1 line-clamp-2">
+                {renderHighlightedSnippet(effectiveSeoTitle)}
+              </h4>
+
+              {/* Description */}
+              <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 pt-0.5">
+                <span className="text-slate-400 mr-1.5">{new Date().toLocaleDateString('vi-VN')} —</span>
+                {renderHighlightedSnippet(effectiveSeoDesc)}
+              </p>
+            </div>
+          ) : (
+            /* Social Card Preview (Facebook / Zalo / OpenGraph) */
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden max-w-lg">
+              <div className="h-48 bg-slate-100 overflow-hidden relative">
+                {thumbnail ? (
+                  <img src={thumbnail} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-xs">
+                    <ImageIcon className="w-8 h-8 mb-1 text-slate-300" />
+                    Chưa có ảnh thumbnail
+                  </div>
+                )}
+              </div>
+              <div className="p-3.5 bg-slate-50 border-t border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                  travel-booking-ruby.vercel.app
+                </span>
+                <h5 className="font-bold text-slate-900 text-sm leading-snug line-clamp-1">{effectiveSeoTitle}</h5>
+                <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{effectiveSeoDesc}</p>
+              </div>
+            </div>
+          )}
+
+          {/* 4. INLINE METADATA EDITORS (SEO Title, Slug, Meta Description) */}
+          <div className="space-y-4 pt-2 border-t border-slate-200/70">
+            {/* SEO Title Input */}
+            <div>
+              <div className="flex items-center justify-between mb-1 text-xs">
+                <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <span>Tiêu Đề SEO Google (Meta Title):</span>
+                  <button
+                    type="button"
+                    onClick={() => onSeoTitleChange(title)}
+                    className="text-[10px] text-blue-600 hover:text-blue-800 font-semibold underline cursor-pointer"
+                  >
+                    ⚡ Lấy theo tiêu đề bài viết
+                  </button>
+                </label>
+                <span
+                  className={`font-mono text-[11px] font-bold ${
+                    effectiveSeoTitle.length >= 40 && effectiveSeoTitle.length <= 60
+                      ? 'text-emerald-600'
+                      : effectiveSeoTitle.length > 60
+                      ? 'text-rose-600'
+                      : 'text-amber-600'
+                  }`}
+                >
+                  {effectiveSeoTitle.length} / 60 ký tự
+                </span>
+              </div>
+              <input
+                type="text"
+                value={seoTitle}
+                onChange={(e) => onSeoTitleChange(e.target.value)}
+                placeholder={title || 'Nhập tiêu đề SEO tối ưu (40-60 ký tự)...'}
+                className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none shadow-2xs font-medium"
+              />
+              {/* Length indicator progress */}
+              <div className="w-full bg-slate-200 h-1 rounded-full mt-1.5 overflow-hidden">
+                <div
+                  className={`h-full transition-all ${
+                    effectiveSeoTitle.length >= 40 && effectiveSeoTitle.length <= 60
+                      ? 'bg-emerald-500'
+                      : effectiveSeoTitle.length > 60
+                      ? 'bg-rose-500'
+                      : 'bg-amber-400'
+                  }`}
+                  style={{ width: `${Math.min(100, (effectiveSeoTitle.length / 60) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* URL / Slug Editor */}
+            {onSlugChange && (
+              <div>
+                <div className="flex items-center justify-between mb-1 text-xs">
+                  <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <span>Đường Dẫn URL (Permalink / Slug):</span>
+                    <button
+                      type="button"
+                      onClick={() => onSlugChange(toSlug(title || ''))}
+                      className="text-[10px] text-blue-600 hover:text-blue-800 font-semibold underline cursor-pointer"
+                    >
+                      ⚡ Tạo slug tự động
+                    </button>
+                  </label>
+                  <span className="font-mono text-[11px] text-slate-400">{slug.length} ký tự</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="bg-slate-100 border border-r-0 border-slate-200 px-3 py-2 text-[11px] text-slate-500 rounded-l-xl font-mono">
+                    /{activeLang}/news/
+                  </span>
+                  <input
+                    type="text"
+                    value={slug}
+                    onChange={(e) => onSlugChange(e.target.value)}
+                    placeholder="duong-dan-bai-viet-chuan-seo"
+                    className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-r-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none shadow-2xs font-mono"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Meta Description Input */}
+            <div>
+              <div className="flex items-center justify-between mb-1 text-xs">
+                <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <span>Mô Tả SEO Google (Meta Description):</span>
+                  <button
+                    type="button"
+                    onClick={() => onSeoDescriptionChange(excerpt)}
+                    className="text-[10px] text-blue-600 hover:text-blue-800 font-semibold underline cursor-pointer"
+                  >
+                    ⚡ Lấy theo đoạn tóm tắt bài viết
+                  </button>
+                </label>
+                <span
+                  className={`font-mono text-[11px] font-bold ${
+                    effectiveSeoDesc.length >= 120 && effectiveSeoDesc.length <= 160
+                      ? 'text-emerald-600'
+                      : effectiveSeoDesc.length > 160
+                      ? 'text-rose-600'
+                      : 'text-amber-600'
+                  }`}
+                >
+                  {effectiveSeoDesc.length} / 160 ký tự
+                </span>
+              </div>
+              <textarea
+                rows={2}
+                value={seoDescription}
+                onChange={(e) => onSeoDescriptionChange(e.target.value)}
+                placeholder={excerpt || 'Nhập đoạn mô tả tóm tắt lôi cuốn chứa từ khóa chính (120-160 ký tự)...'}
+                className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none shadow-2xs leading-relaxed"
+              />
+              <div className="w-full bg-slate-200 h-1 rounded-full mt-1.5 overflow-hidden">
+                <div
+                  className={`h-full transition-all ${
+                    effectiveSeoDesc.length >= 120 && effectiveSeoDesc.length <= 160
+                      ? 'bg-emerald-500'
+                      : effectiveSeoDesc.length > 160
+                      ? 'bg-rose-500'
+                      : 'bg-amber-400'
+                  }`}
+                  style={{ width: `${Math.min(100, (effectiveSeoDesc.length / 160) * 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. WORDPRESS / RANK MATH AUDIT CHECKLIST (4 TABS) */}
+        <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs bg-white">
+          {/* Checklist Tab Headers */}
+          <div className="flex border-b border-slate-200 bg-slate-50/90 overflow-x-auto scrollbar-none">
             <button
               type="button"
-              onClick={() => setDevicePreview('mobile')}
-              className={`p-1 rounded-md text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
-                devicePreview === 'mobile'
-                  ? 'bg-blue-600 text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+              onClick={() => setActiveChecklistTab('all')}
+              className={`px-4 py-3 text-xs font-bold whitespace-nowrap transition-colors border-b-2 cursor-pointer ${
+                activeChecklistTab === 'all'
+                  ? 'border-blue-600 text-blue-600 bg-white'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
-              title="Giao diện Google Mobile"
             >
-              <Smartphone className="w-3 h-3" /> Mobile
+              Tất Cả ({checklistStats.total})
             </button>
             <button
               type="button"
-              onClick={() => setDevicePreview('desktop')}
-              className={`p-1 rounded-md text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
-                devicePreview === 'desktop'
-                  ? 'bg-blue-600 text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+              onClick={() => setActiveChecklistTab('basic')}
+              className={`px-4 py-3 text-xs font-bold whitespace-nowrap transition-colors border-b-2 cursor-pointer ${
+                activeChecklistTab === 'basic'
+                  ? 'border-blue-600 text-blue-600 bg-white'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
-              title="Giao diện Google Desktop"
             >
-              <Monitor className="w-3 h-3" /> Desktop
+              SEO Cơ Bản ({auditGroups.basic.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveChecklistTab('additional')}
+              className={`px-4 py-3 text-xs font-bold whitespace-nowrap transition-colors border-b-2 cursor-pointer ${
+                activeChecklistTab === 'additional'
+                  ? 'border-blue-600 text-blue-600 bg-white'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              SEO Bổ Sung ({auditGroups.additional.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveChecklistTab('title')}
+              className={`px-4 py-3 text-xs font-bold whitespace-nowrap transition-colors border-b-2 cursor-pointer ${
+                activeChecklistTab === 'title'
+                  ? 'border-blue-600 text-blue-600 bg-white'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Tiêu Đề ({auditGroups.title.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveChecklistTab('content')}
+              className={`px-4 py-3 text-xs font-bold whitespace-nowrap transition-colors border-b-2 cursor-pointer ${
+                activeChecklistTab === 'content'
+                  ? 'border-blue-600 text-blue-600 bg-white'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Dễ Đọc Nội Dung ({auditGroups.content.length})
             </button>
           </div>
-        </div>
 
-        {/* Realistic Google Snippet Card */}
-        <div
-          className={`bg-white rounded-xl p-3.5 border border-slate-200 shadow-2xs ${
-            devicePreview === 'mobile' ? 'max-w-sm' : 'w-full'
-          }`}
-        >
-          {/* Breadcrumb row */}
-          <div className="flex items-center gap-2 text-[11px] text-slate-600 mb-1">
-            <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-extrabold">
-              T
-            </div>
-            <span className="font-semibold text-slate-800">Travel Booking</span>
-            <span className="text-slate-400">&rsaquo;</span>
-            <span className="text-slate-500 truncate">
-              {activeLang}/news/{slug || 'du-lich-viet-nam'}
-            </span>
-          </div>
-
-          {/* Title */}
-          <h4 className="text-blue-700 hover:underline cursor-pointer font-medium text-sm leading-snug line-clamp-2">
-            {displayTitle}
-          </h4>
-
-          {/* Snippet Description */}
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed line-clamp-2">{displayDesc}</p>
-        </div>
-
-        {/* Toggle Custom SEO Meta fields */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={() => setIsMetaExpanded(!isMetaExpanded)}
-            className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
-          >
-            <span>{isMetaExpanded ? 'Thu gọn' : 'Tùy chỉnh riêng'} Thẻ Meta Title & Meta Description Google</span>
-            {isMetaExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-
-          {isMetaExpanded && (
-            <div className="mt-2.5 p-3 bg-white rounded-xl border border-slate-200 space-y-3 animate-in fade-in duration-150">
-              <div>
-                <div className="flex justify-between text-[11px] font-semibold text-slate-700 mb-1">
-                  <span>Tiêu đề SEO Google (Meta Title)</span>
-                  <span
-                    className={
-                      (seoTitle || title).length > 65
-                        ? 'text-amber-600 font-bold'
-                        : 'text-slate-400'
-                    }
-                  >
-                    {(seoTitle || title).length} / 60 ký tự
-                  </span>
+          {/* Checklist Items List */}
+          <div className="divide-y divide-slate-100 p-4 space-y-3">
+            {activeItems.map((item) => (
+              <div key={item.id} className="pt-3 first:pt-0 flex items-start gap-3">
+                <div className="shrink-0 mt-0.5">
+                  {item.passed ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  ) : (item as any).warning ? (
+                    <AlertCircle className="w-4 h-4 text-amber-500" />
+                  ) : (
+                    <XCircle className="w-4 h-4 text-rose-500" />
+                  )}
                 </div>
-                <input
-                  type="text"
-                  value={seoTitle}
-                  onChange={(e) => onSeoTitleChange(e.target.value)}
-                  placeholder={title || 'Mặc định lấy từ Tiêu đề bài viết...'}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                />
-              </div>
 
-              <div>
-                <div className="flex justify-between text-[11px] font-semibold text-slate-700 mb-1">
-                  <span>Mô tả SEO Google (Meta Description)</span>
-                  <span
-                    className={
-                      (seoDescription || excerpt).length > 165
-                        ? 'text-amber-600 font-bold'
-                        : 'text-slate-400'
-                    }
-                  >
-                    {(seoDescription || excerpt).length} / 160 ký tự
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className={`font-bold text-xs ${item.passed ? 'text-slate-800' : 'text-slate-900'}`}>
+                      {item.title}
+                    </p>
+                    {activeChecklistTab === 'all' && (
+                      <span className="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full shrink-0">
+                        {item.category}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed mt-0.5">{item.tip}</p>
                 </div>
-                <textarea
-                  rows={2}
-                  value={seoDescription}
-                  onChange={(e) => onSeoDescriptionChange(e.target.value)}
-                  placeholder={excerpt || 'Mặc định lấy từ Tóm tắt bài viết...'}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500"
-                />
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Audit Checklist (Collapsible) */}
-      <div className="border border-slate-200 rounded-xl overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setIsAuditExpanded(!isAuditExpanded)}
-          className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer text-left"
-        >
-          <span className="text-xs font-bold text-slate-800 flex items-center gap-2">
-            <FileCheck className="w-3.5 h-3.5 text-blue-600" />
-            Bảng Kiểm Tra Tiêu Chí SEO Chi Tiết
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500 font-medium">
-              {wordCount} từ &bull; ~{readingTime} phút đọc
-            </span>
-            {isAuditExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-          </div>
-        </button>
-
-        {isAuditExpanded && (
-          <div className="p-3 divide-y divide-slate-100 text-[11px] space-y-2">
-            {/* 1. Keyword in Title */}
-            <div className="flex items-start gap-2.5 pt-2 first:pt-0">
-              {keywordStats.inTitle ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">Từ khóa trong Tiêu đề (Title)</p>
-                <p className="text-slate-500 text-[10px]">
-                  {keywordStats.inTitle
-                    ? 'Tiêu đề đã chứa từ khóa mục tiêu chuẩn SEO.'
-                    : 'Nên đưa từ khóa mục tiêu vào tiêu đề (tốt nhất ở nửa đầu tiêu đề).'}
-                </p>
-              </div>
-            </div>
-
-            {/* 2. Keyword in Meta Description */}
-            <div className="flex items-start gap-2.5 pt-2">
-              {keywordStats.inExcerpt ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">Từ khóa trong Đoạn tóm tắt (Meta Description)</p>
-                <p className="text-slate-500 text-[10px]">
-                  {keywordStats.inExcerpt
-                    ? 'Đoạn tóm tắt đã chứa từ khóa mục tiêu.'
-                    : 'Nên thêm từ khóa vào tóm tắt để người tìm kiếm dễ bấm vào bài viết.'}
-                </p>
-              </div>
-            </div>
-
-            {/* 3. Word Count */}
-            <div className="flex items-start gap-2.5 pt-2">
-              {wordCount >= 800 ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : wordCount >= 300 ? (
-                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">
-                  Độ dài nội dung bài viết: <span className="text-blue-600">{wordCount} từ</span>
-                </p>
-                <p className="text-slate-500 text-[10px]">
-                  {wordCount >= 800
-                    ? 'Độ dài bài viết rất tốt, cung cấp thông tin chuyên sâu cho người đọc.'
-                    : wordCount >= 300
-                    ? 'Độ dài ở mức trung bình (khuyến nghị trên 800 từ để cạnh tranh top tìm kiếm).'
-                    : 'Bài viết quá ngắn (dưới 300 từ), có thể bị Google đánh giá là thin content.'}
-                </p>
-              </div>
-            </div>
-
-            {/* 4. Headings Structure */}
-            <div className="flex items-start gap-2.5 pt-2">
-              {structureStats.h2Count >= 2 ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">
-                  Phân cấp đề mục Headings: {structureStats.h2Count} thẻ H2 &bull; {structureStats.h3Count} thẻ H3
-                </p>
-                <p className="text-slate-500 text-[10px]">
-                  {structureStats.h2Count >= 2
-                    ? 'Cấu trúc bài viết có phân cấp rõ ràng với các mục H2, H3.'
-                    : 'Nên sử dụng ít nhất 2-3 thẻ H2 để chia nhỏ nội dung giúp người đọc và bot dễ quét.'}
-                </p>
-              </div>
-            </div>
-
-            {/* 5. Images & Alt attributes */}
-            <div className="flex items-start gap-2.5 pt-2">
-              {structureStats.imgCount >= 1 && structureStats.altCount === structureStats.imgCount ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : structureStats.imgCount >= 1 ? (
-                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">
-                  Tối ưu hình ảnh: {structureStats.imgCount} ảnh ({structureStats.altCount} ảnh có thẻ alt,{' '}
-                  {structureStats.figcaptionCount} chú thích)
-                </p>
-                <p className="text-slate-500 text-[10px]">
-                  {structureStats.imgCount === 0
-                    ? 'Chưa có ảnh trong bài viết. Hãy thêm khối ảnh để bài viết sinh động hơn.'
-                    : structureStats.altCount < structureStats.imgCount
-                    ? 'Một số ảnh đang thiếu thẻ alt mô tả. Hãy bổ sung alt để tối ưu Google Image Search.'
-                    : 'Tất cả các ảnh đều có thẻ alt chuẩn SEO.'}
-                </p>
-              </div>
-            </div>
-
-            {/* 6. Keyword Density */}
-            <div className="flex items-start gap-2.5 pt-2">
-              {keywordStats.density >= 0.8 && keywordStats.density <= 3.0 ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : keywordStats.density > 3.0 ? (
-                <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">
-                  Mật độ từ khóa chính: {keywordStats.density}% ({keywordStats.occurrences} lần)
-                </p>
-                <p className="text-slate-500 text-[10px]">
-                  {keywordStats.density >= 0.8 && keywordStats.density <= 3.0
-                    ? 'Mật độ từ khóa đạt chuẩn tối ưu (1.0% - 2.5%).'
-                    : keywordStats.density > 3.0
-                    ? 'Mật độ từ khóa hơi cao (> 3%), có nguy cơ bị tính là nhồi nhét từ khóa.'
-                    : 'Mật độ từ khóa hơi thấp. Bạn có thể nhắc lại từ khóa một cách tự nhiên trong bài.'}
-                </p>
-              </div>
-            </div>
-
-            {/* 7. Internal Links */}
-            <div className="flex items-start gap-2.5 pt-2">
-              {structureStats.linkCount >= 1 ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="font-bold text-slate-800">
-                  Liên kết nội bộ (Internal Links): {structureStats.linkCount} liên kết
-                </p>
-                <p className="text-slate-500 text-[10px]">
-                  {structureStats.linkCount >= 1
-                    ? 'Bài viết có liên kết nội bộ, giúp tăng thời gian on-site và điều hướng khách đặt tour.'
-                    : 'Nên chèn ít nhất 1 liên kết dẫn đến tour du lịch hoặc khách sạn liên quan.'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
 };
+
+export default AdminNewsSeoAssistant;

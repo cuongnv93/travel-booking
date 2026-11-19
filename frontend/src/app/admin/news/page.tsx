@@ -882,6 +882,8 @@ export default function AdminNewsPage() {
                     excerpt={excerpt[activeLang] || ''}
                     content={content[activeLang] || ''}
                     slug={customSlug || (title.vi ? toSlug(title.vi) : '')}
+                    onSlugChange={setCustomSlug}
+                    thumbnail={thumbnail}
                     focusKeyword={focusKeyword}
                     onFocusKeywordChange={setFocusKeyword}
                     seoTitle={seoTitle[activeLang] || ''}

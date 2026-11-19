@@ -43,22 +43,29 @@ export async function generateMetadata({
     };
   }
 
-  const title = getI18nText(article.title, locale);
-  const excerpt = getI18nText(article.excerpt, locale);
+  const customSeoTitle = getI18nText(article.seoTitle, locale);
+  const customSeoDesc = getI18nText(article.seoDescription, locale);
+  const baseTitle = getI18nText(article.title, locale);
+  const baseExcerpt = getI18nText(article.excerpt, locale);
+  const title = customSeoTitle || baseTitle;
+  const excerpt = customSeoDesc || baseExcerpt;
   const image = article.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200';
+
+  const keywords = [
+    article.focusKeyword,
+    article.category,
+    'du lịch việt nam',
+    'cẩm nang du lịch',
+    'kinh nghiệm du lịch việt nam',
+    'review du lịch',
+    'tour du lịch',
+    baseTitle,
+  ].filter(Boolean);
 
   return {
     title: `${title} | Travel News`,
     description: excerpt.substring(0, 160),
-    keywords: [
-      article.category,
-      'du lịch việt nam',
-      'cẩm nang du lịch',
-      'kinh nghiệm du lịch việt nam',
-      'review du lịch',
-      'tour du lịch',
-      title
-    ],
+    keywords,
     alternates: {
       canonical: `${baseUrl}/${locale}/news/${slug}`,
       languages: {
