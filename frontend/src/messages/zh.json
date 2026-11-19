@@ -14,7 +14,8 @@
     "myCart": "我的购物车",
     "login": "登录",
     "logout": "退出登录",
-    "logoutSuccess": "已成功退出登录。"
+    "logoutSuccess": "已成功退出登录。",
+    "language": "语言选择"
   },
   "hero": {
     "title": "与 Travel 一起探索世界",
@@ -346,7 +347,11 @@
     "close": "关闭",
     "wishlistAdded": "已将行程添加至收藏夹！",
     "wishlistRemoved": "已从收藏夹中移除该行程。",
-    "copied": "已复制到剪贴板！"
+    "copied": "已复制到剪贴板！",
+    "errorTitle": "系统发生意外错误",
+    "errorDesc": "加载此页面时发生异常。请尝试刷新页面或返回首页。",
+    "errorReload": "重新加载页面",
+    "backHome": "返回首页"
   },
   "footer": {
     "about": "Travel Booking",
@@ -665,7 +670,10 @@
     "sortBy": "排序：",
     "sortNewest": "最新",
     "sortPriceAsc": "价格：从低到高",
-    "sortPriceDesc": "价格：从高到低"
+    "sortPriceDesc": "价格：从高到低",
+    "destHotelsTitle": "{dest} 精选度假酒店与度假村",
+    "allHotelsTitle": "精选高品质度假酒店与度假村",
+    "allHotelsSubtitle": "探索精选高品质度假酒店与海滨度假村，尊享特惠房价。"
   },
   "flashSale": {
     "title": "🔥 黄金时段限时特惠",
@@ -693,7 +701,8 @@
     "notFoundTitle": "未找到文章",
     "notFoundDesc": "该文章可能已被删除或更改了链接。",
     "backToNews": "返回文章列表",
-    "shareSuccess": "文章链接已复制！"
+    "shareSuccess": "文章链接已复制！",
+    "copyError": "复制链接失败。"
   },
   "hotelDetail": {
     "noRooms": "酒店正在更新客房信息。请稍后再回来。",
@@ -746,7 +755,9 @@
     "checkOutBefore": "退房时间",
     "starsLabel": "星级",
     "priceBreakdown": "{price} × {nights} 晚 × {rooms} 间房",
-    "errInvalidEmail": "电子邮件格式无效。"
+    "errInvalidEmail": "电子邮件格式无效。",
+    "hotelNotFoundDesc": "该度假酒店或度假村不存在或已停止运营。",
+    "namePlaceholder": "张伟"
   },
   "specialtiesPage": {
     "badge": "🍜 越南三大地区特色美食",
@@ -795,7 +806,10 @@
     "reviewsCount": "{count} 条评价",
     "relatedTours": "精选推荐热门行程",
     "viewAllTours": "查看全部行程",
-    "tourNotFound": "未找到该行程信息"
+    "tourNotFound": "未找到该行程信息",
+    "bookNowBtn": "立即预订",
+    "tourNotFoundDesc": "该旅游行程可能已下架或暂停开放。",
+    "viewOtherTours": "查看其他精彩行程"
   },
   "tourBooking": {
     "pricePerGuest": "单人行程价格",

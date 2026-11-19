@@ -8,6 +8,7 @@ import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice, getI18nText, toSlug } from '@/lib/utils';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { VIETNAM_PROVINCES } from '@/lib/provinces';
 import { useVietnamProvinces } from '@/hooks/useVietnamProvinces';
@@ -29,6 +30,7 @@ export default function AdminSpecialtiesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const [activeLang, setActiveLang] = useState<string>('vi');
@@ -118,13 +120,22 @@ export default function AdminSpecialtiesPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.vi || !name.vi.trim()) {
+      toast.warning('Vui lòng nhập Tên đặc sản (Tiếng Việt)!');
+      return;
+    }
+    const parsedPrice = Number(price);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      toast.warning('Giá tham khảo phải lớn hơn 0 VNĐ!');
+      return;
+    }
     const slug = editingItem?.slug || toSlug(name.vi || 'dac-san-' + Date.now());
     saveMutation.mutate({
       slug,
       name: sanitizeI18nRecord(name),
       description: sanitizeI18nRecord(description),
       image: image || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=800',
-      price: Number(price),
+      price: parsedPrice,
       region,
       location,
     });
@@ -154,6 +165,12 @@ export default function AdminSpecialtiesPage() {
   }, [specialties, search, regionFilter]);
 
   const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filtered.slice(start, start + pageSize);
@@ -308,9 +325,7 @@ export default function AdminSpecialtiesPage() {
                       Sửa
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm('Xóa đặc sản này khỏi hệ thống?')) deleteMutation.mutate(item._id);
-                      }}
+                      onClick={() => setDeleteTargetId(item._id)}
                       className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md text-xs transition-colors cursor-pointer"
                     >
                       Xóa
@@ -504,6 +519,22 @@ export default function AdminSpecialtiesPage() {
           </div>
         </div>
       )}
+      {/* Confirmation Modal */}
+      <AdminConfirmModal
+        isOpen={Boolean(deleteTargetId)}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await deleteMutation.mutateAsync(deleteTargetId);
+            setDeleteTargetId(null);
+          }
+        }}
+        title="Xác nhận xóa món đặc sản"
+        message="Bạn có chắc chắn muốn xóa đặc sản này khỏi hệ thống? Hành động này không thể hoàn tác."
+        confirmText="Xác nhận xóa"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

@@ -138,7 +138,7 @@ export const HotelBookingSidebar = memo(function HotelBookingSidebar({
             <input
               value={formData.name}
               onChange={(e) => onFormChange('name', e.target.value)}
-              placeholder="Nguyễn Văn A"
+              placeholder={t('namePlaceholder') || 'Nguyễn Văn A'}
               className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>

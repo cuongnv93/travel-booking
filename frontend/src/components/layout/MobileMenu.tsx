@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { X, User as UserIcon, Calendar, ShoppingCart, Shield, LogOut, LogIn } from 'lucide-react';
 import Link from 'next/link';
@@ -11,14 +11,18 @@ import { useUiStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
 import { toast } from '@/stores/toastStore';
-import { NAV_ITEMS, LOCALES, LOCALE_FLAGS, LOCALE_SHORT_CODES } from '@/lib/constants';
+import { NAV_ITEMS, LOCALES, LOCALE_FLAGS, LOCALE_NAMES, LOCALE_SHORT_CODES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { switchLocaleAndNavigate } from './LanguageSwitcher';
+
+const HIDDEN_SHELL_REGEX = /^\/(?:(?:vi|en|zh|ko|ja)\/)?(?:login|register)(?:\/|$)/;
 
 export default function MobileMenu() {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const isMobileMenuOpen = useUiStore((state) => state.isMobileMenuOpen);
   const setMobileMenuOpen = useUiStore((state) => state.setMobileMenuOpen);
   const user = useAuthStore((state) => state.user);
@@ -31,6 +35,38 @@ export default function MobileMenu() {
     )
   );
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Close drawer automatically on route navigation
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname, setMobileMenuOpen]);
+
+  // Escape key & body scroll lock while drawer is open
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMobileMenuOpen, setMobileMenuOpen]);
+
+  const displayCartCount = mounted ? cartItemsCount : 0;
+  const showAuthenticatedUser = mounted && isAuthenticated && user;
+
   // Determine if current route is the Home page
   const isHome = useMemo(() => {
     if (!pathname) return false;
@@ -39,20 +75,27 @@ export default function MobileMenu() {
   }, [pathname, locale]);
 
   // Accurately check whether a nav item is active
-  const checkIsActive = useCallback((itemPath: string) => {
-    if (!pathname) return false;
-    const cleanPath = pathname.replace(/\/$/, '');
-    if (itemPath === '/') {
-      return isHome;
-    }
-    const fullItemPath = `/${locale}${itemPath}`.replace(/\/$/, '');
-    return cleanPath === fullItemPath || cleanPath.startsWith(`${fullItemPath}/`);
-  }, [pathname, locale, isHome]);
+  const checkIsActive = useCallback(
+    (itemPath: string) => {
+      if (!pathname) return false;
+      const cleanPath = pathname.replace(/\/$/, '');
+      if (itemPath === '/') {
+        return isHome;
+      }
+      const fullItemPath = `/${locale}${itemPath}`.replace(/\/$/, '');
+      return cleanPath === fullItemPath || cleanPath.startsWith(`${fullItemPath}/`);
+    },
+    [pathname, locale, isHome]
+  );
+
+  if (pathname?.startsWith('/admin') || HIDDEN_SHELL_REGEX.test(pathname || '')) {
+    return null;
+  }
 
   const handleLogout = () => {
     logout();
     setMobileMenuOpen(false);
-    toast.info(t('nav.logoutSuccess') || 'Đã đăng xuất tài khoản');
+    toast.info(t('nav.logoutSuccess'));
     router.push(`/${locale}`);
   };
 
@@ -66,8 +109,12 @@ export default function MobileMenu() {
             exit={{ opacity: 0 }}
             onClick={() => setMobileMenuOpen(false)}
             className="fixed inset-0 bg-black/60 z-[999] xl:hidden backdrop-blur-sm"
+            aria-hidden="true"
           />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile Navigation"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -77,7 +124,7 @@ export default function MobileMenu() {
             {/* Header */}
             <div className="p-4 flex items-center justify-between border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 shadow-2xs">
+                <div className="relative w-7 h-7 rounded-full overflow-hidden shrink-0 shadow-sm">
                   <Image
                     src="/timesgreen-logo.png"
                     alt="TimesGreen Logo"
@@ -91,8 +138,9 @@ export default function MobileMenu() {
                 </span>
               </div>
               <button
+                type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+                className="p-2 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
                 aria-label="Close Menu"
               >
                 <X className="w-5 h-5 text-slate-700" />
@@ -101,10 +149,10 @@ export default function MobileMenu() {
 
             {/* User Profile or Login Header */}
             <div className="p-4 bg-slate-50 border-b border-slate-100">
-              {isAuthenticated && user ? (
+              {showAuthenticatedUser ? (
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                    {user.name ? user.name[0].toUpperCase() : 'U'}
+                    {user.name?.trim().charAt(0).toUpperCase() || 'U'}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-slate-900 text-sm truncate">{user.name}</p>
@@ -125,12 +173,12 @@ export default function MobileMenu() {
                     href={`/${locale}/cart`}
                     onClick={() => setMobileMenuOpen(false)}
                     className="p-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl relative hover:bg-slate-50 transition-colors"
-                    aria-label="Cart"
+                    aria-label={t('nav.myCart')}
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    {cartItemsCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                        {cartItemsCount}
+                    {displayCartCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                        {displayCartCount > 99 ? '99+' : displayCartCount}
                       </span>
                     )}
                   </Link>
@@ -151,7 +199,7 @@ export default function MobileMenu() {
                       className={cn(
                         'relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
                         isActive
-                          ? 'bg-blue-50 text-blue-600 border border-blue-200/80 shadow-xs'
+                          ? 'bg-blue-50 text-blue-600 border border-blue-200/80 shadow-sm'
                           : 'text-slate-700 hover:bg-slate-100 hover:text-blue-600'
                       )}
                     >
@@ -168,7 +216,7 @@ export default function MobileMenu() {
                 })}
               </LayoutGroup>
 
-              {isAuthenticated && user && (
+              {showAuthenticatedUser && (
                 <>
                   <div className="pt-3 pb-1 border-t border-slate-100 my-2">
                     <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase px-3.5">
@@ -214,9 +262,9 @@ export default function MobileMenu() {
                       <ShoppingCart className="w-4 h-4 text-slate-400" />
                       {t('nav.myCart')}
                     </div>
-                    {cartItemsCount > 0 && (
+                    {displayCartCount > 0 && (
                       <span className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                        {cartItemsCount}
+                        {displayCartCount > 99 ? '99+' : displayCartCount}
                       </span>
                     )}
                   </Link>
@@ -226,7 +274,9 @@ export default function MobileMenu() {
 
             {/* Language Switcher in Mobile Drawer */}
             <div className="p-3 border-t border-slate-100 bg-slate-50/70">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">Ngôn ngữ / Language</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 px-1">
+                {t('nav.language')}
+              </p>
               <div className="grid grid-cols-5 gap-1.5">
                 {LOCALES.map((l) => (
                   <button
@@ -234,18 +284,8 @@ export default function MobileMenu() {
                     type="button"
                     onClick={() => {
                       if (l === locale) return;
-                      try {
-                        document.cookie = `NEXT_LOCALE=${l};path=/;max-age=31536000;SameSite=Lax`;
-                      } catch {}
-                      const segments = (pathname || '').split('/');
-                      if (LOCALES.includes(segments[1] as any)) {
-                        segments[1] = l;
-                      } else {
-                        segments.splice(1, 0, l);
-                      }
-                      const newPath = segments.join('/') || `/${l}`;
                       setMobileMenuOpen(false);
-                      window.location.href = newPath;
+                      switchLocaleAndNavigate(pathname, l);
                     }}
                     className={cn(
                       'flex flex-col items-center justify-center py-2 px-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer',
@@ -256,10 +296,10 @@ export default function MobileMenu() {
                   >
                     <Image
                       src={LOCALE_FLAGS[l]}
-                      alt={l}
-                      width={18}
-                      height={12}
-                      className="w-4.5 h-3 object-cover rounded-xs mb-1 shadow-2xs border border-black/10"
+                      alt={LOCALE_NAMES[l]}
+                      width={20}
+                      height={14}
+                      className="w-5 h-3.5 object-cover rounded-sm mb-1 shadow-sm border border-black/10"
                     />
                     <span>{LOCALE_SHORT_CODES[l]}</span>
                   </button>
@@ -268,11 +308,12 @@ export default function MobileMenu() {
             </div>
 
             {/* Logout button if authenticated */}
-            {isAuthenticated && user && (
+            {showAuthenticatedUser && (
               <div className="p-4 border-t border-slate-100">
                 <button
+                  type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl font-medium text-sm transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl font-medium text-sm transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   {t('nav.logout')}

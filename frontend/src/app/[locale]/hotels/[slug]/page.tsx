@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import HotelDetailClient from './HotelDetailClient';
 import { getI18nText } from '@/lib/utils';
 import { prefetchHotelBySlug } from '@/lib/serverApi';
@@ -15,9 +16,10 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   if (!hotel) {
+    const tMeta = await getTranslations({ locale, namespace: 'hotelDetail' });
     return {
-      title: 'Không tìm thấy khách sạn | Travel Booking',
-      description: 'Khách sạn hoặc khu nghỉ dưỡng không tồn tại hoặc đã ngừng hoạt động.'
+      title: `${tMeta('hotelNotFound')} | Travel Booking`,
+      description: tMeta('hotelNotFoundDesc')
     };
   }
 
@@ -28,7 +30,7 @@ export async function generateMetadata({
   return {
     title: `${name} | Đặt Phòng Khách Sạn & Resort`,
     description: description.substring(0, 160),
-    keywords: [hotel.city || '', hotel.address || '', 'dat phong khach san', name, 'resort nghi duong'],
+    keywords: [hotel.location || hotel.city || '', hotel.address || '', 'dat phong khach san', name, 'resort nghi duong'],
     alternates: {
       canonical: `${baseUrl}/${locale}/hotels/${slug}`,
       languages: {
@@ -66,6 +68,7 @@ export default async function HotelDetailPage({
   const locale = resolved?.locale || 'vi';
   const slug = resolved?.slug || '';
   const hotel = await prefetchHotelBySlug(slug);
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   const hotelName = hotel ? getI18nText(hotel.name, locale) : '';
@@ -105,13 +108,13 @@ export default async function HotelDetailPage({
           {
             '@type': 'ListItem',
             position: 1,
-            name: locale === 'vi' ? 'Trang chủ' : 'Home',
+            name: tNav('home'),
             item: `${baseUrl}/${locale}`,
           },
           {
             '@type': 'ListItem',
             position: 2,
-            name: locale === 'vi' ? 'Khách sạn' : 'Hotels',
+            name: tNav('hotels'),
             item: `${baseUrl}/${locale}/hotels`,
           },
           {

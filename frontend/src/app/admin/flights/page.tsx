@@ -7,6 +7,7 @@ import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { Plane, Plus, Search, Edit3, Trash2, X, Loader2, FileSpreadsheet, ExternalLink } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -37,6 +38,7 @@ export default function AdminFlightsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -144,10 +146,30 @@ export default function AdminFlightsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.flightNumber.trim()) {
+      toast.warning('Vui lòng nhập số hiệu chuyến bay!');
+      return;
+    }
+    const parsedPrice = Number(formData.price);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      toast.warning('Giá vé phải lớn hơn 0 VNĐ!');
+      return;
+    }
+    const parsedSeats = Number(formData.availableSeats);
+    if (isNaN(parsedSeats) || parsedSeats < 0) {
+      toast.warning('Số chỗ khả dụng không hợp lệ!');
+      return;
+    }
+    const cleanData = {
+      ...formData,
+      flightNumber: formData.flightNumber.trim().toUpperCase(),
+      price: parsedPrice,
+      availableSeats: parsedSeats,
+    };
     if (editingFlight) {
-      updateMutation.mutate({ id: editingFlight._id, data: formData });
+      updateMutation.mutate({ id: editingFlight._id, data: cleanData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(cleanData);
     }
   };
 
@@ -164,6 +186,12 @@ export default function AdminFlightsPage() {
   }, [flights, search]);
 
   const totalPages = Math.ceil(filteredFlights.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedFlights = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredFlights.slice(start, start + pageSize);
@@ -317,7 +345,7 @@ export default function AdminFlightsPage() {
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => confirm('Xóa chuyến bay này?') && deleteMutation.mutate(f._id)}
+                        onClick={() => setDeleteTargetId(f._id)}
                         className="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Xóa"
                       >
@@ -512,6 +540,22 @@ export default function AdminFlightsPage() {
           </div>
         </div>
       )}
+      {/* Confirmation Modal */}
+      <AdminConfirmModal
+        isOpen={Boolean(deleteTargetId)}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await deleteMutation.mutateAsync(deleteTargetId);
+            setDeleteTargetId(null);
+          }
+        }}
+        title="Xác nhận xóa chuyến bay"
+        message="Bạn có chắc chắn muốn xóa chuyến bay này khỏi hệ thống? Hành động này không thể hoàn tác."
+        confirmText="Xác nhận xóa"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

@@ -28,6 +28,7 @@ import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -72,6 +73,7 @@ const BookingTableRow = memo(function BookingTableRow({
 
   const travelDate = b.travelDate || b.checkIn;
   const formattedDate = travelDate ? new Date(travelDate).toLocaleDateString('vi-VN') : 'N/A';
+  const id = b._id || b.id;
 
   return (
     <tr className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-blue-50/40' : ''}`}>
@@ -79,7 +81,7 @@ const BookingTableRow = memo(function BookingTableRow({
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => onToggleSelect(b._id)}
+          onChange={() => onToggleSelect(id)}
           className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
         />
       </td>
@@ -146,7 +148,7 @@ const BookingTableRow = memo(function BookingTableRow({
           <>
             <button
               type="button"
-              onClick={() => onUpdateStatus(b._id, 'confirmed')}
+              onClick={() => onUpdateStatus(id, 'confirmed')}
               disabled={isUpdating}
               className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
             >
@@ -154,7 +156,7 @@ const BookingTableRow = memo(function BookingTableRow({
             </button>
             <button
               type="button"
-              onClick={() => onUpdateStatus(b._id, 'cancelled')}
+              onClick={() => onUpdateStatus(id, 'cancelled')}
               disabled={isUpdating}
               className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
             >
@@ -167,7 +169,7 @@ const BookingTableRow = memo(function BookingTableRow({
           <>
             <button
               type="button"
-              onClick={() => onUpdateStatus(b._id, 'completed')}
+              onClick={() => onUpdateStatus(id, 'completed')}
               disabled={isUpdating}
               className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
             >
@@ -175,7 +177,7 @@ const BookingTableRow = memo(function BookingTableRow({
             </button>
             <button
               type="button"
-              onClick={() => onUpdateStatus(b._id, 'cancelled')}
+              onClick={() => onUpdateStatus(id, 'cancelled')}
               disabled={isUpdating}
               className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer"
             >
@@ -187,7 +189,7 @@ const BookingTableRow = memo(function BookingTableRow({
         {b.status === 'cancelled' && (
           <button
             type="button"
-            onClick={() => onUpdateStatus(b._id, 'pending')}
+            onClick={() => onUpdateStatus(id, 'pending')}
             disabled={isUpdating}
             className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-md transition-colors disabled:opacity-50 cursor-pointer inline-flex items-center gap-1"
           >
@@ -217,6 +219,19 @@ export default function BookingsAdminPage() {
   // Row selection
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    variant?: 'danger' | 'warning' | 'primary' | 'info';
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   // Close booking details modal on Escape
   useEffect(() => {
@@ -263,21 +278,30 @@ export default function BookingsAdminPage() {
   );
 
   // Bulk status update
-  const handleBulkUpdateStatus = async (newStatus: string) => {
+  const handleBulkUpdateStatus = (newStatus: string) => {
     if (selectedIds.length === 0) return;
-    if (!confirm(`Xác nhận đổi trạng thái của ${selectedIds.length} đơn hàng sang "${newStatus}"?`)) return;
-
-    try {
-      await Promise.all(
-        selectedIds.map((id) => api.patch(`/bookings/${id}/status`, { status: newStatus }))
-      );
-      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-booking-stats'] });
-      setSelectedIds([]);
-      toast.success(`Đã cập nhật ${selectedIds.length} đơn hàng thành công!`);
-    } catch (err: any) {
-      toast.error('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Đổi trạng thái hàng loạt',
+      message: `Xác nhận đổi trạng thái của ${selectedIds.length} đơn hàng đã chọn sang "${newStatus}"?`,
+      confirmText: 'Xác nhận đổi',
+      variant: 'primary',
+      onConfirm: async () => {
+        try {
+          await Promise.all(
+            selectedIds.map((id) => api.patch(`/bookings/${id}/status`, { status: newStatus }))
+          );
+          queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+          queryClient.invalidateQueries({ queryKey: ['admin-booking-stats'] });
+          setSelectedIds([]);
+          toast.success(`Đã cập nhật ${selectedIds.length} đơn hàng thành công!`);
+        } catch (err: any) {
+          toast.error('Lỗi cập nhật hàng loạt: ' + (err.response?.data?.message || err.message));
+        } finally {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const handleSelectBooking = useCallback((booking: any) => {
@@ -348,6 +372,18 @@ export default function BookingsAdminPage() {
 
   // Pagination slice
   const totalPages = Math.ceil(filteredBookings.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
+
+  const activeBooking = useMemo(() => {
+    if (!selectedBooking) return null;
+    const targetId = selectedBooking._id || selectedBooking.id;
+    return bookings.find((b: any) => (b._id || b.id) === targetId) || selectedBooking;
+  }, [bookings, selectedBooking]);
   const paginatedBookings = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredBookings.slice(start, start + pageSize);
@@ -815,7 +851,7 @@ export default function BookingsAdminPage() {
       </div>
 
       {/* Booking Inspector Modal */}
-      {selectedBooking && (
+      {activeBooking && (
         <div
           onClick={(e) => {
             if (e.target === e.currentTarget) setSelectedBooking(null);
@@ -825,7 +861,7 @@ export default function BookingsAdminPage() {
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-2xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-xs font-mono font-extrabold text-blue-600">{selectedBooking.bookingCode}</span>
+                <span className="text-xs font-mono font-extrabold text-blue-600">{activeBooking.bookingCode}</span>
                 <h2 className="text-base font-bold text-slate-900">Chi Tiết Đơn Đặt Dịch Vụ</h2>
               </div>
               <button
@@ -844,15 +880,15 @@ export default function BookingsAdminPage() {
                   <User className="w-4 h-4 text-blue-600" /> Thông Tin Khách Hàng Liên Hệ
                 </p>
                 <div className="grid grid-cols-2 gap-2 text-slate-700">
-                  <p><span className="font-semibold text-slate-500">Họ tên:</span> {selectedBooking.customerInfo?.name}</p>
-                  <p><span className="font-semibold text-slate-500">SĐT:</span> {selectedBooking.customerInfo?.phone}</p>
-                  <p className="col-span-2"><span className="font-semibold text-slate-500">Email:</span> {selectedBooking.customerInfo?.email}</p>
-                  {selectedBooking.customerInfo?.address && (
-                    <p className="col-span-2"><span className="font-semibold text-slate-500">Địa chỉ:</span> {selectedBooking.customerInfo.address}</p>
+                  <p><span className="font-semibold text-slate-500">Họ tên:</span> {activeBooking.customerInfo?.name}</p>
+                  <p><span className="font-semibold text-slate-500">SĐT:</span> {activeBooking.customerInfo?.phone}</p>
+                  <p className="col-span-2"><span className="font-semibold text-slate-500">Email:</span> {activeBooking.customerInfo?.email}</p>
+                  {activeBooking.customerInfo?.address && (
+                    <p className="col-span-2"><span className="font-semibold text-slate-500">Địa chỉ:</span> {activeBooking.customerInfo.address}</p>
                   )}
-                  {(selectedBooking.customerInfo?.notes || selectedBooking.customerInfo?.note) && (
+                  {(activeBooking.customerInfo?.notes || activeBooking.customerInfo?.note) && (
                     <p className="col-span-2 bg-amber-50 p-2.5 rounded-lg border border-amber-200/60 text-amber-900">
-                      <span className="font-bold">Ghi chú:</span> {selectedBooking.customerInfo.notes || selectedBooking.customerInfo.note}
+                      <span className="font-bold">Ghi chú:</span> {activeBooking.customerInfo.notes || activeBooking.customerInfo.note}
                     </p>
                   )}
                 </div>
@@ -862,29 +898,29 @@ export default function BookingsAdminPage() {
               <div className="border border-slate-200 rounded-xl p-3.5 space-y-2">
                 <p className="font-bold text-slate-800 border-b border-slate-100 pb-1.5">Thông Tin Dịch Vụ</p>
                 <p className="font-bold text-sm text-slate-900">
-                  {selectedBooking.type === 'hotel'
-                    ? `${getI18nText(selectedBooking.hotelId?.name, 'vi', 'Khách sạn')}${selectedBooking.roomName ? ` - ${selectedBooking.roomName}` : ''}`
-                    : selectedBooking.type === 'flight'
-                    ? (`Chuyến bay ${selectedBooking.flightId?.flightNumber || ''} (${selectedBooking.flightId?.from || ''} - ${selectedBooking.flightId?.to || ''})`.trim() || 'Vé máy bay')
-                    : getI18nText(selectedBooking.tourId?.title, 'vi', 'Tour du lịch')}
+                  {activeBooking.type === 'hotel'
+                    ? `${getI18nText(activeBooking.hotelId?.name, 'vi', 'Khách sạn')}${activeBooking.roomName ? ` - ${activeBooking.roomName}` : ''}`
+                    : activeBooking.type === 'flight'
+                    ? (`Chuyến bay ${activeBooking.flightId?.flightNumber || ''} (${activeBooking.flightId?.from || ''} - ${activeBooking.flightId?.to || ''})`.trim() || 'Vé máy bay')
+                    : getI18nText(activeBooking.tourId?.title, 'vi', 'Tour du lịch')}
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 pt-1 text-slate-700">
-                  <p><span className="font-semibold text-slate-500">Ngày đi / Checkin:</span> {selectedBooking.travelDate || selectedBooking.checkIn ? new Date(selectedBooking.travelDate || selectedBooking.checkIn).toLocaleDateString('vi-VN') : 'N/A'}</p>
-                  {selectedBooking.checkOut && (
-                    <p><span className="font-semibold text-slate-500">Ngày Checkout:</span> {new Date(selectedBooking.checkOut).toLocaleDateString('vi-VN')}</p>
+                  <p><span className="font-semibold text-slate-500">Ngày đi / Checkin:</span> {activeBooking.travelDate || activeBooking.checkIn ? new Date(activeBooking.travelDate || activeBooking.checkIn).toLocaleDateString('vi-VN') : 'N/A'}</p>
+                  {activeBooking.checkOut && (
+                    <p><span className="font-semibold text-slate-500">Ngày Checkout:</span> {new Date(activeBooking.checkOut).toLocaleDateString('vi-VN')}</p>
                   )}
-                  <p><span className="font-semibold text-slate-500">Số khách / phòng:</span> {selectedBooking.guests?.adults || 1} người lớn, {selectedBooking.guests?.children || 0} trẻ em</p>
-                  {selectedBooking.couponCode && (
+                  <p><span className="font-semibold text-slate-500">Số khách / phòng:</span> {activeBooking.guests?.adults || 1} người lớn, {activeBooking.guests?.children || 0} trẻ em</p>
+                  {activeBooking.couponCode && (
                     <p className="col-span-2">
                       <span className="font-semibold text-slate-500">Voucher / Giảm giá:</span>{' '}
                       <span className="inline-flex items-center gap-1 font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        {selectedBooking.couponCode} (-{formatPrice(selectedBooking.discount || 0)})
+                        {activeBooking.couponCode} (-{formatPrice(activeBooking.discount || 0)})
                       </span>
                     </p>
                   )}
-                  <p><span className="font-semibold text-slate-500">Thanh toán:</span> <span className="font-semibold text-slate-800">{selectedBooking.paymentStatus === 'paid' ? 'Đã thanh toán' : selectedBooking.paymentStatus === 'refunded' ? 'Đã hoàn tiền' : 'Chưa thanh toán'}</span></p>
-                  <p><span className="font-semibold text-slate-500">Tổng thanh toán:</span> <span className="font-bold text-blue-600 text-sm">{formatPrice(selectedBooking.totalPrice)}</span></p>
+                  <p><span className="font-semibold text-slate-500">Thanh toán:</span> <span className="font-semibold text-slate-800">{activeBooking.paymentStatus === 'paid' ? 'Đã thanh toán' : activeBooking.paymentStatus === 'refunded' ? 'Đã hoàn tiền' : 'Chưa thanh toán'}</span></p>
+                  <p><span className="font-semibold text-slate-500">Tổng thanh toán:</span> <span className="font-bold text-blue-600 text-sm">{formatPrice(activeBooking.totalPrice)}</span></p>
                 </div>
               </div>
             </div>
@@ -892,12 +928,12 @@ export default function BookingsAdminPage() {
             <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold text-slate-500">Đổi trạng thái:</span>
-                {selectedBooking.status !== 'confirmed' && (
+                {activeBooking.status !== 'confirmed' && (
                   <button
                     type="button"
                     onClick={() => {
-                      handleUpdateStatus(selectedBooking._id, 'confirmed');
-                      setSelectedBooking({ ...selectedBooking, status: 'confirmed' });
+                      const id = activeBooking._id || activeBooking.id;
+                      handleUpdateStatus(id, 'confirmed');
                     }}
                     disabled={updateStatusMutation.isPending}
                     className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
@@ -905,12 +941,12 @@ export default function BookingsAdminPage() {
                     Xác nhận
                   </button>
                 )}
-                {selectedBooking.status !== 'completed' && (
+                {activeBooking.status !== 'completed' && (
                   <button
                     type="button"
                     onClick={() => {
-                      handleUpdateStatus(selectedBooking._id, 'completed');
-                      setSelectedBooking({ ...selectedBooking, status: 'completed' });
+                      const id = activeBooking._id || activeBooking.id;
+                      handleUpdateStatus(id, 'completed');
                     }}
                     disabled={updateStatusMutation.isPending}
                     className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
@@ -918,12 +954,12 @@ export default function BookingsAdminPage() {
                     Hoàn thành
                   </button>
                 )}
-                {selectedBooking.status !== 'cancelled' && (
+                {activeBooking.status !== 'cancelled' && (
                   <button
                     type="button"
                     onClick={() => {
-                      handleUpdateStatus(selectedBooking._id, 'cancelled');
-                      setSelectedBooking({ ...selectedBooking, status: 'cancelled' });
+                      const id = activeBooking._id || activeBooking.id;
+                      handleUpdateStatus(id, 'cancelled');
                     }}
                     disabled={updateStatusMutation.isPending}
                     className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-colors cursor-pointer"
@@ -931,12 +967,12 @@ export default function BookingsAdminPage() {
                     Hủy đơn
                   </button>
                 )}
-                {selectedBooking.status === 'cancelled' && (
+                {activeBooking.status === 'cancelled' && (
                   <button
                     type="button"
                     onClick={() => {
-                      handleUpdateStatus(selectedBooking._id, 'pending');
-                      setSelectedBooking({ ...selectedBooking, status: 'pending' });
+                      const id = activeBooking._id || activeBooking.id;
+                      handleUpdateStatus(id, 'pending');
                     }}
                     disabled={updateStatusMutation.isPending}
                     className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
@@ -956,6 +992,16 @@ export default function BookingsAdminPage() {
           </div>
         </div>
       )}
+      {/* Confirm Modal */}
+      <AdminConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || 'Xác nhận'}
+        variant={confirmModal.variant || 'primary'}
+      />
     </div>
   );
 }

@@ -3,11 +3,27 @@
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, CheckCircle2, ShieldCheck, Loader2, Sparkles, Calendar, Users, Phone, User, ChevronDown, Check } from 'lucide-react';
+import {
+  Send,
+  CheckCircle2,
+  ShieldCheck,
+  Loader2,
+  Sparkles,
+  Calendar,
+  Users,
+  Phone,
+  User,
+  Mail,
+  ChevronDown,
+  Check,
+  AlertCircle,
+} from 'lucide-react';
 import api from '@/lib/api';
 import { enqueueConsultationLead, flushPendingConsultations } from '@/lib/consultationQueue';
+import { getLocalizedError } from '@/lib/errorUtils';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/stores/toastStore';
+import { isValidVisaEmail, isValidVisaPhone, getVisaUiText } from './visaConstants';
 
 interface CountryOption {
   key: string;
@@ -35,14 +51,22 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [isCountryOpen, setIsCountryOpen] = useState(false);
+  const [todayStr, setTodayStr] = useState('');
+  const [formError, setFormError] = useState('');
   const countryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setTodayStr(new Date().toISOString().split('T')[0]);
+  }, []);
 
   // Auto-fill customer info when logged in
   useEffect(() => {
     if (currentUser) {
       if (currentUser.name) setName((prev) => prev || currentUser.name || '');
       if (currentUser.phone) setPhone((prev) => prev || currentUser.phone || '');
+      if (currentUser.email) setEmail((prev) => prev || currentUser.email || '');
     }
   }, [currentUser]);
 
@@ -53,7 +77,9 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
         const flag = c.flag || '🌐';
         let name = key;
         if (typeof c.name === 'object' && c.name) {
-          name = c.name[locale] || c.name.vi || c.name.en || key;
+          name =
+            (locale !== 'vi' ? c.name[locale] || c.name.en || c.name.vi : c.name.vi || c.name.en) ||
+            key;
         } else if (typeof c.name === 'string' && c.name) {
           name = c.name;
         } else if (c.nameKey) {
@@ -88,6 +114,19 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
     }
   }, [countryOptions, selectedCountryKey]);
 
+  // Listen to country selection from VisaCountryCatalog cards
+  useEffect(() => {
+    const handleCountrySelectEvent = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail && countryOptions.some((c) => c.key === detail)) {
+        setSelectedCountryKey(detail);
+        setSubmitted(false);
+      }
+    };
+    window.addEventListener('visa:select-country', handleCountrySelectEvent);
+    return () => window.removeEventListener('visa:select-country', handleCountrySelectEvent);
+  }, [countryOptions]);
+
   const [travelDate, setTravelDate] = useState('');
   const [guests, setGuests] = useState('1');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,44 +144,106 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
         setIsCountryOpen(false);
       }
     };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsCountryOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleEscape);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleEscape);
     };
   }, [isCountryOpen]);
 
   const selectedCountry = useMemo(() => {
-    return countryOptions.find((c) => c.key === selectedCountryKey) || countryOptions[0] || { key: 'default', flag: '🌐', name: 'Quốc gia' };
+    return (
+      countryOptions.find((c) => c.key === selectedCountryKey) ||
+      countryOptions[0] || { key: 'default', flag: '🌐', name: 'Visa' }
+    );
   }, [countryOptions, selectedCountryKey]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !phone) return;
-    setIsSubmitting(true);
+  const handleSelectCountry = useCallback((key: string) => {
+    setSelectedCountryKey(key);
+    setIsCountryOpen(false);
+    window.dispatchEvent(new CustomEvent('visa:country-synced', { detail: key }));
+  }, []);
 
-    const payload = {
-      name: name.trim(),
-      phone: phone.trim(),
-      country: selectedCountry.name,
-      travelDate: travelDate || undefined,
-      guests: guests || 1,
-      type: 'visa' as const,
-    };
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setFormError('');
 
-    try {
-      await api.post('/consultations', payload);
-      setIsSubmitting(false);
-      setSubmitted(true);
-      toast.success(t('formSuccessTitle') || 'Gửi yêu cầu tư vấn thành công!');
-    } catch (err: any) {
-      console.warn('Network issue submitting consultation, storing locally for guaranteed capture:', err);
-      // Guarantee zero data loss by storing offline queue
-      enqueueConsultationLead(payload);
-      setIsSubmitting(false);
-      setSubmitted(true);
-      toast.success(t('formSuccessTitle') || 'Gửi yêu cầu tư vấn thành công!');
-    }
-  }, [name, phone, selectedCountry.name, travelDate, guests, t]);
+      const cleanName = name.trim();
+      const cleanPhone = phone.trim();
+      const cleanEmail = email.trim();
+
+      if (cleanName.length < 2) {
+        const msg = getVisaUiText('invalidName', locale);
+        setFormError(msg);
+        toast.warning(msg);
+        return;
+      }
+
+      if (!isValidVisaPhone(cleanPhone)) {
+        const msg = getVisaUiText('invalidPhone', locale);
+        setFormError(msg);
+        toast.warning(msg);
+        return;
+      }
+
+      if (cleanEmail && !isValidVisaEmail(cleanEmail)) {
+        const msg = getVisaUiText('invalidEmail', locale);
+        setFormError(msg);
+        toast.warning(msg);
+        return;
+      }
+
+      if (travelDate && todayStr && travelDate < todayStr) {
+        const msg = getVisaUiText('invalidTravelDate', locale);
+        setFormError(msg);
+        toast.warning(msg);
+        return;
+      }
+
+      const parsedGuests = Math.min(20, Math.max(1, parseInt(guests, 10) || 1));
+
+      setIsSubmitting(true);
+
+      const payload = {
+        name: cleanName,
+        phone: cleanPhone,
+        email: cleanEmail || undefined,
+        country: selectedCountry.name,
+        travelDate: travelDate || undefined,
+        guests: parsedGuests,
+        type: 'visa' as const,
+      };
+
+      try {
+        await api.post('/consultations', payload);
+        setIsSubmitting(false);
+        setSubmitted(true);
+        toast.success(t('formSuccessTitle'));
+      } catch (err: any) {
+        const status = err?.response?.status;
+        if (!err?.response || status >= 500) {
+          console.warn('Network/server issue submitting consultation, storing locally:', err);
+          enqueueConsultationLead(payload);
+          setIsSubmitting(false);
+          setSubmitted(true);
+          toast.info(getVisaUiText('offlineQueued', locale));
+        } else {
+          const errMsg = getLocalizedError(err, locale);
+          setFormError(errMsg);
+          setIsSubmitting(false);
+          toast.error(errMsg);
+        }
+      }
+    },
+    [name, phone, email, selectedCountry.name, travelDate, todayStr, guests, locale, t]
+  );
 
   const renderFlag = useCallback((flag: string, alt: string) => {
     if (typeof flag === 'string' && flag.startsWith('http')) {
@@ -150,7 +251,9 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
         <img
           src={flag}
           alt={alt}
-          className="w-5 h-3.5 object-cover rounded-xs shadow-2xs border border-black/10 shrink-0"
+          width={20}
+          height={14}
+          className="w-5 h-3.5 object-cover rounded-sm shadow-sm border border-black/10 shrink-0"
         />
       );
     }
@@ -158,7 +261,10 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
   }, []);
 
   return (
-    <div className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-xl space-y-5 relative overflow-hidden">
+    <div
+      id="visa-consultation-form"
+      className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-xl space-y-5 relative overflow-hidden"
+    >
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100/60 to-purple-100/60 rounded-bl-full pointer-events-none opacity-60" />
 
       <div>
@@ -170,20 +276,26 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
       </div>
 
       {submitted ? (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center space-y-3 animate-in zoom-in-95 duration-200">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center space-y-3">
           <div className="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto shadow-md">
             <CheckCircle2 className="w-7 h-7" />
           </div>
           <h4 className="font-bold text-slate-900 text-base">{t('formSuccessTitle')}</h4>
           <p className="text-xs text-emerald-800 leading-relaxed font-medium">
-            {t('formSuccessSub', { name, phone })}
+            {t('formSuccessSub', { name: name.trim(), phone: phone.trim() })}
           </p>
           <button
             type="button"
             onClick={() => {
               setSubmitted(false);
-              setName('');
-              setPhone('');
+              setFormError('');
+              setTravelDate('');
+              setGuests('1');
+              if (!currentUser) {
+                setName('');
+                setPhone('');
+                setEmail('');
+              }
             }}
             className="text-xs text-blue-600 font-bold hover:underline pt-2 inline-block cursor-pointer"
           >
@@ -191,57 +303,109 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4 text-xs">
+          {formError && (
+            <div
+              role="alert"
+              className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs font-semibold"
+            >
+              <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+              <span>{formError}</span>
+            </div>
+          )}
+
           <div>
-            <label className="font-semibold text-slate-700 mb-1.5 block uppercase tracking-wider text-xs flex items-center gap-1">
+            <label
+              htmlFor="visa-name"
+              className="font-semibold text-slate-700 mb-1.5 block uppercase tracking-wider text-xs flex items-center gap-1"
+            >
               <User className="w-3.5 h-3.5 text-blue-600" />
               <span>{t('formNameLabel')}</span>
             </label>
             <input
+              id="visa-name"
               type="text"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (formError) setFormError('');
+              }}
               placeholder={t('formNamePlaceholder')}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-900 font-medium placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
             />
           </div>
 
           <div>
-            <label className="font-semibold text-slate-700 mb-1.5 block uppercase tracking-wider text-xs flex items-center gap-1">
+            <label
+              htmlFor="visa-phone"
+              className="font-semibold text-slate-700 mb-1.5 block uppercase tracking-wider text-xs flex items-center gap-1"
+            >
               <Phone className="w-3.5 h-3.5 text-emerald-600" />
               <span>{t('formPhoneLabel')}</span>
             </label>
             <input
+              id="visa-phone"
               type="tel"
               required
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                if (formError) setFormError('');
+              }}
               placeholder={t('formPhonePlaceholder')}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-900 font-medium placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
             />
           </div>
 
-          {/* Custom Country Selector with Flag CDN Images */}
+          <div>
+            <label
+              htmlFor="visa-email"
+              className="font-semibold text-slate-700 mb-1.5 block uppercase tracking-wider text-xs flex items-center gap-1"
+            >
+              <Mail className="w-3.5 h-3.5 text-indigo-600" />
+              <span>{getVisaUiText('emailLabel', locale)}</span>
+            </label>
+            <input
+              id="visa-email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (formError) setFormError('');
+              }}
+              placeholder={getVisaUiText('emailPlaceholder', locale)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-900 font-medium placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
+            />
+          </div>
+
+          {/* Custom Country Selector */}
           <div className="relative" ref={countryRef}>
             <label className="font-semibold text-slate-700 mb-1.5 block uppercase tracking-wider text-xs">
               {t('formCountryLabel')}
             </label>
             <button
               type="button"
+              aria-haspopup="listbox"
+              aria-expanded={isCountryOpen}
               onClick={() => setIsCountryOpen(!isCountryOpen)}
-              className="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-xl px-3.5 py-3 text-slate-900 font-medium flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-blue-100 border-slate-200 cursor-pointer"
+              className="w-full bg-slate-50 border border-slate-200 hover:bg-slate-100/80 rounded-xl px-3.5 py-3 text-slate-900 font-medium flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 {renderFlag(selectedCountry.flag, selectedCountry.name)}
                 <span className="font-semibold text-slate-800 text-xs">{selectedCountry.name}</span>
               </div>
-              <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isCountryOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                  isCountryOpen ? 'rotate-180' : ''
+                }`}
+              />
             </button>
 
             <AnimatePresence>
               {isCountryOpen && (
                 <motion.div
+                  role="listbox"
                   initial={{ opacity: 0, y: 6, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 6, scale: 0.98 }}
@@ -252,12 +416,13 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
                     <button
                       key={c.key}
                       type="button"
-                      onClick={() => {
-                        setSelectedCountryKey(c.key);
-                        setIsCountryOpen(false);
-                      }}
+                      role="option"
+                      aria-selected={selectedCountryKey === c.key}
+                      onClick={() => handleSelectCountry(c.key)}
                       className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition-colors font-medium cursor-pointer ${
-                        selectedCountryKey === c.key ? 'bg-blue-50 text-blue-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                        selectedCountryKey === c.key
+                          ? 'bg-blue-50 text-blue-600 font-bold'
+                          : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
@@ -274,24 +439,32 @@ function VisaConsultationFormComponent({ countries, locale = 'vi' }: VisaConsult
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="font-semibold text-slate-700 mb-1 block uppercase tracking-wider text-[11px] flex items-center gap-1">
+              <label
+                htmlFor="visa-travel-date"
+                className="font-semibold text-slate-700 mb-1 block uppercase tracking-wider text-[11px] flex items-center gap-1"
+              >
                 <Calendar className="w-3.5 h-3.5 text-amber-500" />
                 <span>{t('formTravelDateLabel')}</span>
               </label>
               <input
+                id="visa-travel-date"
                 type="date"
                 value={travelDate}
-                min={new Date().toISOString().split('T')[0]}
+                min={todayStr || undefined}
                 onChange={(e) => setTravelDate(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:bg-white focus:border-blue-600 focus:outline-none transition-all"
               />
             </div>
             <div>
-              <label className="font-semibold text-slate-700 mb-1 block uppercase tracking-wider text-[11px] flex items-center gap-1">
+              <label
+                htmlFor="visa-guests"
+                className="font-semibold text-slate-700 mb-1 block uppercase tracking-wider text-[11px] flex items-center gap-1"
+              >
                 <Users className="w-3.5 h-3.5 text-purple-500" />
                 <span>{t('formGuestsLabel')}</span>
               </label>
               <input
+                id="visa-guests"
                 type="number"
                 min="1"
                 max="20"

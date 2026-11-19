@@ -11,7 +11,8 @@ import Testimonials from '@/components/home/Testimonials';
 
 export const generateMetadata = async ({ params }: { params: Promise<{ locale: string }> | { locale: string } }): Promise<Metadata> => {
   const resolvedParams = await Promise.resolve(params);
-  const locale = resolvedParams?.locale || 'vi';
+  const rawLocale = resolvedParams?.locale || 'vi';
+  const locale = ['vi', 'en', 'zh', 'ko', 'ja'].includes(rawLocale) ? rawLocale : 'vi';
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   const titles: Record<string, string> = {
@@ -112,7 +113,7 @@ export const generateMetadata = async ({ params }: { params: Promise<{ locale: s
 
 export default async function HomePage() {
   return (
-    <main id="main-content" className="flex-1 flex flex-col w-full overflow-x-hidden">
+    <main id="main-content" className="flex-1 flex flex-col w-full overflow-x-clip">
       <HeroBanner />
       
       {/* Search box seamlessly overlapping the Hero section */}

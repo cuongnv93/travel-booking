@@ -297,13 +297,38 @@ export const cancelBooking = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Admin stats dashboard
+// Admin stats dashboard with 100% REAL database metrics & month-over-month growth calculations
 export const getStats = async (_req: Request, res: Response) => {
   try {
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
 
-    const [total, pending, confirmed, completed, cancelled, revenueAll, revenueMonth, activeTours, totalUsers, recentBookings] = await Promise.all([
+    const startOfThisMonth = new Date(currentYear, currentMonth, 1);
+    const startOfLastMonth = new Date(currentYear, currentMonth - 1, 1);
+    const endOfLastMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59, 999);
+
+    const startOfYear = new Date(currentYear, 0, 1);
+    const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+
+    const [
+      total,
+      pending,
+      confirmed,
+      completed,
+      cancelled,
+      revenueAll,
+      revenueMonth,
+      revenuePrevMonth,
+      bookingsThisMonth,
+      bookingsPrevMonth,
+      activeTours,
+      totalUsers,
+      usersThisMonth,
+      usersPrevMonth,
+      monthlyAgg,
+      recentBookings,
+    ] = await Promise.all([
       Booking.countDocuments(),
       Booking.countDocuments({ status: 'pending' }),
       Booking.countDocuments({ status: 'confirmed' }),
@@ -314,11 +339,38 @@ export const getStats = async (_req: Request, res: Response) => {
         { $group: { _id: null, total: { $sum: '$totalPrice' } } },
       ]),
       Booking.aggregate([
-        { $match: { status: { $in: ['confirmed', 'completed'] }, createdAt: { $gte: startOfMonth } } },
+        { $match: { status: { $in: ['confirmed', 'completed'] }, createdAt: { $gte: startOfThisMonth } } },
         { $group: { _id: null, total: { $sum: '$totalPrice' } } },
       ]),
-      Tour.countDocuments(),
+      Booking.aggregate([
+        {
+          $match: {
+            status: { $in: ['confirmed', 'completed'] },
+            createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$totalPrice' } } },
+      ]),
+      Booking.countDocuments({ createdAt: { $gte: startOfThisMonth } }),
+      Booking.countDocuments({ createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+      Tour.countDocuments({ isActive: { $ne: false } }),
       User.countDocuments(),
+      User.countDocuments({ createdAt: { $gte: startOfThisMonth } }),
+      User.countDocuments({ createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+      Booking.aggregate([
+        { $match: { createdAt: { $gte: startOfYear, $lte: endOfYear } } },
+        {
+          $group: {
+            _id: { $month: '$createdAt' },
+            revenue: {
+              $sum: {
+                $cond: [{ $in: ['$status', ['confirmed', 'completed']] }, '$totalPrice', 0],
+              },
+            },
+            bookings: { $sum: 1 },
+          },
+        },
+      ]),
       Booking.find()
         .populate('tourId', 'title images slug')
         .populate('hotelId', 'name images slug')
@@ -328,6 +380,41 @@ export const getStats = async (_req: Request, res: Response) => {
         .limit(5)
         .lean(),
     ]);
+
+    const revThis = revenueMonth[0]?.total || 0;
+    const revLast = revenuePrevMonth[0]?.total || 0;
+    let revenueGrowth = 0;
+    if (revLast > 0) {
+      revenueGrowth = Math.round(((revThis - revLast) / revLast) * 100 * 10) / 10;
+    } else if (revThis > 0) {
+      revenueGrowth = 100;
+    }
+
+    let bookingsGrowth = 0;
+    if (bookingsPrevMonth > 0) {
+      bookingsGrowth = Math.round(((bookingsThisMonth - bookingsPrevMonth) / bookingsPrevMonth) * 100 * 10) / 10;
+    } else if (bookingsThisMonth > 0) {
+      bookingsGrowth = 100;
+    }
+
+    let usersGrowth = 0;
+    if (usersPrevMonth > 0) {
+      usersGrowth = Math.round(((usersThisMonth - usersPrevMonth) / usersPrevMonth) * 100 * 10) / 10;
+    } else if (usersThisMonth > 0) {
+      usersGrowth = 100;
+    }
+
+    // Build real 12-month data series
+    const MONTH_LABELS = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+    const monthlyData = MONTH_LABELS.map((monthLabel, idx) => {
+      const monthNum = idx + 1;
+      const found = monthlyAgg.find((m: any) => m._id === monthNum);
+      return {
+        month: monthLabel,
+        revenue: found ? found.revenue : 0,
+        bookings: found ? found.bookings : 0,
+      };
+    });
 
     const formattedRecent = recentBookings.map((b) => ({
       _id: b._id,
@@ -344,9 +431,18 @@ export const getStats = async (_req: Request, res: Response) => {
       completedCount: completed,
       cancelledCount: cancelled,
       totalRevenue: revenueAll[0]?.total || 0,
-      revenueThisMonth: revenueMonth[0]?.total || 0,
+      revenueThisMonth: revThis,
+      revenueGrowth,
+      hasPrevRevenueData: revLast > 0,
+      bookingsThisMonth,
+      bookingsGrowth,
+      hasPrevBookingData: bookingsPrevMonth > 0,
       activeTours,
       totalUsers,
+      usersThisMonth,
+      usersGrowth,
+      hasPrevUserData: usersPrevMonth > 0,
+      monthlyData,
       recentBookings: formattedRecent,
     });
   } catch (error: any) {

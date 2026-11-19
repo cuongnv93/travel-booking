@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -8,10 +8,13 @@ import { Input } from '@/components/ui/Input';
 import { Loader2, Save, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES } from '@/components/admin/common/AdminI18nTabs';
+import { toast } from '@/stores/toastStore';
+import { RichTextEditor } from '@/components/admin/common/RichTextEditor';
 
 const PAGES = [
-  { slug: 'about', label: 'About Us' },
-  { slug: 'visa', label: 'Visa Information' },
+  { slug: 'about', label: 'Về Chúng Tôi (About)' },
+  { slug: 'visa', label: 'Dịch Vụ Visa' },
+  { slug: 'contact', label: 'Liên Hệ (Contact)' },
 ];
 
 export default function ManagePages() {
@@ -60,13 +63,16 @@ export default function ManagePages() {
       queryClient.invalidateQueries({ queryKey: ['admin-pages'] });
       queryClient.invalidateQueries({ queryKey: ['pages', activePage] });
       queryClient.invalidateQueries({ queryKey: ['pages'] });
+      toast.success('Nội dung trang đã được lưu thành công!');
       setStatusMsg({ type: 'success', text: 'Nội dung trang đã được lưu thành công!' });
       setTimeout(() => setStatusMsg(null), 4000);
     },
     onError: (error: any) => {
+      const errText = error?.response?.data?.message || 'Có lỗi xảy ra khi lưu dữ liệu trang.';
+      toast.error(errText);
       setStatusMsg({
         type: 'error',
-        text: error?.response?.data?.message || 'Có lỗi xảy ra khi lưu dữ liệu trang.',
+        text: errText,
       });
     },
   });
@@ -81,6 +87,13 @@ export default function ManagePages() {
   };
 
   const currentLangLabel = ADMIN_SUPPORTED_LANGUAGES.find((l) => l.code === activeLang)?.label || activeLang;
+
+  const handleCopyFromVi = useCallback(() => {
+    if (activeLang === 'vi') return;
+    setTitle((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    setContent((prev) => ({ ...prev, [activeLang]: prev[activeLang] || prev.vi || '' }));
+    toast.info(`Đã sao chép nội dung từ Tiếng Việt sang ${currentLangLabel}!`);
+  }, [activeLang, currentLangLabel]);
 
   const hasContentMap = ADMIN_SUPPORTED_LANGUAGES.reduce((acc, l) => {
     acc[l.code] = Boolean(title[l.code]?.trim() || content[l.code]?.trim());
@@ -150,6 +163,7 @@ export default function ManagePages() {
               <AdminI18nTabs
                 activeLang={activeLang}
                 onChange={setActiveLang}
+                onCopyFromVi={handleCopyFromVi}
                 hasContent={hasContentMap}
                 label="Ngôn ngữ biên tập:"
               />
@@ -171,14 +185,14 @@ export default function ManagePages() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Page Content ({currentLangLabel})
                   </label>
-                  <textarea
+                  <RichTextEditor
                     value={content[activeLang] || ''}
-                    onChange={(e) => setContent((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                    placeholder={`Enter content in ${currentLangLabel}...`}
-                    className="w-full h-64 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition-all resize-y"
+                    onChange={(html) => setContent((prev) => ({ ...prev, [activeLang]: html }))}
+                    placeholder={`Soạn thảo nội dung cho trang ${activePage} theo chuẩn WordPress...`}
+                    minHeight="340px"
                   />
                   <p className="text-xs text-slate-500 mt-2">
-                    You can use HTML tags to format your content.
+                    Trình soạn thảo trực quan chuẩn WordPress hỗ trợ đầy đủ tiêu đề H2, H3, in đậm, nghiêng, liên kết, danh sách và chế độ mã nguồn HTML.
                   </p>
                 </div>
               </div>

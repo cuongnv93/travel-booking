@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import {
   PhoneCall,
   Search,
@@ -17,6 +17,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -107,13 +108,13 @@ const ConsultationRow = memo(function ConsultationRow({
         )}
       </td>
 
-      <td className="px-6 py-4 max-w-xs">
+      <td className="px-6 py-4 max-w-sm">
         {item.notes ? (
-          <div className="text-slate-700 leading-relaxed bg-slate-50 p-2 rounded-xl border border-slate-100 line-clamp-3">
+          <div className="text-slate-700 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 max-h-32 overflow-y-auto whitespace-pre-wrap text-xs">
             {item.notes}
           </div>
         ) : (
-          <span className="text-slate-400 italic">Không có ghi chú</span>
+          <span className="text-slate-400 italic text-xs">Không có ghi chú</span>
         )}
       </td>
 
@@ -154,6 +155,7 @@ export default function AdminConsultationsPage() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['admin-consultations', filterType, filterStatus, searchTerm],
@@ -210,10 +212,8 @@ export default function AdminConsultationsPage() {
   }, [updateStatusMutation]);
 
   const handleDelete = useCallback((id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa yêu cầu tư vấn này?')) {
-      deleteMutation.mutate(id);
-    }
-  }, [deleteMutation]);
+    setDeleteTargetId(id);
+  }, []);
 
   const items: ConsultationItem[] = useMemo(() => {
     return data?.items || [];
@@ -221,6 +221,12 @@ export default function AdminConsultationsPage() {
 
   // Pagination slice
   const totalPages = Math.ceil(items.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return items.slice(start, start + pageSize);
@@ -442,6 +448,22 @@ export default function AdminConsultationsPage() {
           pageSizeOptions={[10, 25, 50, 100]}
         />
       </div>
+
+      <AdminConfirmModal
+        isOpen={Boolean(deleteTargetId)}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await deleteMutation.mutateAsync(deleteTargetId);
+            setDeleteTargetId(null);
+          }
+        }}
+        title="Xác nhận xóa yêu cầu tư vấn"
+        message="Bạn có chắc chắn muốn xóa yêu cầu tư vấn này khỏi hệ thống? Hành động này không thể hoàn tác."
+        confirmText="Xác nhận xóa"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

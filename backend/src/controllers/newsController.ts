@@ -154,9 +154,17 @@ export const duplicateNews = async (req: Request, res: Response) => {
 
 export const seedSeoDefaults = async (req: Request, res: Response) => {
   try {
-    const jsonPath = require('path').join(__dirname, '../seed/seoDefaultNews.json');
+    const path = require('path');
     const fs = require('fs');
-    if (!fs.existsSync(jsonPath)) {
+    const candidatePaths = [
+      path.join(__dirname, '../seed/seoDefaultNews.json'),
+      path.join(__dirname, '../../src/seed/seoDefaultNews.json'),
+      path.join(process.cwd(), 'src/seed/seoDefaultNews.json'),
+      path.join(process.cwd(), 'dist/seed/seoDefaultNews.json'),
+      path.join(process.cwd(), 'backend/src/seed/seoDefaultNews.json'),
+    ];
+    const jsonPath = candidatePaths.find((p: string) => fs.existsSync(p));
+    if (!jsonPath) {
       return res.status(404).json({ message: 'Default news file not found' });
     }
     const rawData = fs.readFileSync(jsonPath, 'utf8');

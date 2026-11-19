@@ -83,6 +83,10 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
 
+    if (user.isActive === false) {
+      return res.status(403).json({ message: 'Tài khoản của bạn đã bị vô hiệu hóa hoặc tạm khóa. Vui lòng liên hệ quản trị viên.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
@@ -222,6 +226,77 @@ export const deleteUser = async (req: Request, res: Response) => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
     res.json({ message: 'Xóa tài khoản người dùng thành công' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateAdminUser = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+    const { name, email, phone, role, isActive } = req.body;
+    const currentUserId = req.user?._id?.toString();
+    const isSelf = currentUserId === req.params.id;
+
+    if (isSelf && role && role !== 'admin') {
+      return res.status(400).json({ message: 'Không thể tự hạ quyền quản trị viên của chính mình' });
+    }
+    if (isSelf && isActive === false) {
+      return res.status(400).json({ message: 'Không thể tự vô hiệu hóa tài khoản quản trị của chính mình' });
+    }
+
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = String(name).trim();
+    if (phone !== undefined) updateData.phone = String(phone).trim();
+    if (role !== undefined && ['user', 'admin'].includes(role)) updateData.role = role;
+    if (isActive !== undefined) updateData.isActive = Boolean(isActive);
+
+    if (email) {
+      const cleanEmail = String(email).trim().toLowerCase();
+      const existing = await User.findOne({ email: cleanEmail, _id: { $ne: req.params.id } });
+      if (existing) {
+        return res.status(400).json({ message: 'Email này đã được sử dụng bởi tài khoản khác' });
+      }
+      updateData.email = cleanEmail;
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    res.json(user);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const toggleUserStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+    const currentUserId = req.user?._id?.toString();
+    if (currentUserId && currentUserId === req.params.id) {
+      return res.status(400).json({ message: 'Không thể tự khóa tài khoản quản trị của chính mình' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+
+    user.isActive = user.isActive === false ? true : false;
+    await user.save();
+
+    res.json({
+      message: user.isActive ? 'Đã kích hoạt lại tài khoản người dùng' : 'Đã vô hiệu hóa tài khoản người dùng',
+      user: {
+        _id: user._id,
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+      },
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

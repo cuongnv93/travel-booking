@@ -45,8 +45,9 @@ const SEO_DICTIONARY: Record<string, { title: string; description: string; ogLoc
 
 export const generateMetadata = async ({ params }: { params: Promise<{ locale: string }> | { locale: string } }): Promise<Metadata> => {
   const resolvedParams = await Promise.resolve(params);
-  const locale = resolvedParams?.locale || 'vi';
-  const seoData = SEO_DICTIONARY[locale] || SEO_DICTIONARY.vi;
+  const rawLocale = resolvedParams?.locale || 'vi';
+  const locale = SEO_DICTIONARY[rawLocale] ? rawLocale : 'vi';
+  const seoData = SEO_DICTIONARY[locale];
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
   const ogImageUrl = `${baseUrl}/og-image.jpg`;
 
@@ -120,12 +121,14 @@ export default async function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string }> | { locale: string };
 }) {
-  const { locale } = await params;
+  const resolvedParams = await Promise.resolve(params);
+  const rawLocale = resolvedParams?.locale || 'vi';
+  const locale = SEO_DICTIONARY[rawLocale] ? rawLocale : 'vi';
   const messages = await getMessages();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
-  const seoData = SEO_DICTIONARY[locale] || SEO_DICTIONARY.vi;
+  const seoData = SEO_DICTIONARY[locale];
 
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -204,7 +207,7 @@ export default async function LocaleLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
-        <div className="flex flex-col min-h-screen relative overflow-x-hidden w-full">
+        <div className="flex flex-col min-h-screen relative overflow-x-clip w-full">
           <NavigationProgress />
           <Header />
           <div className="flex-grow w-full flex flex-col">{children}</div>

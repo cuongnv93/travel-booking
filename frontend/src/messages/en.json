@@ -14,7 +14,8 @@
     "myCart": "My Cart",
     "login": "Sign In",
     "logout": "Logout",
-    "logoutSuccess": "Logged out successfully."
+    "logoutSuccess": "Logged out successfully.",
+    "language": "Language"
   },
   "hero": {
     "title": "Explore the World with Travel",
@@ -346,7 +347,11 @@
     "close": "Close",
     "wishlistAdded": "Tour added to your favorites!",
     "wishlistRemoved": "Tour removed from your favorites.",
-    "copied": "Copied to clipboard!"
+    "copied": "Copied to clipboard!",
+    "errorTitle": "An Unexpected Error Occurred",
+    "errorDesc": "The system encountered an error loading this page. Please try refreshing or return to the homepage.",
+    "errorReload": "Reload Page",
+    "backHome": "Back to Home"
   },
   "footer": {
     "about": "Travel Booking",
@@ -665,7 +670,10 @@
     "sortBy": "Sort by:",
     "sortNewest": "Newest",
     "sortPriceAsc": "Price: Low to High",
-    "sortPriceDesc": "Price: High to Low"
+    "sortPriceDesc": "Price: High to Low",
+    "destHotelsTitle": "Hotels & Resorts in {dest}",
+    "allHotelsTitle": "Top Hotels & Luxury Resorts",
+    "allHotelsSubtitle": "Discover top luxury hotels and resorts with best price guarantee."
   },
   "flashSale": {
     "title": "🔥 GOLDEN HOUR FLASH SALE",
@@ -693,7 +701,8 @@
     "notFoundTitle": "Article Not Found",
     "notFoundDesc": "The article may have been moved or is currently unavailable.",
     "backToNews": "Back to News List",
-    "shareSuccess": "Article link copied successfully!"
+    "shareSuccess": "Article link copied successfully!",
+    "copyError": "Failed to copy link."
   },
   "hotelDetail": {
     "noRooms": "The hotel is updating room information. Please come back later.",
@@ -746,7 +755,9 @@
     "checkOutBefore": "Check-out before",
     "starsLabel": "Stars",
     "priceBreakdown": "{price} × {nights} nights × {rooms} rooms",
-    "errInvalidEmail": "Invalid email format."
+    "errInvalidEmail": "Invalid email format.",
+    "hotelNotFoundDesc": "This hotel or resort does not exist or is no longer operating.",
+    "namePlaceholder": "John Doe"
   },
   "specialtiesPage": {
     "badge": "🍜 3-Region Culinary Specialties",
@@ -795,7 +806,10 @@
     "reviewsCount": "{count} reviews",
     "relatedTours": "Other Featured Tours For You",
     "viewAllTours": "View all tours",
-    "tourNotFound": "Tour information not found"
+    "tourNotFound": "Tour information not found",
+    "bookNowBtn": "Book Now",
+    "tourNotFoundDesc": "This tour package may have been removed or is no longer available.",
+    "viewOtherTours": "Explore Other Tours"
   },
   "tourBooking": {
     "pricePerGuest": "Price per guest",

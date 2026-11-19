@@ -6,11 +6,9 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import {
   Globe, Phone, Mail, MapPin, Share2, CreditCard,
-  Save, CheckCircle2, Loader2, Image as ImageIcon, Plus, Trash2,
-  Upload, LayoutTemplate, FileText, Quote,
-  Plane, Award, Building2, ShieldAlert, RefreshCw, AlertTriangle, Layers, Video, ExternalLink
+  Save, CheckCircle2, Loader2, LayoutTemplate,
+  Plane, Award, Building2, ShieldAlert, RefreshCw, AlertTriangle, ExternalLink
 } from 'lucide-react';
-import { HomeBlocksSettingsTab, DestinationItem, WhyChooseUsItem, StatCounterItem } from '@/components/admin/settings/HomeBlocksSettingsTab';
 import { FlightsSettingsTab, AirportItem, AirlineItem } from '@/components/admin/settings/FlightsSettingsTab';
 import { VisaSettingsTab, VisaCountryItem, VisaProcessStepItem, VisaStatBadgeItem } from '@/components/admin/settings/VisaSettingsTab';
 import { BranchesSettingsTab, BranchItem, WorkingHoursConfig, CoreValueItem } from '@/components/admin/settings/BranchesSettingsTab';
@@ -38,172 +36,10 @@ const normalizeMultiLang = (val: any, defaultFallback?: Partial<MultiLang>): Mul
   };
 };
 
-interface HeroSlide {
-  image: string;
-  title: MultiLang;
-  subtitle: MultiLang;
-  ctaText: MultiLang;
-  ctaLink: string;
-}
-
-const DEFAULT_SLIDES: HeroSlide[] = [
-  {
-    image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
-    title: {
-      vi: 'Khám Phá Hà Nội Ngàn Năm Văn Hiến',
-      en: 'Explore Thousand-Year-Old Hanoi Culture',
-      zh: '探索千年文化古都河内',
-      ko: '천년의 역사를 간직한 하노이 탐험',
-      ja: '千年の歴史を誇るハノイを巡る旅'
-    },
-    subtitle: {
-      vi: 'Trải nghiệm văn hóa, ẩm thực và vẻ đẹp cổ kính của phố cổ 36 phường',
-      en: 'Experience culture, cuisine, and ancient beauty of Hanoi 36 Old Streets',
-      zh: '体验河内 36 古街的丰富文化、地道美食与古朴风貌',
-      ko: '하노이 36개 구시가지의 문화, 음식 및 예스러운 아름다움을 체험하세요',
-      ja: 'ハノイ36古街の歴史ある美しさ、文化、絶品グルメをご体感ください'
-    },
-    ctaText: { vi: 'Khám Phá Tours', en: 'Explore Tours', zh: '探索行程', ko: '투어 탐색', ja: 'ツアーを探す' },
-    ctaLink: '/tours',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1600',
-    title: {
-      vi: 'Nghỉ Dưỡng 5 Sao Tại Biển Đà Nẵng',
-      en: '5-Star Luxury Resort in Da Nang Coast',
-      zh: '岘港海滨五星级奢华度假',
-      ko: '다낭 해변의 5성급 럭셔리 리조트 휴양',
-      ja: 'ダナンビーチの5つ星極上リゾート'
-    },
-    subtitle: {
-      vi: 'Tận hưởng khoảnh khắc tuyệt đẹp tại Cầu Vàng Bà Nà Hills & Hội An lung linh',
-      en: 'Enjoy breathtaking moments at Golden Bridge Ba Na Hills & romantic Hoi An',
-      zh: '尽情享用巴拿山黄金桥与会安古镇浪漫夜景的绝美时光',
-      ko: '바나힐 골든브릿지와 환상적인 호이안에서 특별한 순간을 즐기세요',
-      ja: 'バーナーヒルズの神の hand 橋と幻想的なホイアンの夜景を満喫'
-    },
-    ctaText: { vi: 'Đặt Khách Sạn', en: 'Book Hotels', zh: '预订酒店', ko: '호텔 예약', ja: 'ホテルを予約' },
-    ctaLink: '/hotels',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600',
-    title: {
-      vi: 'Phú Quốc – Đảo Ngọc Thiên Đường',
-      en: 'Phu Quoc – Tropical Island Paradise',
-      zh: '富国岛 – 热带天堂珍珠岛',
-      ko: '푸꾸옥 – 천국의 파라다이스 섬',
-      ja: 'フーコック島 – 楽園のトロピカルアイランド'
-    },
-    subtitle: {
-      vi: 'Bãi biển cát trắng mịn, ngắm san hô biển Nam và VinWonders sôi động',
-      en: 'Pristine white sand beaches, coral reef snorkeling & vibrant VinWonders',
-      zh: '细白沙滩、浮潜观赏珊瑚及体验精彩纷呈的 VinWonders 主题乐园',
-      ko: '하얀 모래사장, 산호초 스노클링 및 활기찬 빈원더스 테마파크 체험',
-      ja: '白砂のビーチ、珊瑚礁スノーケリング、人気のテーマパークVinWondersを満喫'
-    },
-    ctaText: { vi: 'Xem Chuyến Đi', en: 'View Trip', zh: '查看行程', ko: '일정 보기', ja: 'プランを見る' },
-    ctaLink: '/tours/phu-quoc-paradise',
-  },
-];
-
 const fetchSettings = async () => {
   const res: any = await api.get('/settings');
   return Array.isArray(res) ? res : (res?.data || []);
 };
-
-function MediaBannerUploadCard({
-  label,
-  imageValue,
-  onImageChange,
-  videoValue,
-  onVideoChange,
-  imagePlaceholder,
-  videoPlaceholder,
-}: {
-  label: string;
-  imageValue: string;
-  onImageChange: (val: string) => void;
-  videoValue: string;
-  onVideoChange: (val: string) => void;
-  imagePlaceholder: string;
-  videoPlaceholder: string;
-}) {
-  return (
-    <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/60 space-y-3">
-      <div className="flex items-center justify-between">
-        <label className="font-bold text-slate-800 block text-xs">{label}</label>
-        {videoValue && (
-          <span className="inline-flex items-center gap-1 text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full">
-            <Video className="w-3 h-3" /> Video Nền
-          </span>
-        )}
-      </div>
-
-      <div className="h-36 bg-slate-900 rounded-xl overflow-hidden relative group shadow-inner">
-        {videoValue ? (
-          <video
-            src={videoValue}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <img src={imageValue} alt={label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-        )}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <label className="bg-white/90 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-lg cursor-pointer flex items-center gap-1.5 shadow-md hover:bg-white transition-colors">
-            <Upload className="w-4 h-4 text-blue-600" />
-            <span>Tải Ảnh Mới</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={async (e) => {
-                if (!e.target.files?.[0]) return;
-                try {
-                  const formData = new FormData();
-                  formData.append('image', e.target.files[0]);
-                  const res: any = await api.post('/upload', formData);
-                  const url = res.url || res.path || res.imageUrl;
-                  const backendOrigin = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
-                  onImageChange(url.startsWith('http') ? url : `${backendOrigin}${url}`);
-                } catch (err: any) {
-                  toast.error('Lỗi tải ảnh lên: ' + (err.response?.data?.message || err.message));
-                }
-              }}
-            />
-          </label>
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-600">
-          <ImageIcon className="w-3 h-3 text-blue-500" /> URL Ảnh Bìa / Poster:
-        </div>
-        <input
-          value={imageValue}
-          onChange={(e) => onImageChange(e.target.value)}
-          placeholder={imagePlaceholder}
-          className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-blue-500 text-xs font-mono"
-        />
-      </div>
-
-      <div className="space-y-1">
-        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-600">
-          <Video className="w-3 h-3 text-purple-500" /> URL Video Nền:
-        </div>
-        <input
-          value={videoValue}
-          onChange={(e) => onVideoChange(e.target.value)}
-          placeholder={videoPlaceholder}
-          className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 focus:outline-none focus:border-purple-500 text-xs font-mono"
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
@@ -211,14 +47,9 @@ export default function AdminSettingsPage() {
     'general' | 'branches' | 'payment' | 'policies' | 'flights' | 'visa' | 'social'
   >('general');
   const [successMsg, setSuccessMsg] = useState('');
-  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [langTab, setLangTab] = useState<'vi' | 'en' | 'zh' | 'ko' | 'ja'>('vi');
-  const [showReseedConfirm, setShowReseedConfirm] = useState(false);
 
   // Master Dynamic CMS States
-  const [destinations, setDestinations] = useState<DestinationItem[]>([]);
-  const [whyChooseUs, setWhyChooseUs] = useState<WhyChooseUsItem[]>([]);
-  const [statsCounters, setStatsCounters] = useState<StatCounterItem[]>([]);
   const [airports, setAirports] = useState<AirportItem[]>([]);
   const [airlines, setAirlines] = useState<AirlineItem[]>([]);
   const [visaCountries, setVisaCountries] = useState<VisaCountryItem[]>([]);
@@ -244,47 +75,11 @@ export default function AdminSettingsPage() {
     hotlineComplaints: '',
   });
 
-  // Testimonials State
-  const [reviews, setReviews] = useState<Array<{ id: number; name: string; role: string; content: string; rating: number }>>([
-    {
-      id: 1,
-      name: 'Nguyễn Văn A',
-      role: 'Khách hàng thân thiết',
-      content: 'Chuyến đi tuyệt vời! Hướng dẫn viên rất nhiệt tình và chu đáo.',
-      rating: 5
-    },
-  ]);
-
-  // Page Banners State (Subpages + Background Videos)
-  const [toursBanner, setToursBanner] = useState('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600');
-  const [toursVideo, setToursVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/mountains.mp4');
-  const [hotelsBanner, setHotelsBanner] = useState('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600');
-  const [hotelsVideo, setHotelsVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/glide-over-coastal-beach.mp4');
-  const [flightsBanner, setFlightsBanner] = useState('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600');
-  const [flightsVideo, setFlightsVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/airplane.mp4');
-  const [visaBanner, setVisaBanner] = useState('https://images.unsplash.com/photo-1544717305-2782549b5136?w=1600');
-  const [visaVideo, setVisaVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/travel.mp4');
-  const [newsBanner, setNewsBanner] = useState('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600');
-  const [newsVideo, setNewsVideo] = useState('https://res.cloudinary.com/demo/video/upload/so_0,eo_12,q_auto,w_1280,ac_none/forest_bike.mp4');
-  const [specialtiesBanner, setSpecialtiesBanner] = useState('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600');
-  const [specialtiesVideo, setSpecialtiesVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/walking.mp4');
-  const [contactBanner, setContactBanner] = useState('https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1600');
-  const [contactVideo, setContactVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/travel.mp4');
-  const [lookupBanner, setLookupBanner] = useState('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600');
-  const [lookupVideo, setLookupVideo] = useState('https://res.cloudinary.com/demo/video/upload/q_auto,w_1280,ac_none/airplane.mp4');
-
-  // Pages Content
-  const [visaContent, setVisaContent] = useState('');
-  const [aboutContent, setAboutContent] = useState('');
-
-  // Hero Slides state
-  const [slides, setSlides] = useState<HeroSlide[]>(DEFAULT_SLIDES);
-
   // General Settings
   const [siteName, setSiteName] = useState('Travel Booking');
   const [hotline, setHotline] = useState('1800 646 888');
   const [email, setEmail] = useState('support@travel.com');
-  const [address, setAddress] = useState<MultiLang>(normalizeMultiLang('168 Nguyễn Văn Linh, Thanh Khê, Đà Nẵng'));
+  const [address, setAddress] = useState<MultiLang>(DEFAULT_ADDRESS);
 
   // Social Links
   const [facebook, setFacebook] = useState('https://facebook.com/travel');
@@ -302,63 +97,11 @@ export default function AdminSettingsPage() {
     queryFn: fetchSettings,
   });
 
-  const { data: pagesData } = useQuery({
-    queryKey: ['admin-pages'],
-    queryFn: async () => {
-      const [visaRes, aboutRes]: any = await Promise.all([
-        api.get('/pages/visa').catch(() => ({})),
-        api.get('/pages/about').catch(() => ({}))
-      ]);
-      return {
-        rawVisa: visaRes || {},
-        rawAbout: aboutRes || {},
-        visa: visaRes?.content?.vi || '',
-        about: aboutRes?.content?.vi || ''
-      };
-    }
-  });
-
-  useEffect(() => {
-    if (pagesData) {
-      setVisaContent(pagesData.visa);
-      setAboutContent(pagesData.about);
-    }
-  }, [pagesData]);
-
   // Populate from DB
   useEffect(() => {
     if (settings.length > 0) {
       settings.forEach((s: any) => {
-        if (s.key === 'hero_banners' && Array.isArray(s.value) && s.value.length > 0) {
-          setSlides(s.value.map((slide: any, idx: number) => {
-            const def = DEFAULT_SLIDES[idx] || DEFAULT_SLIDES[0];
-            return {
-              ...slide,
-              title: normalizeMultiLang(slide.title, def?.title),
-              subtitle: normalizeMultiLang(slide.subtitle, def?.subtitle),
-              ctaText: normalizeMultiLang(slide.ctaText, def?.ctaText),
-            };
-          }));
-        } else if (s.key === 'page_banners') {
-          if (s.value?.toursBanner) setToursBanner(s.value.toursBanner);
-          if (s.value?.toursVideo) setToursVideo(s.value.toursVideo);
-          if (s.value?.hotelsBanner) setHotelsBanner(s.value.hotelsBanner);
-          if (s.value?.hotelsVideo) setHotelsVideo(s.value.hotelsVideo);
-          if (s.value?.flightsBanner) setFlightsBanner(s.value.flightsBanner);
-          if (s.value?.flightsVideo) setFlightsVideo(s.value.flightsVideo);
-          if (s.value?.visaBanner) setVisaBanner(s.value.visaBanner);
-          if (s.value?.visaVideo) setVisaVideo(s.value.visaVideo);
-          if (s.value?.newsBanner) setNewsBanner(s.value.newsBanner);
-          if (s.value?.newsVideo) setNewsVideo(s.value.newsVideo);
-          if (s.value?.specialtiesBanner) setSpecialtiesBanner(s.value.specialtiesBanner);
-          if (s.value?.specialtiesVideo) setSpecialtiesVideo(s.value.specialtiesVideo);
-          if (s.value?.contactBanner) setContactBanner(s.value.contactBanner);
-          if (s.value?.contactVideo) setContactVideo(s.value.contactVideo);
-          if (s.value?.lookupBanner) setLookupBanner(s.value.lookupBanner);
-          if (s.value?.lookupVideo) setLookupVideo(s.value.lookupVideo);
-        } else if (s.key === 'testimonials' && Array.isArray(s.value) && s.value.length > 0) {
-          setReviews(s.value);
-        } else if (s.key === 'site_info') {
+        if (s.key === 'site_info') {
           setSiteName(s.value?.siteName || 'Travel Booking');
           setHotline(s.value?.hotline || '1800 646 888');
           setEmail(s.value?.email || 'support@travel.com');
@@ -372,12 +115,6 @@ export default function AdminSettingsPage() {
           setBankAccount(s.value?.bankAccount || '999988887777');
           setBankHolder(s.value?.bankHolder || 'CÔNG TY TNHH DU LỊCH TRAVEL');
           setEnableBooking(s.value?.enableBooking !== false);
-        } else if (s.key === 'home_featured_destinations' && Array.isArray(s.value)) {
-          setDestinations(s.value);
-        } else if (s.key === 'home_why_choose_us' && Array.isArray(s.value)) {
-          setWhyChooseUs(s.value);
-        } else if (s.key === 'home_stats_counters' && Array.isArray(s.value)) {
-          setStatsCounters(s.value);
         } else if (s.key === 'flight_airports' && Array.isArray(s.value)) {
           setAirports(s.value);
         } else if (s.key === 'flight_airlines' && Array.isArray(s.value)) {
@@ -443,78 +180,37 @@ export default function AdminSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
       queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['setting'] });
+      toast.success('Đã lưu cấu hình cài đặt hệ thống & Toàn bộ dữ liệu Master thành công!');
       setSuccessMsg('Đã lưu cấu hình cài đặt hệ thống & Toàn bộ dữ liệu Master thành công!');
       setTimeout(() => setSuccessMsg(''), 4000);
     },
     onError: (err: any) => toast.error('Lỗi lưu cài đặt: ' + (err.response?.data?.message || err.message)),
   });
 
-  const reseedMutation = useMutation({
-    mutationFn: async () => {
-      return await api.post('/settings/seed-master?force=true');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
-      queryClient.invalidateQueries({ queryKey: ['public-settings'] });
-      queryClient.invalidateQueries({ queryKey: ['settings'] });
-      queryClient.invalidateQueries({ queryKey: ['setting'] });
-      queryClient.invalidateQueries({ queryKey: ['hero-banners-setting'] });
-      queryClient.invalidateQueries({ queryKey: ['testimonials-setting'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-pages'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-page'] });
-      queryClient.invalidateQueries({ queryKey: ['pages'] });
-      setShowReseedConfirm(false);
-      setSuccessMsg('Đã khôi phục và nạp lại toàn bộ dữ liệu mẫu master thành công!');
-      setTimeout(() => setSuccessMsg(''), 4000);
-    },
-    onError: (err: any) => {
-      setShowReseedConfirm(false);
-      toast.error('Lỗi nạp dữ liệu mẫu: ' + (err.response?.data?.message || err.message));
-    },
-  });
-
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    saveMutation.mutate();
-  };
-
-  const handleSlideChange = (index: number, field: keyof HeroSlide, val: string) => {
-    const updated = [...slides];
-    updated[index] = { ...updated[index], [field]: val };
-    setSlides(updated);
-  };
-
-  const handleSlideLangChange = (index: number, field: 'title' | 'subtitle' | 'ctaText', lang: keyof MultiLang, val: string) => {
-    const updated = [...slides];
-    updated[index] = {
-      ...updated[index],
-      [field]: {
-        ...updated[index][field],
-        [lang]: val
-      }
-    };
-    setSlides(updated);
-  };
-
-  const handleAddSlide = () => {
-    setSlides([
-      ...slides,
-      {
-        image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600',
-        title: normalizeMultiLang('Tiêu Đề Slide Mới'),
-        subtitle: normalizeMultiLang('Mô tả ngắn gọn cho slide mới trên trang chủ'),
-        ctaText: normalizeMultiLang('Khám Phá Ngay'),
-        ctaLink: '/tours',
-      },
-    ]);
-  };
-
-  const handleRemoveSlide = (index: number) => {
-    if (slides.length <= 1) {
-      toast.warning('Cần giữ lại ít nhất 1 slide cho Hero Banner');
+    if (!siteName.trim()) {
+      toast.error('Tên Website / Thương hiệu không được để trống!');
+      setActiveTab('general');
       return;
     }
-    setSlides(slides.filter((_, i) => i !== index));
+    if (!hotline.trim()) {
+      toast.error('Hotline tư vấn không được để trống!');
+      setActiveTab('general');
+      return;
+    }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error('Email hỗ trợ không hợp lệ!');
+      setActiveTab('general');
+      return;
+    }
+    if (!address.vi.trim()) {
+      toast.error('Địa chỉ trụ sở (Tiếng Việt) không được để trống!');
+      setActiveTab('general');
+      setLangTab('vi');
+      return;
+    }
+    saveMutation.mutate();
   };
 
   const renderLangSelector = () => (
@@ -530,7 +226,7 @@ export default function AdminSettingsPage() {
           key={l.code}
           type="button"
           onClick={() => setLangTab(l.code as any)}
-          className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+          className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
             langTab === l.code ? 'bg-white shadow-sm text-blue-600 border border-slate-200' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
@@ -544,20 +240,10 @@ export default function AdminSettingsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Cài Đặt Hệ Thống & Banner Các Trang</h1>
-          <p className="text-xs text-slate-500 mt-1">Cấu hình Slide Hero, Banner các trang con, thông tin website và thanh toán</p>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Cài Đặt Hệ Thống & Cấu Hình Website</h1>
+          <p className="text-xs text-slate-500 mt-1">Cấu hình thông tin doanh nghiệp, cổng thanh toán, chi nhánh và thông tin liên hệ</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowReseedConfirm(true)}
-            disabled={reseedMutation.isPending}
-            className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
-            title="Khôi phục hoặc nạp lại dữ liệu danh mục ban đầu"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${reseedMutation.isPending ? 'animate-spin' : ''}`} />
-            <span>Nạp Dữ Liệu Mẫu (Seeds)</span>
-          </button>
           <button
             onClick={handleSave}
             disabled={saveMutation.isPending}
@@ -588,13 +274,13 @@ export default function AdminSettingsPage() {
           <div>
             <h3 className="text-xs font-bold text-slate-900">Cấu hình Giao Diện & Bố Cục Trang Chủ</h3>
             <p className="text-[11px] text-slate-500">
-              Slider Hero, Video nền và các khối nội dung trang chủ được quản lý tập trung tại module riêng biệt
+              Slider Hero, Video nền, khối Điểm đến nổi bật và Đánh giá khách hàng được quản lý tập trung tại module Giao Diện
             </p>
           </div>
         </div>
         <Link
           href="/admin/appearance"
-          className="bg-white hover:bg-blue-600 hover:text-white text-blue-600 text-xs font-bold px-4 py-2 rounded-xl border border-blue-200 shadow-2xs transition-all shrink-0 inline-flex items-center gap-1.5"
+          className="bg-white hover:bg-blue-600 hover:text-white text-blue-600 text-xs font-bold px-4 py-2 rounded-xl border border-blue-200 shadow-2xs transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer"
         >
           <span>Mở Giao Diện & Trang Chủ</span>
           <ExternalLink className="w-3.5 h-3.5" />
@@ -776,8 +462,8 @@ export default function AdminSettingsPage() {
 
         {/* Tab: Payment */}
         {activeTab === 'payment' && (
-          <div className="space-y-4 animate-in fade-in duration-200 text-xs">
-            <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Thông Tin Chuyển Khoản Ngân Hàng</h2>
+          <div className="space-y-5 animate-in fade-in duration-200 text-xs">
+            <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Thông Tin Chuyển Khoản Ngân Hàng & Thanh Toán</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -809,6 +495,22 @@ export default function AdminSettingsPage() {
                   className="w-full border border-slate-200 rounded-lg p-2 text-slate-900 font-bold focus:outline-none focus:border-blue-500 uppercase"
                 />
               </div>
+            </div>
+
+            <div className="pt-3 flex items-center justify-between border-t border-slate-100">
+              <div>
+                <div className="font-semibold text-slate-800">Cho Phép Đặt Dịch Vụ Trực Tuyến</div>
+                <div className="text-[11px] text-slate-500">Bật hoặc tắt tính năng đặt chỗ và thanh toán trên toàn website</div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enableBooking}
+                  onChange={(e) => setEnableBooking(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
             </div>
           </div>
         )}
@@ -867,42 +569,6 @@ export default function AdminSettingsPage() {
           </div>
         )}
       </div>
-
-      {/* Confirmation Modal for Master Data Reseeding */}
-      {showReseedConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-3 text-amber-600">
-              <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="font-bold text-slate-900 text-base">Khôi Phục Dữ Liệu Master Ban Đầu?</h3>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Thao tác này sẽ gọi API nạp lại toàn bộ 15 danh mục dữ liệu mẫu chuẩn (Điểm đến nổi bật, Sân bay, Hãng bay, Danh mục Visa, Quy trình 4 bước, Chi nhánh, Điều khoản tour, Tiện ích khách sạn...).
-            </p>
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowReseedConfirm(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-              >
-                Hủy Bỏ
-              </button>
-              <button
-                type="button"
-                onClick={() => reseedMutation.mutate()}
-                disabled={reseedMutation.isPending}
-                className="px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-              >
-                {reseedMutation.isPending ? (
-                  <><Loader2 className="w-3.5 h-3.5 animate-spin" />Đang nạp dữ liệu...</>
-                ) : (
-                  <><RefreshCw className="w-3.5 h-3.5" />Xác Nhận Nạp Lại</>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

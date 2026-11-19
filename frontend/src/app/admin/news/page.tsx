@@ -28,6 +28,8 @@ import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
 import { AdminNewsFormatToolbar } from '@/components/admin/news/AdminNewsFormatToolbar';
 import { AdminNewsSeoAssistant } from '@/components/admin/news/AdminNewsSeoAssistant';
+import { RichTextEditor } from '@/components/admin/common/RichTextEditor';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -58,22 +60,25 @@ const NewsTableRow = memo(function NewsTableRow({
   onTogglePublish,
   onDuplicate,
 }: NewsTableRowProps) {
-  const [imgSrc, setImgSrc] = useState(article.thumbnail || 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800');
+  const fallbackImg = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
+  const rawImg = article.thumbnail;
+  const [imgError, setImgError] = useState(false);
+  const imgSrc = !rawImg || imgError ? fallbackImg : rawImg;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [rawImg]);
 
   return (
     <tr className="hover:bg-slate-50/80 transition-colors">
       <td className="px-6 py-3.5 flex items-center gap-3">
         <div className="w-12 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
-          {imgSrc ? (
-            <img
-              src={imgSrc}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={() => setImgSrc('https://images.unsplash.com/photo-1528127269322-539801943592?w=800')}
-            />
-          ) : (
-            <FileText className="w-4 h-4 text-slate-400 m-auto mt-3" />
-          )}
+          <img
+            src={imgSrc}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
         </div>
         <div>
           <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{getI18nText(article.title, 'vi') || 'Untitled'}</p>
@@ -143,6 +148,19 @@ export default function AdminNewsPage() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    variant?: 'danger' | 'warning' | 'primary' | 'info';
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -262,9 +280,17 @@ export default function AdminNewsPage() {
   }, [duplicateMutation]);
 
   const handleSyncDefaults = useCallback(() => {
-    if (confirm('Bạn có muốn đồng bộ 14 bài viết mẫu cẩm nang du lịch và review chuẩn SEO vào CMS? (Các bài đã có sẽ được cập nhật nội dung mới nhất)')) {
-      syncDefaultsMutation.mutate();
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Đồng bộ 14 bài viết mẫu chuẩn SEO',
+      message: 'Bạn có muốn đồng bộ 14 bài viết mẫu cẩm nang du lịch và review chuẩn SEO vào CMS? Các bài đã có sẽ được cập nhật nội dung mới nhất.',
+      confirmText: 'Bắt đầu đồng bộ',
+      variant: 'primary',
+      onConfirm: async () => {
+        await syncDefaultsMutation.mutateAsync();
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   }, [syncDefaultsMutation]);
 
   const handleCopyFromVi = useCallback(() => {
@@ -341,6 +367,11 @@ export default function AdminNewsPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.vi || !title.vi.trim()) {
+      toast.warning('Vui lòng nhập Tiêu đề bài viết (Tiếng Việt)!');
+      setModalTab('content');
+      return;
+    }
     const effectiveSlug = customSlug.trim() || editingArticle?.slug || toSlug(title.vi || 'bai-viet-' + Date.now());
     saveMutation.mutate({
       slug: effectiveSlug,
@@ -358,9 +389,17 @@ export default function AdminNewsPage() {
   };
 
   const handleDelete = useCallback((id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-      deleteMutation.mutate(id);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận xóa bài viết',
+      message: 'Bạn có chắc chắn muốn xóa bài viết này? Hành động này sẽ gỡ bài viết khỏi hệ thống và website.',
+      confirmText: 'Xác nhận xóa',
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync(id);
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   }, [deleteMutation]);
 
   const handleTogglePublish = useCallback((id: string, isPublished: boolean) => {
@@ -386,6 +425,12 @@ export default function AdminNewsPage() {
 
   // Pagination slice
   const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedNews = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filtered.slice(start, start + pageSize);
@@ -725,13 +770,11 @@ export default function AdminNewsPage() {
                     {/* Quick SEO Formatting Toolbar */}
                     <AdminNewsFormatToolbar onInsert={handleInsertFormat} activeLang={activeLang} />
 
-                    <textarea
-                      rows={12}
-                      required={activeLang === 'vi'}
+                    <RichTextEditor
                       value={content[activeLang] || ''}
-                      onChange={(e) => setContent((prev) => ({ ...prev, [activeLang]: e.target.value }))}
-                      placeholder="Nội dung chi tiết bài viết. Bấm các nút mẫu phía trên để chèn nhanh tiêu đề H2, H3, ảnh có chú thích figure, bảng giá hoặc khung mẹo tip..."
-                      className="w-full border border-slate-200 rounded-b-lg p-3 text-slate-900 focus:outline-none focus:border-blue-500 font-mono text-[11px] leading-relaxed"
+                      onChange={(html) => setContent((prev) => ({ ...prev, [activeLang]: html }))}
+                      placeholder="Nội dung chi tiết bài viết chuẩn WordPress. Sử dụng thanh công cụ bên trên để định dạng tiêu đề H2, H3, in đậm, chèn ảnh, liên kết hoặc chuyển chế độ HTML..."
+                      minHeight="360px"
                     />
                   </div>
 
@@ -928,6 +971,18 @@ export default function AdminNewsPage() {
         onClose={() => setIsMediaModalOpen(false)}
         onSelect={(url) => setThumbnail(url)}
         title="Chọn Ảnh Thumbnail Bài Viết"
+      />
+
+      {/* Confirmation Modal */}
+      <AdminConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || 'Xác nhận'}
+        variant={confirmModal.variant || 'danger'}
+        isLoading={syncDefaultsMutation.isPending || deleteMutation.isPending}
       />
     </div>
   );

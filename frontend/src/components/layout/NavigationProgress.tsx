@@ -1,6 +1,8 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { LOCALES } from '@/lib/constants';
 
 export default function NavigationProgress() {
   const pathname = usePathname();
@@ -10,7 +12,7 @@ export default function NavigationProgress() {
   useEffect(() => {
     if (typeof document !== 'undefined' && pathname) {
       const seg = pathname.split('/')[1];
-      if (['vi', 'en', 'zh', 'ko', 'ja'].includes(seg)) {
+      if (seg && (LOCALES as readonly string[]).includes(seg)) {
         document.documentElement.lang = seg;
       }
     }
@@ -20,11 +22,15 @@ export default function NavigationProgress() {
     const t1 = setTimeout(() => setProgress(40), 80);
     const t2 = setTimeout(() => setProgress(70), 200);
     const t3 = setTimeout(() => setProgress(90), 400);
-    let t5: NodeJS.Timeout | undefined;
+    let t5: ReturnType<typeof setTimeout> | undefined;
     const t4 = setTimeout(() => {
       setProgress(100);
-      t5 = setTimeout(() => { setVisible(false); setProgress(0); }, 300);
+      t5 = setTimeout(() => {
+        setVisible(false);
+        setProgress(0);
+      }, 300);
     }, 600);
+
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -38,7 +44,8 @@ export default function NavigationProgress() {
 
   return (
     <div
-      className="fixed top-0 left-0 z-[9999] h-[3px] bg-gradient-to-r from-blue-500 via-indigo-500 to-teal-400 transition-all duration-300 ease-out shadow-[0_0_8px_rgba(59,130,246,0.6)]"
+      aria-hidden="true"
+      className="fixed top-0 left-0 z-[9999] h-[3px] bg-gradient-to-r from-blue-500 via-indigo-500 to-teal-400 transition-all duration-300 ease-out shadow-[0_0_8px_rgba(59,130,246,0.6)] pointer-events-none"
       style={{ width: `${progress}%`, opacity: visible ? 1 : 0 }}
     />
   );

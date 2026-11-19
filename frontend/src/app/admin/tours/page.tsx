@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import {
   Plus,
   Trash2,
@@ -33,6 +33,7 @@ import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18n
 import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 
 const fetchAdminTours = async () => {
@@ -61,7 +62,15 @@ const TourTableRow = memo(function TourTableRow({
   onToggleFeatured,
   onDuplicate,
 }: TourTableRowProps) {
-  const [imgSrc, setImgSrc] = useState(tour.images?.[0] || 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800');
+  const fallbackImg = 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800';
+  const rawImg = tour.images?.[0];
+  const [imgError, setImgError] = useState(false);
+  const imgSrc = !rawImg || imgError ? fallbackImg : rawImg;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [rawImg]);
+
   const title = typeof tour.title === 'string' ? tour.title : (tour.title?.vi || 'N/A');
   const id = tour._id || tour.id;
   const isActive = tour.isActive !== false;
@@ -78,18 +87,12 @@ const TourTableRow = memo(function TourTableRow({
       </td>
       <td className="px-5 py-3.5 flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
-          {imgSrc ? (
-            <img
-              src={imgSrc}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={() => setImgSrc('https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800')}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400">
-              <ImageIcon className="w-4 h-4" />
-            </div>
-          )}
+          <img
+            src={imgSrc}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
         </div>
         <div>
           <p className="font-semibold text-slate-900 line-clamp-1">{title}</p>
@@ -138,36 +141,38 @@ const TourTableRow = memo(function TourTableRow({
           {tour.isFeatured ? 'Nổi bật' : 'Thường'}
         </button>
       </td>
-      <td className="px-5 py-3.5 text-right space-x-1.5 shrink-0">
-        <a
-          href={`/vi/tours/${tour.slug}`}
-          target="_blank"
-          rel="noreferrer"
-          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-flex items-center cursor-pointer"
-          title="Xem trực tiếp trên website"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
-        <button
-          type="button"
-          onClick={() => onDuplicate(id)}
-          className="p-1.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-md transition-colors text-xs cursor-pointer inline-flex items-center"
-          title="Nhân bản tour (Tạo bản sao nháp)"
-        >
-          <Copy className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={() => onEdit(tour)}
-          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer"
-        >
-          Sửa
-        </button>
-        <button
-          onClick={() => onDelete(id)}
-          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs cursor-pointer"
-        >
-          Xóa
-        </button>
+      <td className="px-5 py-3.5 text-right whitespace-nowrap min-w-[210px]">
+        <div className="flex items-center justify-end gap-1.5 flex-nowrap shrink-0">
+          <a
+            href={`/vi/tours/${tour.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-flex items-center cursor-pointer shrink-0"
+            title="Xem trực tiếp trên website"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+          <button
+            type="button"
+            onClick={() => onDuplicate(id)}
+            className="p-1.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-md transition-colors text-xs cursor-pointer inline-flex items-center shrink-0"
+            title="Nhân bản tour (Tạo bản sao nháp)"
+          >
+            <Copy className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => onEdit(tour)}
+            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-md transition-colors text-xs cursor-pointer inline-flex items-center shrink-0"
+          >
+            Sửa
+          </button>
+          <button
+            onClick={() => onDelete(id)}
+            className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs cursor-pointer inline-flex items-center shrink-0"
+          >
+            Xóa
+          </button>
+        </div>
       </td>
     </tr>
   );
@@ -195,6 +200,17 @@ export default function ToursAdminPage() {
 
   // Row selection
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => Promise<void>;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: async () => {},
+  });
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -538,13 +554,21 @@ export default function ToursAdminPage() {
       return;
     }
 
-    if (price <= 0) {
+    const parsedPrice = Number(price);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
       setActiveStep('pricing');
       toast.warning('Giá bán tour phải lớn hơn 0 VNĐ!');
       return;
     }
 
-    if (isFlashSale && (!flashSalePrice || flashSalePrice >= price)) {
+    const parsedDuration = Number(duration);
+    if (isNaN(parsedDuration) || parsedDuration <= 0) {
+      setActiveStep('basic');
+      toast.warning('Thời lượng tour phải là số ngày hợp lệ (> 0)!');
+      return;
+    }
+
+    if (isFlashSale && (!flashSalePrice || Number(flashSalePrice) >= parsedPrice)) {
       setActiveStep('pricing');
       toast.warning('Giá Flash Sale phải nhỏ hơn giá bán thông thường!');
       return;
@@ -617,8 +641,15 @@ export default function ToursAdminPage() {
   };
 
   const handleDelete = useCallback((id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa tour này?')) return;
-    deleteMutation.mutate(id);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận xóa tour',
+      message: 'Bạn có chắc chắn muốn xóa tour này khỏi hệ thống? Hành động này không thể hoàn tác.',
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync(id);
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   }, [deleteMutation]);
 
   // Bulk actions
@@ -628,33 +659,44 @@ export default function ToursAdminPage() {
     );
   }, []);
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    if (!confirm(`Xác nhận xóa ${selectedIds.length} tour đã chọn khỏi hệ thống?`)) return;
-
-    try {
-      await Promise.all(selectedIds.map((id) => api.delete(`/tours/${id}`)));
-      queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
-      queryClient.invalidateQueries({ queryKey: ['tours'] });
-      setSelectedIds([]);
-      toast.success(`Đã xóa ${selectedIds.length} tour thành công!`);
-    } catch (err: any) {
-      toast.error('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: `Xác nhận xóa ${selectedIds.length} tour đã chọn`,
+      message: `Bạn có chắc chắn muốn xóa hàng loạt ${selectedIds.length} tour đã chọn? Toàn bộ dữ liệu liên quan sẽ bị xóa vĩnh viễn.`,
+      onConfirm: async () => {
+        try {
+          await Promise.all(selectedIds.map((id) => api.delete(`/tours/${id}`)));
+          queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
+          queryClient.invalidateQueries({ queryKey: ['tours'] });
+          queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
+          queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+          queryClient.invalidateQueries({ queryKey: ['specialties-featured-tours'] });
+          queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
+          setSelectedIds([]);
+          toast.success(`Đã xóa ${selectedIds.length} tour thành công!`);
+        } catch (err: any) {
+          toast.error('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
+        } finally {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const handleBulkToggleFeatured = async (featured: boolean) => {
     if (selectedIds.length === 0) return;
     try {
       await Promise.all(
-        selectedIds.map((id) => {
-          const t = tours.find((tour: any) => (tour._id || tour.id) === id);
-          if (!t) return Promise.resolve();
-          return api.put(`/tours/${id}`, { ...t, isFeatured: featured });
-        })
+        selectedIds.map((id) => api.patch(`/tours/${id}/featured`, { isFeatured: featured }))
       );
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
       queryClient.invalidateQueries({ queryKey: ['featured-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-tours-related'] });
+      queryClient.invalidateQueries({ queryKey: ['specialties-featured-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
       setSelectedIds([]);
       toast.success(`Đã cập nhật trạng thái nổi bật cho ${selectedIds.length} tour!`);
     } catch (err: any) {
@@ -689,6 +731,12 @@ export default function ToursAdminPage() {
 
   // Pagination slice
   const totalPages = Math.ceil(filteredTours.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedTours = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredTours.slice(start, start + pageSize);
@@ -906,7 +954,7 @@ export default function ToursAdminPage() {
                 <th className="px-5 py-3.5">Giá bán</th>
                 <th className="px-5 py-3.5">Trạng thái</th>
                 <th className="px-5 py-3.5">Nổi bật</th>
-                <th className="px-5 py-3.5 text-right">Thao tác</th>
+                <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[210px]">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -1539,6 +1587,18 @@ export default function ToursAdminPage() {
           markDirty();
         }}
         title="Thư Viện Ảnh Cho Tour"
+      />
+
+      {/* Reusable Confirm Modal */}
+      <AdminConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Xác nhận xóa"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

@@ -14,7 +14,8 @@
     "myCart": "カート",
     "login": "ログイン",
     "logout": "ログアウト",
-    "logoutSuccess": "正常にログアウトしました。"
+    "logoutSuccess": "正常にログアウトしました。",
+    "language": "言語設定"
   },
   "hero": {
     "title": "Travelと世界を旅しよう",
@@ -346,7 +347,11 @@
     "close": "閉じる",
     "wishlistAdded": "ツアーをお気に入りに追加しました！",
     "wishlistRemoved": "ツアーをお気に入りから削除しました。",
-    "copied": "クリップボードにコピーしました！"
+    "copied": "クリップボードにコピーしました！",
+    "errorTitle": "予期しないエラーが発生しました",
+    "errorDesc": "ページの読み込み中にエラーが発生しました。再読み込みするか、ホームページに戻ってください。",
+    "errorReload": "ページを再読み込み",
+    "backHome": "ホームに戻る"
   },
   "footer": {
     "about": "Travel Booking",
@@ -665,7 +670,10 @@
     "sortBy": "並び替え:",
     "sortNewest": "最新順",
     "sortPriceAsc": "料金: 安い順",
-    "sortPriceDesc": "料金: 高い順"
+    "sortPriceDesc": "料金: 高い順",
+    "destHotelsTitle": "{dest} の厳選ホテル＆リゾート",
+    "allHotelsTitle": "最高級リゾート＆ホテル特集",
+    "allHotelsSubtitle": "お得な特別価格で予約できる高級リゾート＆ホテルをご案内。"
   },
   "flashSale": {
     "title": "🔥 タイムセール開催中",
@@ -693,7 +701,8 @@
     "notFoundTitle": "記事が見つかりません",
     "notFoundDesc": "お探しの記事は削除されたか、URLが変更された可能性があります。",
     "backToNews": "記事一覧へ戻る",
-    "shareSuccess": "記事リンクをコピーしました！"
+    "shareSuccess": "記事リンクをコピーしました！",
+    "copyError": "リンクのコピーに失敗しました。"
   },
   "hotelDetail": {
     "noRooms": "ホテルは客室情報を更新中です。後でもう一度ご確認ください。",
@@ -746,7 +755,9 @@
     "checkOutBefore": "チェックアウト",
     "starsLabel": "つ星",
     "priceBreakdown": "{price} × {nights} 泊 × {rooms} 室",
-    "errInvalidEmail": "無効なメールアドレス形式です。"
+    "errInvalidEmail": "無効なメールアドレス形式です。",
+    "hotelNotFoundDesc": "このホテルまたはリゾートは存在しないか、営業を終了しました。",
+    "namePlaceholder": "山田 太郎"
   },
   "specialtiesPage": {
     "badge": "🍜 ベトナム3大地域の郷土料理",
@@ -795,7 +806,10 @@
     "reviewsCount": "{count} 件のレビュー",
     "relatedTours": "おすすめの関連ツアー",
     "viewAllTours": "すべてのツアーを見る",
-    "tourNotFound": "ツアー情報が見つかりません"
+    "tourNotFound": "ツアー情報が見つかりません",
+    "bookNowBtn": "今すぐ予約",
+    "tourNotFoundDesc": "このツアーは削除されたか、現在ご利用いただけません。",
+    "viewOtherTours": "他のツアーを見る"
   },
   "tourBooking": {
     "pricePerGuest": "お一人様料金",

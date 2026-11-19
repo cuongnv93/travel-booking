@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import TourDetailClient from '@/components/tours/TourDetailClient';
 import { getI18nText } from '@/lib/utils';
 import { prefetchTourBySlug } from '@/lib/serverApi';
@@ -15,9 +17,10 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://travel-booking-ruby.vercel.app';
 
   if (!tour) {
+    const tMeta = await getTranslations({ locale, namespace: 'tourDetail' });
     return {
-      title: 'Không tìm thấy tour | Travel Booking',
-      description: 'Chuyến đi không tồn tại hoặc đã bị xóa.'
+      title: `${tMeta('tourNotFound')} | Travel Booking`,
+      description: tMeta('tourNotFoundDesc')
     };
   }
 
@@ -67,12 +70,20 @@ export default async function TourDetailPage({
   const slug = resolved?.slug || '';
   const tour = await prefetchTourBySlug(slug);
 
+  const t = await getTranslations({ locale, namespace: 'tourDetail' });
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
+
   if (!tour) {
     return (
-      <div className="container mx-auto px-4 py-20 mt-20 text-center">
-        <h1 className="text-2xl font-bold mb-4 text-slate-800">Không tìm thấy tour du lịch này</h1>
-        <p className="text-slate-500">Chuyến đi này có thể đã bị xóa hoặc không còn khả dụng.</p>
-      </div>
+      <main id="main-content" className="flex-grow">
+        <div className="container mx-auto px-4 py-20 mt-20 text-center">
+          <h1 className="text-2xl font-bold mb-4 text-slate-800">{t('tourNotFound')}</h1>
+          <p className="text-slate-500 mb-6">{t('tourNotFoundDesc')}</p>
+          <Link href={`/${locale}/tours`} className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors">
+            {t('viewOtherTours')}
+          </Link>
+        </div>
+      </main>
     );
   }
 
@@ -116,13 +127,13 @@ export default async function TourDetailPage({
           {
             '@type': 'ListItem',
             position: 1,
-            name: locale === 'vi' ? 'Trang chủ' : 'Home',
+            name: tNav('home'),
             item: `${baseUrl}/${locale}`,
           },
           {
             '@type': 'ListItem',
             position: 2,
-            name: locale === 'vi' ? 'Tour du lịch' : 'Tours',
+            name: tNav('tours'),
             item: `${baseUrl}/${locale}/tours`,
           },
           {

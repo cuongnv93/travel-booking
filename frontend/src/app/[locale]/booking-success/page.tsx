@@ -31,8 +31,8 @@ export default function BookingSuccessPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen py-16 px-4 mt-16 flex items-center justify-center bg-slate-50">
-        <div className="max-w-xl w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-100 text-center text-slate-500">
-          Đang tải thông tin đơn đặt chỗ...
+        <div className="max-w-xl w-full bg-white rounded-3xl shadow-xl p-12 border border-slate-100 flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     }>

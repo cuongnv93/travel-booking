@@ -206,10 +206,10 @@ function HotelsClientComponent({
             <span>5★ Resort & Hotel</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold mb-3 tracking-tight leading-tight">
-            {t('destToursTitle', { dest: locationFilter || 'Vietnam' }).replace('Tour Packages in', 'Hotels & Resorts in').replace('Các Gói Du Lịch Tại', 'Khách Sạn & Resort Tại')}
+            {locationFilter ? t('destHotelsTitle', { dest: locationFilter }) : t('allHotelsTitle')}
           </h1>
           <p className="text-blue-100/90 text-sm md:text-base leading-relaxed">
-            {t('allToursSubtitle')}
+            {t('allHotelsSubtitle')}
           </p>
         </motion.div>
       </VideoBackground>

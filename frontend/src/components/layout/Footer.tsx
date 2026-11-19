@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
@@ -20,6 +19,17 @@ import {
 } from '@/components/ui/SocialIcons';
 import { getLocalizedBranchInfo, getLocalizedHours } from '@/lib/settingsI18n';
 
+interface BranchItem {
+  id?: string;
+  name?: Record<string, string> | string;
+  address?: Record<string, string> | string;
+  phone?: string;
+  email?: string;
+  isMain?: boolean;
+}
+
+const HIDDEN_SHELL_REGEX = /^\/(?:(?:vi|en|zh|ko|ja)\/)?(?:login|register)(?:\/|$)/;
+
 export default function Footer() {
   const t = useTranslations('footer');
   const tCommon = useTranslations('common');
@@ -30,12 +40,7 @@ export default function Footer() {
   const { data: socialLinks } = useSocialLinks();
   const { data: workingHours } = useWorkingHours();
 
-  const mainBranch = useMemo(
-    () => branches.find((b: any) => b.isMain) || branches[0],
-    [branches]
-  );
-
-  if (pathname?.startsWith('/admin') || pathname?.includes('/login') || pathname?.includes('/register')) {
+  if (pathname?.startsWith('/admin') || HIDDEN_SHELL_REGEX.test(pathname || '')) {
     return null;
   }
 
@@ -55,9 +60,9 @@ export default function Footer() {
                   className="object-contain"
                 />
               </div>
-              <h3 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600">
+              <span className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400">
                 TimesGreen
-              </h3>
+              </span>
             </div>
             <p className="mb-6 leading-relaxed text-sm text-slate-300">
               {t('aboutDesc')}
@@ -65,7 +70,7 @@ export default function Footer() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href={`/${locale}/booking-lookup`}
-                className="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-500/30 text-sm font-semibold px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all"
+                className="bg-blue-600/20 text-blue-300 hover:bg-blue-600 hover:text-white border border-blue-500/30 text-sm font-semibold px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all"
               >
                 <Search className="w-4 h-4" />
                 {t('lookupBooking')}
@@ -84,7 +89,7 @@ export default function Footer() {
                     title="Facebook"
                     aria-label="Facebook"
                   >
-                    <FacebookIcon className="w-4.5 h-4.5" />
+                    <FacebookIcon className="w-[18px] h-[18px]" />
                   </a>
                 )}
                 {socialLinks.zalo && (
@@ -96,7 +101,7 @@ export default function Footer() {
                     title="Zalo"
                     aria-label="Zalo"
                   >
-                    <ZaloIcon className="w-5.5 h-auto" />
+                    <ZaloIcon className="w-[22px] h-auto" />
                   </a>
                 )}
                 {socialLinks.youtube && (
@@ -120,7 +125,7 @@ export default function Footer() {
                     title="TikTok"
                     aria-label="TikTok"
                   >
-                    <TikTokIcon className="w-4.5 h-4.5" />
+                    <TikTokIcon className="w-[18px] h-[18px]" />
                   </a>
                 )}
                 {socialLinks.instagram && (
@@ -132,7 +137,7 @@ export default function Footer() {
                     title="Instagram"
                     aria-label="Instagram"
                   >
-                    <InstagramIcon className="w-4.5 h-4.5" />
+                    <InstagramIcon className="w-[18px] h-[18px]" />
                   </a>
                 )}
               </div>
@@ -141,7 +146,7 @@ export default function Footer() {
 
           {/* Col 2: Services */}
           <div>
-            <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">{t('servicesTitle')}</h4>
+            <h3 className="text-base font-bold text-white mb-6 uppercase tracking-wider">{t('servicesTitle')}</h3>
             <ul className="space-y-3.5 text-sm">
               <li><Link href={`/${locale}/tours`} className="hover:text-blue-400 transition-colors">{t('tourService')}</Link></li>
               <li><Link href={`/${locale}/hotels`} className="hover:text-blue-400 transition-colors">{t('hotelService')}</Link></li>
@@ -153,7 +158,7 @@ export default function Footer() {
 
           {/* Col 3: Useful Info */}
           <div>
-            <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">{t('infoTitle')}</h4>
+            <h3 className="text-base font-bold text-white mb-6 uppercase tracking-wider">{t('infoTitle')}</h3>
             <ul className="space-y-3.5 text-sm">
               <li><Link href={`/${locale}/news`} className="hover:text-blue-400 transition-colors">{t('guideNews')}</Link></li>
               <li><Link href={`/${locale}/contact`} className="hover:text-blue-400 transition-colors">{t('consultContact')}</Link></li>
@@ -174,9 +179,9 @@ export default function Footer() {
 
           {/* Col 4: Dynamic Branches & Contacts */}
           <div>
-            <h4 className="text-base font-bold text-white mb-6 uppercase tracking-wider">{t('contactTitle')}</h4>
+            <h3 className="text-base font-bold text-white mb-6 uppercase tracking-wider">{t('contactTitle')}</h3>
             <div className="space-y-4 text-sm text-slate-300">
-              {branches.slice(0, 3).map((branch: any, i: number) => {
+              {(branches as BranchItem[]).slice(0, 3).map((branch, i) => {
                 const { name: branchName, address: branchAddr } = getLocalizedBranchInfo(branch, locale);
 
                 return (
@@ -191,14 +196,20 @@ export default function Footer() {
                     </div>
                     <div className="flex flex-wrap items-center gap-3.5 text-xs text-blue-400">
                       {branch.phone && (
-                        <span className="flex items-center gap-1">
+                        <a
+                          href={`tel:${branch.phone.replace(/\s+/g, '')}`}
+                          className="flex items-center gap-1 hover:text-blue-300 transition-colors"
+                        >
                           <Phone className="w-3 h-3" /> {branch.phone}
-                        </span>
+                        </a>
                       )}
                       {branch.email && (
-                        <span className="flex items-center gap-1 text-slate-400">
+                        <a
+                          href={`mailto:${branch.email}`}
+                          className="flex items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors"
+                        >
                           <Mail className="w-3 h-3" /> {branch.email}
-                        </span>
+                        </a>
                       )}
                     </div>
                   </div>
@@ -219,4 +230,3 @@ export default function Footer() {
     </footer>
   );
 }
-

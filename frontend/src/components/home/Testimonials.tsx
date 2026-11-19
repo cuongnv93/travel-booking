@@ -67,8 +67,8 @@ const DEFAULT_REVIEWS = [
 ];
 
 const ReviewCard = memo(function ReviewCard({ review, locale }: { review: any; locale: string }) {
-  const nameText = getI18nText(review.name, locale) || 'Khách hàng';
-  const roleText = getI18nText(review.role, locale) || 'Du khách';
+  const nameText = getI18nText(review.name, locale) || (locale === 'en' ? 'Customer' : locale === 'zh' ? '客户' : locale === 'ko' ? '고객' : locale === 'ja' ? 'お客様' : 'Khách hàng');
+  const roleText = getI18nText(review.role, locale) || (locale === 'en' ? 'Traveler' : locale === 'zh' ? '游客' : locale === 'ko' ? '여행자' : locale === 'ja' ? '旅行者' : 'Du khách');
   const contentText = getI18nText(review.content, locale) || '';
 
   return (

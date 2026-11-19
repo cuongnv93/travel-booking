@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/utils';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { toast } from '@/stores/toastStore';
 
@@ -21,6 +22,7 @@ export default function CouponsAdminPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -85,13 +87,27 @@ export default function CouponsAdminPage() {
   };
 
   const deleteCoupon = (c: any) => {
-    if (!confirm(`Xóa mã giảm giá ${c.code}? Hành động này không thể hoàn tác.`)) return;
-    deleteMutation.mutate(c._id);
+    setDeleteTarget(c);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMutation.mutate(formData);
+    if (!formData.code.trim()) {
+      toast.warning('Vui lòng nhập mã giảm giá!');
+      return;
+    }
+    if (formData.discountAmount <= 0 || isNaN(formData.discountAmount)) {
+      toast.warning('Mức giảm giá phải lớn hơn 0 VNĐ!');
+      return;
+    }
+    if (!formData.validUntil) {
+      toast.warning('Vui lòng chọn ngày hết hạn!');
+      return;
+    }
+    createMutation.mutate({
+      ...formData,
+      code: formData.code.toUpperCase().trim(),
+    });
   };
 
   const filteredCoupons = useMemo(() => {
@@ -102,6 +118,12 @@ export default function CouponsAdminPage() {
   }, [coupons, search]);
 
   const totalPages = Math.ceil(filteredCoupons.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedCoupons = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredCoupons.slice(start, start + pageSize);
@@ -344,6 +366,22 @@ export default function CouponsAdminPage() {
           </div>
         </div>
       )}
+      {/* Confirmation Modal */}
+      <AdminConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={async () => {
+          if (deleteTarget) {
+            await deleteMutation.mutateAsync(deleteTarget._id);
+            setDeleteTarget(null);
+          }
+        }}
+        title="Xác nhận xóa mã giảm giá"
+        message={`Bạn có chắc chắn muốn xóa mã giảm giá "${deleteTarget?.code}"? Hành động này không thể hoàn tác.`}
+        confirmText="Xác nhận xóa"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

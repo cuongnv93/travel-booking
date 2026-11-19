@@ -9,6 +9,16 @@ import { useMemo, memo } from 'react';
 import { useFeaturedDestinations, DEFAULT_DESTINATIONS } from '@/hooks/useSettings';
 import { getI18nText } from '@/lib/utils';
 
+interface DestinationItem {
+  id?: string;
+  name?: Record<string, string> | string;
+  image?: string;
+  tag?: Record<string, string> | string;
+  tourQuery?: string;
+  order?: number;
+  isActive?: boolean;
+}
+
 const FALLBACK_DEST_PHOTO = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
 
 interface DestinationCardProps {
@@ -20,7 +30,14 @@ interface DestinationCardProps {
   idx: number;
 }
 
-const DestinationCard = memo(function DestinationCard({ destName, queryParam, photo, tag, locale, idx }: DestinationCardProps) {
+const DestinationCard = memo(function DestinationCard({
+  destName,
+  queryParam,
+  photo,
+  tag,
+  locale,
+  idx,
+}: DestinationCardProps) {
   const imgSrc = photo || FALLBACK_DEST_PHOTO;
 
   return (
@@ -30,7 +47,7 @@ const DestinationCard = memo(function DestinationCard({ destName, queryParam, ph
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: idx * 0.05 }}
     >
-      <Link href={`/${locale}/tours?destination=${encodeURIComponent(queryParam || destName)}`}>
+      <Link href={`/${locale}/tours?destination=${encodeURIComponent(queryParam || destName)}`} className="block">
         <div className="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer bg-slate-100">
           <SmartImage
             src={imgSrc}
@@ -62,12 +79,18 @@ export default function DestinationsSection() {
 
   const { data: dynamicDestinations } = useFeaturedDestinations();
 
-  const displayList = useMemo(() => {
-    if (Array.isArray(dynamicDestinations) && dynamicDestinations.length > 0) {
-      return dynamicDestinations.filter((d: any) => d.isActive !== false);
-    }
-    return DEFAULT_DESTINATIONS;
-
+  const displayList: Array<DestinationItem | string> = useMemo(() => {
+    const raw =
+      Array.isArray(dynamicDestinations) && dynamicDestinations.length > 0
+        ? (dynamicDestinations as Array<DestinationItem | string>)
+        : DEFAULT_DESTINATIONS;
+    const filtered = raw.filter((d) => typeof d === 'string' || d.isActive !== false);
+    const base = filtered.length > 0 ? filtered : DEFAULT_DESTINATIONS;
+    return [...base].sort((a, b) => {
+      const orderA = typeof a === 'object' ? a.order ?? 999 : 999;
+      const orderB = typeof b === 'object' ? b.order ?? 999 : 999;
+      return orderA - orderB;
+    });
   }, [dynamicDestinations]);
 
   return (
@@ -81,8 +104,8 @@ export default function DestinationsSection() {
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{t('title')}</h2>
           <p className="text-slate-500 text-sm mt-1 max-w-xl">{t('subtitle')}</p>
         </div>
-        <Link 
-          href={`/${locale}/tours`} 
+        <Link
+          href={`/${locale}/tours`}
           className="inline-flex items-center gap-1.5 text-blue-600 font-bold hover:text-blue-700 transition-colors text-sm group"
         >
           <span>{t('viewAll')}</span>
@@ -91,24 +114,16 @@ export default function DestinationsSection() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {displayList.slice(0, 6).map((item: any, idx: number) => {
-          const destName = typeof item === 'string'
-            ? item
-            : getI18nText(item.name, locale, 'Việt Nam');
-
-          const queryParam = (typeof item === 'object' && item.tourQuery) ? item.tourQuery : destName;
-
-          const photo = (typeof item === 'object' && item.image) 
-            ? item.image 
-            : FALLBACK_DEST_PHOTO;
-
-          const tag = typeof item === 'object' && item.tag
-            ? getI18nText(item.tag, locale)
-            : undefined;
+        {displayList.slice(0, 6).map((item, idx) => {
+          const destName = typeof item === 'string' ? item : getI18nText(item.name, locale, 'Việt Nam');
+          const queryParam = typeof item === 'object' && item.tourQuery ? item.tourQuery : destName;
+          const photo = typeof item === 'object' && item.image ? item.image : FALLBACK_DEST_PHOTO;
+          const tag = typeof item === 'object' && item.tag ? getI18nText(item.tag, locale) : undefined;
+          const key = (typeof item === 'object' && item.id) || destName || idx;
 
           return (
             <DestinationCard
-              key={item.id || destName || idx}
+              key={key}
               destName={destName}
               queryParam={queryParam}
               photo={photo}
@@ -122,4 +137,3 @@ export default function DestinationsSection() {
     </section>
   );
 }
-

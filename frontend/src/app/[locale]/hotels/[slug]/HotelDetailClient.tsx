@@ -15,7 +15,7 @@ import SmartImage from '@/components/ui/SmartImage';
 import { useHotelAmenitiesMaster } from '@/hooks/useSettings';
 import { getLocalizedError } from '@/lib/errorUtils';
 import { useAuthStore } from '@/stores/authStore';
-import { AMENITY_ICONS, FALLBACK_ROOM_IMG } from '@/components/hotels/amenitiesConstants';
+import { AMENITY_ICONS, FALLBACK_ROOM_IMG, getLocalizedAmenity } from '@/components/hotels/amenitiesConstants';
 import { HotelRoomCard } from '@/components/hotels/HotelRoomCard';
 import { HotelBookingSidebar, HotelBookingFormData } from '@/components/hotels/HotelBookingSidebar';
 import { toast } from '@/stores/toastStore';
@@ -321,7 +321,7 @@ export default function HotelDetailClient({ initialHotel }: { initialHotel?: any
                 {effectiveAmenities.map((amenity: string, i: number) => (
                   <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 text-slate-700 text-xs font-medium">
                     <span className="text-base shrink-0">{AMENITY_ICONS[amenity] || '✓'}</span>
-                    <span className="truncate">{amenity}</span>
+                    <span className="truncate">{getLocalizedAmenity(amenity, locale)}</span>
                   </div>
                 ))}
               </div>

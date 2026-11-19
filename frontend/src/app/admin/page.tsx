@@ -31,16 +31,7 @@ const Cell = dynamic(() => import('recharts').then((mod) => mod.Cell), { ssr: fa
 
 const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
 
-function generateMonthlyData(totalRevenue: number, totalBookings: number) {
-  const weights = [0.06, 0.10, 0.09, 0.07, 0.08, 0.10, 0.11, 0.12, 0.09, 0.07, 0.06, 0.05];
-  return MONTHS.map((month, i) => ({
-    month,
-    revenue: Math.round((totalRevenue || 120_000_000) * weights[i]),
-    bookings: Math.round((totalBookings || 240) * weights[i]),
-  }));
-}
-
-const STATUS_COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444'];
+const STATUS_COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#94a3b8'];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -49,7 +40,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <p className="font-bold text-slate-700 mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }} className="font-semibold">
-          {p.name === 'revenue' ? formatPrice(p.value) : `${p.value} đơn`}
+          {p.name === 'revenue' ? formatPrice(p.value || 0) : `${p.value || 0} đơn`}
         </p>
       ))}
     </div>
@@ -69,57 +60,86 @@ export default function AdminDashboard() {
   });
 
   const stats = useMemo(
-    () => dashboardData || { totalRevenue: 0, totalBookings: 0, activeTours: 0, totalUsers: 0, recentBookings: [] },
+    () => dashboardData || { 
+      totalRevenue: 0, 
+      totalBookings: 0, 
+      activeTours: 0, 
+      totalUsers: 0, 
+      revenueThisMonth: 0,
+      revenueGrowth: 0,
+      hasPrevRevenueData: false,
+      bookingsThisMonth: 0,
+      bookingsGrowth: 0,
+      hasPrevBookingData: false,
+      usersThisMonth: 0,
+      usersGrowth: 0,
+      hasPrevUserData: false,
+      monthlyData: [],
+      recentBookings: [] 
+    },
     [dashboardData]
   );
 
-  const monthlyData = useMemo(
-    () => generateMonthlyData(stats.totalRevenue, stats.totalBookings),
-    [stats.totalRevenue, stats.totalBookings]
-  );
+  const monthlyData = useMemo(() => {
+    if (stats.monthlyData && Array.isArray(stats.monthlyData) && stats.monthlyData.length > 0) {
+      return stats.monthlyData;
+    }
+    return MONTHS.map((m) => ({
+      month: m,
+      revenue: 0,
+      bookings: 0,
+    }));
+  }, [stats.monthlyData]);
 
-  const pieData = useMemo(
-    () => [
-      { name: 'Xác nhận', value: stats.confirmedCount || Math.round((stats.totalBookings || 0) * 0.55) },
-      { name: 'Chờ duyệt', value: stats.pendingCount || Math.round((stats.totalBookings || 0) * 0.25) },
-      { name: 'Hoàn thành', value: stats.completedCount || Math.round((stats.totalBookings || 0) * 0.15) },
-      { name: 'Huỷ', value: stats.cancelledCount || Math.round((stats.totalBookings || 0) * 0.05) },
-    ],
-    [stats.confirmedCount, stats.pendingCount, stats.completedCount, stats.cancelledCount, stats.totalBookings]
-  );
+  const pieData = useMemo(() => {
+    const total = (stats.confirmedCount || 0) + (stats.pendingCount || 0) + (stats.completedCount || 0) + (stats.cancelledCount || 0);
+    if (total === 0) {
+      return [{ name: 'Chưa có đơn', value: 0 }];
+    }
+    return [
+      { name: 'Xác nhận', value: stats.confirmedCount || 0 },
+      { name: 'Chờ duyệt', value: stats.pendingCount || 0 },
+      { name: 'Hoàn thành', value: stats.completedCount || 0 },
+      { name: 'Huỷ', value: stats.cancelledCount || 0 },
+    ].filter((item) => item.value > 0);
+  }, [stats.confirmedCount, stats.pendingCount, stats.completedCount, stats.cancelledCount]);
 
   const statCards = useMemo(
     () => [
       {
         title: 'Doanh Thu Hệ Thống',
         value: formatPrice(stats.totalRevenue || 0),
-        change: '+14.2% so với tháng trước',
-        up: true,
+        change: stats.hasPrevRevenueData 
+          ? `${(stats.revenueGrowth ?? 0) >= 0 ? '+' : ''}${stats.revenueGrowth}% so với tháng trước` 
+          : ((stats.revenueThisMonth || 0) > 0 ? '+100% (tháng đầu phát sinh)' : 'Chưa có doanh thu tháng trước'),
+        up: (stats.revenueGrowth ?? 0) >= 0,
         icon: DollarSign,
       },
       {
         title: 'Tổng Đơn Đặt Chỗ',
         value: (stats.totalBookings || 0).toString(),
-        change: '+8.1% so với tháng trước',
-        up: true,
+        change: stats.hasPrevBookingData
+          ? `${(stats.bookingsGrowth ?? 0) >= 0 ? '+' : ''}${stats.bookingsGrowth}% so với tháng trước`
+          : `${stats.bookingsThisMonth || 0} đơn trong tháng này`,
+        up: (stats.bookingsGrowth ?? 0) >= 0,
         icon: CalendarCheck,
       },
       {
         title: 'Tour Đang Hoạt Động',
         value: (stats.activeTours || 0).toString(),
-        change: 'Sẵn sàng phục vụ',
+        change: `${stats.activeTours || 0} tour sẵn sàng đón khách`,
         up: true,
         icon: Compass,
       },
       {
         title: 'Khách Hàng Đăng Ký',
         value: (stats.totalUsers || 0).toString(),
-        change: '+23 tài khoản mới',
+        change: `${stats.usersThisMonth ? `+${stats.usersThisMonth}` : '0'} tài khoản mới tháng này`,
         up: true,
         icon: Users,
       },
     ],
-    [stats.totalRevenue, stats.totalBookings, stats.activeTours, stats.totalUsers]
+    [stats]
   );
 
   if (isLoading) {
@@ -292,16 +312,16 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {!stats.recentBookings || stats.recentBookings.length === 0 ? (
+              {!Array.isArray(stats.recentBookings) || stats.recentBookings.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-slate-400">Chưa có đơn hàng nào gần đây.</td>
                 </tr>
               ) : (
-                stats.recentBookings.map((b: any) => (
-                  <tr key={b._id} className="hover:bg-blue-50/30 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-blue-600">{b.bookingCode}</td>
-                    <td className="px-6 py-4 font-semibold text-slate-900">{b.customerInfo?.name}</td>
-                    <td className="px-6 py-4 font-extrabold text-slate-900">{formatPrice(b.totalPrice)}</td>
+                stats.recentBookings.map((b: any, idx: number) => (
+                  <tr key={b._id || b.id || b.bookingCode || idx} className="hover:bg-blue-50/30 transition-colors">
+                    <td className="px-6 py-4 font-mono font-bold text-blue-600">{b.bookingCode || 'N/A'}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900">{b.customerInfo?.name || 'Khách hàng'}</td>
+                    <td className="px-6 py-4 font-extrabold text-slate-900">{formatPrice(b.totalPrice || 0)}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold border ${
                         b.status === 'confirmed'

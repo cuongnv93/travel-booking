@@ -74,7 +74,7 @@ function UserLoginForm() {
       <div className="hidden lg:flex w-1/2 bg-slate-900 p-12 items-center justify-center relative overflow-hidden group">
         <img
           src="https://images.unsplash.com/photo-1528127269322-539801943592?w=1600&auto=format&fit=crop"
-          alt="Du lịch Việt Nam - Vịnh Hạ Long"
+          alt="Halong Bay - Travel"
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/30" />
@@ -212,7 +212,7 @@ function UserLoginForm() {
 
 export default function LoginClient() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-500 text-sm">Đang tải...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>}>
       <UserLoginForm />
     </Suspense>
   );

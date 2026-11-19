@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import {
   Plus,
   X,
@@ -32,6 +32,7 @@ import { AdminI18nTabs, ADMIN_SUPPORTED_LANGUAGES, createEmptyI18nRecord, toI18n
 import { AdminStepperModal, AdminStepItem } from '@/components/admin/common/AdminStepperModal';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
+import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
 import { exportToCsv } from '@/lib/exportCsv';
 
 const fetchAdminHotels = async () => {
@@ -79,7 +80,16 @@ const HotelTableRow = memo(function HotelTableRow({
   onToggleFlashSale,
   onDuplicate,
 }: HotelTableRowProps) {
-  const [imgSrc, setImgSrc] = useState(hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800');
+  const fallbackImg = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800';
+  const rawImg = hotel.images?.[0];
+  const [imgError, setImgError] = useState(false);
+  const imgSrc = !rawImg || imgError ? fallbackImg : rawImg;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [rawImg]);
+
+  const id = hotel._id || hotel.id;
   const isActive = hotel.isActive !== false;
 
   return (
@@ -88,22 +98,18 @@ const HotelTableRow = memo(function HotelTableRow({
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => onToggleSelect(hotel._id)}
+          onChange={() => onToggleSelect(id)}
           className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
         />
       </td>
       <td className="px-5 py-3.5 flex items-center gap-3">
         <div className="w-12 h-10 rounded-lg bg-slate-100 overflow-hidden shrink-0 border border-slate-200/60">
-          {imgSrc ? (
-            <img
-              src={imgSrc}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={() => setImgSrc('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800')}
-            />
-          ) : (
-            <Building2 className="w-4 h-4 text-slate-400 m-auto mt-3" />
-          )}
+          <img
+            src={imgSrc}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
         </div>
         <div>
           <p className="font-semibold text-slate-900 line-clamp-1 max-w-xs">{getI18nText(hotel.name, 'vi') || 'N/A'}</p>
@@ -129,7 +135,7 @@ const HotelTableRow = memo(function HotelTableRow({
       <td className="px-5 py-3.5">
         <button
           type="button"
-          onClick={() => onToggleActive(hotel._id, isActive)}
+          onClick={() => onToggleActive(id, isActive)}
           className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
             isActive
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
@@ -144,7 +150,7 @@ const HotelTableRow = memo(function HotelTableRow({
       <td className="px-5 py-3.5">
         <button
           type="button"
-          onClick={() => onToggleFlashSale(hotel._id, !hotel.isFlashSale)}
+          onClick={() => onToggleFlashSale(id, !hotel.isFlashSale)}
           className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
             hotel.isFlashSale
               ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
@@ -168,7 +174,7 @@ const HotelTableRow = memo(function HotelTableRow({
         </a>
         <button
           type="button"
-          onClick={() => onDuplicate(hotel._id)}
+          onClick={() => onDuplicate(id)}
           className="p-1.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-md transition-colors text-xs cursor-pointer inline-flex items-center"
           title="Nhân bản khách sạn (Tạo bản sao nháp)"
         >
@@ -181,7 +187,7 @@ const HotelTableRow = memo(function HotelTableRow({
           Sửa
         </button>
         <button
-          onClick={() => onDelete(hotel._id)}
+          onClick={() => onDelete(id)}
           className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-md transition-colors text-xs cursor-pointer"
         >
           Xóa
@@ -214,6 +220,19 @@ export default function AdminHotelsPage() {
 
   // Row selection
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    variant?: 'danger' | 'warning' | 'primary' | 'info';
+    onConfirm: () => Promise<void> | void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -322,19 +341,21 @@ export default function AdminHotelsPage() {
 
   const updateRoom = (idx: number, field: string, value: any) => {
     const newRooms = [...rooms];
+    const targetRoom = { ...newRooms[idx] };
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
-      newRooms[idx][parent] = { ...newRooms[idx][parent], [child]: value };
+      targetRoom[parent] = { ...targetRoom[parent], [child]: value };
     } else {
-      newRooms[idx][field] = value;
+      targetRoom[field] = value;
     }
+    newRooms[idx] = targetRoom;
     setRooms(newRooms);
     markDirty();
   };
 
   const saveMutation = useMutation({
     mutationFn: async (payload: any) => {
-      if (editingHotel) return api.put(`/hotels/${editingHotel._id}`, payload);
+      if (editingHotel) return api.put(`/hotels/${editingHotel._id || editingHotel.id}`, payload);
       return api.post('/hotels', payload);
     },
     onSuccess: () => {
@@ -494,13 +515,14 @@ export default function AdminHotelsPage() {
       return;
     }
 
-    if (pricePerNight <= 0) {
+    const parsedPrice = Number(pricePerNight);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
       setActiveStep('pricing');
       toast.warning('Giá phòng cơ bản phải lớn hơn 0 VNĐ!');
       return;
     }
 
-    if (isFlashSale && (!flashSalePrice || flashSalePrice >= pricePerNight)) {
+    if (isFlashSale && (!flashSalePrice || Number(flashSalePrice) >= parsedPrice)) {
       setActiveStep('pricing');
       toast.warning('Giá Flash Sale phải nhỏ hơn giá cơ bản / đêm!');
       return;
@@ -513,7 +535,7 @@ export default function AdminHotelsPage() {
       name: sanitizeI18nRecord(name),
       description: sanitizeI18nRecord(description),
       images: images.length > 0 ? images : ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800'],
-      pricePerNight: Number(pricePerNight),
+      pricePerNight: parsedPrice,
       stars: Number(stars),
       location: location.trim(),
       address: address.trim(),
@@ -532,9 +554,17 @@ export default function AdminHotelsPage() {
   };
 
   const handleDelete = useCallback((id: string) => {
-    if (confirm('Xóa khách sạn này khỏi hệ thống?')) {
-      deleteMutation.mutate(id);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận xóa khách sạn',
+      message: 'Bạn có chắc chắn muốn xóa khách sạn này khỏi hệ thống? Hành động này không thể hoàn tác.',
+      confirmText: 'Xác nhận xóa',
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync(id);
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   }, [deleteMutation]);
 
   // Bulk actions
@@ -544,19 +574,30 @@ export default function AdminHotelsPage() {
     );
   }, []);
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    if (!confirm(`Xác nhận xóa ${selectedIds.length} khách sạn đã chọn khỏi hệ thống?`)) return;
-
-    try {
-      await Promise.all(selectedIds.map((id) => api.delete(`/hotels/${id}`)));
-      queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
-      queryClient.invalidateQueries({ queryKey: ['hotels'] });
-      setSelectedIds([]);
-      toast.success(`Đã xóa ${selectedIds.length} khách sạn thành công!`);
-    } catch (err: any) {
-      toast.error('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: `Xác nhận xóa ${selectedIds.length} khách sạn đã chọn`,
+      message: `Bạn có chắc chắn muốn xóa hàng loạt ${selectedIds.length} khách sạn đã chọn? Toàn bộ phòng và dữ liệu liên quan sẽ bị xóa vĩnh viễn.`,
+      confirmText: 'Xác nhận xóa',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await Promise.all(selectedIds.map((id) => api.delete(`/hotels/${id}`)));
+          queryClient.invalidateQueries({ queryKey: ['admin-hotels'] });
+          queryClient.invalidateQueries({ queryKey: ['hotels'] });
+          queryClient.invalidateQueries({ queryKey: ['featured-hotels'] });
+          queryClient.invalidateQueries({ queryKey: ['flash-sale-items'] });
+          setSelectedIds([]);
+          toast.success(`Đã xóa ${selectedIds.length} khách sạn thành công!`);
+        } catch (err: any) {
+          toast.error('Lỗi xóa hàng loạt: ' + (err.response?.data?.message || err.message));
+        } finally {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   // Filtered & Sorted Hotels
@@ -589,6 +630,12 @@ export default function AdminHotelsPage() {
 
   // Pagination slice
   const totalPages = Math.ceil(filteredHotels.length / pageSize) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
   const paginatedHotels = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredHotels.slice(start, start + pageSize);
@@ -1484,6 +1531,18 @@ export default function AdminHotelsPage() {
           markDirty();
         }}
         title="Thư Viện Ảnh Cho Khách Sạn"
+      />
+
+      {/* Confirmation Modal */}
+      <AdminConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || 'Xác nhận xóa'}
+        variant={confirmModal.variant || 'danger'}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

@@ -14,7 +14,8 @@
     "myCart": "Giỏ hàng của tôi",
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
-    "logoutSuccess": "Đã đăng xuất tài khoản thành công."
+    "logoutSuccess": "Đã đăng xuất tài khoản thành công.",
+    "language": "Ngôn ngữ"
   },
   "hero": {
     "title": "Khám phá thế giới cùng Travel",
@@ -346,7 +347,11 @@
     "close": "Đóng",
     "wishlistAdded": "Đã thêm vào danh sách yêu thích!",
     "wishlistRemoved": "Đã xóa khỏi danh sách yêu thích.",
-    "copied": "Đã sao chép vào bộ nhớ tạm!"
+    "copied": "Đã sao chép vào bộ nhớ tạm!",
+    "errorTitle": "Đã Xảy Ra Sự Cố Bất Ngờ",
+    "errorDesc": "Hệ thống tạm thời gặp trục trặc khi tải nội dung trang này. Vui lòng thử tải lại hoặc quay về trang chủ.",
+    "errorReload": "Thử Tải Lại Trang",
+    "backHome": "Về Trang Chủ"
   },
   "footer": {
     "about": "Travel Booking",
@@ -665,7 +670,10 @@
     "sortBy": "Sắp xếp:",
     "sortNewest": "Mới nhất",
     "sortPriceAsc": "Giá: Thấp đến Cao",
-    "sortPriceDesc": "Giá: Cao đến Thấp"
+    "sortPriceDesc": "Giá: Cao đến Thấp",
+    "destHotelsTitle": "Khách Sạn & Resort Tại {dest}",
+    "allHotelsTitle": "Khách Sạn & Khu Nghỉ Dưỡng Hàng Đầu",
+    "allHotelsSubtitle": "Khám phá các khách sạn, khu nghỉ dưỡng cao cấp với giá ưu đãi tốt nhất."
   },
   "flashSale": {
     "title": "🔥 FLASH SALE GIỜ VÀNG",
@@ -693,7 +701,8 @@
     "notFoundTitle": "Không Tìm Thấy Bài Viết Này",
     "notFoundDesc": "Bài viết có thể đã bị thay đổi đường dẫn hoặc tạm dừng hiển thị.",
     "backToNews": "Quay lại danh sách Tin Tức",
-    "shareSuccess": "Đã sao chép liên kết bài viết thành công!"
+    "shareSuccess": "Đã sao chép liên kết bài viết thành công!",
+    "copyError": "Không thể sao chép liên kết."
   },
   "hotelDetail": {
     "noRooms": "Khách sạn đang cập nhật thông tin phòng. Vui lòng quay lại sau.",
@@ -746,7 +755,9 @@
     "checkOutBefore": "Trả phòng trước",
     "starsLabel": "Sao",
     "priceBreakdown": "{price} × {nights} đêm × {rooms} phòng",
-    "errInvalidEmail": "Định dạng email không hợp lệ."
+    "errInvalidEmail": "Định dạng email không hợp lệ.",
+    "hotelNotFoundDesc": "Khách sạn hoặc khu nghỉ dưỡng không tồn tại hoặc đã ngừng hoạt động.",
+    "namePlaceholder": "Nguyễn Văn A"
   },
   "specialtiesPage": {
     "badge": "🍜 Ẩm Thực & Món Ngon 3 Miền",
@@ -795,7 +806,10 @@
     "reviewsCount": "{count} đánh giá",
     "relatedTours": "Các Tour Nổi Bật Khác Dành Cho Bạn",
     "viewAllTours": "Xem tất cả tour",
-    "tourNotFound": "Không tìm thấy thông tin tour"
+    "tourNotFound": "Không tìm thấy thông tin tour",
+    "bookNowBtn": "Đặt Ngay",
+    "tourNotFoundDesc": "Chuyến đi này có thể đã bị xóa hoặc không còn khả dụng.",
+    "viewOtherTours": "Xem các tour khác"
   },
   "tourBooking": {
     "pricePerGuest": "Giá tour 1 khách",

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
@@ -15,14 +15,22 @@ import { cn } from '@/lib/utils';
 import LanguageSwitcher from './LanguageSwitcher';
 import { toast } from '@/stores/toastStore';
 
+const HIDDEN_SHELL_REGEX = /^\/(?:(?:vi|en|zh|ko|ja)\/)?(?:login|register)(?:\/|$)/;
+
 export default function Header() {
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Determine if current route is the Home page
   const isHome = useMemo(() => {
@@ -35,23 +43,27 @@ export default function Header() {
   const isTransparent = !isScrolled && isHome;
 
   // Accurately check whether a nav item is active
-  const checkIsActive = useCallback((itemPath: string) => {
-    if (!pathname) return false;
-    const cleanPath = pathname.replace(/\/$/, '');
-    if (itemPath === '/') {
-      return isHome;
-    }
-    const fullItemPath = `/${locale}${itemPath}`.replace(/\/$/, '');
-    return cleanPath === fullItemPath || cleanPath.startsWith(`${fullItemPath}/`);
-  }, [pathname, locale, isHome]);
+  const checkIsActive = useCallback(
+    (itemPath: string) => {
+      if (!pathname) return false;
+      const cleanPath = pathname.replace(/\/$/, '');
+      if (itemPath === '/') {
+        return isHome;
+      }
+      const fullItemPath = `/${locale}${itemPath}`.replace(/\/$/, '');
+      return cleanPath === fullItemPath || cleanPath.startsWith(`${fullItemPath}/`);
+    },
+    [pathname, locale, isHome]
+  );
 
   // Prefetch on hover — routes are pre-fetched when user hovers nav links
-  const handleNavHover = useCallback((path: string) => {
-    const href = `/${locale}${path === '/' ? '' : path}`;
-    router.prefetch(href);
-  }, [locale, router]);
-
-  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+  const handleNavHover = useCallback(
+    (path: string) => {
+      const href = `/${locale}${path === '/' ? '' : path}`;
+      router.prefetch(href);
+    },
+    [locale, router]
+  );
 
   const activePath = useMemo(() => {
     return NAV_ITEMS.find((item) => checkIsActive(item.path))?.path || null;
@@ -70,51 +82,68 @@ export default function Header() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const logout = useAuthStore((state) => state.logout);
 
+  const displayCartCount = mounted ? cartItemsCount : 0;
+  const showAuthenticatedUser = mounted && isAuthenticated && user;
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
+    setUserDropdownOpen(false);
+    setHoveredPath(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!userDropdownOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setUserDropdownOpen(false);
       }
     };
-    if (userDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [userDropdownOpen]);
 
-  if (pathname?.startsWith('/admin') || pathname?.includes('/login') || pathname?.includes('/register')) {
+  if (pathname?.startsWith('/admin') || HIDDEN_SHELL_REGEX.test(pathname || '')) {
     return null;
   }
 
   const handleLogout = () => {
     logout();
     setUserDropdownOpen(false);
-    toast.info(t('nav.logoutSuccess') || 'Đã đăng xuất tài khoản');
+    toast.info(t('nav.logoutSuccess'));
     router.push(`/${locale}`);
   };
 
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-[background-color,padding,box-shadow,border-color] duration-300',
+        'fixed top-0 left-0 right-0 z-[45] transition-[background-color,padding,box-shadow,border-color] duration-300',
         isTransparent
           ? 'bg-transparent py-4 sm:py-5'
-          : 'bg-white/95 backdrop-blur-md shadow-xs py-2.5 sm:py-3 border-b border-slate-100/80'
+          : 'bg-white/95 backdrop-blur-md shadow-sm py-2.5 sm:py-3 border-b border-slate-100/80'
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between flex-nowrap gap-2 md:gap-4">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2.5 shrink-0 group" prefetch={true}>
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden shrink-0 shadow-xs transition-transform group-hover:scale-105">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden shrink-0 shadow-sm transition-transform group-hover:scale-105">
               <Image
                 src="/timesgreen-logo.png"
                 alt="TimesGreen Logo"
@@ -124,12 +153,14 @@ export default function Header() {
                 priority
               />
             </div>
-            <span className={cn(
-              "text-xl sm:text-2xl font-black tracking-tight transition-all duration-200",
-              isTransparent
-                ? "text-white drop-shadow-md"
-                : "bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600"
-            )}>
+            <span
+              className={cn(
+                'text-xl sm:text-2xl font-black tracking-tight transition-all duration-200',
+                isTransparent
+                  ? 'text-white drop-shadow-md'
+                  : 'bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600'
+              )}
+            >
               TimesGreen
             </span>
           </Link>
@@ -161,8 +192,12 @@ export default function Header() {
                     className={cn(
                       'relative px-3 2xl:px-4 py-2 text-xs 2xl:text-sm font-semibold transition-colors duration-200 whitespace-nowrap inline-flex items-center justify-center cursor-pointer select-none',
                       isTransparent
-                        ? (isCurrent || isActive ? 'text-white font-bold' : 'text-white/80 hover:text-white')
-                        : (isCurrent || isActive ? 'text-blue-600 font-bold' : 'text-slate-600 hover:text-blue-600')
+                        ? isCurrent || isActive
+                          ? 'text-white font-bold'
+                          : 'text-white/80 hover:text-white'
+                        : isCurrent || isActive
+                        ? 'text-blue-600 font-bold'
+                        : 'text-slate-600 hover:text-blue-600'
                     )}
                   >
                     <span className="relative z-10">{t(item.i18nKey)}</span>
@@ -177,10 +212,10 @@ export default function Header() {
                           mass: 0.8,
                         }}
                         className={cn(
-                          "absolute -bottom-1 left-2.5 right-2.5 h-[3px] rounded-full z-10",
+                          'absolute -bottom-1 left-2.5 right-2.5 h-[3px] rounded-full z-10',
                           isTransparent
-                            ? "bg-white shadow-[0_0_12px_rgba(255,255,255,0.95)]"
-                            : "bg-blue-600 shadow-[0_2px_8px_rgba(37,99,235,0.45)]"
+                            ? 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.95)]'
+                            : 'bg-blue-600 shadow-[0_2px_8px_rgba(37,99,235,0.45)]'
                         )}
                       />
                     )}
@@ -195,26 +230,32 @@ export default function Header() {
             <LanguageSwitcher isScrolled={isScrolled} isHome={isHome} />
 
             {/* Auth Dropdown or Login Button */}
-            {isAuthenticated && user ? (
+            {showAuthenticatedUser ? (
               <div ref={dropdownRef} className="relative hidden sm:block shrink-0">
                 <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  type="button"
+                  onClick={() => setUserDropdownOpen((prev) => !prev)}
+                  aria-expanded={userDropdownOpen}
+                  aria-haspopup="menu"
                   className={cn(
-                    'flex items-center gap-2 py-1.5 px-3 rounded-full text-sm font-medium transition-colors border border-transparent',
+                    'flex items-center gap-2 py-1.5 px-3 rounded-full text-sm font-medium transition-colors border border-transparent cursor-pointer',
                     isTransparent
                       ? 'text-white bg-white/10 hover:bg-white/20'
                       : 'text-slate-800 bg-slate-100 hover:bg-slate-200'
                   )}
                 >
                   <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
-                    {user.name ? user.name[0].toUpperCase() : 'U'}
+                    {user.name?.trim().charAt(0).toUpperCase() || 'U'}
                   </div>
                   <span className="max-w-[90px] truncate">{user.name}</span>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className={cn('w-4 h-4 transition-transform', userDropdownOpen && 'rotate-180')} />
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 text-sm text-slate-700 z-50">
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 text-sm text-slate-700 z-50"
+                  >
                     <div className="px-4 py-2 border-b border-slate-100">
                       <p className="font-semibold text-slate-900 truncate">{user.name}</p>
                       <p className="text-xs text-slate-500 truncate">{user.email}</p>
@@ -223,6 +264,7 @@ export default function Header() {
                     {user.role === 'admin' && (
                       <Link
                         href="/admin"
+                        role="menuitem"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50 text-blue-600 font-medium transition-colors"
                       >
@@ -233,6 +275,7 @@ export default function Header() {
 
                     <Link
                       href={`/${locale}/profile`}
+                      role="menuitem"
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                     >
@@ -242,6 +285,7 @@ export default function Header() {
 
                     <Link
                       href={`/${locale}/profile/bookings`}
+                      role="menuitem"
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                     >
@@ -251,6 +295,7 @@ export default function Header() {
 
                     <Link
                       href={`/${locale}/cart`}
+                      role="menuitem"
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50 transition-colors"
                     >
@@ -259,8 +304,10 @@ export default function Header() {
                     </Link>
 
                     <button
+                      type="button"
+                      role="menuitem"
                       onClick={handleLogout}
-                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors border-t border-slate-100 mt-1"
+                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors border-t border-slate-100 mt-1 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
                       {t('nav.logout')}
@@ -272,9 +319,10 @@ export default function Header() {
               <Link
                 href={`/${locale}/login`}
                 prefetch={true}
+                aria-label={t('nav.login')}
                 className={cn(
-                  'p-2 rounded-full transition-colors hover:bg-slate-100 hidden sm:flex shrink-0',
-                  isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700'
+                  'p-2 rounded-full transition-colors hidden sm:flex shrink-0',
+                  isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700 hover:bg-slate-100'
                 )}
               >
                 <UserIcon className="w-5 h-5" />
@@ -284,24 +332,26 @@ export default function Header() {
             <Link
               href={`/${locale}/cart`}
               prefetch={true}
+              aria-label={t('nav.myCart')}
               className={cn(
-                'p-2 rounded-full transition-colors hover:bg-slate-100 relative shrink-0',
-                isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700'
+                'p-2 rounded-full transition-colors relative shrink-0',
+                isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700 hover:bg-slate-100'
               )}
             >
               <ShoppingCart className="w-5 h-5" />
-              {cartItemsCount > 0 && (
-                <span className="absolute top-0 right-0 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {cartItemsCount}
+              {displayCartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                  {displayCartCount > 99 ? '99+' : displayCartCount}
                 </span>
               )}
             </Link>
 
             <button
+              type="button"
               onClick={toggleMobileMenu}
               className={cn(
-                'p-2 rounded-full transition-colors hover:bg-slate-100 xl:hidden shrink-0',
-                isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700'
+                'p-2 rounded-full transition-colors xl:hidden shrink-0 cursor-pointer',
+                isTransparent ? 'text-white hover:bg-white/20' : 'text-slate-700 hover:bg-slate-100'
               )}
               aria-label="Open Menu"
             >

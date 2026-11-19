@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "tsc && node -e \"const fs=require('fs');const p=require('path');const s=p.join(__dirname,'src/seed/seoDefaultNews.json');const d=p.join(__dirname,'dist/seed');if(fs.existsSync(s)){fs.mkdirSync(d,{recursive:true});fs.copyFileSync(s,p.join(d,'seoDefaultNews.json'));}\"",
     "start": "node dist/server.js",
     "seed": "ts-node-dev src/seed/seedData.ts"
   },

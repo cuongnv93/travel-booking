@@ -10,10 +10,31 @@ import api from '@/lib/api';
 import { formatPrice, getI18nText } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 
-const fetchFlashSaleItems = async () => {
+interface FlashSaleItem {
+  _id?: string;
+  id?: string;
+  slug?: string;
+  itemType?: 'tour' | 'hotel';
+  title?: Record<string, string> | string;
+  name?: Record<string, string> | string;
+  images?: string[];
+  destination?: string;
+  location?: string;
+  rating?: number;
+  originalPrice?: number;
+  price?: number;
+  pricePerNight?: number;
+  flashSalePrice?: number;
+  salePrice?: number;
+  isFlashSale?: boolean;
+  flashSaleEnd?: string | Date;
+}
+
+const fetchFlashSaleItems = async (): Promise<FlashSaleItem[]> => {
   try {
-    const res: any = await api.get('/flash-sale');
-    return Array.isArray(res) ? res : (res?.data || []);
+    const res = await api.get<FlashSaleItem[] | { data?: FlashSaleItem[] }>('/flash-sale');
+    const raw = res as unknown as FlashSaleItem[] | { data?: FlashSaleItem[] };
+    return Array.isArray(raw) ? raw : raw?.data || [];
   } catch {
     return [];
   }
@@ -22,13 +43,24 @@ const fetchFlashSaleItems = async () => {
 const DEFAULT_FLASH_IMG = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800';
 
 const CountdownTimer = memo(function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
-  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(
+    null
+  );
 
   useEffect(() => {
+    const targetMs = new Date(targetDate).getTime();
+    if (Number.isNaN(targetMs)) {
+      setTimeLeft(null);
+      return;
+    }
+
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+
     const calculateTime = () => {
-      const difference = new Date(targetDate).getTime() - Date.now();
+      const difference = targetMs - Date.now();
       if (difference <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        if (intervalId) clearInterval(intervalId);
         return;
       }
       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -39,11 +71,29 @@ const CountdownTimer = memo(function CountdownTimer({ targetDate }: { targetDate
     };
 
     calculateTime();
-    const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
+    intervalId = setInterval(calculateTime, 1000);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [targetDate]);
 
-  if (!timeLeft) return null;
+  if (!timeLeft) {
+    return (
+      <div className="flex items-center gap-1 text-xs font-mono font-bold" aria-hidden="true">
+        <span className="bg-slate-900 text-amber-400 px-1.5 py-1 rounded-md min-w-[24px] text-center border border-amber-500/30">
+          --
+        </span>
+        <span className="text-white font-bold">:</span>
+        <span className="bg-slate-900 text-amber-400 px-1.5 py-1 rounded-md min-w-[24px] text-center border border-amber-500/30">
+          --
+        </span>
+        <span className="text-white font-bold">:</span>
+        <span className="bg-slate-900 text-amber-400 px-1.5 py-1 rounded-md min-w-[24px] text-center border border-amber-500/30">
+          --
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-1 text-xs font-mono font-bold">
@@ -71,7 +121,7 @@ const CountdownTimer = memo(function CountdownTimer({ targetDate }: { targetDate
 });
 
 interface FlashSaleCardProps {
-  item: any;
+  item: FlashSaleItem;
   idx: number;
   locale: string;
   itemTimerLabel: string;
@@ -89,14 +139,23 @@ const FlashSaleCard = memo(function FlashSaleCard({
   hotTourLabel,
   hotelTypeLabel,
 }: FlashSaleCardProps) {
-  const isTour = item.itemType === 'tour' || !!item.destination;
-  const targetLink = isTour ? `/${locale}/tours/${item.slug}` : `/${locale}/hotels/${item.slug}`;
+  const isTour = item.itemType ? item.itemType === 'tour' : Boolean(item.destination);
+  const identifier = item.slug || item._id || item.id;
+  const targetLink = identifier
+    ? isTour
+      ? `/${locale}/tours/${identifier}`
+      : `/${locale}/hotels/${identifier}`
+    : isTour
+    ? `/${locale}/tours`
+    : `/${locale}/hotels`;
   const imgSrc = item.images && item.images.length > 0 ? item.images[0] : DEFAULT_FLASH_IMG;
 
-  const title = getI18nText(item.title || item.name, locale);
-  const origPrice = item.originalPrice || item.price || item.pricePerNight;
-  const salePrice = item.flashSalePrice || item.salePrice || Math.round(origPrice * 0.7);
-  const discountPct = origPrice > salePrice ? Math.round(((origPrice - salePrice) / origPrice) * 100) : 30;
+  const title = getI18nText(item.title || item.name, locale) || (isTour ? hotTourLabel : hotelTypeLabel);
+  const origPrice = Number(item.originalPrice || item.price || item.pricePerNight) || 0;
+  const rawSalePrice = Number(item.flashSalePrice || item.salePrice);
+  const salePrice = rawSalePrice > 0 ? rawSalePrice : Math.round(origPrice * 0.7);
+  const discountPct =
+    origPrice > salePrice && origPrice > 0 ? Math.round(((origPrice - salePrice) / origPrice) * 100) : 0;
 
   return (
     <motion.div
@@ -104,9 +163,9 @@ const FlashSaleCard = memo(function FlashSaleCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: idx * 0.1 }}
-      className="group"
+      className="group h-full"
     >
-      <Link href={targetLink}>
+      <Link href={targetLink} className="block h-full">
         <div className="bg-slate-900/90 border border-rose-500/20 hover:border-rose-500/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-rose-600/20 transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
           {/* Image Header */}
           <div className="w-full aspect-[16/10] bg-slate-800/40 relative overflow-hidden shrink-0">
@@ -115,19 +174,21 @@ const FlashSaleCard = memo(function FlashSaleCard({
               alt={title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              fallbackSrc="https://images.unsplash.com/photo-1528127269322-539801943592?w=800"
+              fallbackSrc={DEFAULT_FLASH_IMG}
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent pointer-events-none" />
 
             {/* Top Badges */}
-            <div className="absolute top-3 left-3 flex gap-2">
-              <span className="bg-rose-600 text-white font-black text-xs px-3 py-1 rounded-full shadow-md tracking-wider flex items-center gap-1 uppercase">
-                <Zap className="w-3.5 h-3.5 fill-white" />
-                -{discountPct}%
-              </span>
+            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+              {discountPct > 0 && (
+                <span className="bg-rose-600 text-white font-black text-xs px-3 py-1 rounded-full shadow-md tracking-wider flex items-center gap-1 uppercase">
+                  <Zap className="w-3.5 h-3.5 fill-white" />
+                  -{discountPct}%
+                </span>
+              )}
               <span className="bg-slate-900/80 backdrop-blur text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30">
-                {isTour ? (item.destination || hotTourLabel) : (item.location || hotelTypeLabel)}
+                {isTour ? item.destination || hotTourLabel : item.location || hotelTypeLabel}
               </span>
             </div>
 
@@ -138,12 +199,14 @@ const FlashSaleCard = memo(function FlashSaleCard({
             </div>
 
             {/* Item Countdown Pill */}
-            <div className="absolute bottom-3 left-3 right-3 bg-slate-950/90 backdrop-blur p-2 rounded-xl border border-rose-500/30 flex items-center justify-between text-xs">
-              <span className="text-slate-300 text-[11px] font-medium flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-rose-500" /> {itemTimerLabel}
-              </span>
-              <CountdownTimer targetDate={item.flashSaleEnd} />
-            </div>
+            {item.flashSaleEnd && (
+              <div className="absolute bottom-3 left-3 right-3 bg-slate-950/90 backdrop-blur p-2 rounded-xl border border-rose-500/30 flex items-center justify-between text-xs">
+                <span className="text-slate-300 text-[11px] font-medium flex items-center gap-1">
+                  <Flame className="w-3.5 h-3.5 text-rose-500" /> {itemTimerLabel}
+                </span>
+                <CountdownTimer targetDate={item.flashSaleEnd} />
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -155,17 +218,19 @@ const FlashSaleCard = memo(function FlashSaleCard({
             </div>
 
             {/* Pricing & CTA */}
-            <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
               <div>
-                <span className="text-[11px] text-slate-400 block line-through">
-                  {formatPrice(origPrice)}
-                </span>
+                {origPrice > salePrice && (
+                  <span className="text-[11px] text-slate-400 block line-through">
+                    {formatPrice(origPrice)}
+                  </span>
+                )}
                 <span className="text-xl font-extrabold text-amber-400 drop-shadow-sm">
                   {formatPrice(salePrice)}
                 </span>
               </div>
 
-              <span className="bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-1.5 transition-all group-hover:scale-105">
+              <span className="bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-1.5 transition-all group-hover:scale-105 shrink-0">
                 {buyBtnLabel}
                 <ArrowRight className="w-3.5 h-3.5" />
               </span>
@@ -181,6 +246,15 @@ export default function FlashSaleSection() {
   const locale = useLocale();
   const t = useTranslations('flashSale');
   const tCommon = useTranslations('common');
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['flash-sale-items'],
@@ -192,14 +266,15 @@ export default function FlashSaleSection() {
 
   // Filter out any items whose sale has expired client-side
   const activeItems = useMemo(() => {
-    const now = Date.now();
-    return items.filter((item: any) => {
+    if (now === null) return [];
+    return items.filter((item) => {
       if (!item.isFlashSale || !item.flashSaleEnd) return false;
-      return new Date(item.flashSaleEnd).getTime() > now;
+      const endTime = new Date(item.flashSaleEnd).getTime();
+      return !Number.isNaN(endTime) && endTime > now;
     });
-  }, [items]);
+  }, [items, now]);
 
-  if (isLoading) {
+  if (isLoading || now === null) {
     return (
       <section className="container mx-auto px-4 md:px-6">
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-rose-950 via-slate-900 to-amber-950 p-6 md:p-10 border border-rose-500/30 shadow-2xl shadow-rose-950/40">
@@ -241,15 +316,15 @@ export default function FlashSaleSection() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10 border-b border-rose-500/20 pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-rose-600/40 animate-pulse">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-rose-600/40 animate-pulse shrink-0">
               <Flame className="w-7 h-7 text-amber-200 fill-amber-200" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight uppercase">
                   {t('title')}
                 </h2>
-                <span className="bg-gradient-to-r from-rose-500 to-amber-500 text-white font-extrabold text-[11px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm animate-bounce">
+                <span className="bg-gradient-to-r from-rose-500 to-amber-500 text-white font-extrabold text-[11px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
                   {t('hotBadge')}
                 </span>
               </div>
@@ -261,9 +336,9 @@ export default function FlashSaleSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-          {activeItems.map((item: any, idx: number) => (
+          {activeItems.map((item, idx) => (
             <FlashSaleCard
-              key={item._id || item.id || idx}
+              key={item._id || item.id || item.slug || idx}
               item={item}
               idx={idx}
               locale={locale}

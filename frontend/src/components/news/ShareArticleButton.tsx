@@ -12,6 +12,7 @@ export interface ShareArticleButtonProps {
 
 export function ShareArticleButton({ title, buttonText }: ShareArticleButtonProps) {
   const t = useTranslations('newsDetail');
+  const tCommon = useTranslations('common');
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
@@ -32,7 +33,7 @@ export function ShareArticleButton({ title, buttonText }: ShareArticleButtonProp
         toast.success(t('shareSuccess') || 'Đã sao chép liên kết bài viết thành công!');
         setTimeout(() => setCopied(false), 2000);
       } catch {
-        toast.error('Không thể sao chép liên kết.');
+        toast.error(t('copyError') || 'Failed to copy link.');
       }
     }
   };
@@ -45,7 +46,7 @@ export function ShareArticleButton({ title, buttonText }: ShareArticleButtonProp
       title={buttonText || t('shareArticle')}
     >
       {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-blue-600" />}
-      <span>{copied ? 'Đã chép link' : (buttonText || t('shareArticle'))}</span>
+      <span>{copied ? (tCommon('copied') || 'Copied!') : (buttonText || t('shareArticle'))}</span>
     </button>
   );
 }

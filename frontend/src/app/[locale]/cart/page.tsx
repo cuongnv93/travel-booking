@@ -27,5 +27,9 @@ export async function generateMetadata({
 }
 
 export default function CartPage() {
-  return <CartClient />;
+  return (
+    <main id="main-content" className="flex-grow">
+      <CartClient />
+    </main>
+  );
 }
