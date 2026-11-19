@@ -5,6 +5,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
 import {
   Bold,
   Italic,
@@ -43,6 +44,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 }) => {
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [rawHtml, setRawHtml] = useState(value || '');
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -99,12 +101,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }, [editor]);
 
   const addImage = useCallback(() => {
-    if (!editor) return;
-    const url = window.prompt('Nhập URL hình ảnh (hoặc dán đường dẫn ảnh Cloudinary/Unsplash):');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  }, [editor]);
+    setIsMediaModalOpen(true);
+  }, []);
 
   const handleRawHtmlChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newHtml = e.target.value;
@@ -331,6 +329,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <EditorContent editor={editor} />
         </div>
       )}
+
+      {/* Central Media Library Picker Modal */}
+      <AdminMediaPickerModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelect={(url) => {
+          if (editor) {
+            editor.chain().focus().setImage({ src: url }).run();
+          }
+          setIsMediaModalOpen(false);
+        }}
+        title="Chèn Hình Ảnh Vào Bài Viết"
+      />
     </div>
   );
 };

@@ -29,6 +29,7 @@ import {
   Loader2,
   LayoutTemplate,
   Palette,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Providers } from '../[locale]/providers';
 import { AdminToastContainer } from '@/components/admin/common/AdminToastContainer';
@@ -55,6 +56,7 @@ const NAV_GROUPS = [
   {
     label: 'Giao diện & Nội dung',
     items: [
+      { label: 'Thư Viện Media', href: '/admin/media', icon: ImageIcon },
       { label: 'Giao Diện & Trang Chủ', href: '/admin/appearance', icon: LayoutTemplate },
       { label: 'Trang Tĩnh (Pages)', href: '/admin/pages', icon: FileText },
       { label: 'Tin Tức & Bài Viết', href: '/admin/news', icon: Newspaper },

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Plus, X, Search, Upload, Loader2, Utensils, FileSpreadsheet, ExternalLink } from 'lucide-react';
+import { Plus, X, Search, Upload, Loader2, Utensils, FileSpreadsheet, ExternalLink, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { AdminTableSkeleton } from '@/components/ui/Skeleton';
@@ -9,6 +9,7 @@ import { formatPrice, getI18nText, toSlug } from '@/lib/utils';
 import { AdminI18nTabs, createEmptyI18nRecord, toI18nRecord, sanitizeI18nRecord } from '@/components/admin/common/AdminI18nTabs';
 import { AdminPagination } from '@/components/admin/common/AdminPagination';
 import { AdminConfirmModal } from '@/components/admin/common/AdminConfirmModal';
+import { AdminMediaPickerModal } from '@/components/admin/common/AdminMediaPickerModal';
 import { exportToCsv } from '@/lib/exportCsv';
 import { VIETNAM_PROVINCES } from '@/lib/provinces';
 import { useVietnamProvinces } from '@/hooks/useVietnamProvinces';
@@ -29,6 +30,7 @@ export default function AdminSpecialtiesPage() {
   const [pageSize, setPageSize] = useState(9);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -455,14 +457,31 @@ export default function AdminSpecialtiesPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Hình ảnh đặc sản *</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-slate-700 block text-xs">Hình ảnh đặc sản *</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaModalOpen(true)}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-bold hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Chọn từ Thư Viện Media</span>
+                  </button>
+                </div>
                 <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-3 transition-colors bg-slate-50/50">
                   {image ? (
                     <div className="relative w-full h-32 rounded-lg overflow-hidden border border-slate-200 group">
                       <img src={image} alt="" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsMediaModalOpen(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md cursor-pointer flex items-center gap-1"
+                        >
+                          <ImageIcon className="w-3 h-3" /> Thư viện
+                        </button>
                         <label className="cursor-pointer bg-white text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-slate-100">
-                          Thay ảnh <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                          Tải ảnh <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                         </label>
                         <button
                           type="button"
@@ -474,20 +493,31 @@ export default function AdminSpecialtiesPage() {
                       </div>
                     </div>
                   ) : (
-                    <label className="cursor-pointer flex flex-col items-center py-3">
-                      {isUploading ? (
-                        <div className="flex items-center gap-2 text-blue-600">
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                          <span className="text-xs">Đang tải lên...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <Upload className="w-6 h-6 text-blue-500 mb-1" />
-                          <span className="text-xs font-semibold text-slate-700">Tải ảnh từ máy tính</span>
-                          <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                        </>
-                      )}
-                    </label>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 py-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsMediaModalOpen(true)}
+                        className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-2 border border-blue-200"
+                      >
+                        <ImageIcon className="w-4 h-4 text-blue-600" />
+                        <span>Chọn từ Thư Viện Media</span>
+                      </button>
+                      <span className="text-slate-300 text-xs font-bold">hoặc</span>
+                      <label className="cursor-pointer px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl transition-colors flex items-center gap-2 border border-slate-200 shadow-2xs">
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                            <span>Đang tải lên...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 text-slate-500" />
+                            <span>Tải từ máy tính</span>
+                            <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                          </>
+                        )}
+                      </label>
+                    </div>
                   )}
                 </div>
                 <input
@@ -534,6 +564,17 @@ export default function AdminSpecialtiesPage() {
         confirmText="Xác nhận xóa"
         variant="danger"
         isLoading={deleteMutation.isPending}
+      />
+
+      {/* Central Media Picker Modal */}
+      <AdminMediaPickerModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelect={(url) => {
+          setImage(url);
+          setIsMediaModalOpen(false);
+        }}
+        title="Chọn Hình Ảnh Đặc Sản"
       />
     </div>
   );
