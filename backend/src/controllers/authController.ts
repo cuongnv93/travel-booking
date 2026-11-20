@@ -72,7 +72,7 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, roleRequired } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: 'Vui lòng nhập email và mật khẩu' });
     }
@@ -90,6 +90,13 @@ export const login = async (req: Request, res: Response) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
+    }
+
+    // Role enforcement: If admin login was requested, strictly verify admin role
+    if (roleRequired === 'admin' && user.role !== 'admin') {
+      return res.status(403).json({
+        message: 'Tài khoản của bạn là tài khoản thành viên, chỉ được phép đăng nhập tại website khách hàng. Không có quyền truy cập trang quản trị CMS.',
+      });
     }
 
     const tokens = generateTokens(user._id as unknown as string);

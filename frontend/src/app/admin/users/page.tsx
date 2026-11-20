@@ -246,7 +246,7 @@ export default function UsersAdminPage() {
         { key: 'name', label: 'Tên Người Dùng', formatter: (u: any) => u.name || '' },
         { key: 'email', label: 'Email', formatter: (u: any) => u.email || '' },
         { key: 'phone', label: 'Số Điện Thoại', formatter: (u: any) => u.phone || '' },
-        { key: 'role', label: 'Vai Trò', formatter: (u: any) => u.role === 'admin' ? 'Quản trị viên' : 'Khách hàng' },
+        { key: 'role', label: 'Vai Trò', formatter: (u: any) => u.role === 'admin' ? 'Quản trị viên (Admin)' : 'Thành viên (Member)' },
         { key: 'isActive', label: 'Trạng Thái', formatter: (u: any) => u.isActive !== false ? 'Đang hoạt động' : 'Tạm khóa (Inactive)' },
         { key: 'createdAt', label: 'Ngày Tạo', formatter: (u: any) => u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : '' },
       ]
@@ -299,7 +299,7 @@ export default function UsersAdminPage() {
           >
             <option value="all">Tất cả vai trò</option>
             <option value="admin">Quản trị viên (Admin)</option>
-            <option value="user">Khách hàng (User)</option>
+            <option value="user">Thành viên (Member)</option>
           </select>
 
           <select
@@ -364,11 +364,11 @@ export default function UsersAdminPage() {
                       <td className="px-6 py-3.5">
                         {u.role === 'admin' ? (
                           <span className="bg-purple-50 text-purple-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-purple-200 inline-flex items-center gap-1">
-                            <Shield className="w-3 h-3 text-purple-600" /> Quản Trị Viên
+                            <Shield className="w-3 h-3 text-purple-600" /> Quản Trị Viên (Admin)
                           </span>
                         ) : (
-                          <span className="bg-slate-100 text-slate-600 text-[11px] font-medium px-2.5 py-0.5 rounded-full">
-                            Khách Hàng
+                          <span className="bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-slate-200">
+                            Thành Viên (Member)
                           </span>
                         )}
                       </td>
@@ -544,8 +544,8 @@ export default function UsersAdminPage() {
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
                     className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 bg-white font-medium cursor-pointer"
                   >
-                    <option value="user">Khách hàng (User)</option>
-                    <option value="admin">Quản trị viên (Admin)</option>
+                    <option value="user">Thành viên (Member) - Chỉ đăng nhập Landing Page</option>
+                    <option value="admin">Quản trị viên (Admin) - Đăng nhập CMS & Landing Page</option>
                   </select>
                   {isUserSelf(editingUser) && (
                     <p className="text-[10px] text-amber-600 mt-1">Không thể đổi quyền tài khoản của chính mình</p>

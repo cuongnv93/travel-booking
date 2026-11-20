@@ -46,7 +46,11 @@ function UserLoginForm() {
       if (isLogin) {
         const res: any = await api.post('/auth/login', { email, password });
         login(res.user, res.accessToken);
-        toast.success(t('loginSuccess') || 'Đăng nhập thành công!');
+        if (res.user?.role === 'admin') {
+          toast.success(locale === 'vi' ? 'Đăng nhập thành công (Tài khoản Quản trị viên)!' : 'Logged in successfully (Administrator)!');
+        } else {
+          toast.success(t('loginSuccess') || 'Đăng nhập thành công!');
+        }
       } else {
         const res: any = await api.post('/auth/register', { name, email, password, phone });
         login(res.user, res.accessToken);
