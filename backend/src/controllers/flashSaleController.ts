@@ -10,73 +10,18 @@ export const getFlashSaleItems = async (_req: Request, res: Response) => {
 
     const now = new Date();
 
-    let [tours, hotels] = await Promise.all([
+    const [tours, hotels] = await Promise.all([
       Tour.find({
         isActive: { $ne: false },
         isFlashSale: true,
         flashSaleEnd: { $gt: now }
-      }).lean(),
+      }).limit(20).lean(),
       Hotel.find({
         isActive: { $ne: false },
         isFlashSale: true,
         flashSaleEnd: { $gt: now }
-      }).lean()
+      }).limit(20).lean()
     ]);
-
-    // If no active flash sale items exist (expired or not yet configured),
-    // automatically activate flash sales with a 7-day rolling duration so the section is always active & populated
-    if (tours.length === 0 && hotels.length === 0) {
-      const rollingEnd = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-
-      // Check if any tours previously had flash sale, re-activate them; otherwise pick 2 active tours
-      const existingTours = await Tour.find({ isActive: { $ne: false }, isFlashSale: true });
-      if (existingTours.length > 0) {
-        for (const t of existingTours) {
-          t.flashSaleEnd = rollingEnd;
-          if (!t.flashSalePrice) t.flashSalePrice = Math.round((t.price || 2000000) * 0.7);
-          await t.save();
-        }
-      } else {
-        const sampleTours = await Tour.find({ isActive: { $ne: false } }).limit(2);
-        for (const t of sampleTours) {
-          t.isFlashSale = true;
-          t.flashSalePrice = Math.round((t.price || 2000000) * 0.7);
-          t.flashSaleEnd = rollingEnd;
-          await t.save();
-        }
-      }
-
-      // Check if any hotels previously had flash sale, re-activate them; otherwise pick 1 active hotel
-      const existingHotels = await Hotel.find({ isActive: { $ne: false }, isFlashSale: true });
-      if (existingHotels.length > 0) {
-        for (const h of existingHotels) {
-          h.flashSaleEnd = rollingEnd;
-          if (!h.flashSalePrice) h.flashSalePrice = Math.round((h.pricePerNight || 1500000) * 0.65);
-          await h.save();
-        }
-      } else {
-        const sampleHotels = await Hotel.find({ isActive: { $ne: false } }).limit(1);
-        for (const h of sampleHotels) {
-          h.isFlashSale = true;
-          h.flashSalePrice = Math.round((h.pricePerNight || 1500000) * 0.65);
-          h.flashSaleEnd = rollingEnd;
-          await h.save();
-        }
-      }
-
-      [tours, hotels] = await Promise.all([
-        Tour.find({
-          isActive: { $ne: false },
-          isFlashSale: true,
-          flashSaleEnd: { $gt: now }
-        }).lean(),
-        Hotel.find({
-          isActive: { $ne: false },
-          isFlashSale: true,
-          flashSaleEnd: { $gt: now }
-        }).lean()
-      ]);
-    }
 
     const formattedTours = tours.map(t => ({
       ...t,

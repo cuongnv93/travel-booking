@@ -19,10 +19,13 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   }
 
   try {
-    const decoded = jwt.verify(token, constants.JWT_SECRET as string) as { id: string };
+    const decoded = jwt.verify(token, constants.JWT_SECRET as string, { algorithms: ['HS256'] }) as { id: string };
     const user = await User.findById(decoded.id).select('-password').lean();
     if (!user) {
-      return res.status(401).json({ message: 'Tài khoản không tồn tại hoặc đã bị khóa' });
+      return res.status(401).json({ message: 'Tài khoản không tồn tại' });
+    }
+    if (user.isActive === false) {
+      return res.status(403).json({ message: 'Tài khoản của bạn đã bị vô hiệu hóa hoặc tạm khóa. Vui lòng liên hệ quản trị viên.' });
     }
     req.user = user as any;
     next();
@@ -51,9 +54,9 @@ export const optionalProtect = async (req: AuthRequest, _res: Response, next: Ne
   }
 
   try {
-    const decoded = jwt.verify(token, constants.JWT_SECRET as string) as { id: string };
+    const decoded = jwt.verify(token, constants.JWT_SECRET as string, { algorithms: ['HS256'] }) as { id: string };
     const user = await User.findById(decoded.id).select('-password').lean();
-    if (user) {
+    if (user && user.isActive !== false) {
       req.user = user as any;
     }
   } catch {

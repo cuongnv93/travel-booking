@@ -51,9 +51,8 @@ export const getAll = async (req: Request, res: Response) => {
     if (cached) return res.json(cached);
 
     let hotelQuery = Hotel.find(query).sort({ stars: -1, createdAt: -1 });
-    if (limit) {
-      hotelQuery = hotelQuery.limit(Math.min(100, Math.max(1, Number(limit))));
-    }
+    const safeLimit = limit ? Math.min(100, Math.max(1, Number(limit))) : 50;
+    hotelQuery = hotelQuery.limit(safeLimit);
     const hotels = await hotelQuery.lean();
     cacheService.set(cacheKey, hotels, 120);
     res.json(hotels);
@@ -119,7 +118,7 @@ export const update = async (req: Request, res: Response) => {
         : (data.name?.vi || data.name?.en || Object.values(data.name || {})[0] || 'hotel');
       data.slug = generateSlug(String(nameStr));
     }
-    const hotel = await Hotel.findByIdAndUpdate(req.params.id, data, { new: true });
+    const hotel = await Hotel.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
     if (!hotel) return res.status(404).json({ message: 'Không tìm thấy khách sạn' });
     invalidateHotelCaches();
     res.json(hotel);

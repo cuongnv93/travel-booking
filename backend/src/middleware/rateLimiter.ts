@@ -48,6 +48,30 @@ export const consultationLimiter = rateLimit({
   },
 });
 
+// Media upload limiter: 50 uploads per 15 minutes
+export const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: {
+    message: 'Quá nhiều yêu cầu tải lên tệp tin. Vui lòng thử lại sau 15 phút.',
+  },
+});
+
+// Search query limiter: 60 requests per minute
+export const searchLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: {
+    message: 'Quá nhiều lượt tìm kiếm. Vui lòng thử lại sau giây lát.',
+  },
+});
+
 // Sensitive public search/validation limiter (coupon check, booking lookup): 30 requests per 15 minutes
 export const sensitiveLookupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

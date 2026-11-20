@@ -8,7 +8,7 @@ import { cacheService } from '../services/cacheService';
 export const globalSearch = async (req: Request, res: Response) => {
   try {
     const { q } = req.query;
-    if (!q || typeof q !== 'string' || !q.trim()) {
+    if (!q || typeof q !== 'string' || !q.trim() || q.trim().length > 100) {
       return res.json({ tours: [], hotels: [], news: [] });
     }
 

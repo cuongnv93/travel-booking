@@ -13,15 +13,18 @@ export const getAll = async (req: Request, res: Response) => {
     const cached = cacheService.get(cacheKey);
     if (cached) return res.json(cached);
 
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+
     const query: any = { isPublished: true };
-    if (category) query.category = category;
+    if (typeof category === 'string' && category.trim()) query.category = category.trim();
 
     const news = await News.find(query)
       .sort({ publishedAt: -1, createdAt: -1 })
-      .skip((Number(page) - 1) * Number(limit))
-      .limit(Number(limit));
+      .skip((safePage - 1) * safeLimit)
+      .limit(safeLimit);
     const total = await News.countDocuments(query);
-    const result = paginate(news, total, Number(page), Number(limit));
+    const result = paginate(news, total, safePage, safeLimit);
     cacheService.set(cacheKey, result);
     res.json(result);
   } catch (error: any) {
@@ -32,16 +35,19 @@ export const getAll = async (req: Request, res: Response) => {
 // ADMIN: all articles (published + draft)
 export const getAllAdmin = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 100, category } = req.query;
+    const { page = 1, limit = 50, category } = req.query;
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.min(100, Math.max(1, Number(limit) || 50));
+
     const query: any = {};
-    if (category) query.category = category;
+    if (typeof category === 'string' && category.trim()) query.category = category.trim();
 
     const news = await News.find(query)
       .sort({ createdAt: -1 })
-      .skip((Number(page) - 1) * Number(limit))
-      .limit(Number(limit));
+      .skip((safePage - 1) * safeLimit)
+      .limit(safeLimit);
     const total = await News.countDocuments(query);
-    res.json(paginate(news, total, Number(page), Number(limit)));
+    res.json(paginate(news, total, safePage, safeLimit));
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -98,7 +104,7 @@ export const update = async (req: Request, res: Response) => {
         data.publishedAt = new Date();
       }
     }
-    const news = await News.findByIdAndUpdate(req.params.id, data, { new: true });
+    const news = await News.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
     if (!news) return res.status(404).json({ message: 'News not found' });
     cacheService.flush();
     res.json(news);

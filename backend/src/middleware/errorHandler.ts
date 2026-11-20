@@ -53,6 +53,10 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     message = 'Chỉ chấp nhận các tệp tin hình ảnh (JPG, PNG, WEBP, GIF, SVG).';
   }
 
+  if (statusCode === 500 && process.env.NODE_ENV === 'production') {
+    message = 'Lỗi hệ thống nội bộ. Vui lòng thử lại sau.';
+  }
+
   res.status(statusCode).json({
     message,
     ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),

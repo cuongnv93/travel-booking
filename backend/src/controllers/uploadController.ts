@@ -8,6 +8,9 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, uploadDir);
@@ -15,7 +18,8 @@ const storage = multer.diskStorage({
   filename: (_req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, 'img-' + uniqueSuffix + ext);
+    const safeExt = ALLOWED_EXTENSIONS.has(ext) ? ext : '.png';
+    cb(null, 'img-' + uniqueSuffix + safeExt);
   },
 });
 
@@ -23,11 +27,11 @@ export const uploadMiddleware = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (_req, file, cb) => {
-    const allowedMime = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-    if (file.mimetype.startsWith('image/') || allowedMime.includes(file.mimetype)) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ALLOWED_EXTENSIONS.has(ext) && ALLOWED_MIME.has(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Chỉ chấp nhận các tệp tin hình ảnh (JPG, PNG, WEBP, GIF, SVG)!'));
+      cb(new Error('Chỉ chấp nhận các tệp tin hình ảnh an toàn định dạng JPG, PNG, WEBP, GIF!'));
     }
   },
 });

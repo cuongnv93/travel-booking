@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Booking from '../models/Booking';
 import Tour from '../models/Tour';
+import Hotel from '../models/Hotel';
+import Flight from '../models/Flight';
 import User from '../models/User';
 import Coupon from '../models/Coupon';
 import { generateBookingCode } from '../utils/helpers';
@@ -13,22 +15,12 @@ export const create = async (req: AuthRequest, res: Response) => {
     // travelDate fallback for hotel bookings that use checkIn instead
     const travelDate = req.body.travelDate || req.body.checkIn || new Date();
 
-    // Resolve userId: from authenticated user or fallback lookup by email
-    let resolvedUserId = req.user?._id;
+    // Resolve userId: ONLY from authenticated session to prevent fraud/account pollution
+    const resolvedUserId = req.user?._id || undefined;
+
     const customerEmail = req.body.customerInfo?.email
       ? String(req.body.customerInfo.email).trim().toLowerCase()
       : '';
-
-    if (!resolvedUserId && customerEmail) {
-      try {
-        const foundUser = await User.findOne({ email: customerEmail }).select('_id');
-        if (foundUser) {
-          resolvedUserId = foundUser._id;
-        }
-      } catch {
-        // Non-blocking fallback
-      }
-    }
 
     // Clean up IDs to guarantee Mongoose never throws CastError
     const bookingData: any = { ...req.body };
@@ -55,31 +47,89 @@ export const create = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Vui lòng điền đầy đủ họ tên, email và số điện thoại' });
     }
 
-    const rawTotalPrice = Number(bookingData.totalPrice) || 0;
-    const sanitizedTotalPrice = Math.max(0, rawTotalPrice);
+    // Server-side price recalculation to prevent price tampering
+    let calculatedTotalPrice = 0;
+    const adults = Math.max(1, Number(bookingData.guests?.adults) || 1);
+    const children = Math.max(0, Number(bookingData.guests?.children) || 0);
+
+    if (bookingData.type === 'tour' && bookingData.tourId) {
+      const tour = await Tour.findById(bookingData.tourId).lean();
+      if (!tour) {
+        return res.status(404).json({ message: 'Tour du lịch không tồn tại hoặc đã ngừng phục vụ' });
+      }
+      const basePrice = (tour.isFlashSale && tour.flashSalePrice && tour.flashSalePrice > 0)
+        ? tour.flashSalePrice
+        : tour.price;
+      const childPrice = Math.round(basePrice * 0.7);
+      calculatedTotalPrice = adults * basePrice + children * childPrice;
+    } else if (bookingData.type === 'hotel' && bookingData.hotelId) {
+      const hotel = await Hotel.findById(bookingData.hotelId).lean();
+      if (!hotel) {
+        return res.status(404).json({ message: 'Khách sạn không tồn tại hoặc đã ngừng phục vụ' });
+      }
+      const checkInDate = new Date(bookingData.checkIn || travelDate);
+      const checkOutDate = new Date(bookingData.checkOut || travelDate);
+      let nights = Math.round((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (isNaN(nights) || nights < 1) nights = 1;
+      const rooms = Math.max(1, Number(bookingData.rooms) || 1);
+
+      let roomPrice = (hotel.isFlashSale && hotel.flashSalePrice && hotel.flashSalePrice > 0)
+        ? hotel.flashSalePrice
+        : (hotel.pricePerNight || 0);
+
+      if (bookingData.roomType && Array.isArray(hotel.rooms)) {
+        const matchedRoom = hotel.rooms.find((r: any) => r.type === bookingData.roomType || r.name === bookingData.roomType);
+        if (matchedRoom && matchedRoom.price > 0) {
+          roomPrice = matchedRoom.price;
+        }
+      }
+      calculatedTotalPrice = roomPrice * rooms * nights;
+    } else if (bookingData.type === 'flight' && bookingData.flightId) {
+      const flight = await Flight.findById(bookingData.flightId).lean();
+      if (!flight) {
+        return res.status(404).json({ message: 'Chuyến bay không tồn tại' });
+      }
+      calculatedTotalPrice = flight.price * (adults + children);
+    } else {
+      // Fallback for custom / combo bookings
+      calculatedTotalPrice = Math.max(0, Number(bookingData.totalPrice) || 0);
+    }
+
+    // Atomic Coupon Validation & Reservation
+    let discountAmount = 0;
+    if (bookingData.couponCode) {
+      const cleanCouponCode = String(bookingData.couponCode).trim().toUpperCase();
+      const appliedCoupon = await Coupon.findOneAndUpdate(
+        {
+          code: cleanCouponCode,
+          isActive: true,
+          validUntil: { $gte: new Date() },
+          $or: [{ usageLimit: 0 }, { $expr: { $lt: ['$currentUses', '$usageLimit'] } }],
+        },
+        { $inc: { currentUses: 1 } },
+        { new: true }
+      );
+
+      if (!appliedCoupon) {
+        return res.status(400).json({ message: 'Mã giảm giá không hợp lệ, đã hết hạn hoặc hết lượt sử dụng' });
+      }
+
+      discountAmount = appliedCoupon.discountAmount || 0;
+      discountAmount = Math.min(discountAmount, calculatedTotalPrice);
+      calculatedTotalPrice = Math.max(0, calculatedTotalPrice - discountAmount);
+    }
 
     const booking = await Booking.create({
       ...bookingData,
       customerInfo,
-      totalPrice: sanitizedTotalPrice,
+      totalPrice: calculatedTotalPrice,
+      discount: discountAmount,
       status: 'pending',
       paymentStatus: 'pending',
       travelDate,
       bookingCode: generateBookingCode(),
       userId: resolvedUserId,
     });
-
-    // Track coupon usage atomically if coupon was applied
-    if (booking.couponCode) {
-      try {
-        await Coupon.findOneAndUpdate(
-          { code: String(booking.couponCode).trim().toUpperCase() },
-          { $inc: { currentUses: 1 } }
-        );
-      } catch (couponErr) {
-        console.warn('Coupon usage tracking skipped:', couponErr);
-      }
-    }
 
     // Asynchronously send email without blocking the response
     if (booking.customerInfo?.email) {
@@ -188,22 +238,37 @@ export const getById = async (req: AuthRequest, res: Response) => {
  */
 export const lookupByCode = async (req: Request, res: Response) => {
   try {
-    const { code } = req.query;
+    const { code, phone } = req.query;
     if (!code || typeof code !== 'string') {
       return res.status(400).json({ message: 'Vui lòng cung cấp mã đơn đặt chỗ' });
     }
 
     const codeStr = code.trim().toUpperCase();
+    const query: any = { bookingCode: codeStr };
 
-    // Exact indexed lookup O(1)
-    const booking = await Booking.findOne({ bookingCode: codeStr })
+    if (phone && typeof phone === 'string') {
+      query['customerInfo.phone'] = phone.trim();
+    }
+
+    const booking: any = await Booking.findOne(query)
       .populate('tourId', 'title images slug destination duration')
       .populate('hotelId', 'name images slug location')
       .populate('flightId', 'airline flightNumber from to departureTime arrivalTime duration price logo')
       .lean();
 
     if (!booking) {
-      return res.status(404).json({ message: 'Không tìm thấy đơn đặt chỗ với mã này' });
+      return res.status(404).json({ message: 'Không tìm thấy đơn đặt chỗ với thông tin đã cung cấp' });
+    }
+
+    // Mask sensitive PII in public lookup if phone verification was omitted
+    if (!phone && booking.customerInfo) {
+      const p = String(booking.customerInfo.phone || '');
+      const e = String(booking.customerInfo.email || '');
+      booking.customerInfo = {
+        name: booking.customerInfo.name,
+        phone: p.length > 6 ? p.slice(0, 3) + '****' + p.slice(-3) : '***',
+        email: e.replace(/(.{2})(.*)(?=@)/, '$1***'),
+      };
     }
 
     res.json(booking);
@@ -275,6 +340,9 @@ export const cancelBooking = async (req: AuthRequest, res: Response) => {
     if (!booking) return res.status(404).json({ message: 'Không tìm thấy đơn đặt chỗ' });
     if (booking.status !== 'pending') {
       return res.status(400).json({ message: 'Chỉ có thể hủy đơn đang ở trạng thái chờ xác nhận' });
+    }
+    if (booking.paymentStatus === 'paid') {
+      return res.status(400).json({ message: 'Đơn hàng đã thanh toán không thể tự hủy. Vui lòng liên hệ bộ phận chăm sóc khách hàng để yêu cầu hoàn tiền.' });
     }
     booking.status = 'cancelled';
     await booking.save();

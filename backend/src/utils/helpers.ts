@@ -1,6 +1,8 @@
+import crypto from 'crypto';
+
 export const generateBookingCode = (): string => {
-  const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
-  return `VTP-${randomStr}`;
+  const randomHex = crypto.randomBytes(4).toString('hex').toUpperCase();
+  return `VTP-${randomHex}`;
 };
 
 export const slugify = (text: string, withSuffix = false): string => {

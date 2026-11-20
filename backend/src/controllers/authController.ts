@@ -8,14 +8,14 @@ import { AuthRequest } from '../middleware/auth';
 
 const generateTokens = (id: string) => {
   const accessToken = jwt.sign(
-    { id },
+    { id, type: 'access' },
     constants.JWT_SECRET as string,
-    { expiresIn: (constants.JWT_EXPIRE || '1h') as any }
+    { algorithm: 'HS256', expiresIn: (constants.JWT_EXPIRE || '1h') as any }
   );
   const refreshToken = jwt.sign(
-    { id },
+    { id, type: 'refresh' },
     constants.JWT_REFRESH_SECRET as string,
-    { expiresIn: (constants.JWT_REFRESH_EXPIRE || '7d') as any }
+    { algorithm: 'HS256', expiresIn: (constants.JWT_REFRESH_EXPIRE || '7d') as any }
   );
   return { accessToken, refreshToken };
 };
@@ -28,8 +28,9 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ họ tên, email và mật khẩu' });
     }
 
-    if (String(password).length < 6) {
-      return res.status(400).json({ message: 'Mật khẩu phải chứa ít nhất 6 ký tự' });
+    const passStr = String(password);
+    if (passStr.length < 6 || passStr.length > 72) {
+      return res.status(400).json({ message: 'Mật khẩu phải chứa từ 6 đến 72 ký tự' });
     }
 
     const cleanEmail = String(email).trim().toLowerCase();
@@ -123,9 +124,16 @@ export const refreshToken = async (req: Request, res: Response) => {
     const { token } = req.body;
     if (!token) return res.status(401).json({ message: 'Yêu cầu refresh token' });
 
-    const decoded = jwt.verify(token, constants.JWT_REFRESH_SECRET as string) as any;
+    const decoded = jwt.verify(token, constants.JWT_REFRESH_SECRET as string, { algorithms: ['HS256'] }) as any;
+    if (decoded.type && decoded.type !== 'refresh') {
+      return res.status(401).json({ message: 'Token không đúng định dạng refresh token' });
+    }
+
     const user = await User.findById(decoded.id);
-    if (!user) return res.status(401).json({ message: 'Token không hợp lệ' });
+    if (!user) return res.status(401).json({ message: 'Tài khoản không tồn tại' });
+    if (user.isActive === false) {
+      return res.status(403).json({ message: 'Tài khoản của bạn đã bị vô hiệu hóa hoặc tạm khóa. Vui lòng liên hệ quản trị viên.' });
+    }
 
     const tokens = generateTokens(user._id as unknown as string);
     res.json(tokens);

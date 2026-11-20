@@ -4,7 +4,7 @@ class CacheService {
   private cache: NodeCache;
 
   constructor(ttlSeconds = 300) {
-    this.cache = new NodeCache({ stdTTL: ttlSeconds, checkperiod: ttlSeconds * 0.2, useClones: false });
+    this.cache = new NodeCache({ stdTTL: ttlSeconds, checkperiod: ttlSeconds * 0.2, useClones: false, maxKeys: 5000 });
   }
 
   get<T>(key: string): T | undefined {

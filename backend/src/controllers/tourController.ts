@@ -47,17 +47,20 @@ export const getAll = async (req: Request, res: Response) => {
     else if (sort === 'price_desc') sortOptions.price = -1;
     else sortOptions.createdAt = -1;
 
-    const cacheKey = `tours_${JSON.stringify(req.query)}`;
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.min(100, Math.max(1, Number(limit) || 10));
+
+    const cacheKey = `tours_${JSON.stringify({ ...req.query, page: safePage, limit: safeLimit })}`;
     const cached = cacheService.get(cacheKey);
     if (cached) return res.json(cached);
 
     const tours = await Tour.find(query)
       .sort(sortOptions)
-      .skip((Number(page) - 1) * Number(limit))
-      .limit(Number(limit))
+      .skip((safePage - 1) * safeLimit)
+      .limit(safeLimit)
       .lean();
     const total = await Tour.countDocuments(query);
-    const result = paginate(tours, total, Number(page), Number(limit));
+    const result = paginate(tours, total, safePage, safeLimit);
     cacheService.set(cacheKey, result, 120); // Cache 2 minutes
     res.json(result);
   } catch (error: any) {
@@ -155,7 +158,7 @@ export const update = async (req: Request, res: Response) => {
         : (data.title?.vi || data.title?.en || Object.values(data.title || {})[0] || 'tour');
       data.slug = generateSlug(String(titleStr));
     }
-    const tour = await Tour.findByIdAndUpdate(req.params.id, data, { new: true });
+    const tour = await Tour.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
     if (!tour) return res.status(404).json({ message: 'Không tìm thấy tour du lịch' });
     invalidateTourCaches();
     res.json(tour);

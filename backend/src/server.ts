@@ -34,7 +34,8 @@ app.use(
 // Production JWT security guard
 if (process.env.NODE_ENV === 'production') {
   if (constants.JWT_SECRET === 'secret' || constants.JWT_REFRESH_SECRET === 'refresh_secret') {
-    console.warn('⚠️ CẢNH BÁO AN NINH: Đang sử dụng JWT secret mặc định trong môi trường production!');
+    console.error('❌ LỖI BẢO MẬT NGHIÊM TRỌNG: Không thể chạy production với JWT secret mặc định! Vui lòng cấu hình JWT_SECRET và JWT_REFRESH_SECRET an toàn trong file .env.');
+    process.exit(1);
   }
 }
 
@@ -50,8 +51,6 @@ const envOrigins = [
 const defaultAllowedOrigins = [
   'https://timesgreen.net',
   'https://www.timesgreen.net',
-  'http://timesgreen.net',
-  'http://www.timesgreen.net',
   'https://travel-booking-ruby.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
@@ -79,7 +78,7 @@ app.use(
         originHostname === 'timesgreen.net' ||
         originHostname.endsWith('.timesgreen.net') ||
         originHostname === 'travel-booking-ruby.vercel.app' ||
-        originHostname.endsWith('.vercel.app') ||
+        (originHostname.endsWith('.vercel.app') && originHostname.includes('travel-booking')) ||
         process.env.NODE_ENV !== 'production';
 
       if (isAllowed) {

@@ -31,51 +31,7 @@ export const getAll = async (req: Request, res: Response) => {
       filter.to = 'HAN';
     }
 
-    let flights = await Flight.find(filter).sort({ price: 1 }).lean();
-
-    // If client searched a specific route (or defaulted public route) and no flights exist, generate realistic flights
-    const targetFrom = filter.from || fromCode;
-    const targetTo = filter.to || toCode;
-    if (targetFrom && targetTo && (!flights || flights.length === 0)) {
-      const generated: any[] = [];
-      const times = [
-        { dep: '06:15', arr: '08:25', dur: '2h 10m' },
-        { dep: '09:30', arr: '11:45', dur: '2h 15m' },
-        { dep: '12:00', arr: '14:10', dur: '2h 10m' },
-        { dep: '15:45', arr: '18:00', dur: '2h 15m' },
-        { dep: '19:20', arr: '21:35', dur: '2h 15m' },
-        { dep: '21:50', arr: '23:55', dur: '2h 05m' },
-      ];
-
-      AIRLINES_CONFIG.forEach((airline, index) => {
-        const timeObj = times[index % times.length];
-        const flightNum = `${airline.prefix}-${targetFrom}${targetTo}-${100 + index * 15}`;
-        const priceVar = (index % 3) * 150000;
-
-        generated.push({
-          airline: airline.name,
-          logo: airline.logo,
-          flightNumber: flightNum,
-          from: targetFrom,
-          to: targetTo,
-          departureTime: timeObj.dep,
-          arrivalTime: timeObj.arr,
-          duration: timeObj.dur,
-          price: airline.basePrice + priceVar,
-          availableSeats: 25 + (index * 12),
-          isAvailable: true,
-        });
-      });
-
-      try {
-        await Flight.insertMany(generated, { ordered: false });
-      } catch {
-        // Ignore duplicate key errors if already seeded
-      }
-
-      flights = await Flight.find(filter).sort({ price: 1 }).lean();
-    }
-
+    const flights = await Flight.find(filter).sort({ price: 1 }).limit(100).lean();
     res.json(flights);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
