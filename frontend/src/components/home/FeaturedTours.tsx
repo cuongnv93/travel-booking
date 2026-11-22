@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Compass } from 'lucide-react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
@@ -39,7 +40,13 @@ export default function FeaturedTours() {
 
   return (
     <section className="container mx-auto px-4 md:px-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4"
+      >
         <div>
           <div className="text-xs font-extrabold text-blue-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
             <Compass className="w-4 h-4 text-blue-600" />
@@ -55,7 +62,7 @@ export default function FeaturedTours() {
           <span>{t('featured.viewAll')}</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Link>
-      </div>
+      </motion.div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -65,8 +72,16 @@ export default function FeaturedTours() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {tours.map((tour: any) => (
-            <TourCard key={tour._id || tour.id} tour={tour} locale={locale} />
+          {tours.map((tour: any, idx: number) => (
+            <motion.div
+              key={tour._id || tour.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.08 }}
+            >
+              <TourCard tour={tour} locale={locale} />
+            </motion.div>
           ))}
         </div>
       )}

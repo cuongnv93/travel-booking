@@ -123,7 +123,13 @@ export default function NewsSection() {
   return (
     <section className="container mx-auto px-4 md:px-6">
       {/* Section Header with Category Tabs */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-5">
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-5"
+      >
         <div>
           <div className="text-xs font-extrabold text-blue-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
             <Newspaper className="w-4 h-4 text-blue-600" />
@@ -172,7 +178,7 @@ export default function NewsSection() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content Area */}
       {isLoading ? (
@@ -200,7 +206,13 @@ export default function NewsSection() {
             className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch"
           >
             {/* Left Column: Hero Spotlight Feature (60% / lg:col-span-7) */}
-            <div className="lg:col-span-7 h-full">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="lg:col-span-7 h-full"
+            >
               {spotlightArticle && (
                 <HeroSpotlightCard
                   article={spotlightArticle}
@@ -211,10 +223,16 @@ export default function NewsSection() {
                   minReadText={minReadText}
                 />
               )}
-            </div>
+            </motion.div>
 
             {/* Right Column: Trending Ranking List (40% / lg:col-span-5) */}
-            <div className="lg:col-span-5 flex flex-col justify-between gap-3.5">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="lg:col-span-5 flex flex-col justify-between gap-3.5"
+            >
               <div className="flex items-center justify-between pb-1 px-1">
                 <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4 text-rose-500" />
@@ -226,16 +244,23 @@ export default function NewsSection() {
               </div>
 
               {trendingArticles.map((article: any, index: number) => (
-                <TrendingRankingItem
+                <motion.div
                   key={article._id || article.slug || index}
-                  article={article}
-                  rankIndex={index}
-                  locale={locale}
-                  categoryLabel={getCategoryLabel(article.category)}
-                  minReadText={minReadText}
-                />
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
+                >
+                  <TrendingRankingItem
+                    article={article}
+                    rankIndex={index}
+                    locale={locale}
+                    categoryLabel={getCategoryLabel(article.category)}
+                    minReadText={minReadText}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
       )}

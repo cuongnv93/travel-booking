@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -113,7 +114,13 @@ function TestimonialsComponent() {
 
   return (
     <section className="container mx-auto px-4 md:px-6 relative">
-      <div className="text-center mb-8 sm:mb-10">
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8 sm:mb-10"
+      >
         <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest block mb-1.5">
           {t('tag', { fallback: 'Ý KIẾN KHÁCH HÀNG' })}
         </span>
@@ -121,9 +128,15 @@ function TestimonialsComponent() {
           {t('title', { fallback: 'Đánh Giá Từ Khách Hàng' })}
         </h2>
         <div className="w-16 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto rounded-full" />
-      </div>
+      </motion.div>
 
-      <div className="relative px-0 sm:px-10 md:px-12">
+      <motion.div
+        initial={{ opacity: 0, y: 35 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.15 }}
+        className="relative px-0 sm:px-10 md:px-12"
+      >
         <Swiper
           modules={[Autoplay, Pagination]}
           onSwiper={setSwiperInstance}
@@ -165,7 +178,7 @@ function TestimonialsComponent() {
         </button>
         
         <div className="custom-pagination flex justify-center items-center gap-2 mt-2"></div>
-      </div>
+      </motion.div>
     </section>
   );
 }
