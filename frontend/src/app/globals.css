@@ -158,6 +158,96 @@ body {
   display: block;
 }
 
+.ProseMirror figure {
+  margin: 1.5rem auto;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.ProseMirror figure img {
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  transition: box-shadow 0.3s ease;
+}
+
+.ProseMirror figure img:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.ProseMirror figcaption {
+  display: block;
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-style: italic;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+/* News Article Body & Editorial Figure Styling */
+article figure,
+.prose figure {
+  margin: 2rem 0 !important;
+  width: 100% !important;
+  display: block !important;
+  clear: both !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+article figure img,
+.prose figure img {
+  display: block !important;
+  width: 100% !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08) !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.dark article figure img,
+.dark .prose figure img {
+  border-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+article figure img:hover,
+.prose figure img:hover {
+  box-shadow: 0 6px 12px -2px rgb(0 0 0 / 0.12), 0 3px 6px -3px rgb(0 0 0 / 0.08) !important;
+}
+
+article figcaption,
+.prose figcaption {
+  display: block !important;
+  margin-top: 0.75rem !important;
+  text-align: center !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.5 !important;
+  color: #64748b !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  padding: 0 1rem !important;
+  max-width: 42rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.dark article figcaption,
+.dark .prose figcaption {
+  color: #94a3b8 !important;
+}
+
 .ProseMirror a {
   color: #2563eb;
   text-decoration: underline;
