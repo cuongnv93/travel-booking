@@ -190,6 +190,9 @@ export const seedSeoDefaults = async (req: Request, res: Response) => {
           thumbnail: item.thumbnail,
           category: item.category,
           author: item.author,
+          seoTitle: item.seoTitle || item.title || { vi: '', en: '', zh: '', ko: '', ja: '' },
+          seoDescription: item.seoDescription || item.excerpt || { vi: '', en: '', zh: '', ko: '', ja: '' },
+          focusKeyword: item.focusKeyword || '',
           isPublished: true,
           publishedAt: new Date(item.publishedAt || Date.now()),
           createdAt: new Date(item.createdAt || Date.now()),
@@ -202,6 +205,9 @@ export const seedSeoDefaults = async (req: Request, res: Response) => {
         existing.thumbnail = item.thumbnail;
         existing.category = item.category;
         existing.author = item.author;
+        existing.seoTitle = item.seoTitle || existing.seoTitle;
+        existing.seoDescription = item.seoDescription || existing.seoDescription;
+        existing.focusKeyword = item.focusKeyword || existing.focusKeyword;
         existing.isPublished = true;
         await existing.save();
         updatedCount++;
@@ -211,7 +217,7 @@ export const seedSeoDefaults = async (req: Request, res: Response) => {
     cacheService.flush();
     res.json({
       success: true,
-      message: `Đồng bộ thành công 14 bài viết SEO (Thêm mới: ${insertedCount}, Cập nhật: ${updatedCount})`,
+      message: `Đồng bộ thành công ${articles.length} bài viết SEO (Thêm mới: ${insertedCount}, Cập nhật: ${updatedCount})`,
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
