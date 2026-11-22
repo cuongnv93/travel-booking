@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useWhyChooseUs, useHomeStatsCounters } from '@/hooks/useSettings';
 import { getI18nText } from '@/lib/utils';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Shield,
@@ -111,28 +112,43 @@ function WhyChooseUsComponent() {
           })}
         </div>
 
-        {/* Brand Statistics Counters Bar from CMS */}
+        {/* Brand Statistics Counters Bar from CMS with Count-Up Animation */}
         {Array.isArray(dynamicStats) && dynamicStats.length > 0 && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white p-5 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white p-5 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs"
+          >
             {dynamicStats.map((st: any, i: number) => {
               const Icon = ICON_MAP[st.icon] || Award;
               const label = getI18nText(st.label, locale, '');
               const sub = st.sub ? getI18nText(st.sub, locale, '') : '';
 
               return (
-                <div key={i} className="flex items-center gap-3 sm:gap-4">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.2 + i * 0.08 }}
+                  className="flex items-center gap-3 sm:gap-4"
+                >
                   <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 ${st.color || 'text-blue-600'}`}>
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div>
-                    <div className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">{st.value}</div>
+                    <div className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                      <AnimatedCounter value={st.value} duration={2} />
+                    </div>
                     <div className="text-xs font-bold text-slate-700">{label}</div>
                     {sub && <div className="text-[11px] text-slate-400 font-medium">{sub}</div>}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
     </section>

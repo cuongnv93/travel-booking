@@ -97,10 +97,10 @@ export const DEFAULT_WHY_CHOOSE_US = [
 ];
 
 export const DEFAULT_STATS_COUNTERS = [
-  { value: '100,000+', icon: 'Users', color: 'text-blue-600', label: { vi: 'Du Khách Hài Lòng', en: 'Satisfied Travelers' }, sub: { vi: 'Mỗi năm trên toàn quốc', en: 'Annually across Vietnam' } },
-  { value: '99.2%', icon: 'Star', color: 'text-amber-500', label: { vi: 'Đánh Giá 5 Sao', en: '5-Star Reviews' }, sub: { vi: 'Từ trải nghiệm khách hàng', en: 'Verified passenger reviews' } },
-  { value: '15+', icon: 'Shield', color: 'text-emerald-600', label: { vi: 'Năm Kinh Nghiệm', en: 'Years Experience' }, sub: { vi: 'Dẫn đầu ngành lữ hành', en: 'Leading the tourism industry' } },
-  { value: '50+', icon: 'Sparkles', color: 'text-purple-600', label: { vi: 'Giải Thưởng Du Lịch', en: 'Tourism Awards' }, sub: { vi: 'Trong nước & quốc tế', en: 'National & Global recognition' } },
+  { value: '500+', icon: 'Sparkles', color: 'text-blue-600', label: { vi: 'Hành Trình Khám Phá', en: 'Curated Itineraries', zh: '探索之旅', ko: '추천 여행 일정', ja: '厳選ツアープラン' }, sub: { vi: 'Đa dạng trong & ngoài nước', en: 'Domestic & International', zh: '国内外精选路线', ko: '국내외 다채로운 코스', ja: '国内外の豊富なコース' } },
+  { value: '120K+', icon: 'Users', color: 'text-emerald-600', label: { vi: 'Khách Hàng Hài Lòng', en: 'Satisfied Travelers', zh: '满意旅客', ko: '만족한 고객', ja: '満足されたお客様' }, sub: { vi: 'Đã tin tưởng và đồng hành', en: 'Trusted and accompanying us', zh: '深受信赖与支持', ko: '신뢰와 함께한 여행', ja: '信頼と実績' } },
+  { value: '99.2%', icon: 'Star', color: 'text-amber-500', label: { vi: 'Đánh Giá 5 Sao', en: '5-Star Reviews', zh: '五星好评', ko: '5성급 평점', ja: '5つ星高評価' }, sub: { vi: 'Dịch vụ chuẩn mực vượt trội', en: 'Exceptional service standards', zh: '卓越服务水准', ko: '최고 수준의 서비스', ja: '最高水準のサービス' } },
+  { value: '15+', icon: 'Shield', color: 'text-purple-600', label: { vi: 'Năm Kinh Nghiệm', en: 'Years Experience', zh: '多年专业经验', ko: '년 여행 전문 노하우', ja: '年の実績と信頼' }, sub: { vi: 'Dẫn đầu ngành lữ hành', en: 'Leading the tourism industry', zh: '引领旅游业发展', ko: '업계를 선도하는 여행사', ja: '業界をリードする旅行社' } },
 ];
 
 export const DEFAULT_AIRPORTS = [
