@@ -284,7 +284,7 @@ export default function AdminSpecialtiesPage() {
             return (
               <div key={item._id} className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between">
                 <div>
-                  <div className="h-40 bg-slate-100 relative overflow-hidden">
+                  <div className="w-full aspect-square bg-slate-100 relative overflow-hidden">
                     <img
                       src={item.image || 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400'}
                       alt={itemName}

@@ -139,7 +139,7 @@ export default async function SpecialtiesPage({
       />
       <Suspense fallback={
         <div className="container mx-auto px-4 py-8 mt-20">
-          <div className="h-64 md:h-80 rounded-3xl bg-slate-200 animate-pulse mb-8" />
+          <div className="h-72 md:h-96 rounded-3xl bg-slate-200 animate-pulse mb-10" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[1,2,3,4,5,6].map(n => <div key={n} className="h-80 rounded-2xl bg-slate-100 animate-pulse" />)}
           </div>

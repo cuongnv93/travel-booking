@@ -39,7 +39,7 @@ const SpecialtyCard = memo(function SpecialtyCard({
 
   return (
     <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-      <div className="h-56 bg-slate-100 relative overflow-hidden">
+      <div className="w-full aspect-square bg-slate-100 relative overflow-hidden">
         <SmartImage
           src={image}
           alt={name}
@@ -168,7 +168,7 @@ function SpecialtiesClientComponent({
         posterSrc={specialtiesBanner}
         fallbackPosterSrc={FALLBACK_SPECIALTY_IMG}
         overlayGradient="bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/25"
-        className="h-64 md:h-80 rounded-3xl mb-8 shadow-xl flex items-end"
+        className="h-72 md:h-96 rounded-3xl mb-10 shadow-2xl flex items-end"
       >
         <motion.div
           initial={{ opacity: 0, y: 16 }}
