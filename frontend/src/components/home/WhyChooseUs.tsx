@@ -140,7 +140,7 @@ function WhyChooseUsComponent() {
                   </div>
                   <div>
                     <div className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                      <AnimatedCounter value={st.value} duration={2} />
+                      <AnimatedCounter key={st.value || i} value={st.value} duration={2} />
                     </div>
                     <div className="text-xs font-bold text-slate-700">{label}</div>
                     {sub && <div className="text-[11px] text-slate-400 font-medium">{sub}</div>}

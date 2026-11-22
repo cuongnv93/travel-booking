@@ -43,8 +43,15 @@ export const AnimatedCounter = memo(function AnimatedCounter({
   className,
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-20px' });
-  const [displayValue, setDisplayValue] = useState<string>(() => String(value ?? '0'));
+  const isInView = useInView(ref, { once: true, margin: '0px' });
+
+  // Always initialize display at 0 with prefix and suffix (e.g. "0+", "0K+", "0.0%")
+  // NEVER initialize with the target value or fallback value (e.g. 100,000)
+  const [displayValue, setDisplayValue] = useState<string>(() => {
+    const { prefix, decimals, suffix } = parseCounterValue(value);
+    const zero = decimals > 0 ? (0).toFixed(decimals) : '0';
+    return `${prefix}${zero}${suffix}`;
+  });
 
   useEffect(() => {
     const stringValue = String(value ?? '');
@@ -56,6 +63,7 @@ export const AnimatedCounter = memo(function AnimatedCounter({
       return;
     }
 
+    // Strictly animate from 0 to target
     const controls = animate(0, target, {
       duration,
       ease: [0.16, 1, 0.3, 1], // easeOutExpo
